@@ -1,0 +1,25 @@
+= Flight as a first class citizen
+:icons: font
+
+== Flight as a first class citizen
+
+In this section we're going to refactor the model to make `Flight` and `Airline` first class citizens in our domain.
+This refactoring will make it much easier to write queries centred around these concepts.
+
+== Exploring the data
+
+We'll start by exploring the flights CSV file by running the query below:
+
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+RETURN row
+LIMIT 5
+----
+
+
+== Next Step
+
+In the next section we're going to do something else, who knows what it'll be yet:
+
+pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]

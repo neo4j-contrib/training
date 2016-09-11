@@ -1,0 +1,96 @@
+= Intro to The Flight Dataset
+:icons: font
+
+== Intro to The Flight Dataset
+
+Welcome to the first of a set of interactive guides.
+In these guides we'll evolve a dataset containing the flights between US airports in 2008.
+
+Let's get started!
+
+== Exploring the data
+
+We'll start by exploring the flights CSV file by running the query below:
+
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+RETURN row
+LIMIT 5
+----
+
+This query:
+
+* loads the file `2008.csv` from your `import` directory
+* iterates over the file, referring to each line as the variable `row`
+* and returns the first 5 lines in the file
+
+== Creating flights
+
+image::{img}/initial.jpg[]
+
+We're going to work with a subset of the data while we work out what the appropriate model is.
+
+Run the following query to create nodes and relationships for the first 10,000 flights in the CSV file:
+
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+WITH row LIMIT 10000
+MERGE (origin:Airport {code: row.Origin})
+MERGE (destination:Airport {code: row.Dest})
+MERGE (origin)-[flight:FLIGHT {airline: row.UniqueCarrier,
+                               flightNumber: row.FlightNum,
+                               year: TOINT(row.Year),
+                               month: TOINT(row.Month),
+                               day: TOINT(row.DayofMonth)}]->(destination)
+ON CREATE SET flight.departure = TOINT(row.CRSDepTime), flight.arrival = TOINT(row.CRSArrTime)
+----
+
+This query:
+
+* takes the first 10,000 rows in the CSV file
+* creates nodes with the `Airport` label for the origin and destination airports if they don't already exist
+* creates a `FLIGHT` relationship between origin and destination airports for each row in the file
+
+Now we're ready to start querying the data.
+
+== Finding the most popular airports
+
+We can see some of what we've imported by writing the following query, which finds the airports with the most incoming and outgoing flights.
+
+[source, cypher]
+----
+MATCH (a:Airport)
+WITH a, SIZE((a)-[:FLIGHT]->()) AS outgoing, SIZE((a)<-[:FLIGHT]-()) AS incoming
+RETURN a.code, outgoing, incoming
+ORDER BY outgoing DESC
+----
+
+This query:
+
+* finds every node with the `Airport` label
+* uses the `SIZE` function to count the number of incoming and outgoing relationship of type `FLIGHT` for each `Airport` node
+* returns the `code` property on the `Airport` nodes and the `outgoing` and `incoming` counts in descending order by `outgoing`
+
+== Exercise
+
+Need some sort of query that forces us to introduce `Flight` as a node
+
+What about if I want to track the carrier of a flight so that I can find my favourite carrier?
+
+== Answer: Find all the flights for flight number `WN 1016`
+
+[source, cypher]
+----
+MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure
+----
+
+== Next Step
+
+In the next section we're going to refactor the model to introduce `Flight` as a first class concept.
+
+pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]
