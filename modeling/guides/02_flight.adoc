@@ -4,19 +4,102 @@
 == Flight as a first class citizen
 
 In this section we're going to refactor the model to make `Flight` and `Airline` first class citizens in our domain.
-This refactoring will make it much easier to write queries centred around these concepts.
+This refactoring will make it much easier to write queries centered around these concepts.
 
-== Exploring the data
+== Finding flights
 
-We'll start by exploring the flights CSV file by running the query below:
+We can write the following query to find all the flights that we imported in the previous guide.
 
 [source,cypher]
 ----
-LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
-RETURN row
-LIMIT 5
+MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+RETURN *
+LIMIT 10
 ----
 
+== Creating flights
+
+Neo4j allows us to create constraints on single properties, unfortunately multi property constraints don't exist yet so we'll have to simulate that.
+
+The combination of airline, flight number, and date makes a flight unique.
+As we saw in the previous section, however, some flights can have multiple legs so we'll need to consider departure and arrival airports as well.
+We'll create a `flightId` with this format: `{airline}{flightNumber}{year}-{month}-{day}_{origin}_{destination}`
+
+Before we refactor to this model, look at the slides for a quick explanation of unique constraints and indexes which we'll use in the next section.
+
+_Some sort of slide picture here_
+
+== Creating flights
+
+Run the following query to create a unique constraint on the `(Flight, id)` label/property pair.
+This will ensure that we don't end up with any duplicate flights.
+
+[source, cypher]
+----
+CREATE CONSTRAINT ON (f:Flight)
+ASSERT f.id IS UNIQUE
+----
+
+Now we're reading to create `Flight` nodes.
+Run the following query:
+
+[source, cypher]
+----
+MATCH (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+MERGE (newFlight:Flight { id: flight.airline + flight.flightNumber + "_" + flight.year + "-" + flight.month + "-" + flight.day + "_" + origin.code + "_" + destination.code }   )
+ON CREATE SET newFlight.year = flight.year,
+              newFlight.month = flight.month,
+              newFlight.day = flight.day,
+              newFlight.airline = flight.airline,
+              newFlight.number = flight.flightNumber,
+              newFlight.departure = flight.departure,
+              newFlight.arrival = flight.arrival
+MERGE (origin)<-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]->(destination)
+----
+
+This query:
+
+* finds all `(origin, flight, destination)` paths
+* creates a `Flight` node if one doesn't already exist
+* creates an `ORIGIN` relationship to the origin airport and a `DESTINATION` relationship to the destination airport
+
+Now we can try our earlier query again.
+
+= Find all the flights for flight number `WN 1016`
+
+First let's create an index on `(Flight, number)` so that we can quickly find the appropriate flights.
+
+[source, cypher]
+----
+CREATE INDEX ON :Flight(number)
+----
+
+[source, cypher]
+----
+MATCH (origin)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination)
+WHERE flight.airline = "WN" AND flight.number = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure
+----
+
+== Exercise
+
+We want to introduce the concept of an `Airline` so that we can quickly find fights by our favorite airline without having to scan through all the flights.
+Don't forget to connect the `Airline` nodes to the appropriate flights.
+
+== Answer: Create `Airline` nodes
+
+[source, cypher]
+----
+MATCH (flight:Flight)
+MERGE (airline:Airline {code: flight.airline})
+MERGE (flight)-[:AIRLINE]->(airline)
+----
+
+== Other ideas
+
+We could even connect the different legs of the flight together?
 
 == Next Step
 
