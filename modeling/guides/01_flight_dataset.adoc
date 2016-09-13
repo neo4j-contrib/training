@@ -8,9 +8,30 @@ In these guides we'll evolve a dataset containing the flights between US airport
 
 Let's get started!
 
-== Exploring the data
+== Start with a question
 
-We'll start by exploring the flights CSV file by running the query below:
+When modeling a dataset it always helps to have a use case in mind.
+We'll start with the following question:
+
+[verse]
+____
+As a plane enthusiast
+I want to know how many flights there are between <origin> and <destination>
+So that I can know how busy various airports are
+____
+
+Let's have a look what data we've got to help us answer this question:
+
+== Exploring data with `LOAD CSV`
+
+As we saw from our brief command line exploration, we've got a lot of flights to work with.
+We could use command line tools to explore this further but Cypher's `LOAD CSV` command is actually perfect for exploring CSV files.
+
+_Slides here for a LOAD CSV primer_
+
+== Exploring data with `LOAD CSV`
+
+We can run the following query to see what data we've got to work with:
 
 [source,cypher]
 ----
@@ -25,13 +46,23 @@ This query:
 * iterates over the file, referring to each line as the variable `row`
 * and returns the first 5 lines in the file
 
-== Creating flights
+We've got lots of different fields but the ones that will be helpful for answering our question are: `Origin`, `Dest`, and `FlightNum`.
+
+== Modeling flights and airports
+
+Before we use `LOAD CSV` to import any data we need to know what model we want to create.
+The following should suffice:
 
 image::{img}/initial.jpg[]
 
-We're going to work with a subset of the data while we work out what the appropriate model is.
+We should do a quite primer here on the building blocks of the model.
 
-Run the following query to create nodes and relationships for the first 10,000 flights in the CSV file:
+== Importing flights and airports
+
+While we're working out the appropriate model for our dataset it's much easier to work with a subset of the data so that we can iterate quickly.
+We'll work with the first 10,000 rows of the CSV file.
+
+Run the following query to create nodes and relationships for these flights:
 
 [source,cypher]
 ----
@@ -53,6 +84,9 @@ This query:
 * creates nodes with the `Airport` label for the origin and destination airports if they don't already exist
 * creates a `FLIGHT` relationship between origin and destination airports for each row in the file
 
+By default properties will be stored as strings.
+We know that `year`, `month`, and `day` are actually numeric values so we'll coerce them using the link:/docs[`TOINT`] function.
+
 Now we're ready to start querying the data.
 
 == Finding the most popular airports
@@ -73,11 +107,14 @@ This query:
 * uses the `SIZE` function to count the number of incoming and outgoing relationship of type `FLIGHT` for each `Airport` node
 * returns the `code` property on the `Airport` nodes and the `outgoing` and `incoming` counts in descending order by `outgoing`
 
-== Exercise
+== Exercise: Finding flights
 
-Need some sort of query that forces us to introduce `Flight` as a node
+Now it's your turn!
 
-What about if I want to track the carrier of a flight so that I can find my favourite carrier?
+* Find all the flights for flight number `WN 1016`
+* Find all the flights in January 2008 that go to Chicago (`CHN`)
+
+
 
 == Answer: Find all the flights for flight number `WN 1016`
 
@@ -91,6 +128,6 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure
 
 == Next Step
 
-In the next section we're going to refactor the model to introduce `Flight` as a first class concept.
+In the next section we're going to refactor the model to introduce `Flight` as a first class concept to make this type of query easier to write.
 
 pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]
