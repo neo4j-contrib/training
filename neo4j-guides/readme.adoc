@@ -1,0 +1,33 @@
+== Converting Asciidoc Files to Neo4j Browser Guides
+
+This program uses AsciiDoctor erb templates to generate an outline html and a slide for each level two header.
+
+=== Create HTML
+
+----
+./run.sh path/to/a_guide.adoc [guide.html]
+
+-> html/a_guide.html
+----
+
+=== Start Local Server
+
+It is patched to allow CORS headers for the browser to serve the HTML directory.
+
+----
+python http-server.py &
+----
+
+You have to edit `conf/neo4j-server.properties` (for enterprise) to set `dbms.browser.remote_content_hostname_whitelist=*` and restart.
+You can also add the specific `localhost:8001` address.
+
+For `neo4j-community` you have to use `sudo` and run the http script on port 80.
+For example, use `BaseHTTPServer.HTTPServer(("0.0.0.0", 80),CORSRequestHandler).serve_forever()` in `http.py`
+
+To view the guides in the Neo4j Browser, run:
+
+----
+:play http://localhost:8001/html/a_guide.html
+----
+
+You can find more details on how to create guides and their format in link:docs/remote-guides.md[] and an example in link:docs/remote.html[]

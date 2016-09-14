@@ -1,0 +1,140 @@
+= Creating remote browser guides in HTML
+== Setting up a remote server
+The remote server serving these guides must be open to handle requests from all origins. This is done by setting it's `Access-Control-Allow-Origin` header to allow `*`. Read more here: http://enable-cors.org/server.html
+ 
+== Configure Neo4j
+Enterprise edition of Neo4j can have configurated whitelist of allowed hostnames to fetch guides from. Community edition have a static whitelist.  
+The whitelist is in _neo4j-server.properties_. Set to `*` to allow from all hosts.
+
+== Create a guide
+Howto create a guide.
+
+=== Basic HTML structure
+A browser guide is a partial HTML document that sould be encapsulated in `<article class="guide"></article>` tags.
+
+A guide usually have multiple slides/pages by using a carousel:
+
+[source,html]
+----
+<carousel class="deck container-fluid">
+    <slide class="row-fluid">Slide 1</slide>
+    <slide class="row-fluid">Slide 2</slide>
+</carousel> 
+----
+
+The Bootstrap CSS classes can be used, see http://getbootstrap.com/css/ for info on what's available.
+
+A slide is usually split into two columns with title and lead to the left and content to the right.
+To get this structure, use this code:
+
+[source,html]
+----
+<div class="col-sm-3">
+    <h3>Title</h3>
+    <p class="lead">Informative text</p>
+</div>
+<div class="col-sm-9">
+    content...
+</div>
+----
+
+All HTML is allowed so make sure the guides structure is valid and complete so other parts of the browser don't break. 
+All `<script>` tags are stripped as well as onX attributes on HTML elements.
+
+=== Playing a guide
+
+A guide is played in the browser by executing the command `:play http://your-server.com/guide.html`.
+
+== Examples
+
+Learning by examples.
+
+=== Cypher block with caption
+
+Generate a cypher code block that when clicked populates the editor.
+
+[source,html]
+----
+<figure>
+    <pre class="pre-scrollable code runnable">MATCH (c:Category {categoryName:"Produce"})</pre>
+    <figcaption>Find the produce category.</figcaption>
+</figure>
+----
+
+=== Link to a :help section
+
+Create a styled link to `:help cypher`.
+
+[source,html]
+----
+<a help-topic="cypher">cypher</a>
+----
+
+Link to another guide
+Create a styled link to `:play cypher`.
+
+[source,html]
+----
+<a play-topic="cypher">Cypher</a>
+----
+
+A `:play` link can be to remote guides: 
+
+[source,html]
+----
+<a play-topic="http://url.com/guide.html">Remote</a>
+----
+
+=== Full example
+Here's a complete example.
+
+[source,html]
+----
+<article class="guide">
+  <carousel class="deck container-fluid">
+    <slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Title one</h3>
+        <p class="lead">First lead</p>
+      </div>
+      <div class="col-sm-9">
+        <p>This is the content in the main column.</p>
+        <ol class="big">
+          <li>Load: create data from external CSV files</li>
+          <li>Index: index nodes based on label</li>
+          <li>Relate: transform foreign key references into data relationships</li>
+          <li>Promote: transform join records into relationships</li>
+        </ol>
+      </div>
+    </slide>
+    <slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Title two</h3>
+        <p class="lead">Second lead</p>
+      </div>
+      <div class="col-sm-9">
+        <figure>
+          <pre class="pre-scrollable code runnable">CREATE INDEX ON :Product(productID)</pre>
+          <figcaption>Find the produce suppliers.</figcaption>
+        </figure>
+        <figure>
+          <pre class="pre-scrollable code runnable">CREATE INDEX ON :Category(categoryID)</pre>
+        </figure>
+        <figure>
+          <pre class="pre-scrollable code runnable">CREATE INDEX ON :Supplier(supplierID)</pre>
+        </figure>
+        <h3>More code</h3>
+        <ul class="undecorated">
+          <li><a play-topic="movie-graph">Movie Graph</a> - actors &amp; movies</li>
+          <li><a play-topic="query-template">Query Templates</a> - common ad-hoc queries</li>
+          <li><a play-topic="cypher">Cypher</a> - query language fundamentals</li>
+        </ul>
+      </div>
+    </slide>
+  </carousel>
+</article>
+----
+
+
+
+
