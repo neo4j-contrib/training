@@ -1,0 +1,348 @@
+= Updating Graphs With Cypher
+
+== Basics
+
+* Using Cypher to created nodes, relationships and whole patterns
+* Updating properties and labels
+* Idempotent operations
+
+== Creating Nodes
+
+.Create Person node
+[source,cypher,options={options}]
+----
+CREATE (p:Person {name:"Me"})
+----
+
+.Find node again
+[source,cypher,options={options}]
+----
+MATCH (p:Person)
+WHERE p.name="Me"
+RETURN p
+----
+
+[.labslide]
+== Exercise: Insert a Movie with the title of "Mystic River" an a "released" year of 1993
+
+== Solution on next page
+
+== Solution: Insert a Movie with the title of "Mystic River" an a "released" year of 1993
+
+.Create `Movie` with `title` and `released` properties
+[source,cypher,options={options}]
+----
+CREATE (m:Movie {title:"Mystic River", released:1993})
+----
+
+== Adding properties
+
+.Add a `tagline` property
+[source,cypher,options={options}]
+----
+MATCH (movie:Movie)
+WHERE movie.title="Mystic River"
+//add the property
+SET movie.tagline = "We bury our sins here, Dave. We wash them clean."
+RETURN movie
+----
+
+== Changing properties
+
+.Correct the `released` year
+[source,cypher,options={options}]
+----
+MATCH (movie:Movie)
+WHERE movie.title="Mystic River"
+//set the property
+SET movie.released = 2003
+RETURN movie
+----
+
+== Creating relationships
+
+.Create Relationships
+[source,cypher,options={options}]
+----
+MATCH (movie:Movie),(kevin:Person)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+//create the relationship      
+CREATE (kevin)-[:ACTED_IN {roles:["Sean"]}]->(movie)
+----
+
+.Find Pattern again
+[source,cypher,options={options}]
+----
+MATCH (kevin)-[role:ACTED_IN]->(movie)
+WHERE kevin.name="Kevin Bacon"
+RETURN kevin, role, movie
+----
+
+== Merging Relationships
+
+NOTE: Create statements executed twice, will create *duplicates*
+
+Use `MERGE` if you don't want that.
+
+.MERGE Relationships
+[source,cypher,options={options}]
+----
+MATCH (movie:Movie),(kevin:Person)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+//merge the relationship      
+MERGE (kevin)-[:ACTED_IN {roles:["Sean"]}]->(movie)
+----
+
+NOTE: All properties are taken into account
+
+=== Alternative Variant
+
+.MERGE Relationships and SET properties
+[source,cypher,options={options}]
+----
+MATCH (movie:Movie),(kevin:Person)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+//merge the relationship      
+MERGE (kevin)-[role:ACTED_IN]->(movie)
+ON CREATE SET role.roles=["Sean"]
+----
+
+== Exercise: Set Kevin Bacon’s roles in Mystic River from "Sean" to "Sean Devine"
+
+== Solution on next page
+
+* find the pattern
+* update the property
+
+== Solution: Set Kevin Bacon’s roles in Mystic River from "Sean" to "Sean Devine"
+
+[source,cypher,options={options}]
+----
+MATCH (kevin:Person)-[r:ACTED_IN]->(movie:Movie)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+SET r.roles = ["Sean Devine"]
+RETURN r.roles
+----
+
+== Alternative Solution - Keeps other Roles
+
+* filter list for keepers
+* add the new entry
+
+[source,cypher,options={options}]
+----
+MATCH (kevin:Person)-[r:ACTED_IN]->(movie:Movie)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+SET r.roles = filter(x in r.roles WHERE x <> "Sean") + ["Sean Devine"]
+RETURN r.roles
+----
+
+== Exercise: List all the characters in the movie "The Matrix"
+
+== Solution on next page
+
+== Solution: List all the characters in the movie "The Matrix"
+
+[source,cypher,options={options}]
+----
+MATCH (matrix:Movie)<-[r:ACTED_IN]-(actor)
+WHERE matrix.title="The Matrix"
+RETURN r.roles, actor.name
+----
+
+* Did you notice any unusual actors?
+* Let's get rid of him
+
+== DELETE: Nodes
+
+[source,cypher,options={options}]
+----
+MATCH (emil:Person)
+WHERE emil.name="Emil Eifrem"
+DELETE emil
+----
+
+NOTE: Fails with error message "Node still has relationships"
+
+*Graph database consistency - nodes of a relationship must exist.*
+
+== DELETE: Relationships
+
+[source,cypher,options={options}]
+----
+MATCH (emil:Person)-[r]-()
+WHERE emil.name="Emil Eifrem"
+DELETE r
+----
+
+== DETACH DELETE: Deleting nodes and optionally relationships
+
+[source,cypher,options={options}]
+----
+MATCH (emil:Person)
+WHERE emil.name="Emil Eifrem"
+DETACH DELETE emil
+----
+
+== Clean out the database
+
+Just for information, *don't do it now.*
+
+.delete all content in the database
+----
+MATCH (n)
+DETACH DELETE n
+----
+
+== Match or Create is MERGE
+
+[source,cypher,options={options}]
+----
+MERGE (p:Person {name:"Clint Eastwood"})
+RETURN p
+----
+
+Uses constraints and locks to guarantee unique lookup and creation
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;
+----
+
+== Match or Create is MERGE
+
+[source,cypher,options={options}]
+----
+MERGE (p:Person {name:"Clint Eastwood"})
+ON CREATE SET p.created = timestamp()
+ON MATCH  SET p.accessed = coalesce(p.accessed,0) + 1
+RETURN p
+----
+
+* `ON CREATE SET` - executed on create
+* `ON MATCH SET`  - executed on match
+
+MERGE always CREATES the *whole pattern* if it is not found
+
+* Always find nodes first, then MERGE
+* MERGE on relationships also supports `ON ..` clauses
+* Takes relationship type and properties into account for uniqueness
+* Uniqueness in both directions, leave off arrow
+* MERGE uses constraints for uniqueness guarantees
+
+== Exercise: Add Clint Eastwood as the director of Mystic River
+
+== Solution on next page
+
+== Solution: Add Clint Eastwood as the director of Mystic River
+
+.Make sure, Clint Eastwood exists first
+[source,cypher,options={options}]
+----
+MERGE (p:Person {name:"Clint Eastwood"})
+ON CREATE SET p.born = 1930
+----
+
+.Find both nodes, create the relationship
+[source,cypher,options={options}]
+----
+MATCH (movie:Movie),(clint:Person) 
+WHERE movie.title="Mystic River" AND
+      clint.name="Clint Eastwood"
+MERGE (clint)-[:DIRECTED]->(movie)
+----
+
+== Exercise: Add unique KNOWS relationships between all actors who acted in the same movie
+
+* find the co-actor pattern
+* test query first to return pattern participants
+* unique relationships with MERGE
+* leave off relationships direction
+
+== Solution on next page
+
+== Solution: Add unique KNOWS relationships between all actors who acted in the same movie
+
+[source,cypher,options={options}]
+----
+MATCH (a:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(b:Person)
+MERGE (a)-[:KNOWS]-(b);
+----
+
+== Matching multiple relationships
+
+.Create KNOWS relationships between anyone, Actors or Directors, who worked together
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN|:DIRECTED]->()<-[:ACTED_IN|:DIRECTED]-(b)
+MERGE (a)-[:KNOWS]-(b)
+----
+
+== Variable length paths
+
+image::variable_length_path.png[]
+
+[role=big]
+----
+(a)-[*1..3]->(b)
+----
+
+== Friends-of-Friends
+
+[source,cypher,options={options}]
+----
+MATCH (keanu:Person)-[:KNOWS*2]-(fof)
+WHERE keanu.name="Keanu Reeves"
+RETURN DISTINCT fof.name
+----
+
+
+== Exercise: Return Friends-of-Friends of Keanu Reeves who are not immediate friends
+
+* 2nd degree
+* no friends
+* return names
+
+== Solution on next page
+
+== Solution: Return Friends-of-Friends of Keanu Reeves who are not immediate friends
+
+[source,cypher,options={options}]
+----
+MATCH (keanu:Person)-[:KNOWS*2]-(fof)
+WHERE keanu.name="Keanu Reeves"
+  AND keanu <> fof AND NOT (keanu)-[:KNOWS]-(fof)
+RETURN DISTINCT fof.name
+----
+
+== Bacon Number!
+
+[source,cypher,options={options}]
+----
+MATCH p=shortestPath(
+  (charlize:Person)-[:KNOWS*]-(bacon:Person)
+)
+WHERE charlize.name="Charlize Theron" AND
+      bacon.name="Kevin Bacon"
+RETURN length(rels(p))
+----
+
+
+== Exercise: Return the names of the people joining Charlize to Kevin.
+
+== Solution on next page
+
+== Solution: Return the names of the people joining Charlize to Kevin.
+
+[source,cypher,options={options}]
+----
+MATCH p=shortestPath((charlize:Person)-[:KNOWS*]-(bacon:Person))
+WHERE charlize.name="Charlize Theron" AND
+      bacon.name="Kevin Bacon"
+RETURN [n in nodes(p) | n.name] AS names;
+----

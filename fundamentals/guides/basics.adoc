@@ -1,0 +1,235 @@
+= Basic Queries with Cypher
+
+== Setup
+
+Execute pass:a[<a play-topic='movies'>:play movies</a>].
+
+Click & Run to insert the dataset.
+
+Explore a bit by clicking around.
+
+== Cypher is Neo4j's graph query language
+
+[options={options}]
+- Declarative Pattern-Matching language
+- SQL-like syntax
+- Designed for graphs
+
+== It's all about patterns
+
+image::{img}/triangle.png[]
+
+== Pattern in the Graph
+
+image::{img}/big_graph.png[]
+
+== Matching Pattern in the Graph
+
+image::{img}/big_graph_circled.png[]
+
+== Two nodes, one relationship
+
+image::{img}/a_arrow_b.png[]
+
+[source,options={options}]
+----
+(a)-->(b)
+----
+
+== Two nodes, one relationship
+
+image::{img}/a_to_b.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)--(b)
+RETURN a, b
+----
+
+==  Pattern in the Graph
+
+image::{img}/big_graph_a_to_b.png[]
+
+== Two nodes, one relationship
+
+image::{img}/a_to_anonymous.png[]
+
+[source]
+----
+(a)-->()
+----
+
+== Two nodes, one relationship
+
+image::{img}/a_to_anonymous.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-->()
+RETURN a.name
+----
+
+== Two nodes, one relationship
+
+image::{img}/a_r_anonymous.png[]
+
+----
+(a)-[r]->()
+----
+
+== Two nodes, one relationship
+
+image::{img}/a_r_anonymous.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[r]->()
+RETURN a.name, type(r)
+----
+
+== Two nodes, one optional relationship
+
+image::{img}/a_r_anonymous_optional.png[]
+
+[source,cypher,options={options}]
+----
+OPTIONAL MATCH (a)-[r]->()
+RETURN a.name, type(r)
+----
+
+== Two nodes, one relationship
+
+image::{img}/a_acted_in_m.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)
+RETURN a.name, m.title
+----
+
+== Returning role properties
+
+image::{img}/a_acted_in_m.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[r:ACTED_IN]->(m)
+RETURN a.name, r.roles, m.title
+----
+
+== Directed Paths
+
+image::{img}/big_graph_abc.png[float=right]
+
+image::{img}/a_b_c.png[]
+
+[source,cypher,role=big]
+----
+(a) --> (b) --> (c)
+----
+
+== Paths: Invert Direction
+
+image::{img}/big_graph_acb.png[float=right]
+
+image::{img}/a_c_b.png[]
+
+[source,cypher,role=big]
+----
+(a) --> (b) <-- (c)
+----
+
+== Concrete Path: A Movies Query
+
+image::{img}/big_graph_amd.png[float=right]
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN a.name, m.title, d.name
+----
+
+[frame="topbot",options="header"]
+|===
+|a.name|m.title	|d.name
+|"Keanu Reeves"|	"The Matrix"|	"Lily Wachowski"
+|"Keanu Reeves"|	"The Matrix Reloaded"|	"Lily Wachowski"
+|"Noah Wyle"|	"A Few Good Men"|	"Rob Reiner"
+|"Tom Hanks"|	"Cloud Atlas"|	"Lily Wachowski"
+|===
+
+== A Movies Query with an Alias
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN a.name AS actor, m.title AS movie,
+       d.name AS director;
+----
+
+[frame="topbot",options="header"]
+|===
+|actor|movie	|director
+|"Keanu Reeves"|	"The Matrix"|	"Lily Wachowski"
+|"Keanu Reeves"|	"The Matrix Reloaded"|	"Lily Wachowski"
+|"Noah Wyle"|	"A Few Good Men"|	"Rob Reiner"
+|"Tom Hanks"|	"Cloud Atlas"|	"Lily Wachowski"
+|===
+
+
+== Separate Paths
+
+image::{img}/a_acted_in_m_and_m_directed_d.png[]
+
+[source,cypher]
+----
+MATCH 
+  (a)-[:ACTED_IN]->(m), (m)<-[:DIRECTED]-(d)
+RETURN a.name, m.title, d.name
+----
+
+== Separate Paths Same Direction
+
+image::{img}/a_acted_in_m_and_d_directed_m.png[]
+
+[source,cypher]
+----
+MATCH 
+  (a)-[:ACTED_IN]->(m), (d)-[:DIRECTED]->(m)
+RETURN a.name, m.title, d.name
+----
+
+== Returning Paths
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher]
+----
+MATCH p=(a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN p
+----
+
+== Nodes of a Paths
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher]
+----
+MATCH p=(a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN nodes(p)
+----
+
+== Two separate Paths
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher]
+----
+MATCH 
+  p1=(a)-[:ACTED_IN]->(m), p2=(d)-[:DIRECTED]->(m)
+RETURN p1, p2
+----

@@ -1,0 +1,26 @@
+= Neo4j Fundamentals Training
+
+== Exercises as Browser Guides
+
+. pass:a[<a play-topic='{guides}/basics.html'>Basic Querying</a>]
+. pass:a[<a play-topic='{guides}/advanced.html'>Advanced Querying</a>]
+. pass:a[<a play-topic='{guides}/updates.html'>Creating & Updating Data</a>]
+
+== Further References
+
+=== Books
+
+* http://neo4j.com/graph-databases-book/[Graph Databases (free ebook)]
+* http://neo4j.com/learning-neo4j-book/[Learning Neo4j (free ebook)]
+* http://neo4j.com/books/neo4j-graph-modeling/[Neo4j Graph Modeling]
+
+=== GraphGists
+
+* http://neo4j.com/graphgists
+* http://portal.graphgist.org/
+
+=== Other
+
+* http://neo4j.com/developer/data-modeling/[Modeling on Developer Site]
+* http://youtube.com/c/neo4j[Neo4j Videos]
+* http://neo4j.com/developer/resources/[Resources & Blogs]

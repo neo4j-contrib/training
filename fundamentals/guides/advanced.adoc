@@ -1,0 +1,449 @@
+= Advanced Queries with Cypher
+
+== Aggregation
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN a.name, m.title, d.name;
+----
+
+[options={options}]
+[frame="topbot",options="header"]
+|===
+|a.name|m.title	|d.name
+|[highlight]#"Keanu Reeves"#|	"The Matrix"|[highlight]#"Lily Wachowski"#
+|[highlight]#"Keanu Reeves"#|	"The Matrix Reloaded"|[highlight]#"Lily Wachowski"#
+|"Noah Wyle",	"A Few Good Men"|	"Rob Reiner"
+|"Tom Hanks",	"Cloud Atlas"|	"Lily Wachowski"
+|===
+
+Returning all values from a 2-hop path. Note the duplicate values.
+
+== Aggregation Functions
+
+[options={options}]
+* `count(x)`	- add up the number of occurrences
+* `min(x)`	- get the lowest value
+* `max(x)`	- get the highest value
+* `avg(x)`	- get the average of a numeric value
+* `sum(x)`	- add up all values
+* `collect(x)`	- collected all the occurrences into an array
+
+Aggregating non-null values.
+More functions in the manual.
+
+== Aggregation: `count(*)`
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN a.name, d.name, count(*);
+----
+
+////
+[frame="topbot",options="header,step"]
+|===
+|a.name|	d.name|[highlight]#count(*)#
+|"Aaron Sorkin"|"Rob Reiner"|	[highlight]#2#
+|"Keanu Reeves"|"Lily Wachowski"|	[highlight]#3#
+|"Hugo Weaving"|"Tom Tykwer"|	[highlight]#1#
+|===
+////
+
+== Aggregation: Count
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN a.name, d.name, count(m);
+----
+
+Counting non-null values.
+
+////
+[frame="topbot",options="header,step"]
+|===
+|a.name|	d.name|[highlight]#count(m)#
+|"Aaron Sorkin"|"Rob Reiner"|	2
+|"Keanu Reeves"|"Lily Wachowski"|	3
+|"Hugo Weaving"|"Tom Tykwer"|	1
+|===
+////
+
+== Aliases 
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN 
+ a.name AS actor,
+ d.name AS director, 
+ count(m) AS count;
+----
+
+////
+[frame="topbot",options="header,step"]
+|===
+|[highlight]#actor#|[highlight]#director#|[highlight]#count#
+|"Aaron Sorkin"|"Rob Reiner"|	2
+|"Keanu Reeves"|"Lily Wachowski"|	3
+|"Hugo Weaving"|"Tom Tykwer"|	1
+|===
+////
+
+[.labslide]
+== Exercise: Your turn
+
+=== Which directors acted also in their movie?
+
+
+== Solution on next slide
+
+== Solution: Which directors acted also in their movie?
+
+image::{img}/a_acted_in_m_directed_a.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(a)
+RETURN a.name, m.title;
+----
+
+== Unique relationships in paths
+
+image::{img}/a_acted_in_m_directed_a.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:ACTED_IN]-(a)
+RETURN a.name, m.title
+----
+
+NOTE: Cypher guarantees that every relationship is traversed only once per path.
+
+== Pagination: Sort and Limit
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN a.name, d.name, count(*) AS count
+ORDER BY count DESC
+LIMIT 5
+----
+
+== Aggregation: Collect
+
+image::{img}/a_acted_in_m_directed_d.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+RETURN 
+  a.name, 
+  d.name, 
+  collect(m.title)
+----
+
+Creates a list (array) of values.
+Useful for aggregating dependent values.
+
+== Starting Points
+
+== Get all Nodes
+
+image::{img}/big_graph.png[]
+
+[source,cypher,options={options}]
+----
+MATCH (n)
+RETURN n
+----
+
+== Find a specific node (within all-nodes)
+
+image::{img}/big_graph_t.png[float=right]
+
+[source,cypher,options={options}]
+----
+MATCH (n)
+WHERE n.name="Tom Hanks"
+RETURN n
+----
+
+[options={options}]
+* `WHERE` - filter the results
+* `n.name = "Tom Hanks"` - the name property must exist and have that value
+
+NOTE: this query is very inefficient. 
+Always use a *label with indexed property* for direct lookup.
+
+== Find a specific node (with a label)
+
+image::{img}/big_graph_t.png[float=right]
+
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)
+WHERE tom.name="Tom Hanks"
+RETURN tom
+----
+
+[options={options}]
+* `:Person` - Matches only nodes labeled as Person
+
+== Start with a specific (labeled) node
+
+image::{img}/big_graph_m_t_circled.png[float=right]
+
+.Movies featuring Tom Hanks.
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie:Movie)
+WHERE tom.name="Tom Hanks"
+RETURN movie.title
+----
+
+== Start with a specific labeled node
+
+image::{img}/big_graph_d_t.png.png[float=right]
+
+.Directors who worked with Tom Hanks
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie:Movie),
+      (director:Person)-[:DIRECTED]->(movie:Movie)
+WHERE tom.name="Tom Hanks"
+RETURN director.name
+----
+
+== Start with a specific labeled node
+
+image::{img}/big_graph_d_t.png.png[float=right]
+
+.Directors who worked with Tom Hanks
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)-[:ACTED_IN]->()<-[:DIRECTED]-(director)
+WHERE tom.name="Tom Hanks"
+RETURN DISTINCT director.name
+----
+
+== Indexing for fast Lookup
+
+== Create label-specific index
+
+
+.Nodes labeled as Movie, indexed by title property
+[source,cypher,options={options}]
+----
+CREATE INDEX ON :Movie(title)
+----
+
+Indexes support
+
+* equality, (non-)existence, `IN`
+* text comparison (`CONTAINS, STARTS WITH, ENDS WITH`)
+* numeric ranges
+
+.Nodes labeled as Person, constrained by name property
+[source,cypher,options={options}]
+----
+CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;
+----
+
+Constraints guarantee
+
+* Single entry per value
+* Uniqueness (fail on duplicate)
+* Correctness for MERGE (incl. lock)
+
+== Labels on pattern "anchors"
+
+image::big_graph_k_t_m.png[float=right]
+
+.Movies featuring both Tom Hanks and Kevin Bacon
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie),
+(kevin:Person)-[:ACTED_IN]->(movie)
+WHERE tom.name="Tom Hanks" AND
+      kevin.name="Kevin Bacon"
+RETURN movie.title
+----
+
+== Conditions
+
+image::big_graph_m_released.png[float=right]
+
+.Movies in which Tom Hanks acted, that were released before 1992
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie:Movie)
+WHERE tom.name="Tom Hanks"
+AND movie.released < 1992
+RETURN movie.title
+----
+
+If range was indexed, Cypher _could_ use the index.
+
+== Conditions on properties
+
+.Movies in which Keanu Reeves played Neo
+
+[source,cypher,options={options}]
+----
+MATCH (actor:Person)-[r:ACTED_IN]->(movie)
+WHERE actor.name="Keanu Reeves"
+AND "Neo" IN (r.roles)
+RETURN movie.title
+----
+
+=== Alternative Variant
+
+[source,cypher,options={options}]
+----
+MATCH (actor:Person)-[r:ACTED_IN]->(movie)
+WHERE actor.name="Keanu Reeves"
+  AND ANY( x IN r.roles WHERE x = "Neo")
+RETURN movie.title
+----
+
+== Conditions based on comparisons
+
+.Actors who worked with Tom and are older than he was
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie),
+      (a:Person)-[:ACTED_IN]->(movie)
+WHERE tom.name="Tom Hanks"
+  AND a.born < tom.born
+RETURN DISTINCT a.name
+----
+
+=== Comparision and Computation
+
+[source,cypher,options={options}]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie),
+      (a:Person)-[:ACTED_IN]->(movie)
+WHERE tom.name="Tom Hanks"
+  AND a.born < tom.born
+RETURN DISTINCT a.name, (tom.born - a.born) AS diff
+----
+
+== Conditions based on patterns
+
+.Actors who worked with Gene Hackman
+[source,cypher,options={options}]
+----
+MATCH (gene:Person)-[:ACTED_IN]->(movie),
+      (n)-[:ACTED_IN]->(movie)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT n.name
+----
+
+== Conditions based on patterns
+
+.Actors who worked with Gene and were directors
+[source,cypher,options={options}]
+----
+MATCH (gene:Person)-[:ACTED_IN]->(movie),
+      (n)-[:ACTED_IN]->(movie)
+WHERE gene.name="Gene Hackman"
+  AND (n)-[:DIRECTED]->()
+RETURN DISTINCT n.name
+----
+
+== Conditions based on Patterns
+
+.Actors who worked with Keanu, but not when he was also working with Hugo
+[source,cypher,options={options}]
+----
+MATCH (keanu:Person)-[:ACTED_IN]->(movie),
+      (n)-[:ACTED_IN]->(movie),
+      (hugo:Person)
+WHERE keanu.name="Keanu Reeves" AND
+      hugo.name="Hugo Weaving"
+AND NOT (hugo)-[:ACTED_IN]->(movie)
+RETURN DISTINCT n.name
+----
+
+== Text Comparisons on Properties
+
+.Case sensitive CONTAINS
+[source,cypher,options={options}]
+----
+MATCH (matrix:Movie)<-[r:ACTED_IN]-(a)
+WHERE matrix.title="The Matrix"
+  AND a.name CONTAINS "Emil"
+RETURN a
+----
+
+.STARTS WITH
+[source,cypher,options={options}]
+----
+MATCH (matrix:Movie)<-[r:ACTED_IN]-(a)
+WHERE matrix.title STARTS WITH "The"
+  AND a.name CONTAINS "Emil"
+RETURN a
+----
+
+* All text comparisons use existing indexes
+
+== Text Comparisons on Properties
+
+.Regular Expression
+[source,cypher,options={options}]
+----
+MATCH (matrix:Movie)<-[r:ACTED_IN]-(a)
+WHERE matrix.title="The Matrix"
+  AND a.name =~ ".*Emil.*"
+RETURN a
+----
+
+[.labslide]
+== Exercise: Who are the five busiest actors?
+
+== Solution on next page
+
+== Solution: Who are the five busiest actors?
+
+[source,cypher,options={options}]
+----
+MATCH (a:Person)-[:ACTED_IN]->()
+RETURN a.name, count(*) AS count
+ORDER BY count DESC
+LIMIT 5
+----
+
+[.labslide]
+== Exercise: Recommend 3 actors that Keanu Reeves should work with (but hasn’t).
+
+Note that you can base it on co-acting (or not).
+
+== Solution on next page
+
+== Solution: Recommend 3 actors that Keanu Reeves should work with (but hasn’t).
+
+[source,cypher,options={options}]
+----
+MATCH (keanu:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(c),
+      (c)-[:ACTED_IN]->()<-[:ACTED_IN]-(coc)
+WHERE keanu.name="Keanu Reeves"
+  AND coc <> keanu
+  AND NOT((keanu)-[:ACTED_IN]->()<-[:ACTED_IN]-(coc))
+RETURN coc.name, count(coc)
+ORDER BY count(coc) DESC
+LIMIT 3
+----
+
