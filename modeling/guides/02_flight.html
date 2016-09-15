@@ -1,0 +1,444 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Flight as a first class citizen</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Flight as a first class citizen</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this section we&#8217;re going to refactor the model to make <code>Flight</code> and <code>Airline</code> first class citizens in our domain.
+This refactoring will make it much easier to write queries centered around these concepts.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/flight_first_class.png" alt="flight first class">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Finding flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can write the following query to find all the flights that we imported in the previous guide.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+RETURN *
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Creating flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>When we refactor the model we want to make sure we only create each flight once.
+Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair.</p>
+</div>
+<div class="paragraph">
+<p>Before we refactor our model, look at the slides for a quick explanation of unique constraints and indexes which we&#8217;ll use in the next section.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Ensuring flight uniqueness</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>At the moment Neo4j only allows us to create constraints on single properties.
+In our case we want to ensure uniqueness across several properties so we&#8217;ll combine those together into a single dummy property.</p>
+</div>
+<div class="paragraph">
+<p>The combination of airline, flight number, and date makes a flight unique.
+As we saw in the previous section, however, some flights can have multiple legs so we&#8217;ll need to consider departure and arrival airports as well.
+We&#8217;ll create a <code>flightId</code> with this format: <code>{airline}{flightNumber}{year}-{month}-{day}_{origin}_{destination}</code></p>
+</div>
+<div class="paragraph">
+<p>Run the following query to create a unique constraint on the <code>(Flight, id)</code> label/property pair:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (f:Flight)
+ASSERT f.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ok, now let the refactoring begin.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Creating flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now we&#8217;re reading to create <code>Flight</code> nodes.
+Run the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+MERGE (newFlight:Flight { id: flight.airline + flight.flightNumber + "_" + flight.year + "-" + flight.month + "-" + flight.day + "_" + origin.code + "_" + destination.code }   )
+ON CREATE SET newFlight.year = flight.year,
+              newFlight.month = flight.month,
+              newFlight.day = flight.day,
+              newFlight.airline = flight.airline,
+              newFlight.number = flight.flightNumber,
+              newFlight.departure = flight.departure,
+              newFlight.arrival = flight.arrival
+MERGE (origin)&lt;-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>finds all <code>(origin, flight, destination)</code> paths</p>
+</li>
+<li>
+<p>creates a <code>Flight</code> node if one doesn&#8217;t already exist</p>
+</li>
+<li>
+<p>creates an <code>ORIGIN</code> relationship to the origin airport and a <code>DESTINATION</code> relationship to the destination airport</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Now we can try our earlier query again.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find all the flights for flight number <code>WN 1016</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>First let&#8217;s create an index on <code>(Flight, number)</code> so that we can quickly find the appropriate flights.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :Flight(number)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re ready to find those flights!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination)
+WHERE flight.airline = "WN" AND flight.number = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Before we delete the <code>FLIGHT</code> relationship we should profile the two versions of the query to see whether our refactoring has improved things.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Profiling queries</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Profiling the two flight models</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s profile the two queries we&#8217;ve written to find flight <code>WN 1016</code>.
+We can do this by prefixing the queries with <code>PROFILE</code>:</p>
+</div>
+<div class="paragraph">
+<p>Original query</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With <code>Flight</code> as a first class citizen</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (origin)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination)
+WHERE flight.airline = "WN" AND flight.number = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What do you notice?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Profiling the two flight models</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>It looks like a good refactoring - we can see by comparing the <code>db hits</code> that the 2nd query does 20x less work</p>
+</div>
+<div class="paragraph">
+<p>This is because we no longer have to <strong>scan every flight</strong> looking for ones which have an <code>airline</code> property of <code>WN</code> and a <code>number</code> of <code>1016</code>.
+Instead we&#8217;re able to use the <code>:Flight(number)</code> index to find the flights we&#8217;re interested in and only determine the origins and destinations for those flights.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Deleting the <code>FLIGHT</code> relationship</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Since the <code>FLIGHT</code> relationship between airports doesn&#8217;t seem to be much use anymore, let&#8217;s delete.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query to delete it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[flight:FLIGHT]-&gt;()
+DELETE flight<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>blah</h3>
+    <br/>
+    <div>
+      <div class="verseblock">
+<pre class="content">As a frequent traveller
+I want to find flights from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;
+So that I can book my business flight</pre>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Import moar data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Our model looks good so far but let&#8217;s import some more data and see how it fares as we add more queries.</p>
+</div>
+<div class="paragraph">
+<p>We need to import some more of the dataset in so we can see the problem with dense nodes</p>
+</div>
+<div class="paragraph">
+<p>It’s not a bad model, but we will have very dense nodes. Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare. These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.</p>
+</div>
+<div class="paragraph">
+<p>When a user is trying to book a flight, they know where they are starting from, where they want to go, and what day they want to fly. So lets reimagine our model to introduce the concept of days.</p>
+</div>
+<div class="paragraph">
+<p>As a user I want to book a flight from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;</p>
+</div>
+<div class="paragraph">
+<p>(airport)-[:HAS_DAY]&#8594;(airportDay)-[:HAS_FLIGHT]&#8594;(flight)</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We want to introduce the concept of an <code>Airline</code> so that we can quickly find fights by our favorite airline without having to scan through all the flights.
+Don&#8217;t forget to connect the <code>Airline</code> nodes to the appropriate flights.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Create <code>Airline</code> nodes</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
+MERGE (airline:Airline {code: flight.airline})
+MERGE (flight)-[:AIRLINE]-&gt;(airline)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Other ideas</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We could even connect the different legs of the flight together?</p>
+</div>
+<div class="paragraph">
+<p>Other modeling topics:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Inferred relationships</p>
+</li>
+<li>
+<p>Maintaining multiple models for optimal write speed</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In the next section we&#8217;re going to do something else, who knows what it&#8217;ll be yet:</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://localhost:8001/02_flight.html'>Flight as a first class citizen</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

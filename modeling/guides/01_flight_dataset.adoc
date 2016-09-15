@@ -27,7 +27,7 @@ Let's have a look what data we've got to help us answer this question:
 As we saw from our brief command line exploration, we've got a lot of flights to work with.
 We could use command line tools to explore this further but Cypher's `LOAD CSV` command is actually perfect for exploring CSV files.
 
-_Slides here for a LOAD CSV primer_
+image::{img}/slides.jpg[]
 
 == Exploring data with `LOAD CSV`
 
@@ -53,7 +53,7 @@ We've got lots of different fields but the ones that will be helpful for answeri
 Before we use `LOAD CSV` to import any data we need to know what model we want to create.
 The following should suffice:
 
-image::{img}/initial.jpg[]
+image::{img}/initial.png[width="100%"]
 
 We should do a quite primer here on the building blocks of the model.
 
@@ -91,32 +91,89 @@ Now we're ready to start querying the data.
 
 == Finding the most popular airports
 
-We can see some of what we've imported by writing the following query, which finds the airports with the most incoming and outgoing flights.
+We can see some of what we've imported by writing the following query, which finds the airports with the outgoing flights.
 
 [source, cypher]
 ----
-MATCH (a:Airport)
-WITH a, SIZE((a)-[:FLIGHT]->()) AS outgoing, SIZE((a)<-[:FLIGHT]-()) AS incoming
-RETURN a.code, outgoing, incoming
+MATCH (a:Airport)-[:FLIGHT]->()
+RETURN a, COUNT(*) AS outgoing
 ORDER BY outgoing DESC
+LIMIT 10
 ----
 
 This query:
 
 * finds every node with the `Airport` label
-* uses the `SIZE` function to count the number of incoming and outgoing relationship of type `FLIGHT` for each `Airport` node
-* returns the `code` property on the `Airport` nodes and the `outgoing` and `incoming` counts in descending order by `outgoing`
+* uses the `SIZE` function to count the number of outgoing relationship of type `FLIGHT` for each `Airport` node
+* returns the `code` property on the `Airport` nodes and the `outgoing` count in descending order by `outgoing`
+* limits the number of airports returned to 10
 
 == Exercise: Finding flights
 
 Now it's your turn!
+Try and write queries to answer the following questions:
 
-* Find all the flights for flight number `WN 1016`
-* Find all the flights in January 2008 that go to Chicago (`CHN`)
+* Find the airports that have the most incoming flights
+* Find all the flights that go to Las Vegas (`LAS`)
+* Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`)
 
+_Hint_ You'll want to refer to the Cypher refcard for the syntax for the second question.
 
+== Answer: Find the airports that have the most incoming flights
 
-== Answer: Find all the flights for flight number `WN 1016`
+[source, cypher]
+----
+MATCH (a:Airport)<-[:FLIGHT]-()
+RETURN a, COUNT(*) AS incoming
+ORDER BY incoming DESC
+LIMIT 10
+----
+
+== Answer: Find all the flights that go to Las Vegas (`LAS`)
+
+[source, cypher]
+----
+MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+WHERE destination.code = "LAS"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure
+----
+
+or
+
+[source, cypher]
+----
+MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport {code: "LAS"})
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure
+----
+
+== Answer: Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`)
+
+[source, cypher]
+----
+MATCH  (origin:Airport {code: "LAX"})-[flight:FLIGHT]->(destination:Airport {code: "LAS"})
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure
+----
+
+== Finding specific flights
+
+The model has worked well so far.
+We've been able to find the popular airports and find the flights between pairs of airports without much trouble.
+
+What about if we want to find all the occurrences of a specific flight?
+
+[verse]
+____
+As a plane enthusiast
+I want to know the schedule for <flight number>
+So that I know when I'll be able to spot those planes taking off and landing
+____
+
+== Finding flight `WN 1016`
+
+Our next query finds all the instances of flight `WN 1016`:
 
 [source, cypher]
 ----
@@ -126,8 +183,10 @@ RETURN origin.code, destination.code, flight.year, flight.month, flight.day, fli
 ORDER BY flight.year, flight.month, flight.day, flight.departure
 ----
 
+It's still reasonably quick because we only have 10,000 rows, but under the covers we're actually doing a lot of unnecessary work.
+
 == Next Step
 
-In the next section we're going to refactor the model to introduce `Flight` as a first class concept to make this type of query easier to write.
+In the next section we're going to learn how to profile queries and we'll then refactor the model to introduce `Flight` as a first class concept.
 
 pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]
