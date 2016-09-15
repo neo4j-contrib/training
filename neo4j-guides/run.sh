@@ -16,8 +16,8 @@ function render {
    BASE_URL=${1-http://guides.neo4j.com/intro} 
    shift
    echo rendering $ADOC to $HTML   
-echo asciidoctor $ADOC -T $DIR/templates -a experimental -a guides=$BASE_URL -a current=$BASE_URL -a img=$BASE_URL/img -a leveloffset=${OFFSET} -a env-guide= -a guide= -o ${HTML} "$@"
-   asciidoctor $ADOC -T $DIR/templates -a guides=$BASE_URL -a icons=font -a current=$BASE_URL -a img=$BASE_URL/img -a leveloffset=${OFFSET} -a env-guide= -a guide= -o ${HTML} "$@"
+echo asciidoctor $ADOC -T $DIR/templates -a allow-uri-read -a experimental -a guides=$BASE_URL -a current=$BASE_URL -a img=$BASE_URL/img -a leveloffset=${OFFSET} -a env-guide= -a guide= -o ${HTML} "$@"
+   asciidoctor $ADOC -T $DIR/templates -a allow-uri-read -a guides=$BASE_URL -a icons=font -a current=$BASE_URL -a img=$BASE_URL/img -a leveloffset=${OFFSET} -a env-guide= -a guide= -o ${HTML} "$@"
 }
 
 if [ $# == 0 ]; then

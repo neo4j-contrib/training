@@ -14,10 +14,10 @@ RETURN a.name, m.title, d.name;
 [frame="topbot",options="header"]
 |===
 |a.name|m.title	|d.name
-|[highlight]#"Keanu Reeves"#|	"The Matrix"|[highlight]#"Lily Wachowski"#
-|[highlight]#"Keanu Reeves"#|	"The Matrix Reloaded"|[highlight]#"Lily Wachowski"#
+|[highlight]#"Keanu Reeves"#|	"The Matrix"|[highlight]#"Lilly Wachowski"#
+|[highlight]#"Keanu Reeves"#|	"The Matrix Reloaded"|[highlight]#"Lilly Wachowski"#
 |"Noah Wyle",	"A Few Good Men"|	"Rob Reiner"
-|"Tom Hanks",	"Cloud Atlas"|	"Lily Wachowski"
+|"Tom Hanks",	"Cloud Atlas"|	"Lilly Wachowski"
 |===
 
 Returning all values from a 2-hop path. Note the duplicate values.
@@ -50,7 +50,7 @@ RETURN a.name, d.name, count(*);
 |===
 |a.name|	d.name|[highlight]#count(*)#
 |"Aaron Sorkin"|"Rob Reiner"|	[highlight]#2#
-|"Keanu Reeves"|"Lily Wachowski"|	[highlight]#3#
+|"Keanu Reeves"|"Lilly Wachowski"|	[highlight]#3#
 |"Hugo Weaving"|"Tom Tykwer"|	[highlight]#1#
 |===
 ////
@@ -72,7 +72,7 @@ Counting non-null values.
 |===
 |a.name|	d.name|[highlight]#count(m)#
 |"Aaron Sorkin"|"Rob Reiner"|	2
-|"Keanu Reeves"|"Lily Wachowski"|	3
+|"Keanu Reeves"|"Lilly Wachowski"|	3
 |"Hugo Weaving"|"Tom Tykwer"|	1
 |===
 ////
@@ -96,7 +96,7 @@ RETURN
 |===
 |[highlight]#actor#|[highlight]#director#|[highlight]#count#
 |"Aaron Sorkin"|"Rob Reiner"|	2
-|"Keanu Reeves"|"Lily Wachowski"|	3
+|"Keanu Reeves"|"Lilly Wachowski"|	3
 |"Hugo Weaving"|"Tom Tykwer"|	1
 |===
 ////
@@ -447,3 +447,92 @@ ORDER BY count(coc) DESC
 LIMIT 3
 ----
 
+== Exercise: Add unique KNOWS relationships between all actors who acted in the same movie
+
+* find the co-actor pattern
+* test query first to return pattern participants
+* unique relationships with MERGE
+* leave off relationships direction
+
+== Solution on next page
+
+== Solution: Add unique KNOWS relationships between all actors who acted in the same movie
+
+[source,cypher,options={options}]
+----
+MATCH (a:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(b:Person)
+MERGE (a)-[:KNOWS]-(b);
+----
+
+== Matching multiple relationships
+
+.Create KNOWS relationships between anyone, Actors or Directors, who worked together
+[source,cypher,options={options}]
+----
+MATCH (a)-[:ACTED_IN|:DIRECTED]->()<-[:ACTED_IN|:DIRECTED]-(b)
+MERGE (a)-[:KNOWS]-(b)
+----
+
+== Variable length paths
+
+image::variable_length_path.png[]
+
+[role=big]
+----
+(a)-[*1..3]->(b)
+----
+
+== Friends-of-Friends
+
+[source,cypher,options={options}]
+----
+MATCH (keanu:Person)-[:KNOWS*2]-(fof)
+WHERE keanu.name="Keanu Reeves"
+RETURN DISTINCT fof.name
+----
+
+
+== Exercise: Return Friends-of-Friends of Keanu Reeves who are not immediate friends
+
+* 2nd degree
+* no friends
+* return names
+
+== Solution on next page
+
+== Solution: Return Friends-of-Friends of Keanu Reeves who are not immediate friends
+
+[source,cypher,options={options}]
+----
+MATCH (keanu:Person)-[:KNOWS*2]-(fof)
+WHERE keanu.name="Keanu Reeves"
+  AND keanu <> fof AND NOT (keanu)-[:KNOWS]-(fof)
+RETURN DISTINCT fof.name
+----
+
+== Bacon Number!
+
+[source,cypher,options={options}]
+----
+MATCH p=shortestPath(
+  (charlize:Person)-[:KNOWS*]-(bacon:Person)
+)
+WHERE charlize.name="Charlize Theron" AND
+      bacon.name="Kevin Bacon"
+RETURN length(rels(p))
+----
+
+
+== Exercise: Return the names of the people joining Charlize to Kevin.
+
+== Solution on next page
+
+== Solution: Return the names of the people joining Charlize to Kevin.
+
+[source,cypher,options={options}]
+----
+MATCH p=shortestPath((charlize:Person)-[:KNOWS*]-(bacon:Person))
+WHERE charlize.name="Charlize Theron" AND
+      bacon.name="Kevin Bacon"
+RETURN [n in nodes(p) | n.name] AS names;
+----

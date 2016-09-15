@@ -2,7 +2,7 @@
 
 == Setup
 
-Execute pass:a[<a play-topic='movies'>:play movies</a>].
+If you haven't. Execute pass:a[<a play-topic='movies'>:play movies</a>].
 
 Click & Run to insert the dataset.
 
@@ -38,6 +38,8 @@ image::{img}/a_arrow_b.png[]
 
 == Two nodes, one relationship
 
+image::{img}/big_graph_a_to_b.png[float=right]
+
 image::{img}/a_to_b.png[]
 
 [source,cypher,options={options}]
@@ -45,10 +47,6 @@ image::{img}/a_to_b.png[]
 MATCH (a)--(b)
 RETURN a, b
 ----
-
-==  Pattern in the Graph
-
-image::{img}/big_graph_a_to_b.png[]
 
 == Two nodes, one relationship
 
@@ -154,10 +152,10 @@ RETURN a.name, m.title, d.name
 [frame="topbot",options="header"]
 |===
 |a.name|m.title	|d.name
-|"Keanu Reeves"|	"The Matrix"|	"Lily Wachowski"
-|"Keanu Reeves"|	"The Matrix Reloaded"|	"Lily Wachowski"
+|"Keanu Reeves"|	"The Matrix"|	"Lilly Wachowski"
+|"Keanu Reeves"|	"The Matrix Reloaded"|	"Lilly Wachowski"
 |"Noah Wyle"|	"A Few Good Men"|	"Rob Reiner"
-|"Tom Hanks"|	"Cloud Atlas"|	"Lily Wachowski"
+|"Tom Hanks"|	"Cloud Atlas"|	"Lilly Wachowski"
 |===
 
 == A Movies Query with an Alias
@@ -174,10 +172,10 @@ RETURN a.name AS actor, m.title AS movie,
 [frame="topbot",options="header"]
 |===
 |actor|movie	|director
-|"Keanu Reeves"|	"The Matrix"|	"Lily Wachowski"
-|"Keanu Reeves"|	"The Matrix Reloaded"|	"Lily Wachowski"
+|"Keanu Reeves"|	"The Matrix"|	"Lilly Wachowski"
+|"Keanu Reeves"|	"The Matrix Reloaded"|	"Lilly Wachowski"
 |"Noah Wyle"|	"A Few Good Men"|	"Rob Reiner"
-|"Tom Hanks"|	"Cloud Atlas"|	"Lily Wachowski"
+|"Tom Hanks"|	"Cloud Atlas"|	"Lilly Wachowski"
 |===
 
 

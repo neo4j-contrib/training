@@ -2,9 +2,10 @@
 
 == Exercises as Browser Guides
 
-. pass:a[<a play-topic='{guides}/basics.html'>Basic Querying</a>]
-. pass:a[<a play-topic='{guides}/advanced.html'>Advanced Querying</a>]
-. pass:a[<a play-topic='{guides}/updates.html'>Creating & Updating Data</a>]
+. pass:a[<a play-topic='{guides}/basics.html'>Basic Queries</a>]
+. pass:a[<a play-topic='{guides}/advanced.html'>Advanced Queries</a>]
+// . pass:a[<a play-topic='{guides}/updates.html'>Creating & Updating Data</a>]
+. pass:a[<a play-topic='{guides}/import.html'>Data Import</a>]
 
 == Further References
 

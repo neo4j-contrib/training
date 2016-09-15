@@ -1,0 +1,175 @@
+= Data Import
+
+== `LOAD CSV` is an ETL Power Tool
+
+[options={options}]
+* Load CSV data from a http or file URL
+* Create, update or extend graph structures
+* Transform and convert CSV values
+* Allows us to import *into* our graph model
+* Up to 10M nodes & relationships
+
+// :csv-url: 'http://localhost:8000/content/training/intro/intro-cypher-interactive/data/'
+// :csv-url: http://data.neo4j.com/intro/movies
+:csv-url: http://data.neo4j.com.s3.amazonaws.com/intro/movies
+:movies-url: http://data.neo4j.com/intro/movies/movies.csv
+:actors-url: http://data.neo4j.com/intro/movies/actors.csv
+:movies-actors-url: http://data.neo4j.com/intro/movies/movies_actors.csv
+
+== This is our CSV Data
+
+=== movies.csv
+
+[options=headers]
+,===
+include::{movies-url}[lines=1..3]
+,===
+
+=== actors.csv
+
+[options=headers]
+,===
+include::{actors-url}[lines=1..3]
+,===
+
+=== movies_actors.csv
+
+[options=headers]
+,===
+include::{movies-actors-url}[lines=1..3]
+,===
+
+== Reading data from CSV with Cypher
+
+[source,cypher]
+----
+LOAD CSV     // load csv data
+WITH HEADERS // optionally use first header row as keys in 'row' map
+FROM 'url'   // 'file:///data.csv' or  'http://.../data.csv' URL
+AS row       // return each row of the CSV as list of strings or map
+... rest of the Cypher statement ...
+----
+
+NOTE: If you use file-url's, access is limited to within `$NEO4J_HOME/import`.
+
+== LOAD CSV - Data Inspection
+
+=== Row Count
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV FROM  
+ '{movies-url}' AS row
+RETURN count(*);
+----
+
+=== Row as List Data
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV FROM  
+ '{movies-url}' AS row
+RETURN * LIMIT 5;
+----
+
+== LOAD CSV - WITH HEADERS
+
+=== Row as Map Data
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+ '{movies-url}' AS row
+RETURN row, keys(row) LIMIT 5;
+----
+
+=== Data Conversion
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{csv-url}depts-member.csv' AS row
+FIELDTERMINATOR ';'
+WITH row.person as person, toInt(row.hours) as hours, row.department as dept, row.company = 'GraphIT' as `is graph-it`
+ORDER BY row.company LIMIT 10
+RETURN *;
+----
+
+== Let's create some nodes & relationships
+
+You know how it works, just use `CREATE` or `MERGE`
+
+What would these statements look like:
+
+[source,cypher]
+----
+CREATE (m:Movie {title:'The Matrix', released: 1999, tagline: '...'});
+----
+
+[source,cypher]
+----
+MERGE  (p:Person {name:'Keanu Reeves'}) ON CREATE SET p.born = 1964;
+----
+
+[source,cypher]
+----
+MATCH (p:Person {name:'Keanu Reeves'}), (m:Movie {title:'The Matrix'})
+CREATE (p)-[:ACTED_IN {roles:['Neo']}]->(m);
+----
+
+
+== LOAD CSV - Create Nodes
+
+=== CREATE Orgs
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{movies-url}' AS row
+CREATE (m:Movie {title: row.title, released: toInt(row.released), tagline: row.tagline})
+RETURN m;
+----
+
+=== MERGE People
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{actors-url}' AS row 
+MERGE (p:Person {name: row.name}) ON CREATE SET p.born = toInt(row.born)
+RETURN p;
+----
+
+== LOAD CSV - Create Relationships
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM 
+     '{movie-actors-url}' AS row
+FIELDTERMINATOR ','
+MATCH  (p:Person {name: row.person }) 
+MATCH  (m:Movie    {name: row.movie}) 
+CREATE (p)-[:ACTED_IN {roles: split(row.roles,';')}]->(o)
+RETURN *;
+----
+
+== Meet the LOAD CSV Wizard 
+
+*Trainer Demo and Excercise*
+
+== Clean out Database
+
+Click and run to *clean out your database*
+
+[source,cypher]
+----
+MATCH (n)
+DETACH DELETE n;
+----
+
+== Import our Domain Data as a Script
+
+[source,cypher]
+----
+:play movies
+----
