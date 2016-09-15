@@ -13,8 +13,8 @@
 // :csv-url: http://data.neo4j.com/intro/movies
 :csv-url: http://data.neo4j.com.s3.amazonaws.com/intro/movies
 :movies-url: http://data.neo4j.com/intro/movies/movies.csv
+:people-url: http://data.neo4j.com/intro/movies/people.csv
 :actors-url: http://data.neo4j.com/intro/movies/actors.csv
-:movies-actors-url: http://data.neo4j.com/intro/movies/movies_actors.csv
 
 == This is our CSV Data
 
@@ -25,18 +25,18 @@
 include::{movies-url}[lines=1..3]
 ,===
 
+=== people.csv
+
+[options=headers]
+,===
+include::{people-url}[lines=1..3]
+,===
+
 === actors.csv
 
 [options=headers]
 ,===
 include::{actors-url}[lines=1..3]
-,===
-
-=== movies_actors.csv
-
-[options=headers]
-,===
-include::{movies-actors-url}[lines=1..3]
 ,===
 
 == Reading data from CSV with Cypher
@@ -135,7 +135,7 @@ RETURN m;
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
-     '{actors-url}' AS row 
+     '{people-url}' AS row 
 MERGE (p:Person {name: row.name}) ON CREATE SET p.born = toInt(row.born)
 RETURN p;
 ----
