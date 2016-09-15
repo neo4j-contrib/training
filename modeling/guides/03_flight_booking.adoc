@@ -1,10 +1,9 @@
-= Flight as a first class citizen
+= Flight booking
 :icons: font
 
-== Flight as a first class citizen
+== Flight booking
 
-
-== blah
+In this section we're going to write some queries from the perspective of a frequent traveller trying to find flights to book.
 
 [verse]
 ____
@@ -13,8 +12,46 @@ I want to find flights from <origin> to <destination> on <date>
 So that I can book my business flight
 ____
 
+Before we write those queries let's import some more data.
 
-== Import moar data
+== Import more flights
+
+We initially loaded 10,000 flights.
+
+
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+WITH row LIMIT 50000
+MERGE (origin:Airport {code: row.Origin})
+MERGE (destination:Airport {code: row.Dest})
+MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
+ON CREATE SET newFlight.year = TOINT(row.Year),
+              newFlight.month = TOINT(row.Month),
+              newFlight.day = TOINT(row.DayofMonth),
+              newFlight.airline = row.UniqueCarrier,
+              newFlight.number = row.FlightNum,
+              newFlight.departure = row.Dest,
+              newFlight.arrival = row.UniqueCarrier
+MERGE (origin)<-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]->(destination)
+----
+
+== Find flights to book
+
+Find flights from <origin> to <destination> on <date>
+
+We need a flight that's gonna hit a dense node.
+
+[source, cypher]
+----
+
+----
+
+Which date will make it easier to filter?
+Should I load in all the flights for two of the hubs and have those in another CSV file?
+
+Hmm multiple CSV files.
 
 Our model looks good so far but let's import some more data and see how it fares as we add more queries.
 

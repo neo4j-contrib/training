@@ -4,6 +4,7 @@
 
 . pass:a[<a play-topic='{guides}/01_flight_dataset.html'>The Flight Dataset</a>]
 . pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]
+. pass:a[<a play-topic='{guides}/03_flight_booking.html'>Flight booking</a>]
 
 == Further Resources
 

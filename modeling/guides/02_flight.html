@@ -50,12 +50,28 @@
     <br/>
     <div>
       <div class="paragraph">
-<p>In this section we&#8217;re going to refactor the model to make <code>Flight</code> and <code>Airline</code> first class citizens in our domain.
-This refactoring will make it much easier to write queries centered around these concepts.</p>
+<p>In this section we&#8217;re going to profile the query from the end of the last section and see what&#8217;s going on under the covers.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll then refactor the model to introduce <code>Flight</code> as a first class citizen in our domain to make it easier to write queries centered around flights.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Profiling queries</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Before we profile our query a quick explanation:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/flight_first_class.png" alt="flight first class">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -66,17 +82,75 @@ This refactoring will make it much easier to write queries centered around these
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Finding flights</h3>
+    <h3>Profiling flight <code>WN 1016</code></h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>We can write the following query to find all the flights that we imported in the previous guide.</p>
+<p>We can profile our query by prefixing it with the <code>PROFILE</code> keyword:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
-RETURN *
-LIMIT 10<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What we get back is an execution plan which describes the Cypher operators used to execute this query.
+You can read more about these in the <a href="https://neo4j.com/docs/developer-manual/current/cypher/#execution-plans">developer manual</a></p>
+</div>
+<div class="paragraph">
+<p>In this one the query starts with a <code>NodeByLabelScan</code> on the <code>:Airport</code> label, which means that we first scanned all the airports.
+Next we followed the <code>FLIGHT</code> relationship to <code>origin</code> airports, and we can see from the <code>estimated rows</code> count that we followed 10,000 of these.</p>
+</div>
+<div class="paragraph">
+<p>That&#8217;s a lot of flights!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Profiling flight <code>WN 1016</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In fact we actually looked at every single flight, which we can confirm by executing the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[:FLIGHT]-&gt;()
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So it&#8217;s clear that our model isn&#8217;t optimal - we&#8217;re doing far too much work just to find the destinations and origins of one flight.</p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s time to refactor the model.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Introducing flight as a first class citizen</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Having convinced ourselves that our current model is quite inefficient, we&#8217;re going to refactor the model to introduce a <code>FLIGHT</code> node:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/flight_first_class.png" alt="flight first class">
 </div>
 </div>
 	</div>
@@ -123,7 +197,7 @@ As we saw in the previous section, however, some flights can have multiple legs 
 We&#8217;ll create a <code>flightId</code> with this format: <code>{airline}{flightNumber}{year}-{month}-{day}_{origin}_{destination}</code></p>
 </div>
 <div class="paragraph">
-<p>Run the following query to create a unique constraint on the <code>(Flight, id)</code> label/property pair:</p>
+<p>Run the following query to create a unique constraint on the <code>Flight/id</code> label/property pair:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -224,49 +298,29 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pr
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Profiling queries</h3>
-    <br/>
-    <div>
-      <div class="imageblock">
-<div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
-</div>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
     <h3>Profiling the two flight models</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>Let&#8217;s profile the two queries we&#8217;ve written to find flight <code>WN 1016</code>.
-We can do this by prefixing the queries with <code>PROFILE</code>:</p>
-</div>
-<div class="paragraph">
-<p>Original query</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
-MATCH (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
-WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>With <code>Flight</code> as a first class citizen</p>
+<p>Let&#8217;s now profile our new version of the query to see if we&#8217;ve improved things:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
 MATCH (origin)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination)
 WHERE flight.airline = "WN" AND flight.number = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For reference, you can re-run the profile on our other query as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
 RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
 ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
 </div>
@@ -289,7 +343,7 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pr
 <p>It looks like a good refactoring - we can see by comparing the <code>db hits</code> that the 2nd query does 20x less work</p>
 </div>
 <div class="paragraph">
-<p>This is because we no longer have to <strong>scan every flight</strong> looking for ones which have an <code>airline</code> property of <code>WN</code> and a <code>number</code> of <code>1016</code>.
+<p>This is because we no longer have to <strong>scan every flight</strong> looking for ones which have an <code>airline</code> of <code>WN</code> and a <code>number</code> of <code>1016</code>.
 Instead we&#8217;re able to use the <code>:Flight(number)</code> index to find the flights we&#8217;re interested in and only determine the origins and destinations for those flights.</p>
 </div>
 	</div>
@@ -307,7 +361,7 @@ Instead we&#8217;re able to use the <code>:Flight(number)</code> index to find t
 <p>Since the <code>FLIGHT</code> relationship between airports doesn&#8217;t seem to be much use anymore, let&#8217;s delete.</p>
 </div>
 <div class="paragraph">
-<p>Run the following query to delete it:</p>
+<p>Run the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -323,119 +377,14 @@ DELETE flight<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>blah</h3>
-    <br/>
-    <div>
-      <div class="verseblock">
-<pre class="content">As a frequent traveller
-I want to find flights from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;
-So that I can book my business flight</pre>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Import moar data</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>Our model looks good so far but let&#8217;s import some more data and see how it fares as we add more queries.</p>
-</div>
-<div class="paragraph">
-<p>We need to import some more of the dataset in so we can see the problem with dense nodes</p>
-</div>
-<div class="paragraph">
-<p>It’s not a bad model, but we will have very dense nodes. Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare. These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.</p>
-</div>
-<div class="paragraph">
-<p>When a user is trying to book a flight, they know where they are starting from, where they want to go, and what day they want to fly. So lets reimagine our model to introduce the concept of days.</p>
-</div>
-<div class="paragraph">
-<p>As a user I want to book a flight from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;</p>
-</div>
-<div class="paragraph">
-<p>(airport)-[:HAS_DAY]&#8594;(airportDay)-[:HAS_FLIGHT]&#8594;(flight)</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Exercise</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>We want to introduce the concept of an <code>Airline</code> so that we can quickly find fights by our favorite airline without having to scan through all the flights.
-Don&#8217;t forget to connect the <code>Airline</code> nodes to the appropriate flights.</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Answer: Create <code>Airline</code> nodes</h3>
-    <br/>
-    <div>
-      <div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
-MERGE (airline:Airline {code: flight.airline})
-MERGE (flight)-[:AIRLINE]-&gt;(airline)<!--/code--></pre>
-</div>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Other ideas</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>We could even connect the different legs of the flight together?</p>
-</div>
-<div class="paragraph">
-<p>Other modeling topics:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Inferred relationships</p>
-</li>
-<li>
-<p>Maintaining multiple models for optimal write speed</p>
-</li>
-</ul>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
     <h3>Next Step</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>In the next section we&#8217;re going to do something else, who knows what it&#8217;ll be yet:</p>
+<p>In the next section we&#8217;re going to write some more queries against the dataset, but this time as a different user.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://localhost:8001/02_flight.html'>Flight as a first class citizen</a></p>
+<p><a play-topic='http://localhost:8001/03_flight_booking.html'>Flight booking</a></p>
 </div>
 	</div>
   </div>

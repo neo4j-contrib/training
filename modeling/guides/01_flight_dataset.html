@@ -229,14 +229,14 @@ We know that <code>year</code>, <code>month</code>, and <code>day</code> are act
     <br/>
     <div>
       <div class="paragraph">
-<p>We can see some of what we&#8217;ve imported by writing the following query, which finds the airports with the most incoming and outgoing flights.</p>
+<p>We can see some of what we&#8217;ve imported by writing the following query, which finds the airports with the outgoing flights.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Airport)
-WITH a, SIZE((a)-[:FLIGHT]-&gt;()) AS outgoing, SIZE((a)&lt;-[:FLIGHT]-()) AS incoming
-RETURN a.code, outgoing, incoming
-ORDER BY outgoing DESC<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Airport)-[:FLIGHT]-&gt;()
+RETURN a, COUNT(*) AS outgoing
+ORDER BY outgoing DESC
+LIMIT 10<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -248,10 +248,13 @@ ORDER BY outgoing DESC<!--/code--></pre>
 <p>finds every node with the <code>Airport</code> label</p>
 </li>
 <li>
-<p>uses the <code>SIZE</code> function to count the number of incoming and outgoing relationship of type <code>FLIGHT</code> for each <code>Airport</code> node</p>
+<p>uses the <code>SIZE</code> function to count the number of outgoing relationship of type <code>FLIGHT</code> for each <code>Airport</code> node</p>
 </li>
 <li>
-<p>returns the <code>code</code> property on the <code>Airport</code> nodes and the <code>outgoing</code> and <code>incoming</code> counts in descending order by <code>outgoing</code></p>
+<p>returns the <code>code</code> property on the <code>Airport</code> nodes and the <code>outgoing</code> count in descending order by <code>outgoing</code></p>
+</li>
+<li>
+<p>limits the number of airports returned to 10</p>
 </li>
 </ul>
 </div>
@@ -267,17 +270,24 @@ ORDER BY outgoing DESC<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Now it&#8217;s your turn!</p>
+<p>Now it&#8217;s your turn!
+Try and write queries to answer the following questions:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Find all the flights for flight number <code>WN 1016</code></p>
+<p>Find the airports that have the most incoming flights</p>
 </li>
 <li>
-<p>Find all the flights in January 2008 that go to Las Vegas (<code>LAS</code>)</p>
+<p>Find all the flights that go to Las Vegas (<code>LAS</code>)</p>
+</li>
+<li>
+<p>Find all the flights from Las Vegas (<code>LAS</code>) to Los Angeles (<code>LAX</code>)</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p><em>Hint</em> You&#8217;ll want to refer to the Cypher refcard for the syntax for the second question.</p>
 </div>
 	</div>
   </div>
@@ -287,15 +297,15 @@ ORDER BY outgoing DESC<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Answer: Find all the flights for flight number <code>WN 1016</code></h3>
+    <h3>Answer: Find the airports that have the most incoming flights</h3>
     <br/>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
-WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Airport)&lt;-[:FLIGHT]-()
+RETURN a, COUNT(*) AS incoming
+ORDER BY incoming DESC
+LIMIT 10<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -317,6 +327,82 @@ RETURN origin.code, destination.code, flight.year, flight.month, flight.day, fli
 ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport {code: "LAS"})
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Find all the flights from Las Vegas (<code>LAS</code>) to Los Angeles (<code>LAX</code>)</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport {code: "LAX"})-[flight:FLIGHT]-&gt;(destination:Airport {code: "LAS"})
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Finding specific flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The model has worked well so far.
+We&#8217;ve been able to find the popular airports and find the flights between pairs of airports without much trouble.</p>
+</div>
+<div class="paragraph">
+<p>What about if we want to find all the occurrences of a specific flight?</p>
+</div>
+<div class="verseblock">
+<pre class="content">As a plane enthusiast
+I want to know the schedule for &lt;flight number&gt;
+So that I know when I&#8217;ll be able to spot those planes taking off and landing</pre>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Finding flight <code>WN 1016</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Our next query finds all the instances of flight <code>WN 1016</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s still reasonably quick because we only have 10,000 rows, but under the covers we&#8217;re actually doing a lot of unnecessary work.</p>
+</div>
 	</div>
   </div>
 </slide>
@@ -329,7 +415,7 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pr
     <br/>
     <div>
       <div class="paragraph">
-<p>In the next section we&#8217;re going to refactor the model to introduce <code>Flight</code> as a first class concept to make this type of query easier to write.</p>
+<p>In the next section we&#8217;re going to learn how to profile queries and we&#8217;ll then refactor the model to introduce <code>Flight</code> as a first class concept.</p>
 </div>
 <div class="paragraph">
 <p><a play-topic='http://localhost:8001/02_flight.html'>Flight as a first class citizen</a></p>
