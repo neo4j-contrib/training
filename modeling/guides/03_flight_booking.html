@@ -49,10 +49,16 @@
     <h3>Flight booking</h3>
     <br/>
     <div>
-      <div class="verseblock">
+      <div class="paragraph">
+<p>In this section we&#8217;re going to write some queries from the perspective of a frequent traveller trying to find flights to book.</p>
+</div>
+<div class="verseblock">
 <pre class="content">As a frequent traveller
 I want to find flights from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;
 So that I can book my business flight</pre>
+</div>
+<div class="paragraph">
+<p>Before we write those queries let&#8217;s import some more data.</p>
 </div>
 	</div>
   </div>
@@ -62,10 +68,238 @@ So that I can book my business flight</pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Import moar data</h3>
+    <h3>Import more flights</h3>
     <br/>
     <div>
       <div class="paragraph">
+<p>We initially loaded 10,000 flights.
+That was a fun initial dataset to play with, but now that we&#8217;ve got a model we&#8217;re happy let&#8217;s load in a bit more data.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+WITH row LIMIT 50000
+MERGE (origin:Airport {code: row.Origin})
+MERGE (destination:Airport {code: row.Dest})
+MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
+ON CREATE SET newFlight.year = TOINT(row.Year),
+              newFlight.month = TOINT(row.Month),
+              newFlight.day = TOINT(row.DayofMonth),
+              newFlight.airline = row.UniqueCarrier,
+              newFlight.number = row.FlightNum,
+              newFlight.departure = row.Dest,
+              newFlight.arrival = row.UniqueCarrier
+MERGE (origin)&lt;-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find flights to book</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Find flights from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;</p>
+</div>
+<div class="paragraph">
+<p>We need a flight that&#8217;s gonna hit a dense node.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This one has ~ 7,000 outgoing flights.</p>
+</div>
+<div class="paragraph">
+<p>Now we want to search for all the flights going out of <code>LAS</code> on a specific day.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Hubs, hubs, are everywhere</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare.
+These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.</p>
+</div>
+<div class="paragraph">
+<p>We can see how much work there is to do by executing the following query which finds all the flights departing from Los Angeles on 30th January 2008:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The query starts by using an index to find <code>LAS</code> but then has to traverse all incoming <code>ORIGIN</code> relationships and check 3 properties on the <code>:Flight</code> nodes on the other side.</p>
+</div>
+<div class="paragraph">
+<p>Can you think of a way that we can change our model to avoid doing all these property lookups?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Introducing <code>AirportDay</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>One way that we can tweak our model to be more aligned with our queries is by introducing the concept of an <code>AirportDay</code></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Introducing Airport Day</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We want to introduce <code>:AirportDay</code> nodes so that we don&#8217;t have to scan through all the flights going from an airport when we&#8217;re only interested in a subset of them.</p>
+</div>
+<div class="paragraph">
+<p>Try and write a query to evolve our current model to include this new concept.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/airport_day.jpg" alt="airport day">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Introducing Airport Day</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (airportDay:AirportDay)
+ASSERT airportDay.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
+MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :AirportDay(date)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find flights to book</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now let&#8217;s try finding those flights from Los Angeles again.
+To recap, this was our original query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is the equivalent query which makes use of <code>:AirportDay</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]-&gt;()&lt;-[:HAS_DAY]-(:AirportDay {date: "2008-1-30"})&lt;-[:HAS_DAY]-(destination:Airport)
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try profiling the queries.
+What do you notice?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Refactoring large graphs</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Depending on how powerful your laptop is, you might have noticed that our refactoring query is quite slow</p>
+</div>
+<div class="paragraph">
+<p>Can talk about doing this in batches and maybe introduce apoc?</p>
+</div>
+<div class="paragraph">
+<p>Multiple models</p>
+</div>
+<div class="paragraph">
+<p>You have to control the invariant from your application.
+e.g. if an airline decides to cancel</p>
+</div>
+<div class="paragraph">
+<p>Maybe this can be a slide based section?</p>
+</div>
+<div class="paragraph">
+<p>Which date will make it easier to filter?
+Should I load in all the flights for two of the hubs and have those in another CSV file?</p>
+</div>
+<div class="paragraph">
+<p>Hmm multiple CSV files.</p>
+</div>
+<div class="paragraph">
 <p>Our model looks good so far but let&#8217;s import some more data and see how it fares as we add more queries.</p>
 </div>
 <div class="paragraph">

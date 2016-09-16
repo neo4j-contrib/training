@@ -131,7 +131,7 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure
 
 Before we delete the `FLIGHT` relationship we should profile the two versions of the query to see whether our refactoring has improved things.
 
-== Profiling the two flight models
+== Exercise: Profiling the two flight models
 
 Let's now profile our new version of the query to see if we've improved things:
 
@@ -157,7 +157,7 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure
 
 What do you notice?
 
-== Profiling the two flight models
+== Answer: Profiling the two flight models
 
 It looks like a good refactoring - we can see by comparing the `db hits` that the 2nd query does 20x less work
 

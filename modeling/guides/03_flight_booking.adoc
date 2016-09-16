@@ -17,7 +17,7 @@ Before we write those queries let's import some more data.
 == Import more flights
 
 We initially loaded 10,000 flights.
-
+That was a fun initial dataset to play with, but now that we've got a model we're happy let's load in a bit more data.
 
 [source,cypher]
 ----
@@ -45,8 +45,110 @@ We need a flight that's gonna hit a dense node.
 
 [source, cypher]
 ----
-
+MATCH path = (origin:Airport {code: "LAS"})<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport)
+RETURN COUNT(*)
 ----
+
+This one has ~ 7,000 outgoing flights.
+
+Now we want to search for all the flights going out of `LAS` on a specific day.
+
+== Hubs, hubs, are everywhere
+
+Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare.
+These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.
+
+We can see how much work there is to do by executing the following query which finds all the flights departing from Los Angeles on 30th January 2008:
+
+[source, cypher]
+----
+PROFILE
+MATCH path = (origin:Airport {code: "LAS"})<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport)
+WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+RETURN COUNT(*)
+----
+
+The query starts by using an index to find `LAS` but then has to traverse all incoming `ORIGIN` relationships and check 3 properties on the `:Flight` nodes on the other side.
+
+Can you think of a way that we can change our model to avoid doing all these property lookups?
+
+== Introducing `AirportDay`
+
+One way that we can tweak our model to be more aligned with our queries is by introducing the concept of an `AirportDay`
+
+image::{img}/slides.jpg[]
+
+== Exercise: Introducing Airport Day
+
+We want to introduce `:AirportDay` nodes so that we don't have to scan through all the flights going from an airport when we're only interested in a subset of them.
+
+Try and write a query to evolve our current model to include this new concept.
+
+image::{img}/airport_day.jpg[]
+
+== Solution: Introducing Airport Day
+
+[source, cypher]
+----
+CREATE CONSTRAINT ON (airportDay:AirportDay)
+ASSERT airportDay.id IS UNIQUE
+----
+
+[source, cypher]
+----
+MATCH (origin:Airport)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport)
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (origin)-[:HAS_DAY]->(originAirportDay)
+MERGE (originAirportDay)<-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+----
+
+[source, cypher]
+----
+CREATE INDEX ON :AirportDay(date)
+----
+
+== Find flights to book
+
+Now let's try finding those flights from Los Angeles again.
+To recap, this was our original query:
+
+[source, cypher]
+----
+MATCH path = (origin:Airport {code: "LAS"})<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport)
+WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+RETURN COUNT(*)
+----
+
+This is the equivalent query which makes use of `:AirportDay`:
+
+[source, cypher]
+----
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(:AirportDay {date: "2008-1-30"})<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay {date: "2008-1-30"})<-[:HAS_DAY]-(destination:Airport)
+RETURN COUNT(*)
+----
+
+Try profiling the queries.
+What do you notice?
+
+== Refactoring large graphs
+
+Depending on how powerful your laptop is, you might have noticed that our refactoring query is quite slow
+
+Can talk about doing this in batches and maybe introduce apoc?
+
+Multiple models
+
+You have to control the invariant from your application.
+e.g. if an airline decides to cancel
+
+Maybe this can be a slide based section?
+
+
 
 Which date will make it easier to filter?
 Should I load in all the flights for two of the hubs and have those in another CSV file?
