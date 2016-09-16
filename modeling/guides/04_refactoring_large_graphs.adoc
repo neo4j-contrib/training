@@ -1,0 +1,60 @@
+= Refactoring large graphs
+:icons: font
+
+== Refactoring large graphs
+
+Depending on how powerful your laptop is, you might have noticed that our refactoring query is quite slow
+
+Can talk about doing this in batches and maybe introduce apoc?
+
+Multiple models
+
+You have to control the invariant from your application.
+e.g. if an airline decides to cancel
+
+Maybe this can be a slide based section?
+
+
+
+Which date will make it easier to filter?
+Should I load in all the flights for two of the hubs and have those in another CSV file?
+
+Hmm multiple CSV files.
+
+Our model looks good so far but let's import some more data and see how it fares as we add more queries.
+
+We need to import some more of the dataset in so we can see the problem with dense nodes
+
+It’s not a bad model, but we will have very dense nodes. Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare. These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.
+
+When a user is trying to book a flight, they know where they are starting from, where they want to go, and what day they want to fly. So lets reimagine our model to introduce the concept of days.
+
+
+As a user I want to book a flight from <origin> to <destination> on <date>
+
+
+
+(airport)-[:HAS_DAY]->(airportDay)-[:HAS_FLIGHT]->(flight)
+
+== Exercise
+
+We want to introduce the concept of an `Airline` so that we can quickly find fights by our favorite airline without having to scan through all the flights.
+Don't forget to connect the `Airline` nodes to the appropriate flights.
+
+== Answer: Create `Airline` nodes
+
+[source, cypher]
+----
+MATCH (flight:Flight)
+MERGE (airline:Airline {code: flight.airline})
+MERGE (flight)-[:AIRLINE]->(airline)
+----
+
+== Other ideas
+
+We could even connect the different legs of the flight together?
+
+Other modeling topics:
+
+* Inferred relationships
+* Maintaining multiple models for optimal write speed
