@@ -21,7 +21,7 @@ That was a fun initial dataset to play with, but now that we've got a model we'r
 
 [source,cypher]
 ----
-LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}2008.csv" AS row
 WITH row LIMIT 50000
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})

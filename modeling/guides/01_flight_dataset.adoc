@@ -35,7 +35,7 @@ We can run the following query to see what data we've got to work with:
 
 [source,cypher]
 ----
-LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}2008.csv" AS row
 RETURN row
 LIMIT 5
 ----
@@ -66,7 +66,7 @@ Run the following query to create nodes and relationships for these flights:
 
 [source,cypher]
 ----
-LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}2008.csv" AS row
 WITH row LIMIT 10000
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
