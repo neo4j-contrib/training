@@ -75,10 +75,13 @@ So that I can book my business flight</pre>
 <p>We initially loaded 10,000 flights.
 That was a fun initial dataset to play with, but now that we&#8217;ve got a model we&#8217;re happy let&#8217;s load in a bit more data.</p>
 </div>
+<div class="paragraph">
+<p><code>flights_50k.csv</code> contains 50,000 flights.
+We can run the following query to import those flights:</p>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
-WITH row LIMIT 50000
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "{csv-url}flights_50k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -105,10 +108,7 @@ MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Find flights from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;</p>
-</div>
-<div class="paragraph">
-<p>We need a flight that&#8217;s gonna hit a dense node.</p>
+<p>Now it&#8217;s time to write a query to find available flights from an airport on a specific date.</p>
 </div>
 <div class="listingblock">
 <div class="content">

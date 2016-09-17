@@ -111,11 +111,15 @@ We could use command line tools to explore this further but Cypher&#8217;s <code
     <br/>
     <div>
       <div class="paragraph">
+<p>While we&#8217;re working out the appropriate model for our dataset it&#8217;s much easier to work with a subset of the data so that we can iterate quickly.
+A smaller dataset containing the first 10,000 flights lives in <code>flights_initial.csv</code>.</p>
+</div>
+<div class="paragraph">
 <p>We can run the following query to see what data we&#8217;ve got to work with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_initial.csv" AS row
 RETURN row
 LIMIT 5<!--/code--></pre>
 </div>
@@ -126,7 +130,7 @@ LIMIT 5<!--/code--></pre>
 <div class="ulist">
 <ul>
 <li>
-<p>loads the file <code>2008.csv</code> from your <code>import</code> directory</p>
+<p>loads the file <code>flights_initial.csv</code> from your <code>import</code> directory</p>
 </li>
 <li>
 <p>iterates over the file, referring to each line as the variable <code>row</code></p>
@@ -174,23 +178,18 @@ The following should suffice:</p>
     <br/>
     <div>
       <div class="paragraph">
-<p>While we&#8217;re working out the appropriate model for our dataset it&#8217;s much easier to work with a subset of the data so that we can iterate quickly.
-We&#8217;ll work with the first 10,000 rows of the CSV file.</p>
-</div>
-<div class="paragraph">
 <p>Run the following query to create nodes and relationships for these flights:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///2008.csv" AS row
-WITH row LIMIT 10000
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_initial.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (origin)-[flight:FLIGHT {airline: row.UniqueCarrier,
                                flightNumber: row.FlightNum,
                                year: TOINT(row.Year),
                                month: TOINT(row.Month),
-                               day: TOINT(row.DayofMonth)}]-&gt;(destination)
+                               day: TOINT(row.DayofMonth)}]->(destination)
 ON CREATE SET flight.departure = TOINT(row.CRSDepTime), flight.arrival = TOINT(row.CRSArrTime)<!--/code--></pre>
 </div>
 </div>
@@ -200,7 +199,7 @@ ON CREATE SET flight.departure = TOINT(row.CRSDepTime), flight.arrival = TOINT(r
 <div class="ulist">
 <ul>
 <li>
-<p>takes the first 10,000 rows in the CSV file</p>
+<p>iterates through each row in the file</p>
 </li>
 <li>
 <p>creates nodes with the <code>Airport</code> label for the origin and destination airports if they don&#8217;t already exist</p>

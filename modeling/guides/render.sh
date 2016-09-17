@@ -25,7 +25,7 @@ if [ "$1" == "publish" ]; then
 else
   URL=localhost:8001
 # copy the csv files to $NEO4J_HOME/import
-  render http://$URL -a csv-url=file:// -a env-training
+  render http://$URL -a csv-url=file:/// -a env-training
   echo "Starting Websever at $URL Ctrl-c to stop"
   python $GUIDES/http-server.py
   # python -m SimpleHTTPServer

@@ -50,7 +50,7 @@ It's time to refactor the model.
 
 == Introducing flight as a first class citizen
 
-Having convinced ourselves that our current model is quite inefficient, we're going to refactor the model to introduce a `FLIGHT` node:
+Having convinced ourselves that our current model is quite inefficient, we're going to refactor the model to introduce a `Flight` node:
 
 image::{img}/flight_first_class.png[]
 
@@ -178,6 +178,6 @@ DELETE flight
 
 == Next Step
 
-In the next section we're going to write some more queries against the dataset, but this time as a different user.
+In the next section we're going to write some more queries against the dataset, but this time with a different user in mind.
 
 pass:a[<a play-topic='{guides}/03_flight_booking.html'>Flight booking</a>]
