@@ -55,48 +55,59 @@
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/people.csv' as row
+
 MERGE(person:Person {id: toInt(row.personId)})
 ON CREATE SET person.name = row.name,
               person.born = toInt(row.birthYear),
               person.died = toInt(row.deathYear)<!--/code--></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>LOAD CSV WITH HEADERS FROM 'file:///Users/markneedham/projects/graphconnect-training/new_movies.csv' as record
-WITH toInt(record.movieId) as movieId,
-     record.title as title,
-     toFloat(record.avgVote) as avgVote,
-     toInt(record.releaseYear) as releaseYear,
-     record.tagline as tagline,
-     split(record.genres, ":") as genres
-MERGE (movie:Movie {id:movieId})
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/new_movies.csv' as row
+
+MERGE (movie:Movie {id:toInt(row.movieId)})
 ON CREATE SET
-  movie.title = title,
-  movie.avgVote = avgVote,
-  movie.releaseYear = releaseYear,
-  movie.tagline = tagline,
-  movie.genres = genres;</p>
+  movie.title = row.title,
+  movie.avgVote = toFloat(row.avgVote),
+  movie.releaseYear = toInt(row.releaseYear),
+  movie.tagline = row.tagline,
+  movie.genres = split(row.genres, ":")<!--/code--></pre>
 </div>
-<div class="paragraph">
-<p>LOAD CSV WITH HEADERS FROM 'file:///Users/markneedham/projects/graphconnect-training/directors.csv' as record
-WITH toInt(record.movieId) as movieId, toInt(record.personId) as personId
-MATCH (movie:Movie {id:movieId})
-MATCH (person:Person {id: personId})
-MERGE (person)-[:DIRECTED]&#8594;(movie);</p>
-</div>
-<div class="paragraph">
-<p>LOAD CSV WITH HEADERS FROM 'file:///Users/markneedham/projects/graphconnect-training/actors.csv' as record
-WITH toInt(record.movieId) as movieId,
-     toInt(record.personId) as personId,
-    CASE WHEN record.characters IS NULL then [] ELSE split(record.characters, ":") END as roles
-MATCH (movie:Movie {id:movieId})
-MATCH (person:Person {id: personId})
-MERGE (person)-[:ACTED_IN {roles:roles}]&#8594;(movie);</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>In this section we're going to look at how we can</pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/directors.csv' as row
+
+MATCH (movie:Movie {id:movieId})
+MATCH (person:Person {id: personId})
+MERGE (person)-[:DIRECTED]->(movie)<!--/code--></pre>
 </div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/actors.csv' as row
+
+MATCH (movie:Movie {id:toInt(row.movieId)})
+MATCH (person:Person {id: toInt(row.personId)})
+
+MERGE (person)-[actedIn:ACTED_IN]->(movie)
+ON CREATE SET actedIn.roles = CASE WHEN row.characters IS NULL then [] ELSE split(row.characters, ":") END as roles<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Query time</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s write some queries against the dataset now.</p>
 </div>
 	</div>
   </div>
