@@ -1,0 +1,6 @@
+= Intermediate State
+:icons: font
+
+== Intermediate State
+
+Here we'll look at how you need to control the state of your queries and try and reduce the number of rows as early as you can.

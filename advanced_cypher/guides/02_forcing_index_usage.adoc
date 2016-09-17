@@ -1,0 +1,6 @@
+= Forcing queries to use indexes
+:icons: font
+
+== Forcing queries to use indexes
+
+In this section we're going to look at how we can 

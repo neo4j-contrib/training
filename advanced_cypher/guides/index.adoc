@@ -1,0 +1,16 @@
+= Advanced Cypher
+
+== Welcome to Advanced Cypher
+
+. pass:a[<a play-topic='{guides}/01_cypher_refresher.html'>A Cypher Refresher</a>]
+. pass:a[<a play-topic='{guides}/02_forcing_index_usage.html'>Forcing queries to use indexes</a>]
+. pass:a[<a play-topic='{guides}/03_procedures.html'>Procedures</a>]
+. pass:a[<a play-topic='{guides}/04_intermediate_state.html'>Intermediate State</a>]
+
+== Further Resources
+
+* http://neo4j.com/graphgists[Graph Gist Examples]
+* http://neo4j.com/docs/stable/cypher-refcard/[Cypher Reference Card]
+* http://neo4j.com/docs/developer-manual/current/#cypher-query-lang[Neo4j Developer Manual]
+* http://neo4j.com/developer/resources#_neo4j_cypher_resources[Cypher Resource Collection]
+* http://graphdatabases.com[e-book: Graph Databases (free)]

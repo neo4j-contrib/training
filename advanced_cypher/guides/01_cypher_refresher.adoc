@@ -1,0 +1,11 @@
+= Cypher Refresher
+:icons: font
+
+== Cypher Refresher
+
+Welcome to the first of a set of interactive guides.
+In these guides we'll write increasingly complex queries on an extended movies dataset.
+
+Before we get to that, however, we've got a quick Cypher refresher session to get everyone on the same page.
+
+== Next step
