@@ -12,8 +12,8 @@ function render {
 
 # -a env-training is a flag to enable full content, if you comment it out, the guides are rendered minimally e.g. for a presentation
 if [ "$1" == "publish" ]; then
-  URL=guides.neo4j.com/advanced-cypher
-  render http://$URL -a csv-url=https://raw.githubusercontent.com/mneedham/neo4j-got/master/data/import -a env-training
+  URL=guides.neo4j.com/advanced_cypher
+  render http://$URL -a csv-url=https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/ -a env-training
   s3cmd put --recursive -P *.html img s3://${URL}/
   s3cmd put -P index.html s3://${URL}
 
