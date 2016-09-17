@@ -3,7 +3,9 @@
 
 == Refactoring large graphs
 
-Depending on how powerful your laptop is, you might have noticed that our refactoring query is quite slow
+In the previous section we noticed that our refactoring queries were slowing down once we'd loaded more flights into the database.
+
+
 
 Can talk about doing this in batches and maybe introduce apoc?
 
