@@ -5,9 +5,89 @@
 
 In the previous section we noticed that our refactoring queries were slowing down once we'd loaded more flights into the database.
 
-
-
 Can talk about doing this in batches and maybe introduce apoc?
+
+The pattern is roughly this:
+
+* tag all the nodes we need to process with some sort of flag label e.g. `Process`
+* iterate over a subset of nodes flagged with that label and execute the refactoring
+* remove the tag from the node
+* return a count of how many rows were processed
+
+When the count reaches 0 then we've finished.
+
+== Manual batching
+
+We're now sacrificing the atomicity that we'd get if we did everything in one transaction so it makes sense to make our refactoring queries idempotent in case we need to re-run them.
+We also need to decide which node we're going to center the refactoring around.
+
+To recap, this was the refactoring from the previous section:
+
+[source, cypher]
+----
+MATCH (origin:Airport)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport)
+
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (origin)-[:HAS_DAY]->(originAirportDay)
+MERGE (originAirportDay)<-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+----
+
+Should probably make this an include since it's reused from the previous section.
+
+`Flight` is probably the easiest place to start.
+
+[source, cypher]
+----
+MATCH (f:Flight)
+SET f:NeedsProcessing
+----
+
+So now all our `Flight` nodes have a `NeedsProcessing` label as well.
+
+[source, cypher]
+----
+MATCH (flight:NeedsProcessing)
+WITH flight LIMIT 500
+
+MATCH (origin:Airport)<-[:ORIGIN]-(flight)-[:DESTINATION]->(destination:Airport)
+
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (origin)-[:HAS_DAY]->(originAirportDay)
+MERGE (originAirportDay)<-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+
+RETURN COUNT(*)
+----
+
+We'd then have to run this query 100,000 / 500 = 200 times which would be a very boring way to pass the time.
+
+Procedures were introduced in neo4j 3.0.0 and can massively simplify things for us here.
+
+*link to the apoc guide*
+
+== Batching with apoc
+
+The `apoc.periodic.commit(statement,params)` stored procedure allows us to do just that.
+Run the following query but be patient, it's got a lot of friendships to make!
+
+[source,cypher]
+----
+call apoc.periodic.commit("
+  <query>
+",{limit:500})
+----
+
 
 Multiple models
 

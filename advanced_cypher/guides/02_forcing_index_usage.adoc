@@ -116,22 +116,30 @@ Can we do even better?
 
 Explain the count store and what it's able to count
 
+== Count Store / No Count Store
 
+Let's try a few queries to get the hang of where it's being used and what type of count operations we should expect to be fast.
+
+All nodes = count store
 
 [source, cypher]
 ----
-PROFILE
-MATCH (a:Person)
-WITH a, SIZE((a)-[:ACTED_IN]->()) AS count
-ORDER BY count DESC
-LIMIT 10
-RETURN a.name, count
+PROFILE MATCH () RETURN COUNT(*)
 ----
 
-The count store is sometimes used by Cypher anyway but on this occasion it wasn't.
-It keeps track of counts of various cardinalities.
+Nodes with a label = count store
 
-Let's try a few queries to get the hang of where it's being used and what type of count operations we should expect to be fast.
+[source, cypher]
+----
+PROFILE MATCH (:Person) RETURN COUNT(*)
+----
+
+Nodes with multiple labels = no count store
+
+[source, cypher]
+----
+PROFILE MATCH (:Person:Engineer) RETURN COUNT(*)
+----
 
 No direction on relationship = no count store
 
@@ -156,3 +164,18 @@ PROFILE MATCH (:Movie)<-[:ACTED_IN]-(:Person) RETURN COUNT(*)
 
 
 Find all the people who have acted in <x> movies and directed <y> movies
+
+== Using our count store knowledge
+
+[source, cypher]
+----
+PROFILE
+MATCH (a:Person)
+WITH a, SIZE((a)-[:ACTED_IN]->()) AS count
+ORDER BY count DESC
+LIMIT 10
+RETURN a.name, count
+----
+
+The count store is sometimes used by Cypher anyway but on this occasion it wasn't.
+It keeps track of counts of various cardinalities.

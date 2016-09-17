@@ -1,0 +1,27 @@
+= Installing Awesome Procedures (apoc)
+:icons: font
+
+== Installing Awesome Procedures (apoc)
+
+link:https://twitter.com/mesirii[Michael Hunger] has created the link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[apoc] library which contains lots of useful procedures that we can use in our neo4j applications.
+
+Let's get `apoc` installed on our local instances of Neo4j:
+
+* You should have already copied `apoc.jar` onto your machine.
+If you haven't then grab a USB stick from one of the trainers or download the latest version of apoc from link:https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest[]
+
+* Copy `apoc.jar` into your `plugins` folder wherever you have installed Neo4j.
+
+== Check apoc installed correctly
+
+If you run the following command you can see which additional procedures are now available to us:
+
+[source,cypher]
+----
+CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name STARTS WITH "apoc"
+RETURN name, signature
+----
+
+If you don't see any rows grab your closest trainer for help.

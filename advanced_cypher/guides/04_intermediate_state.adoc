@@ -4,3 +4,29 @@
 == Intermediate State
 
 Here we'll look at how you need to control the state of your queries and try and reduce the number of rows as early as you can.
+
+What query can we do which has some intermediate state that we need to reduce?
+
+Think we have some from the talk that Petra and I gave.
+
+[source, cypher]
+----
+PROFILE
+MATCH (p:Person {name:"Tom Hanks"})-[:ACTED_IN]->(m1)<-[:ACTED_IN]-(coActor)-[:ACTED_IN]->(m2)
+RETURN distinct m2.title
+----
+
+[source, cypher]
+----
+PROFILE
+MATCH (p:Person {name:"Tom Hanks"})-[:ACTED_IN]->(m1)<-[:ACTED_IN]-(coActor)
+WITH DISTINCT coActor
+MATCH (coActor)-[:ACTED_IN]->(m2)
+RETURN distinct m2.title
+----
+
+Only reduces the work by 2,000 `db hits`.
+Disappointing!
+
+How do we use labels to help reduce the number of starting points?
+e.g. Is it faster to put a label and have to do less relationship scanning?
