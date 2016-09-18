@@ -4,7 +4,7 @@
 == Importing data with Cypher
 
 The structure of these guides will be that we have a user story that we're trying to implement.
-We'll look at how to solve that in a naive way to start with and then optimise our queries.
+We'll look at how to solve that in a naive way to start with and then optimize our queries.
 
 [verse]
 ____
@@ -12,6 +12,8 @@ As a movie enthusiast
 I want to import IMDB data into neo4j as quickly as possible
 So that I can start writing queries about my favorite movie stars
 ____
+
+
 
 [source, cypher, subs=attributes]
 ----

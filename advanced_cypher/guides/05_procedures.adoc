@@ -3,6 +3,11 @@
 
 == Procedures
 
-Neo4j 3.0 saw the introduction of procedures
+Neo4j 3.0 saw the introduction of procedures which allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.
+Before we get started, let's get setup with the Awesome Procedures (`apoc`) set of procedures:
 
 pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]
+
+== Procedures
+
+What sort of stuff do we want to show off with procedures here? 

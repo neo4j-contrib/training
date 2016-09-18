@@ -82,7 +82,8 @@ If you haven&#8217;t then grab a USB stick from one of the trainers or download 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures()
+YIELD name, signature
 WITH name, signature
 WHERE name STARTS WITH "apoc"
 RETURN name, signature<!--/code--></pre>
@@ -90,6 +91,9 @@ RETURN name, signature<!--/code--></pre>
 </div>
 <div class="paragraph">
 <p>If you don&#8217;t see any rows grab your closest trainer for help.</p>
+</div>
+<div class="paragraph">
+<p>Once you&#8217;ve got it installed you can close this guide and return to the previous one.</p>
 </div>
 	</div>
   </div>
