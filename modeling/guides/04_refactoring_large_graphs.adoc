@@ -5,23 +5,21 @@
 
 In the previous section we noticed that our refactoring queries were slowing down once we'd loaded more flights into the database.
 
-Can talk about doing this in batches and maybe introduce apoc?
+Once the amount of date gets a big larger we'll probably want to execute these refactorings in batches.
+A typical workflow would be:
 
-The pattern is roughly this:
-
-* tag all the nodes we need to process with some sort of flag label e.g. `Process`
-* iterate over a subset of nodes flagged with that label and execute the refactoring
+* tag all the nodes we need to process with a temporary label e.g. `Process`
+* iterate over a subset of nodes flagged with that label (using `LIMIT`) and execute the refactoring
 * remove the tag from the node
 * return a count of how many rows were processed
-
-When the count reaches 0 then we've finished.
+* once the count reaches 0 then we've finished.
 
 == Manual batching
 
 We're now sacrificing the atomicity that we'd get if we did everything in one transaction so it makes sense to make our refactoring queries idempotent in case we need to re-run them.
 We also need to decide which node we're going to center the refactoring around.
 
-To recap, this was the refactoring from the previous section:
+To recap, this was the refactoring query from the previous section:
 
 [source, cypher]
 ----
@@ -38,9 +36,7 @@ MERGE (originAirportDay)<-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 ----
 
-*Should probably make this an include since it's reused from the previous section.*
-
-`Flight` is probably the easiest place to start.
+`Flight` is probably the easiest node to batch on.
 
 == Batch refactoring flights
 
@@ -53,7 +49,7 @@ SET f:Process
 ----
 
 Now we're ready to run the refactoring query.
-We'll be processing 500 flights at a time:
+We'll start by processing 500 flights at a time:
 
 [source, cypher]
 ----
@@ -72,36 +68,79 @@ MERGE (origin)-[:HAS_DAY]->(originAirportDay)
 MERGE (originAirportDay)<-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 
+REMOVE flight:Process
 RETURN COUNT(*)
 ----
 
 We'd have to run this query 100,000 / 500 = 200 times to process all the flights, which would be a very boring way to pass the time!
 
-Lucky for us, Neo4j 3.0 saw the introduction of procedures which can massively simplify things for us here.
+Lucky for us, Neo4j 3.0 saw the introduction of procedures which can significantly simplify things.
 
 == Procedures
 
-Neo4j 3.0 saw the introduction of procedures which allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.
+Procedures allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.
 
 The Neo4j community has built a collection of over 200 procedures in the Awesome Procedures (`apoc`) package over the last 6 months.
-Let's see if there's one which can help us out with our batch refactoring efforts.
+Hopefully we'll find one which can help us out with our batch refactoring efforts.
+
+But first let's get `apoc` setup on your machines:
 
 pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]
 
-== Batching with apoc
+== Batch refactoring with `apoc`
 
-The following query does exactly waht we want:
+The following query does exactly what we want:
 
 [source, cypher]
 ----
 CALL apoc.help("apoc.periodic.commit")
 ----
 
-We can now call our refactoring query inside this procedure, like so:
+Before we give it a try, let's import a few more flights to keep it interesting.
+As we're now dealing with much more data we'll have to be a bit cleverer about how we import the data.
+
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}_500k.csv" AS row
+UNWIND [row.Origin, row.Dest] AS airport
+RETURN DISTINCT airport
+----
+
+[source, cypher]
+----
+USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+MATCH (origin:Airport {code: row.Origin})
+MATCH (destination:Airport {code: row.Dest})
+MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
+ON CREATE SET newFlight.year = TOINT(row.Year),
+              newFlight.month = TOINT(row.Month),
+              newFlight.day = TOINT(row.DayofMonth),
+              newFlight.airline = row.UniqueCarrier,
+              newFlight.number = row.FlightNum,
+              newFlight.departure = row.Dest,
+              newFlight.arrival = row.UniqueCarrier
+MERGE (origin)<-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]->(destination)
+----
+
+Now we're reading to do do some batch refactoring.
+
+== Batch refactoring with `apoc`
+
+Since we've imported more nodes we'll need to tag them with the `Process` label:
+
+[source, cypher]
+----
+MATCH (f:Flight)
+SET f:Process
+----
+
+We can now call our refactoring query inside the procedure:
 
 [source,cypher]
 ----
-call apoc.periodic.commit("
+call apoc.periodic.commit('
   MATCH (flight:Process)
   WITH flight LIMIT {limit}
 
@@ -117,9 +156,12 @@ call apoc.periodic.commit("
   MERGE (originAirportDay)<-[:ORIGIN]-(flight)
   MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 
+  REMOVE flight:Process
   RETURN COUNT(*)
-",{limit:500})
+',{limit:500})
 ----
+
+
 
 
 Multiple models
