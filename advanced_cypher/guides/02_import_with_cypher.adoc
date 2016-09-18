@@ -26,7 +26,7 @@ ON CREATE SET person.name = row.name,
 We know that this file has unique people in so we may as well use CREATE?
 What would we do if there were duplicates?
 
-We should have something for recovering after messed up imports? 
+We should have something for recovering after messed up imports?
 
 [source, cypher, subs=attributes]
 ----
@@ -60,3 +60,7 @@ MATCH (person:Person {id: toInt(row.personId)})
 MERGE (person)-[actedIn:ACTED_IN]->(movie)
 ON CREATE SET actedIn.roles = CASE WHEN row.characters IS NULL then [] ELSE split(row.characters, ":") END
 ----
+
+== Next step
+
+pass:a[<a play-topic='{guides}/03_aggregates.html'>Aggregate Queries</a>]

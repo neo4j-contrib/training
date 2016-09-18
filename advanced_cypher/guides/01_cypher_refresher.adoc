@@ -9,3 +9,5 @@ In these guides we'll write increasingly complex queries on an extended movies d
 Before we get to that, however, we've got a quick Cypher refresher session to get everyone on the same page.
 
 == Next step
+
+pass:a[<a play-topic='{guides}/02_import_with_cypher.html'>Importing data with Cypher</a>]

@@ -60,7 +60,7 @@ So that I can start writing queries about my favorite movie stars</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file://people.csv' as row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/people.csv' as row
 
 MERGE(person:Person {id: toInt(row.personId)})
 ON CREATE SET person.name = row.name,
@@ -77,7 +77,7 @@ What would we do if there were duplicates?</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file://new_movies.csv' as row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/new_movies.csv' as row
 
 MERGE (movie:Movie {id:toInt(row.movieId)})
 ON CREATE SET
@@ -90,7 +90,7 @@ ON CREATE SET
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file://directors.csv' as row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/directors.csv' as row
 
 MATCH (movie:Movie {id:toInt(row.movieId)})
 MATCH (person:Person {id: toInt(row.personId)})
@@ -99,7 +99,7 @@ MERGE (person)-[:DIRECTED]->(movie)<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file://actors.csv' as row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/actors.csv' as row
 
 MATCH (movie:Movie {id:toInt(row.movieId)})
 MATCH (person:Person {id: toInt(row.personId)})
@@ -107,6 +107,20 @@ MATCH (person:Person {id: toInt(row.personId)})
 MERGE (person)-[actedIn:ACTED_IN]->(movie)
 ON CREATE SET actedIn.roles = CASE WHEN row.characters IS NULL then [] ELSE split(row.characters, ":") END<!--/code--></pre>
 </div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/advanced_cypher/03_aggregates.html'>Aggregate Queries</a></p>
 </div>
 	</div>
   </div>
