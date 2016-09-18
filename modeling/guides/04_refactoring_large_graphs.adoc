@@ -42,13 +42,18 @@ MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 
 `Flight` is probably the easiest place to start.
 
+== Batch refactoring flights
+
+Let's put a `Process` label on each of our `Flight` nodes so that we know which ones we've still got to process.
+
 [source, cypher]
 ----
 MATCH (f:Flight)
 SET f:Process
 ----
 
-So now all our `Flight` nodes have a `Process` label as well.
+Now we're ready to run the refactoring query.
+We'll be processing 500 flights at a time:
 
 [source, cypher]
 ----
@@ -70,21 +75,49 @@ MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 RETURN COUNT(*)
 ----
 
-We'd then have to run this query 100,000 / 500 = 200 times which would be a very boring way to pass the time.
+We'd have to run this query 100,000 / 500 = 200 times to process all the flights, which would be a very boring way to pass the time!
 
-Procedures were introduced in neo4j 3.0.0 and can massively simplify things for us here.
+Lucky for us, Neo4j 3.0 saw the introduction of procedures which can massively simplify things for us here.
 
-*link to the apoc guide*
+== Procedures
+
+Neo4j 3.0 saw the introduction of procedures which allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.
+
+The Neo4j community has built a collection of over 200 procedures in the Awesome Procedures (`apoc`) package over the last 6 months.
+Let's see if there's one which can help us out with our batch refactoring efforts.
+
+pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]
 
 == Batching with apoc
 
-The `apoc.periodic.commit(statement,params)` stored procedure allows us to do just that.
-Run the following query but be patient, it's got a lot of friendships to make!
+The following query does exactly waht we want:
+
+[source, cypher]
+----
+CALL apoc.help("apoc.periodic.commit")
+----
+
+We can now call our refactoring query inside this procedure, like so:
 
 [source,cypher]
 ----
 call apoc.periodic.commit("
-  <query>
+  MATCH (flight:Process)
+  WITH flight LIMIT {limit}
+
+  MATCH (origin:Airport)<-[:ORIGIN]-(flight)-[:DESTINATION]->(destination:Airport)
+
+  MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+  ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+  MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+  ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+  MERGE (origin)-[:HAS_DAY]->(originAirportDay)
+  MERGE (originAirportDay)<-[:ORIGIN]-(flight)
+  MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+
+  RETURN COUNT(*)
 ",{limit:500})
 ----
 
