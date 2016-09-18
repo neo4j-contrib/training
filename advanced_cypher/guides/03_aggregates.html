@@ -89,7 +89,7 @@ You can kill it by pressing the <code>X</code> button on the right hand side of 
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/advanced_cypher/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -134,16 +134,18 @@ This is the equivalent of a cross join in SQL.</p>
     <br/>
     <div>
       <div class="paragraph">
-<p>We can fix this query by counting <code>:Person</code> and <code>:Movie</code> nodes separately.
-We can use the <code>WITH</code>  clause to combine our results together and return them as separate fields:</p>
+<p>We can fix this query by counting <code>:Person</code> and <code>:Movie</code> nodes separately.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;re going to use the <a href="https://neo4j.com/docs/developer-manual/current/cypher/#query-with"><code>WITH</code></a> clause to combine our results together and return them as separate fields:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
 MATCH (:Person)
-WITH count(*) as a_count
+WITH count(*) as personCount
 MATCH (:Movie)
-RETURN a_count, count(*);<!--/code--></pre>
+RETURN personCount, count(*) AS movieCount;<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -199,7 +201,7 @@ LIMIT 10<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Let&#8217;s now profile our query by prefixing it with <code>PROFILE</code>:</p>
+<p>Let&#8217;s profile our query to see what operations are going on behind the scenes:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -226,8 +228,8 @@ By grouping on the <code>name</code> property we are forcing Cypher to look up t
     <br/>
     <div>
       <div class="paragraph">
-<p>Instead of that let&#8217;s group on the node and then look up the <code>name</code> property only for the top 10 actors.
-The following query does this:</p>
+<p>A better approach is to group on the node and then look up the <code>name</code> property after we&#8217;ve found the top 10 actors.
+The <code>WITH</code> clause comes in handy again:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -268,11 +270,11 @@ RETURN a.name, count<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Neo4j has a counts store which can be used to speed up aggregate queries.</p>
+<p>Neo4j has a counts store which it uses for generating execution plans and which we can sometimes use to speed up aggregate queries.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/advanced_cypher/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -289,50 +291,56 @@ RETURN a.name, count<!--/code--></pre>
       <div class="paragraph">
 <p>Let&#8217;s try a few queries to get the hang of where it&#8217;s being used and what type of count operations we should expect to be fast.</p>
 </div>
-<div class="paragraph">
-<p>All nodes = count store</p>
-</div>
-<div class="listingblock">
+
+
+
+   <h4>All nodes = count store</h4>
+   <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE MATCH () RETURN COUNT(*)<!--/code--></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Nodes with a label = count store</p>
-</div>
-<div class="listingblock">
+
+
+
+   <h4>Nodes with a label = count store</h4>
+   <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE MATCH (:Person) RETURN COUNT(*)<!--/code--></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Nodes with multiple labels = no count store</p>
-</div>
-<div class="listingblock">
+
+
+
+   <h4>Nodes with multiple labels = no count store</h4>
+   <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE MATCH (:Person:Engineer) RETURN COUNT(*)<!--/code--></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>No direction on relationship = no count store</p>
-</div>
-<div class="listingblock">
+
+
+
+   <h4>No direction on relationship = no count store</h4>
+   <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE MATCH (:Movie)-[:ACTED_IN]-() RETURN COUNT(*)<!--/code--></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Direction on relationship = count store</p>
-</div>
-<div class="listingblock">
+
+
+
+   <h4>Direction on relationship = count store</h4>
+   <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE MATCH (:Movie)&lt;-[:ACTED_IN]-() RETURN COUNT(*)<!--/code--></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Label on both sides of relationship = no count store</p>
-</div>
-<div class="listingblock">
+
+
+
+   <h4>Label on both sides of relationship = no count store</h4>
+   <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE MATCH (:Movie)&lt;-[:ACTED_IN]-(:Person) RETURN COUNT(*)<!--/code--></pre>
 </div>
@@ -351,7 +359,28 @@ RETURN a.name, count<!--/code--></pre>
     <h3>Using our count store knowledge</h3>
     <br/>
     <div>
-      <div class="listingblock">
+      <div class="paragraph">
+<p>To recap, this was our most recent version of the query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (a:Person)-[:ACTED_IN]-&gt;()
+WITH a, count(*) as count
+ORDER BY count DESC
+LIMIT 10
+RETURN a.name, count<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We want to count the <code>(:Person)-[:ACTED_IN]&#8594;()</code> relationship which is one of the types of things stored in the count store.
+Unfortunately we can see from the execution plan that all the <code>ACTED_IN</code> relationships are being evaluated which isn&#8217;t what we want.</p>
+</div>
+<div class="paragraph">
+<p>When this happens we can force the planner to do what we want by using the <code>SIZE</code> function to count the number of relationships.
+The following query makes use of the counts store via the <code>GetDegree</code> operator</p>
+</div>
+<div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
 MATCH (a:Person)
@@ -362,8 +391,7 @@ RETURN a.name, count<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The count store is sometimes used by Cypher anyway but on this occasion it wasn&#8217;t.
-It keeps track of counts of various cardinalities.</p>
+<p>That&#8217;s probably about as fast as we can get that query, and although it was quick to start with you&#8217;ve hopefully now picked up some tricks that we can apply in the next sections.</p>
 </div>
 <div class="paragraph">
 <p>Find all the people who have acted in &lt;x&gt; movies and directed &lt;y&gt; movies</p>

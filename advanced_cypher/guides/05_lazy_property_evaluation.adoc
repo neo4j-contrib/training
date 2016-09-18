@@ -1,6 +1,0 @@
-= Lazily evaluate properties
-:icons: font
-
-== Lazily evaluate properties
-
-Don't evaluate them too early and don't aggregate on them if you can avoid it

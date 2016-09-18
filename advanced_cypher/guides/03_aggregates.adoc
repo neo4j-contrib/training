@@ -52,19 +52,19 @@ This is the equivalent of a cross join in SQL.
 == Fixing our counting query
 
 We can fix this query by counting `:Person` and `:Movie` nodes separately.
-We can use the `WITH`  clause to combine our results together and return them as separate fields:
+
+We're going to use the link:https://neo4j.com/docs/developer-manual/current/cypher/#query-with[`WITH`] clause to combine our results together and return them as separate fields:
 
 [source, cypher]
 ----
 PROFILE
 MATCH (:Person)
-WITH count(*) as a_count
+WITH count(*) as personCount
 MATCH (:Movie)
-RETURN a_count, count(*);
+RETURN personCount, count(*) AS movieCount;
 ----
 
 == Find the most prolific actor/actress
-
 
 [verse]
 ____
@@ -89,7 +89,7 @@ This runs quite quickly but we can make it quicker.
 
 == Profiling our query to find the most prolific actor/actress
 
-Let's now profile our query by prefixing it with `PROFILE`:
+Let's profile our query to see what operations are going on behind the scenes:
 
 [source, cypher]
 ----
@@ -105,8 +105,8 @@ By grouping on the `name` property we are forcing Cypher to look up the name of 
 
 == Lazy property evaluation
 
-Instead of that let's group on the node and then look up the `name` property only for the top 10 actors.
-The following query does this:
+A better approach is to group on the node and then look up the `name` property after we've found the top 10 actors.
+The `WITH` clause comes in handy again:
 
 [source, cypher]
 ----
@@ -135,8 +135,7 @@ Can we do even better?
 
 == The Counts Store
 
-Neo4j has a counts store which can be used to speed up aggregate queries.
-
+Neo4j has a counts store which it uses for generating execution plans and which we can sometimes use to speed up aggregate queries.
 
 image::{img}/slides.jpg[]
 
@@ -144,42 +143,42 @@ image::{img}/slides.jpg[]
 
 Let's try a few queries to get the hang of where it's being used and what type of count operations we should expect to be fast.
 
-All nodes = count store
+=== All nodes = count store
 
 [source, cypher]
 ----
 PROFILE MATCH () RETURN COUNT(*)
 ----
 
-Nodes with a label = count store
+=== Nodes with a label = count store
 
 [source, cypher]
 ----
 PROFILE MATCH (:Person) RETURN COUNT(*)
 ----
 
-Nodes with multiple labels = no count store
+=== Nodes with multiple labels = no count store
 
 [source, cypher]
 ----
 PROFILE MATCH (:Person:Engineer) RETURN COUNT(*)
 ----
 
-No direction on relationship = no count store
+=== No direction on relationship = no count store
 
 [source, cypher]
 ----
 PROFILE MATCH (:Movie)-[:ACTED_IN]-() RETURN COUNT(*)
 ----
 
-Direction on relationship = count store
+=== Direction on relationship = count store
 
 [source, cypher]
 ----
 PROFILE MATCH (:Movie)<-[:ACTED_IN]-() RETURN COUNT(*)
 ----
 
-Label on both sides of relationship = no count store
+=== Label on both sides of relationship = no count store
 
 [source, cypher]
 ----
@@ -189,6 +188,24 @@ PROFILE MATCH (:Movie)<-[:ACTED_IN]-(:Person) RETURN COUNT(*)
 Now let's go back to our original query again.
 
 == Using our count store knowledge
+
+To recap, this was our most recent version of the query:
+
+[source, cypher]
+----
+PROFILE
+MATCH (a:Person)-[:ACTED_IN]->()
+WITH a, count(*) as count
+ORDER BY count DESC
+LIMIT 10
+RETURN a.name, count
+----
+
+We want to count the `(:Person)-[:ACTED_IN]->()` relationship which is one of the types of things stored in the count store.
+Unfortunately we can see from the execution plan that all the `ACTED_IN` relationships are being evaluated which isn't what we want.
+
+When this happens we can force the planner to do what we want by using the `SIZE` function to count the number of relationships.
+The following query makes use of the counts store via the `GetDegree` operator
 
 [source, cypher]
 ----
@@ -200,7 +217,6 @@ LIMIT 10
 RETURN a.name, count
 ----
 
-The count store is sometimes used by Cypher anyway but on this occasion it wasn't.
-It keeps track of counts of various cardinalities.
+That's probably about as fast as we can get that query, and although it was quick to start with you've hopefully now picked up some tricks that we can apply in the next sections.
 
 Find all the people who have acted in <x> movies and directed <y> movies

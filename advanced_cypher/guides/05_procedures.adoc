@@ -1,0 +1,8 @@
+= Procedures
+:icons: font
+
+== Procedures
+
+Neo4j 3.0 saw the introduction of procedures
+
+pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]

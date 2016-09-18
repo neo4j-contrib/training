@@ -25,7 +25,7 @@
   <carousel class="deck container-fluid">
     <!--slide class="row-fluid">
       <div class="col-sm-3">
-        <h3>Cypher Refresher</h3>
+        <h3>Installing Awesome Procedures (apoc)</h3>
         <p class="lead">Information</p>
 			<!dl>
 				
@@ -46,15 +46,25 @@
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Cypher Refresher</h3>
+    <h3>Installing Awesome Procedures (apoc)</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>Welcome to the first of a set of interactive guides.
-In these guides we&#8217;ll write increasingly complex queries on an extended movies dataset.</p>
+<p><a href="https://twitter.com/mesirii">Michael Hunger</a> has created the <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures">apoc</a> library which contains lots of useful procedures that we can use in our neo4j applications.</p>
 </div>
 <div class="paragraph">
-<p>Before we get to that, however, we&#8217;ve got a quick Cypher refresher session to get everyone on the same page.</p>
+<p>Let&#8217;s get <code>apoc</code> installed on our local instances of Neo4j:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You should have already copied <code>apoc.jar</code> onto your machine.
+If you haven&#8217;t then grab a USB stick from one of the trainers or download the latest version of apoc from <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest" class="bare">https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest</a></p>
+</li>
+<li>
+<p>Copy <code>apoc.jar</code> into your <code>plugins</code> folder wherever you have installed Neo4j.</p>
+</li>
+</ul>
 </div>
 	</div>
   </div>
@@ -64,11 +74,22 @@ In these guides we&#8217;ll write increasingly complex queries on an extended mo
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Next step</h3>
+    <h3>Check apoc installed correctly</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p><a play-topic='http://localhost:8001/02_import_with_cypher.html'>Importing data with Cypher</a></p>
+<p>If you run the following command you can see which additional procedures are now available to us:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name STARTS WITH "apoc"
+RETURN name, signature<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you don&#8217;t see any rows grab your closest trainer for help.</p>
 </div>
 	</div>
   </div>

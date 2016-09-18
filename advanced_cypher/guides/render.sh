@@ -8,6 +8,8 @@ function render {
   $GUIDES/run.sh 02_import_with_cypher.adoc 02_import_with_cypher.html +1 "$@"
   $GUIDES/run.sh 03_aggregates.adoc 03_aggregates.html +1 "$@"
   $GUIDES/run.sh 04_intermediate_state.adoc 04_intermediate_state.html +1 "$@"
+  $GUIDES/run.sh 05_procedures.adoc 05_procedures.html +1 "$@"
+  $GUIDES/run.sh ../../shared/installing_apoc.adoc installing_apoc.html +1 "$@"
 }
 
 # -a env-training is a flag to enable full content, if you comment it out, the guides are rendered minimally e.g. for a presentation

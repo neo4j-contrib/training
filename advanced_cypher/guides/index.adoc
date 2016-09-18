@@ -6,6 +6,7 @@
 . pass:a[<a play-topic='{guides}/02_import_with_cypher.html'>Importing data with Cypher</a>]
 . pass:a[<a play-topic='{guides}/03_aggregates.html'>Aggregate Queries</a>]
 . pass:a[<a play-topic='{guides}/04_intermediate_state.html'>Intermediate State</a>]
+. pass:a[<a play-topic='{guides}/05_procedures.html'>Procedures</a>]
 
 == Further Resources
 
