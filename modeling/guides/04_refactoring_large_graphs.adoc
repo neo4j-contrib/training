@@ -38,21 +38,21 @@ MERGE (originAirportDay)<-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 ----
 
-Should probably make this an include since it's reused from the previous section.
+*Should probably make this an include since it's reused from the previous section.*
 
 `Flight` is probably the easiest place to start.
 
 [source, cypher]
 ----
 MATCH (f:Flight)
-SET f:NeedsProcessing
+SET f:Process
 ----
 
-So now all our `Flight` nodes have a `NeedsProcessing` label as well.
+So now all our `Flight` nodes have a `Process` label as well.
 
 [source, cypher]
 ----
-MATCH (flight:NeedsProcessing)
+MATCH (flight:Process)
 WITH flight LIMIT 500
 
 MATCH (origin:Airport)<-[:ORIGIN]-(flight)-[:DESTINATION]->(destination:Airport)

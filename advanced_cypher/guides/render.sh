@@ -5,7 +5,7 @@ GUIDES=../../neo4j-guides
 function render {
   $GUIDES/run.sh index.adoc index.html +1 "$@"
   $GUIDES/run.sh 01_cypher_refresher.adoc 01_cypher_refresher.html +1 "$@"
-  $GUIDES/run.sh 02_forcing_index_usage.adoc 02_forcing_index_usage.html +1 "$@"
+  $GUIDES/run.sh 02_import_with_cypher.adoc 02_import_with_cypher.html +1 "$@"
   $GUIDES/run.sh 03_procedures.adoc 03_procedures.html +1 "$@"
   $GUIDES/run.sh 04_intermediate_state.adoc 04_intermediate_state.html +1 "$@"
 }

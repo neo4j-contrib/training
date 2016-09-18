@@ -52,6 +52,36 @@
       <div class="paragraph">
 <p>Here we&#8217;ll look at how you need to control the state of your queries and try and reduce the number of rows as early as you can.</p>
 </div>
+<div class="paragraph">
+<p>What query can we do which has some intermediate state that we need to reduce?</p>
+</div>
+<div class="paragraph">
+<p>Think we have some from the talk that Petra and I gave.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (p:Person {name:"Tom Hanks"})-[:ACTED_IN]-&gt;(m1)&lt;-[:ACTED_IN]-(coActor)-[:ACTED_IN]-&gt;(m2)
+RETURN distinct m2.title<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (p:Person {name:"Tom Hanks"})-[:ACTED_IN]-&gt;(m1)&lt;-[:ACTED_IN]-(coActor)
+WITH DISTINCT coActor
+MATCH (coActor)-[:ACTED_IN]-&gt;(m2)
+RETURN distinct m2.title<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Only reduces the work by 2,000 <code>db hits</code>.
+Disappointing!</p>
+</div>
+<div class="paragraph">
+<p>How do we use labels to help reduce the number of starting points?
+e.g. Is it faster to put a label and have to do less relationship scanning?</p>
+</div>
 	</div>
   </div>
 </slide>

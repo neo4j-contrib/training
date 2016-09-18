@@ -1,0 +1,206 @@
+= Aggregate Queries
+:icons: font
+
+== Aggregate Queries
+
+Now that we've got some data loaded it's time to write some queries.
+
+[verse]
+____
+As a movie enthusiast
+I want to know how much data I've imported
+So that I can check if my import has worked
+____
+
+We might write the following query to check how many `:Person` and `:Movie` nodes we have in our database:
+
+[source, cypher]
+----
+MATCH (person:Person), (movie:Movie)
+RETURN COUNT(person), COUNT(movie), count(distinct person), count(distinct movie)
+----
+
+This query will take a long time to come back!
+You can kill it by pressing the `X` button on the right hand side of the results window.
+
+To figure out why our query didn't return we'll need to profile it.
+
+== Profiling queries
+
+Before we start profiling our query, a quick explanation:
+
+image::{img}/slides.jpg[]
+
+== Profiling our counting query
+
+Since the query isn't returning we'll prefix it with the `EXPLAIN` keyword to see what's going on.
+If it was just running slowly and we wanted to find out why we could use `PROFILE` instead.
+
+[source, cypher]
+----
+EXPLAIN
+MATCH (person:Person), (movie:Movie)
+RETURN COUNT(person), COUNT(movie), count(distinct person), count(distinct movie)
+----
+
+What we get back is an execution plan which describes the Cypher operators used to execute this query.
+You can read more about these in the link:https://neo4j.com/docs/developer-manual/current/cypher/#execution-plans[developer manual]
+
+We've got a cartesian product between movies and people which resulted in there being more than 100m rows to process.
+This is the equivalent of a cross join in SQL.
+
+== Fixing our counting query
+
+We can fix this query by counting `:Person` and `:Movie` nodes separately.
+We can use the `WITH`  clause to combine our results together and return them as separate fields:
+
+[source, cypher]
+----
+PROFILE
+MATCH (:Person)
+WITH count(*) as a_count
+MATCH (:Movie)
+RETURN a_count, count(*);
+----
+
+== Find the most prolific actor/actress
+
+
+[verse]
+____
+As a movie enthusiast
+I want to find the most popular actor/actress
+So that I can watch some of their movies
+____
+
+== Find the most prolific actor/actress
+
+We can write the following query to find the person who's acted in the most movies:
+
+[source, cypher]
+----
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+RETURN a.name, count(*)
+ORDER BY count(*) DESC
+LIMIT 10
+----
+
+This runs quite quickly but we can make it quicker.
+
+== Profiling our query to find the most prolific actor/actress
+
+Let's now profile our query by prefixing it with `PROFILE`:
+
+[source, cypher]
+----
+PROFILE
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+RETURN a.name, count(*)
+ORDER BY count(*) DESC
+LIMIT 10
+----
+
+From the execution plan we can see that it's doing an unnecessary `Projection` on `a.name`.
+By grouping on the `name` property we are forcing Cypher to look up the name of every `Person` in the database when we're only interested in the ten most prolific ones.
+
+== Lazy property evaluation
+
+Instead of that let's group on the node and then look up the `name` property only for the top 10 actors.
+The following query does this:
+
+[source, cypher]
+----
+PROFILE
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+WITH a, count(*) as count
+ORDER BY count DESC
+LIMIT 10
+RETURN a.name, count
+----
+
+We can do even better if we don't specify the `:Movie` label on the right hand side of the `ACTED_IN` relationship.
+Since this database only contains people acting in movies it's unnecessary for this query.
+
+[source, cypher]
+----
+PROFILE
+MATCH (a:Person)-[:ACTED_IN]->()
+WITH a, count(*) as count
+ORDER BY count DESC
+LIMIT 10
+RETURN a.name, count
+----
+
+Can we do even better?
+
+== The Counts Store
+
+Neo4j has a counts store which can be used to speed up aggregate queries.
+
+
+image::{img}/slides.jpg[]
+
+== Count Store / No Count Store
+
+Let's try a few queries to get the hang of where it's being used and what type of count operations we should expect to be fast.
+
+All nodes = count store
+
+[source, cypher]
+----
+PROFILE MATCH () RETURN COUNT(*)
+----
+
+Nodes with a label = count store
+
+[source, cypher]
+----
+PROFILE MATCH (:Person) RETURN COUNT(*)
+----
+
+Nodes with multiple labels = no count store
+
+[source, cypher]
+----
+PROFILE MATCH (:Person:Engineer) RETURN COUNT(*)
+----
+
+No direction on relationship = no count store
+
+[source, cypher]
+----
+PROFILE MATCH (:Movie)-[:ACTED_IN]-() RETURN COUNT(*)
+----
+
+Direction on relationship = count store
+
+[source, cypher]
+----
+PROFILE MATCH (:Movie)<-[:ACTED_IN]-() RETURN COUNT(*)
+----
+
+Label on both sides of relationship = no count store
+
+[source, cypher]
+----
+PROFILE MATCH (:Movie)<-[:ACTED_IN]-(:Person) RETURN COUNT(*)
+----
+
+Now let's go back to our original query again.
+
+== Using our count store knowledge
+
+[source, cypher]
+----
+PROFILE
+MATCH (a:Person)
+WITH a, SIZE((a)-[:ACTED_IN]->()) AS count
+ORDER BY count DESC
+LIMIT 10
+RETURN a.name, count
+----
+
+The count store is sometimes used by Cypher anyway but on this occasion it wasn't.
+It keeps track of counts of various cardinalities.
+
+Find all the people who have acted in <x> movies and directed <y> movies

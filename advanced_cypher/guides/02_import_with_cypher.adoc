@@ -1,0 +1,62 @@
+= Importing data with Cypher
+:icons: font
+
+== Importing data with Cypher
+
+The structure of these guides will be that we have a user story that we're trying to implement.
+We'll look at how to solve that in a naive way to start with and then optimise our queries.
+
+[verse]
+____
+As a movie enthusiast
+I want to import IMDB data into neo4j as quickly as possible
+So that I can start writing queries about my favorite movie stars
+____
+
+[source, cypher, subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM '{csv-url}people.csv' as row
+
+MERGE(person:Person {id: toInt(row.personId)})
+ON CREATE SET person.name = row.name,
+              person.born = toInt(row.birthYear),
+              person.died = toInt(row.deathYear)
+----
+
+We know that this file has unique people in so we may as well use CREATE?
+What would we do if there were duplicates?
+
+We should have something for recovering after messed up imports? 
+
+[source, cypher, subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM '{csv-url}new_movies.csv' as row
+
+MERGE (movie:Movie {id:toInt(row.movieId)})
+ON CREATE SET
+  movie.title = row.title,
+  movie.avgVote = toFloat(row.avgVote),
+  movie.releaseYear = toInt(row.releaseYear),
+  movie.tagline = row.tagline,
+  movie.genres = split(row.genres, ":")
+----
+
+[source, cypher, subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM '{csv-url}directors.csv' as row
+
+MATCH (movie:Movie {id:toInt(row.movieId)})
+MATCH (person:Person {id: toInt(row.personId)})
+MERGE (person)-[:DIRECTED]->(movie)
+----
+
+[source, cypher, subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM '{csv-url}actors.csv' as row
+
+MATCH (movie:Movie {id:toInt(row.movieId)})
+MATCH (person:Person {id: toInt(row.personId)})
+
+MERGE (person)-[actedIn:ACTED_IN]->(movie)
+ON CREATE SET actedIn.roles = CASE WHEN row.characters IS NULL then [] ELSE split(row.characters, ":") END
+----

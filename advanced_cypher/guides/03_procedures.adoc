@@ -1,4 +1,0 @@
-= Procedures
-:icons: font
-
-== Procedures
