@@ -128,7 +128,7 @@ What do you notice?
 
 == Next Step
 
-Depending on how powerful your laptop is, you might have noticed that our refactoring query is quite slow.
+Depending on how powerful your laptop is, you might have noticed that our refactoring query is getting a bit slow.
 In the next section we'll look at how we can process refactoring queries in batches.
 
 pass:a[<a play-topic='{guides}/04_refactoring_large_graphs.html'>Refactoring large graphs</a>]

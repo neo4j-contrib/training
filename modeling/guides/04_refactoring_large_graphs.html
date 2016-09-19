@@ -50,105 +50,256 @@
     <br/>
     <div>
       <div class="paragraph">
-<p>Depending on how powerful your laptop is, you might have noticed that our refactoring query is quite slow</p>
+<p>In the previous section we noticed that our refactoring queries were slowing down once we&#8217;d loaded more flights into the database.</p>
 </div>
 <div class="paragraph">
-<p>Can talk about doing this in batches and maybe introduce apoc?</p>
-</div>
-<div class="paragraph">
-<p>Multiple models</p>
-</div>
-<div class="paragraph">
-<p>You have to control the invariant from your application.
-e.g. if an airline decides to cancel</p>
-</div>
-<div class="paragraph">
-<p>Maybe this can be a slide based section?</p>
-</div>
-<div class="paragraph">
-<p>Which date will make it easier to filter?
-Should I load in all the flights for two of the hubs and have those in another CSV file?</p>
-</div>
-<div class="paragraph">
-<p>Hmm multiple CSV files.</p>
-</div>
-<div class="paragraph">
-<p>Our model looks good so far but let&#8217;s import some more data and see how it fares as we add more queries.</p>
-</div>
-<div class="paragraph">
-<p>We need to import some more of the dataset in so we can see the problem with dense nodes</p>
-</div>
-<div class="paragraph">
-<p>It’s not a bad model, but we will have very dense nodes. Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare. These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.</p>
-</div>
-<div class="paragraph">
-<p>When a user is trying to book a flight, they know where they are starting from, where they want to go, and what day they want to fly. So lets reimagine our model to introduce the concept of days.</p>
-</div>
-<div class="paragraph">
-<p>As a user I want to book a flight from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;</p>
-</div>
-<div class="paragraph">
-<p>(airport)-[:HAS_DAY]&#8594;(airportDay)-[:HAS_FLIGHT]&#8594;(flight)</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Exercise</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>We want to introduce the concept of an <code>Airline</code> so that we can quickly find fights by our favorite airline without having to scan through all the flights.
-Don&#8217;t forget to connect the <code>Airline</code> nodes to the appropriate flights.</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Answer: Create <code>Airline</code> nodes</h3>
-    <br/>
-    <div>
-      <div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
-MERGE (airline:Airline {code: flight.airline})
-MERGE (flight)-[:AIRLINE]-&gt;(airline)<!--/code--></pre>
-</div>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Other ideas</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>We could even connect the different legs of the flight together?</p>
-</div>
-<div class="paragraph">
-<p>Other modeling topics:</p>
+<p>Once the amount of date gets a big larger we&#8217;ll probably want to execute these refactorings in batches.
+A typical workflow would be:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Inferred relationships</p>
+<p>tag all the nodes we need to process with a temporary label e.g. <code>Process</code></p>
 </li>
 <li>
-<p>Maintaining multiple models for optimal write speed</p>
+<p>iterate over a subset of nodes flagged with that label (using <code>LIMIT</code>) and execute the refactoring</p>
+</li>
+<li>
+<p>remove the tag from the node</p>
+</li>
+<li>
+<p>return a count of how many rows were processed</p>
+</li>
+<li>
+<p>once the count reaches 0 then we&#8217;ve finished.</p>
 </li>
 </ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Manual batching</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re now sacrificing the atomicity that we&#8217;d get if we did everything in one transaction so it makes sense to make our refactoring queries idempotent in case we need to re-run them.
+We also need to decide which node we&#8217;re going to center the refactoring around.</p>
+</div>
+<div class="paragraph">
+<p>To recap, this was the refactoring query from the previous section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
+MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Flight</code> is probably the easiest node to batch on.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Batch refactoring flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s put a <code>Process</code> label on each of our <code>Flight</code> nodes so that we know which ones we&#8217;ve still got to process.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (f:Flight)
+SET f:Process<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re ready to run the refactoring query.
+We&#8217;ll start by processing 500 flights at a time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Process)
+WITH flight LIMIT 500
+
+MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight)-[:DESTINATION]-&gt;(destination:Airport)
+
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
+MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+
+REMOVE flight:Process
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;d have to run this query 100,000 / 500 = 200 times to process all the flights, which would be a very boring way to pass the time!</p>
+</div>
+<div class="paragraph">
+<p>Lucky for us, Neo4j 3.0 saw the introduction of procedures which can significantly simplify things.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Procedures</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Procedures allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.</p>
+</div>
+<div class="paragraph">
+<p>The Neo4j community has built a collection of over 200 procedures in the Awesome Procedures (<code>apoc</code>) package over the last 6 months.
+Hopefully we&#8217;ll find one which can help us out with our batch refactoring efforts.</p>
+</div>
+<div class="paragraph">
+<p>But first let&#8217;s get <code>apoc</code> setup on your machines:</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://localhost:8001/installing_apoc.html'>Awesome Procedures</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Batch refactoring with <code>apoc</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The following query does exactly what we want:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.help("apoc.periodic.commit")<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Before we give it a try, let&#8217;s import a few more flights to keep it interesting.
+As we&#8217;re now dealing with much more data we&#8217;ll have to be a bit cleverer about how we import the data.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "{csv-url}_500k.csv" AS row
+UNWIND [row.Origin, row.Dest] AS airport
+RETURN DISTINCT airport<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+MATCH (origin:Airport {code: row.Origin})
+MATCH (destination:Airport {code: row.Dest})
+MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
+ON CREATE SET newFlight.year = TOINT(row.Year),
+              newFlight.month = TOINT(row.Month),
+              newFlight.day = TOINT(row.DayofMonth),
+              newFlight.airline = row.UniqueCarrier,
+              newFlight.number = row.FlightNum,
+              newFlight.departure = row.Dest,
+              newFlight.arrival = row.UniqueCarrier
+MERGE (origin)&lt;-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re reading to do do some batch refactoring.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Batch refactoring with <code>apoc</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Since we&#8217;ve imported more nodes we&#8217;ll need to tag them with the <code>Process</code> label.
+For simplicity&#8217;s sake we&#8217;ll just put the <code>Process</code> tag on all our flights and process them all again.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (f:Flight)
+SET f:Process<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Hint</em> Remember, since our query is idempotent, if a flight has already been processed before the query won&#8217;t actually do anything with that flight.</p>
+</div>
+<div class="paragraph">
+<p>We can now call our refactoring query inside the procedure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->call apoc.periodic.commit('
+  MATCH (flight:Process)
+  WITH flight LIMIT {limit}
+
+  MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight)-[:DESTINATION]-&gt;(destination:Airport)
+
+  MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+  ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+  MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+  ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+  MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
+  MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
+  MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+
+  REMOVE flight:Process
+  RETURN COUNT(*)
+',{limit:500})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p><a play-topic='http://localhost:8001/05_multiple_models.html'>Multiple Models</a></p>
 </div>
 	</div>
   </div>

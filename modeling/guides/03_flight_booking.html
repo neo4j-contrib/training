@@ -96,31 +96,8 @@ MERGE (origin)&lt;-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
 </div>
 </div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Find flights to book</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>Now it&#8217;s time to write a query to find available flights from an airport on a specific date.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
-RETURN COUNT(*)<!--/code--></pre>
-</div>
-</div>
 <div class="paragraph">
-<p>This one has ~ 7,000 outgoing flights.</p>
-</div>
-<div class="paragraph">
-<p>Now we want to search for all the flights going out of <code>LAS</code> on a specific day.</p>
+<p>Now it&#8217;s time to write a query to find available flights between two airports on a specific date.</p>
 </div>
 	</div>
   </div>
@@ -130,26 +107,38 @@ RETURN COUNT(*)<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Hubs, hubs, are everywhere</h3>
+    <h3>Finding flights to book</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare.
-These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.</p>
-</div>
-<div class="paragraph">
-<p>We can see how much work there is to do by executing the following query which finds all the flights departing from Los Angeles on 30th January 2008:</p>
+<p>Let&#8217;s find all the flights going from Los Angeles (<code>LAS</code>) to Chicago Midway International (<code>MDW</code>) on the 30th January.
+Run the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
-MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
 WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
-RETURN COUNT(*)<!--/code--></pre>
+RETURN path<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The query starts by using an index to find <code>LAS</code> but then has to traverse all incoming <code>ORIGIN</code> relationships and check 3 properties on the <code>:Flight</code> nodes on the other side.</p>
+<p>This returns quite quickly but try prefixing it with <code>PROFILE</code>.
+What do you notice?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Profiling the finding flights to book query</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The query starts by using an index to find <code>MDW</code> but then has to traverse all incoming <code>DESTINATION</code> relationships and check 3 properties on the <code>:Flight</code> nodes on the other side.
+The more flights an airport has the more we&#8217;ll have to scan through, and since we&#8217;re only working with 10,000 flights we should probably find a better way to model our data before importing any more rows.</p>
 </div>
 <div class="paragraph">
 <p>Can you think of a way that we can change our model to avoid doing all these property lookups?</p>
@@ -170,7 +159,7 @@ RETURN COUNT(*)<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -192,7 +181,7 @@ RETURN COUNT(*)<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/airport_day.jpg" alt="airport day">
+<img src="http://localhost:8001/img/airport_day.jpg" alt="airport day">
 </div>
 </div>
 	</div>
@@ -241,14 +230,14 @@ MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Now let&#8217;s try finding those flights from Los Angeles again.
+<p>Now let&#8217;s try finding those flights between Los Angeles and Chicago Midway International again.
 To recap, this was our original query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
 WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
-RETURN COUNT(*)<!--/code--></pre>
+RETURN path<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -257,8 +246,8 @@ RETURN COUNT(*)<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:ORIGIN]-(flight:Flight),
-      (flight)-[:DESTINATION]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:HAS_DAY]-(destination:Airport)
-RETURN COUNT(*)<!--/code--></pre>
+      (flight)-[:DESTINATION]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+RETURN *<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -281,7 +270,7 @@ What do you notice?</p>
 In the next section we&#8217;ll look at how we can process refactoring queries in batches.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/modeling_airports/04_refactoring_large_graphs.html'>Refactoring large graphs</a></p>
+<p><a play-topic='http://localhost:8001/04_refactoring_large_graphs.html'>Refactoring large graphs</a></p>
 </div>
 	</div>
   </div>

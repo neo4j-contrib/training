@@ -25,7 +25,7 @@
   <carousel class="deck container-fluid">
     <!--slide class="row-fluid">
       <div class="col-sm-3">
-        <h3>Graph Modeling with neo4j</h3>
+        <h3>Specific Relationship Types</h3>
         <p class="lead">Information</p>
 			<!dl>
 				
@@ -46,60 +46,22 @@
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Welcome to Graph Modeling with neo4j</h3>
+    <h3>Specific Relationship Types</h3>
     <br/>
     <div>
-      <div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><a play-topic='http://localhost:8001/01_flight_dataset.html'>The Flight Dataset</a></p>
-</li>
-<li>
-<p><a play-topic='http://localhost:8001/02_flight.html'>Flight as a first class citizen</a></p>
-</li>
-<li>
-<p><a play-topic='http://localhost:8001/03_flight_booking.html'>Flight booking</a></p>
-</li>
-<li>
-<p><a play-topic='http://localhost:8001/04_refactoring_large_graphs.html'>Refactoring large graphs</a></p>
-</li>
-<li>
-<p><a play-topic='http://localhost:8001/05_multiple_models.html'>Multiple Models</a></p>
-</li>
-<li>
-<p><a play-topic='http://localhost:8001/06_specific_relationship_types.html'>Specific Relationship Types</a></p>
-</li>
-</ol>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+RETURN *<!--/code--></pre>
 </div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Further Resources</h3>
-    <br/>
-    <div>
-      <div class="ulist">
-<ul>
-<li>
-<p><a href="http://neo4j.com/graphgists">Graph Gist Examples</a></p>
-</li>
-<li>
-<p><a href="http://neo4j.com/docs/stable/cypher-refcard/">Cypher Reference Card</a></p>
-</li>
-<li>
-<p><a href="http://neo4j.com/docs/developer-manual/current/#cypher-query-lang">Neo4j Developer Manual</a></p>
-</li>
-<li>
-<p><a href="http://neo4j.com/developer/resources#_neo4j_cypher_resources">Cypher Resource Collection</a></p>
-</li>
-<li>
-<p><a href="http://graphdatabases.com">e-book: Graph Databases (free)</a></p>
-</li>
-</ul>
+</div>
+<div class="paragraph">
+<p>If we load in all the data for one year we&#8217;ll have to scan through ~365 <code>HAS_DAY</code> relationships for each airport and check the <code>date</code> property for the <code>:AirportDay</code> node at the end of each relationship.
+If we load in 10 years that goes up to 3,650 relationships.</p>
+</div>
+<div class="paragraph">
+<p>So it&#8217;s not an optimal model just yet but what can we do about it?</p>
 </div>
 	</div>
   </div>

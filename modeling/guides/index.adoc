@@ -6,6 +6,8 @@
 . pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]
 . pass:a[<a play-topic='{guides}/03_flight_booking.html'>Flight booking</a>]
 . pass:a[<a play-topic='{guides}/04_refactoring_large_graphs.html'>Refactoring large graphs</a>]
+. pass:a[<a play-topic='{guides}/05_multiple_models.html'>Multiple Models</a>]
+. pass:a[<a play-topic='{guides}/06_specific_relationship_types.html'>Specific Relationship Types</a>]
 
 == Further Resources
 

@@ -1,0 +1,26 @@
+= Specific Relationship Types
+:icons: font
+
+== Specific Relationship Types
+
+If we load in all the data for one year we'll have to scan through ~365 `HAS_DAY` relationships for each airport and check the `date` property for the `:AirportDay` node at the end of each relationship.
+If we load in 10 years that goes up to 3,650 relationships.
+
+So it's not an optimal model just yet but what can we do about it?
+
+== Making our relationships more specific
+
+Neo4j is optimized for searching by unique relationship types and in this case the date of a flight provides that uniqueness.
+
+
+We can refactor our model to change the `HAS_DAY` relationship to be the date of the flight instead e.g. `2008_1_30`
+
+This is what our new model will look like:
+
+image::{img}/specific_relationship.jpg[]
+
+
+== Refactoring to specific relationship types
+
+What do you think?
+Should we bother with this careful refactoring or should we just load all our data from scratch?
