@@ -1,0 +1,74 @@
+= Specific Relationship Types
+:icons: font
+
+== Specific Relationship Types
+
+If we load in all the data for one year we'll have to scan through ~365 `HAS_DAY` relationships for each airport and check the `date` property for the `:AirportDay` node at the end of each relationship.
+If we load in 10 years that goes up to 3,650 relationships.
+
+So it's not an optimal model just yet but what can we do about it?
+
+== Making our relationships more specific
+
+Neo4j is optimized for searching by unique relationship types and in this case the date of a flight provides that uniqueness.
+
+We can refactor our model to change the `HAS_DAY` relationship to be the date of the flight instead e.g. `2008_1_30`
+
+This is what our new model will look like:
+
+image::{img}/specific_relationship.jpg[]
+
+== Refactoring to specific relationship type
+
+Creating relationships with dynamic names isn't possible using pure Cypher but `apoc` contains some functions that can help us out.
+There are actually two functions which are interesting to us:
+
+[cypher, source]
+----
+UNWIND ["apoc.create.relationship", "apoc.refactor.setType"] AS procedureName
+CALL apoc.help(procedureName)  YIELD name, text
+RETURN name, text
+----
+
+To delete the `HAS_DAY` relationship and replace it with a date based relationship we could use `apoc.refactor.setType` but for now we'll add the new relationship `HAS_DAY` so we can compare the execution plans of both queries.
+We can always delete `HAS_DAY` afterwards if necessary.
+
+We want to replace all the `HAS_DAY` relationships with relationships whose type comes from the `date` property on the `AirportDay` nodes:
+
+== Refactoring to specific relationship type
+
+We can get the name for our new relationship from the `:AirportDay#date` property.
+Run the following query to create new relationships from `:Airport` to `:AirportDay`
+
+[cypher, source]
+----
+MATCH (origin:Airport)-[hasDay:HAS_DAY]->(ad:AirportDay)
+CALL apoc.create.relationship(startNode(hasDay), ad.date, {}, endNode(hasDay) ) YIELD rel
+RETURN COUNT(*)
+----
+
+Now it's time to check whether this refactoring has sped up our query.
+
+== Finding flights between Los Angeles and Chicago Midtown International:
+
+Our query to find flights from Los Angeles to Chicago Midtown International now reads like this:
+
+[source, cypher]
+----
+MATCH (origin:Airport {code: "LAS"})-[:`2008-1-30`]->(:AirportDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay)<-[:`2008-1-30`]-(destination:Airport {code: "MDW"})
+RETURN *
+----
+
+== Refactoring to specific relationship types
+
+What do you think?
+Should we bother with this careful refactoring or should we just load all our data from scratch?
+
+
+== Next
+
+In each of the last two stages we've added in new relationships without deleting the old ones.
+In the next section we'll look at the advantages and disadvantages of maintaining multiple models.
+
+pass:a[<a play-topic='{guides}/06_multiple_models.html'>Multiple Models</a>]
