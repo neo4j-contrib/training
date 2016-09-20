@@ -8,8 +8,8 @@ function render {
   $GUIDES/run.sh 02_flight.adoc 02_flight.html +1 "$@"
   $GUIDES/run.sh 03_flight_booking.adoc 03_flight_booking.html +1 "$@"
   $GUIDES/run.sh 04_refactoring_large_graphs.adoc 04_refactoring_large_graphs.html +1 "$@"
-  $GUIDES/run.sh 05_multiple_models.adoc 05_multiple_models.html +1 "$@"
-  $GUIDES/run.sh 06_specific_relationship_types.adoc 06_specific_relationship_types.html +1 "$@"
+  $GUIDES/run.sh 05_specific_relationship_types.adoc 05_specific_relationship_types.html +1 "$@"
+  $GUIDES/run.sh 06_multiple_models.adoc 06_multiple_models.html +1 "$@"
   $GUIDES/run.sh ../../shared/installing_apoc.adoc installing_apoc.html +1 "$@"
 }
 

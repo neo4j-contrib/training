@@ -164,7 +164,8 @@ call apoc.periodic.commit('
 ',{limit:500})
 ----
 
-
 == Next
 
-pass:a[<a play-topic='{guides}/05_multiple_models.html'>Multiple Models</a>]
+In the next section we're going to spend some time looking at specific relationship types.
+
+pass:a[<a play-topic='{guides}/05_specific_relationship_types.html'>Specific Relationship Types</a>]
