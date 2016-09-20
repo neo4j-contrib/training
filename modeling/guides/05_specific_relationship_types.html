@@ -1,0 +1,196 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Specific Relationship Types</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Specific Relationship Types</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If we load in all the data for one year we&#8217;ll have to scan through ~365 <code>HAS_DAY</code> relationships for each airport and check the <code>date</code> property for the <code>:AirportDay</code> node at the end of each relationship.
+If we load in 10 years that goes up to 3,650 relationships.</p>
+</div>
+<div class="paragraph">
+<p>So it&#8217;s not an optimal model just yet but what can we do about it?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Making our relationships more specific</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Neo4j is optimized for searching by unique relationship types and in this case the date of a flight provides that uniqueness.</p>
+</div>
+<div class="paragraph">
+<p>We can refactor our model to change the <code>HAS_DAY</code> relationship to be the date of the flight instead e.g. <code>2008_1_30</code></p>
+</div>
+<div class="paragraph">
+<p>This is what our new model will look like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/modeling_airports/img/specific_relationship.jpg" alt="specific relationship">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Refactoring to specific relationship type</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Creating relationships with dynamic names isn&#8217;t possible using pure Cypher but <code>apoc</code> contains some functions that can help us out.
+There are actually two functions which are interesting to us:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->UNWIND ["apoc.create.relationship", "apoc.refactor.setType"] AS procedureName
+CALL apoc.help(procedureName)  YIELD name, text
+RETURN name, text<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To delete the <code>HAS_DAY</code> relationship and replace it with a date based relationship we could use <code>apoc.refactor.setType</code> but for now we&#8217;ll add the new relationship <code>HAS_DAY</code> so we can compare the execution plans of both queries.
+We can always delete <code>HAS_DAY</code> afterwards if necessary.</p>
+</div>
+<div class="paragraph">
+<p>We want to replace all the <code>HAS_DAY</code> relationships with relationships whose type comes from the <code>date</code> property on the <code>AirportDay</code> nodes:</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Refactoring to specific relationship type</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can get the name for our new relationship from the <code>:AirportDay#date</code> property.
+Run the following query to create new relationships from <code>:Airport</code> to <code>:AirportDay</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)-[hasDay:HAS_DAY]-&gt;(ad:AirportDay)
+CALL apoc.create.relationship(startNode(hasDay), ad.date, {}, endNode(hasDay) ) YIELD rel
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now it&#8217;s time to check whether this refactoring has sped up our query.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Finding flights between Los Angeles and Chicago Midtown International:</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Our query to find flights from Los Angeles to Chicago Midtown International now reads like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[:`2008-1-30`]-&gt;(:AirportDay)&lt;-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]-&gt;(:AirportDay)&lt;-[:`2008-1-30`]-(destination:Airport {code: "MDW"})
+RETURN *<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Refactoring to specific relationship types</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>What do you think?
+Should we bother with this careful refactoring or should we just load all our data from scratch?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In each of the last two stages we&#8217;ve added in new relationships without deleting the old ones.
+In the next section we&#8217;ll look at the advantages and disadvantages of maintaining multiple models.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/modeling_airports/06_multiple_models.html'>Multiple Models</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

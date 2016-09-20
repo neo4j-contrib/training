@@ -23,7 +23,7 @@ image::{img}/specific_relationship.jpg[]
 Creating relationships with dynamic names isn't possible using pure Cypher but `apoc` contains some functions that can help us out.
 There are actually two functions which are interesting to us:
 
-[cypher, source]
+[source,cypher]
 ----
 UNWIND ["apoc.create.relationship", "apoc.refactor.setType"] AS procedureName
 CALL apoc.help(procedureName)  YIELD name, text
@@ -40,7 +40,7 @@ We want to replace all the `HAS_DAY` relationships with relationships whose type
 We can get the name for our new relationship from the `:AirportDay#date` property.
 Run the following query to create new relationships from `:Airport` to `:AirportDay`
 
-[cypher, source]
+[source,cypher]
 ----
 MATCH (origin:Airport)-[hasDay:HAS_DAY]->(ad:AirportDay)
 CALL apoc.create.relationship(startNode(hasDay), ad.date, {}, endNode(hasDay) ) YIELD rel
@@ -60,11 +60,17 @@ MATCH (origin:Airport {code: "LAS"})-[:`2008-1-30`]->(:AirportDay)<-[:ORIGIN]-(f
 RETURN *
 ----
 
-== Refactoring to specific relationship types
+Try profiling this query against the query using the `HAS_DAY` relationship from before:
 
-What do you think?
-Should we bother with this careful refactoring or should we just load all our data from scratch?
+[source, cypher]
+----
+PROFILE
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(:AirportDay {date: "2008-1-30"})<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay {date: "2008-1-30"})<-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+RETURN *
+----
 
+What do you notice?
 
 == Next
 

@@ -10,6 +10,18 @@ e.g. if an airline decides to cancel
 
 Maybe this can be a slide based section?
 
+What if we have multiple query patterns that we need to satisfy?
+
+e.g. the model with dates in between `:Airport` and `AirportDay` is very optimised for finding flights on a specific date but it doesn't work so well if we want to search across multiple dates
+
+Find me all the flights between <origin> and <destination> on <date>
+
+vs
+
+Find me all the flights between <origin> and <destination on <date1> or <date2> or <date3>
+
+With that second version our query becomes a bit more maintainable if we have the `HAS_DAY` relationship although it would still be slower.
+
 
 
 Which date will make it easier to filter?
@@ -66,6 +78,11 @@ Other modeling topics:
 
 * Inferred relationships
 * Maintaining multiple models for optimal write speed
+
+== Reload all the data vs refactoring
+
+What do you think?
+Should we bother with this careful refactoring or should we just load all our data from scratch?
 
 == Next
 
