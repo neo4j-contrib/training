@@ -60,6 +60,24 @@ e.g. if an airline decides to cancel</p>
 <p>Maybe this can be a slide based section?</p>
 </div>
 <div class="paragraph">
+<p>What if we have multiple query patterns that we need to satisfy?</p>
+</div>
+<div class="paragraph">
+<p>e.g. the model with dates in between <code>:Airport</code> and <code>AirportDay</code> is very optimised for finding flights on a specific date but it doesn&#8217;t work so well if we want to search across multiple dates</p>
+</div>
+<div class="paragraph">
+<p>Find me all the flights between &lt;origin&gt; and &lt;destination&gt; on &lt;date&gt;</p>
+</div>
+<div class="paragraph">
+<p>vs</p>
+</div>
+<div class="paragraph">
+<p>Find me all the flights between &lt;origin&gt; and &lt;destination on &lt;date1&gt; or &lt;date2&gt; or &lt;date3&gt;</p>
+</div>
+<div class="paragraph">
+<p>With that second version our query becomes a bit more maintainable if we have the <code>HAS_DAY</code> relationship although it would still be slower.</p>
+</div>
+<div class="paragraph">
 <p>Which date will make it easier to filter?
 Should I load in all the flights for two of the hubs and have those in another CSV file?</p>
 </div>
@@ -156,6 +174,21 @@ RETURN *<!--/code--></pre>
 <p>Maintaining multiple models for optimal write speed</p>
 </li>
 </ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Reload all the data vs refactoring</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>What do you think?
+Should we bother with this careful refactoring or should we just load all our data from scratch?</p>
 </div>
 	</div>
   </div>

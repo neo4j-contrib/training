@@ -156,20 +156,19 @@ RETURN COUNT(*)<!--/code--></pre>
 RETURN *<!--/code--></pre>
 </div>
 </div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Refactoring to specific relationship types</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>What do you think?
-Should we bother with this careful refactoring or should we just load all our data from scratch?</p>
+<div class="paragraph">
+<p>Try profiling this query against the query using the <code>HAS_DAY</code> relationship from before:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+RETURN *<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What do you notice?</p>
 </div>
 	</div>
   </div>
