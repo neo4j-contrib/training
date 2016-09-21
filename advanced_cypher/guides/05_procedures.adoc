@@ -10,4 +10,18 @@ pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]
 
 == Procedures
 
-What sort of stuff do we want to show off with procedures here? 
+What sort of stuff do we want to show off with procedures here?
+
+== Procedures (compare cypher statement with procedure)
+- show a slow and optimized cypher-statement (I have a nice one from field)
+- show how to turn that into a procedure and that it's much faster
+
+== APOC
+- show the different areas of APOC
+- demo data-integration, graph-algos, conversion and collection functions
+- perhaps reuse the presentation slides
+
+== Spatial Functions
+- distance and point functions
+- show how to import and query
+- also demo neo4j-spatial procedures

@@ -1,0 +1,187 @@
+== Process for Optimizing (step by step, measure, plan)
+- take a complex slow query
+- show the profile
+- show how to build it up step by step
+- by also keeping track of work-in-progress (cardinalities)
+- improve it one step at a time
+
+== Timings (Browser vs. neo4j-shell vs. cypher-shell)
+- browser timing sucks, don't rely on it, it's JS overhead, the roundtrip and the double request thing
+- neo4j-shell is good, despite the text output it measures pretty accurately as the measurement is computed on server or embedded
+- cypher-shell it measures the bolt roundtrip so make sure to run it on localhost
+
+== Band filter by degree e.g. for recommendations
+- information theory, only interesting is what adds information
+- recommendation parts that have no connections or too many connections don't add information/value
+- something no one bought or something everyone bought
+- so a band-filter e.g. 25%<x<75% makes sense
+- use node-degree to filter out nodes that have to many or too few rels of a certain type
+- to get the total you can use (from count store):
+  explain match (:Label)-[:TYPE]->() RETURN count(*)
+- and for the current degree per node `size( (n)-[:TYPE]->() )`
+
+
+== WITH removal
+- the cost planner thinks it's clever and removes `WITH a,b` clauses, so matches form much larger patterns
+- that causes the large patterns (because of some other factors), to start at the wrong side with a certain small lookup which then expands quickly to huge number of paths and causes havoc later on
+- while the original separation (by the user) was actually taking care of looking up the small things first and then using them to drive the larger patterns from the right side (or even did two lookups one per pattern group)
+- solution is to introduce a fake WITH that's not removed `WITH a,b WHERE true`
+
+== Multi Facetted Search (multiple lookups + equality comparison)
+see blog post
+
+== Index support for text search & ranges & some tricks there
+- if you have an index/constraint on a property text search and ranges are supported
+- but also ranges on text !
+- so timestamps are fast to compare
+- but also date strings, like '2012-08-14 15:30:17'
+- you can do (partial) range comparisions on them like n.ts > '2012-08-14'
+- you can do prefix lookups on them: `n.ts STARTS WITH '2012-08'`, or contains `n.ts CONTAINS '-08-'`
+
+== Fast IN matching
+- IN lookups are index supported
+- if there is no index and the collection is large, they are slow
+- which is esp. annoying in collaborative filtering
+MATCH (me)-[:RATED]->(p)<-[:RATED]-(other)-[:RATED]->(other_product)
+WHERE not (me)-[:RATED]->(other_product)
+RETURN other_product, count(*) as score order by score desc limit 10
+could be optimized to this
+but that's not that fast, the IN is slow
+MATCH (me)-[:RATED]->(p)
+WITH collect(p) as products
+UNWIND products as p
+MATCH (p)<-[:RATED]-(other)-[:RATED]->(other_product)
+WHERE NOT (other_product) IN products
+RETURN other_product, count(*) as score order by score desc limit 10
+so we create a "fake" collection of "-" separated id's and check against it with "CONTAINS"
+MATCH (me)-[:RATED]->(p)
+WITH collect(p) as products
+WITH reduce(ids = "-", p IN products | ids + toString(id(p)) + "-")  as ids, products
+UNWIND products as p
+MATCH (p)<-[:RATED]-(other)-[:RATED]->(other_product)
+WHERE NOT ids CONTAINS ("-"+toString(id(other_product))+"-")
+RETURN other_product, count(*) as score order by score desc limit 10
+
+== batch updates with unwind both for nodes and rels (UNWIND {pairs} as row}
+== use maps for lookups instead of case (e.g. as params)
+- for lookups e.g. for scores you can use `case when`
+- `WITH case x when 'foo' then 1 when bar then 0.5 else 0 end as score`
+you can also use a map for that that you pass in as parameter which is faster and more dynamic
+- `WITH {mapping}[x] as score`
+You can also use that with node-ids, if you want to, e.g. update a bunch of nodes by id:
+MATCH (n)
+SET n.score = {mapping}[toString(id(n))].score
+// or
+SET n.score = {mapping}[toString(id(n))]
+or this map of data, e.g. per rel-id to keep related nodes and properties (we used it in SDN for batching updates for relationships where we had to carry a lot of meta-information per rel-id and needed fast lookup by the rel-id in Cypher)
+== Explain ExpandInto / Merge Into
+* if you have dense nodes (> 50 rels, e.g. from 10k rels) checking if a relationship exists between n1 and n2 can get expensive as it can be potentially the last relationship you check while iterating (or none)
+* that's why you want to start to check from the node with the fewer rels
+* actually from the non-dense node of the two
+* if both are non-dense (<50 rels) it doesn't really matter
+* if both are dense, but one has much fewer rels of that type (think parent child category), the do the checking from the side with the smaller degree (which we can even compute in Cypher with `size( n)-[:TYPE]->() )`
+* so MergeInto and ExpandInto use that feature
+== load csv tricks to reduce number of index lookups
+(distinc on relevant data, grouping of smaller count, pre-lookup)
+== post union processing via collect
+see blog post - https://neo4j.com/blog/cypher-union-query-using-collect-clause/
+there is no post union processing in Cypher (only 140+ comments on the issue thread)
+so what you can do is do the query, then collect the results into a single list
+and do so for each part and add to the list
+at the end unwind the global list (optionally distinct) and then post-process, filter, aggregate, sort or just continue to query
+
+== pattern comprehensions and map projections
+see blog post fancy new features to make property selection of a node, map, relationship more convenient
+https://neo4j.com/blog/cypher-graphql-neo4j-3-1-preview/
+also this ugly beast doesn't have to be done anymore
+----
+MATCH (u:User)== Spatial Functions
+- distance and point functions
+- show how to import and query
+- also demo neo4j-spatial procedures
+== Procedures (compare cypher statement with procedure)
+- show a slow and optimized cypher-statement (I have a nice one from field)
+- show how to turn that into a procedure and that it's much faster
+== APOC
+- show the different areas of APOC
+- demo data-integration, graph-algos, conversion and collection functions
+- perhaps reuse the presentation slides
+== Process for Optimizing (step by step, measure, plan)
+- take a complex slow query
+- show the profile
+- show how to build it up step by step
+- by also keeping track of work-in-progress (cardinalities)
+- improve it one step at a time
+== Timings (Browser vs. neo4j-shell vs. cypher-shell)
+- browser timing sucks, don't rely on it, it's JS overhead, the roundtrip and the double request thing
+- neo4j-shell is good, despite the text output it measures pretty accurately as the measurement is computed on server or embedded
+- cypher-shell it measures the bolt roundtrip so make sure to run it on localhost
+== LOAD CSV today (create small subgraphs vs. nodes then rels)
+- we used to convey that you have to strictly create nodes first (separately)
+- and only then relationships
+- today with the better eager handling and cost based writes
+- I think you can actually create sensible subgraphs (let's say up to 100 or 1000 nodes) per row
+- that should also help with concurrent execution and deadlocks
+- start with creating / updating the root node of your subgraph to take a lock
+== Cost planner for WRITES what changed
+- now that we have the cost planner for writes, what has changed
+- e.g. demo decomposition of a MERGE or MERGE relationship
+- more sensible matches for long patterns or varlength
+- so it enables more complex create patterns again
+- eager is also better
+== Band filter by degree e.g. for recommendations
+- information theory, only iteresting is what adds information
+- recommendation parts that have no connections or too many connections don't add information/value
+- something no one bought or something everyone bought
+- so a band-filter e.g. 25%<x<75% makes sense
+- use node-degree to filter out nodes that have to many or too few rels of a certain type
+- to get the total you can use (from count store):
+  explain match (:Label)-[:TYPE]->() RETURN count(*)
+- and for the current degree per node `size( (n)-[:TYPE]->() )`
+== Handling of large tx (batching)
+- large tx take too much memory, you can do 1M updates with 4G heap
+- have to batch transactions
+- with :Processed label and SKIP/LIMIT
+- or APOC
+- apoc.periodic.iterate, apoc.periodic.commit
+- independent updates can be run in parallel (like updating nodes or just rel-properties)
+== WITH removal
+- the cost planner thinks it's clever and removes `WITH a,b` clauses, so matches form much larger patterns
+- that causes the large patterns (because of some other factors), to start at the wrong side with a certain small lookup which then expands quickly to huge number of paths and causes havoc later on
+- while the original separation (by the user) was actually taking care of looking up the small things first and then using them to drive the larger patterns from the right side (or even did two lookups one per pattern group)
+- solution is to introduce a fake WITH that's not removed `WITH a,b WHERE true`
+== Multi Facetted Search (multiple lookups + equality comparison)
+see blog post
+== Index support for text search & ranges & some tricks there
+- if you have an index/constraint on a property text search and ranges are supported
+- but also ranges on text !
+- so timestamps are fast to compare
+- but also date strings, like '2012-08-14 15:30:17'
+- you can do (partial) range comparisions on them like n.ts > '2012-08-14'
+- you can do prefix lookups on them: `n.ts STARTS WITH '2012-08'`, or contains `n.ts CONTAINS '-08-'`
+== Fast IN matching
+- IN lookups are index supported
+- if there is no index and the collection is large, they are slow
+- which is esp. annoying in collaborative filtering
+MATCH (me)-[:RATED]->(p)<-[:RATED]-(other)-[:RATED]->(other_product)
+WHERE not (me)-[:RATED]->(other_product)
+RETURN other_product, count(*) as score order by score desc limit 10
+could be optimized to this
+but that's not that fast, the IN is slow
+MATCH (me)-[:RATED]->(p)
+WITH collect(p) as products
+UNWIND products as p
+MATCH (p)<-[:RATED]-(other)-[:RATED]->(other_product)
+WHERE NOT (other_product) IN products
+RETURN other_product, count(*) as score order by score desc limit 10
+so we create a "fake" collection of "-" separated id's and check against it with "CONTAINS"
+MATCH (me)-[:RATED]->(p)
+WITH collect(p) as products
+WITH reduce(ids = "-", p IN products | ids + toString(id(p)) + "-")  as ids, products
+UNWIND products as p
+MATCH (p)<-[:RATED]-(other)-[:RATED]->(other_product)
+WHERE NOT ids CONTAINS ("-"+toString(id(other_product))+"-")
+RETURN other_product, count(*) as score order by score desc limit 10
+== batch updates with unwind both for nodes and rels (UNWIND {pairs} as row}
+== use maps for lookups instead of case (e.g. as params)
+- for look

@@ -99,14 +99,14 @@ CALL apoc.help("apoc.periodic.commit")
 Before we give it a try, let's import a few more flights to keep it interesting.
 As we're now dealing with much more data we'll have to be a bit cleverer about how we import the data.
 
-[source, cypher]
+[source, cypher, subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM "{csv-url}_500k.csv" AS row
 UNWIND [row.Origin, row.Dest] AS airport
 RETURN DISTINCT airport
 ----
 
-[source, cypher]
+[source, cypher, subs=attributes]
 ----
 USING PERIODIC COMMIT 10000
 LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row

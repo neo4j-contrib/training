@@ -63,6 +63,18 @@ The more flights an airport has the more we'll have to scan through, and since w
 
 Can you think of a way that we can change our model to avoid doing all these property lookups?
 
+== Profiling the finding flights to book query
+
+We can profile the query by prefixing it with the `PROFILE` keyword:
+
+[source, cypher]
+----
+PROFILE
+MATCH path = (origin:Airport {code: "LAS"})<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport {code: "MDW"})
+WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+RETURN path
+----
+
 == Introducing `AirportDay`
 
 One way that we can tweak our model to be more aligned with our queries is by introducing the concept of an `AirportDay`
@@ -77,7 +89,11 @@ Try and write a query to evolve our current model to include this new concept.
 
 image::{img}/airport_day.jpg[]
 
-== Solution: Introducing Airport Day
+== Click through for the answers
+
+If you really want to see them...
+
+== Answer: Introducing Airport Day
 
 [source, cypher]
 ----

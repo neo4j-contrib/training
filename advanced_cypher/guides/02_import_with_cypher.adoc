@@ -63,6 +63,21 @@ MERGE (person)-[actedIn:ACTED_IN]->(movie)
 ON CREATE SET actedIn.roles = CASE WHEN row.characters IS NULL then [] ELSE split(row.characters, ":") END
 ----
 
+== LOAD CSV today (create small subgraphs vs. nodes then rels)
+- we used to convey that you have to strictly create nodes first (separately)
+- and only then relationships
+- today with the better eager handling and cost based writes
+- I think you can actually create sensible subgraphs (let's say up to 100 or 1000 nodes) per row
+- that should also help with concurrent execution and deadlocks
+- start with creating / updating the root node of your subgraph to take a lock
+
+== Cost planner for WRITES what changed
+- now that we have the cost planner for writes, what has changed
+- e.g. demo decomposition of a MERGE or MERGE relationship
+- more sensible matches for long patterns or varlength
+- so it enables more complex create patterns again
+- eager is also better
+
 == Next step
 
 pass:a[<a play-topic='{guides}/03_aggregates.html'>Aggregate Queries</a>]

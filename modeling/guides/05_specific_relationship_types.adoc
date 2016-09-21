@@ -22,7 +22,7 @@ image::{img}/specific_relationship.jpg[]
 
 Creating relationships with dynamic names isn't possible using pure Cypher but `apoc` contains some functions that can help us out.
 
-Explore the `apoc` docs and see if you work out which procedure we need to use.
+Explore the link:https://neo4j-contrib.github.io/neo4j-apoc-procedures/[`apoc` docs] and see if you work out which procedure we need to use.
 Bonus points if you can write the query which does the refactoring as well.
 
 == Answer: Refactoring to specific relationship type

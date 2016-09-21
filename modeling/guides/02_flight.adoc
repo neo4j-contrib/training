@@ -7,8 +7,6 @@ In this section we're going to profile the query from the end of the last sectio
 
 We'll then refactor the model to introduce `Flight` as a first class citizen in our domain to make it easier to write queries centered around flights.
 
-== Profiling queries
-
 Before we profile our query a quick explanation:
 
 image::{img}/slides.jpg[]
@@ -34,7 +32,7 @@ Next we followed the `FLIGHT` relationship to `origin` airports, and we can see 
 
 That's a lot of flights!
 
-== Profiling flight `WN 1016`
+== Scanning all the flights
 
 In fact we actually looked at every single flight, which we can confirm by executing the following query:
 
@@ -52,7 +50,7 @@ It's time to refactor the model.
 
 Having convinced ourselves that our current model is quite inefficient, we're going to refactor the model to introduce a `Flight` node:
 
-image::{img}/flight_first_class.png[]
+image::{img}/flight_first_class.png[width=100%]
 
 == Creating flights
 
@@ -125,8 +123,7 @@ Now we're ready to find those flights!
 ----
 MATCH (origin)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination)
 WHERE flight.airline = "WN" AND flight.number = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure
+RETURN origin, destination, flight
 ----
 
 Before we delete the `FLIGHT` relationship we should profile the two versions of the query to see whether our refactoring has improved things.
@@ -140,8 +137,7 @@ Let's now profile our new version of the query to see if we've improved things:
 PROFILE
 MATCH (origin)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination)
 WHERE flight.airline = "WN" AND flight.number = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure
+RETURN origin, destination, flight
 ----
 
 For reference, you can re-run the profile on our other query as well:
@@ -151,8 +147,7 @@ For reference, you can re-run the profile on our other query as well:
 PROFILE
 MATCH (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
 WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure
+RETURN origin, destination, flight
 ----
 
 What do you notice?

@@ -1,0 +1,9 @@
+= Refactoring
+
+== Handling of large tx (batching)
+- large tx take too much memory, you can do 1M updates with 4G heap
+- have to batch transactions
+- with :Processed label and SKIP/LIMIT
+- or APOC
+- apoc.periodic.iterate, apoc.periodic.commit
+- independent updates can be run in parallel (like updating nodes or just rel-properties)
