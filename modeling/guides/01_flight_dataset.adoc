@@ -1,4 +1,5 @@
 = Intro to The Flight Dataset
+:icons: font
 
 == Intro to The Flight Dataset
 
@@ -57,7 +58,7 @@ The following should suffice:
 
 image::{img}/initial.png[width="100%"]
 
-// TODO We should do a quite primer here on the building blocks of the model.
+We should do a quite primer here on the building blocks of the model.
 
 == Importing flights and airports
 
@@ -70,10 +71,10 @@ MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (origin)-[flight:FLIGHT {airline: row.UniqueCarrier,
                                flightNumber: row.FlightNum,
-                               year: toInt(row.Year),
-                               month: toInt(row.Month),
-                               day: toInt(row.DayofMonth)}]->(destination)
-ON CREATE SET flight.departure = toInt(row.CRSDepTime), flight.arrival = toInt(row.CRSArrTime)
+                               year: TOINT(row.Year),
+                               month: TOINT(row.Month),
+                               day: TOINT(row.DayofMonth)}]->(destination)
+ON CREATE SET flight.departure = TOINT(row.CRSDepTime), flight.arrival = TOINT(row.CRSArrTime)
 ----
 
 This query:
@@ -83,19 +84,18 @@ This query:
 * creates a `FLIGHT` relationship between origin and destination airports for each row in the file
 
 By default properties will be stored as strings.
-We know that `year`, `month`, and `day` are actually numeric values so we'll convert them using the link:/docs[`toInt`] function.
+We know that `year`, `month`, and `day` are actually numeric values so we'll coerce them using the link:/docs[`TOINT`] function.
 
 Now we're ready to start querying the data.
 
 == Finding the most popular airports
 
-We can see some of what we've imported by writing the following query, which finds the airports with the most outgoing flights.
+We can see some of what we've imported by writing the following query, which finds the airports with the outgoing flights.
 
 [source, cypher]
 ----
-MATCH (a:Airport)
-WITH a, size( (a)-[:FLIGHT]->() ) AS outgoing
-RETURN a.code, outgoing
+MATCH (a:Airport)-[:FLIGHT]->()
+RETURN a, COUNT(*) AS outgoing
 ORDER BY outgoing DESC
 LIMIT 10
 ----
@@ -103,7 +103,7 @@ LIMIT 10
 This query:
 
 * finds every node with the `Airport` label
-* uses the `size` function to count the number of outgoing relationship of type `FLIGHT` for each `Airport` node
+* uses the `SIZE` function to count the number of outgoing relationship of type `FLIGHT` for each `Airport` node
 * returns the `code` property on the `Airport` nodes and the `outgoing` count in descending order by `outgoing`
 * limits the number of airports returned to 10
 
@@ -113,34 +113,23 @@ Now it's your turn!
 Try and write queries to answer the following questions:
 
 * Find the airports that have the most incoming flights
-* Find all the flights that go to Las Vegas (`LAS`) and return ordered flight and airport details
-* Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`) and return ordered flight and airport details
+* Find all the flights that go to Las Vegas (`LAS`)
+* Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`)
 
-_Hint_ You'll want to refer to the link:http://neo4j.com/docs/cypher-refcard/current/[Cypher refcard] for the syntax for the second question.
-
-== Solutions on the next pages
+_Hint_ You'll want to refer to the link:http://neo4j.com/docs/stable/cypher-refcard/[Cypher refcard] for the syntax for the second question.
 
 == Answer: Find the airports that have the most incoming flights
 
 [source, cypher]
 ----
-MATCH (a:Airport)
-WITH a, size( ()-[:FLIGHT]->(a) ) AS incoming
-RETURN a.code, incoming
+MATCH (a:Airport)<-[:FLIGHT]-()
+RETURN a, COUNT(*) AS incoming
 ORDER BY incoming DESC
 LIMIT 10
 ----
 
 == Answer: Find all the flights that go to Las Vegas (`LAS`)
 
-.Graph Result
-[source, cypher]
-----
-MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport {code:'LAS'})
-RETURN origin, flight, destination
-----
-
-.Returning ordered flight detail
 [source, cypher]
 ----
 MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
@@ -149,16 +138,17 @@ RETURN origin.code, destination.code, flight.year, flight.month, flight.day, fli
 ORDER BY flight.year, flight.month, flight.day, flight.departure
 ----
 
-== Answer: Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`)
+or
 
-.Graph Result
 [source, cypher]
 ----
-MATCH  (origin:Airport {code:'LAS'})-[flight:FLIGHT]->(destination:Airport {code:'LAX'})
-RETURN origin, flight, destination
+MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport {code: "LAS"})
+RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
+ORDER BY flight.year, flight.month, flight.day, flight.departure
 ----
 
-.Returning ordered flight detail
+== Answer: Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`)
+
 [source, cypher]
 ----
 MATCH  (origin:Airport {code: "LAX"})-[flight:FLIGHT]->(destination:Airport {code: "LAS"})
