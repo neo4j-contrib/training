@@ -18,9 +18,15 @@ This is what our new model will look like:
 
 image::{img}/specific_relationship.jpg[]
 
-== Refactoring to specific relationship type
+== Exercise: Refactoring to specific relationship type
 
 Creating relationships with dynamic names isn't possible using pure Cypher but `apoc` contains some functions that can help us out.
+
+Explore the `apoc` docs and see if you work out which procedure we need to use.
+Bonus points if you can write the query which does the refactoring as well.
+
+== Answer: Refactoring to specific relationship type
+
 There are actually two functions which are interesting to us:
 
 [source,cypher]
@@ -35,7 +41,7 @@ We can always delete `HAS_DAY` afterwards if necessary.
 
 We want to replace all the `HAS_DAY` relationships with relationships whose type comes from the `date` property on the `AirportDay` nodes:
 
-== Refactoring to specific relationship type
+== Answer: Refactoring to specific relationship type
 
 We can get the name for our new relationship from the `:AirportDay#date` property.
 Run the following query to create new relationships from `:Airport` to `:AirportDay`
