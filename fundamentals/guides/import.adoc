@@ -47,6 +47,8 @@ LOAD CSV     // load csv data
 WITH HEADERS // optionally use first header row as keys in 'row' map
 FROM 'url'   // 'file:///data.csv' or  'http://.../data.csv' URL
 AS row       // return each row of the CSV as list of strings or map
+FIELDTERMINATOR ';' // alternative delimiter
+
 ... rest of the Cypher statement ...
 ----
 
@@ -88,8 +90,7 @@ RETURN row, keys(row) LIMIT 5;
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
-     '{csv-url}depts-member.csv' AS row
-FIELDTERMINATOR ';'
+     '{movies-url}' AS row
 WITH row.person as person, toInt(row.hours) as hours, row.department as dept, row.company = 'GraphIT' as `is graph-it`
 ORDER BY row.company LIMIT 10
 RETURN *;
@@ -120,7 +121,7 @@ CREATE (p)-[:ACTED_IN {roles:['Neo']}]->(m);
 
 == LOAD CSV - Create Nodes
 
-=== CREATE Orgs
+=== CREATE Movies
 
 [source,cypher,subs=attributes]
 ----

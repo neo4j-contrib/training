@@ -1,10 +1,15 @@
 = Importing data with Cypher
-:icons: font
+:csv-url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
+movies-roles-url: {csv-url}/movies.csv
+:movies-url: {csv-url}/new_movies.csv
+:people-url: {csv-url}/people.csv
+:actors-url: {csv-url}/actors.csv
+:directors-url: {csv-url}/directors.csv
 
 == Importing data with Cypher
 
-The structure of these guides will be that we have a user story that we're trying to implement.
-We'll look at how to solve that in a naive way to start with and then optimize our queries.
+There is this existing, movie, actor, user and rating data in CSV file dumps.
+We have to find a way to effciently get it into the graph.
 
 [verse]
 ____
@@ -13,11 +18,196 @@ I want to import IMDB data into neo4j as quickly as possible
 So that I can start writing queries about my favorite movie stars
 ____
 
+== LOAD CSV
 
+Load CSV is a power tool:
 
-[source, cypher, subs=attributes]
+* Load CSV data from a http or file URL
+* Create, update or extend graph structures
+* Transform and convert CSV values
+* Allows us to import *into* our graph model
+* Up to 10M nodes & relationships
+
+Basically it turns a CSV file into a *stream of rows* which you then can process with all the other Cypher functionalities. 
+So all the Cypher Tricks that we know can be applied here too.
+
+== LOAD CSV Syntax
+
+Basic Syntax:
+
+[source,cypher]
 ----
-LOAD CSV WITH HEADERS FROM '{csv-url}people.csv' as row
+USING PERIODIC COMMIT [1000] // Batch commit after n rows
+LOAD CSV            // load csv data
+WITH HEADERS        // optionally use first header row as keys in 'row' map
+FROM 'url'          // 'file:///data.csv' or  'http://.../data.csv' URL
+AS row              // return each row of the CSV as list of strings or map
+FIELDTERMINATOR ';' // alternative delimiter
+... rest of the Cypher statement ...
+----
+
+NOTE: If you use file-url's, access is limited to within `$NEO4J_HOME/import`.
+
+== Let's look at the CSVs
+
+////
+----
+data $ ls -lh *.csv
+8,6M 21 Sep 10:03 movies.csv
+
+data $ wc -l *.csv
+   64019 movies.csv
+
+data $ head -2 *.csv
+==> movies.csv <==
+movieId,title,avgVote,releaseYear,tagline,genres,personType,personId,name,birthYear,deathYear,characters
+189,Sin City: A Dame to Kill For,6.900000,2014,There is no justice without sin.,Action:Crime:Drama:Thriller,ACTOR,2295,Mickey 
+----
+////
+
+----
+data $ ls -lh *.csv
+1,3M 21 Sep 10:03 actors.csv
+ 19M 21 Sep 10:03 dict.csv
+ 77K 21 Sep 10:03 directors.csv
+355K 21 Sep 10:03 new_movies.csv
+489K 21 Sep 10:03 people.csv
+----
+
+----
+data $ wc -l *.csv
+   57137 actors.csv
+    6883 directors.csv
+    6232 new_movies.csv
+   18727 people.csv
+----
+
+----
+data $ head -2 *.csv
+==> new_movies.csv <==
+movieId,title,avgVote,releaseYear,genres
+10586,The Ghost and the Darkness,7.300000,1996,Action:Adventure:Drama:History:Thriller
+
+==> people.csv <==
+personId,name,birthYear,deathYear
+23945,Gérard Pirès,1942,
+
+==> actors.csv <==
+personId,movieId,characters
+2295,189,Marv
+
+==> directors.csv <==
+personId,movieId
+2293,189
+----
+
+== LOAD CSV - Data Inspection
+
+We have a movies CSV file somewhere remote or local, and can have a look at them.
+
+CSV Data Problems:
+
+- incorrect header vs. data
+- wrong quotes, unquoted newlines, stray quotes
+- UTF-8 prefix
+- trailing spaces, typos, binary zeros
+
+So we want to see them how Cypher sees them, with Cypher.
+
+=== Row Count
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV FROM  
+ '{movies-url}' AS row
+RETURN count(*);
+----
+
+=== Row as List Data
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV FROM  
+ '{movies-url}' AS row
+RETURN * LIMIT 5;
+----
+
+== LOAD CSV - WITH HEADERS
+
+=== Row as Map Data
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+ '{movies-url}' AS row
+RETURN row, keys(row) LIMIT 5;
+----
+
+=== Data Conversion
+
+* Use conversion functions, toInt, toFloat, split
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{movies-url}' AS row
+RETURN toFloat(row.avgVote) as avgVote, toInt(row.releaseYear) as releaseYear, split(row.genres,":") as genres, row
+LIMIT 10;
+----
+
+== Exercise: Creating Data (10')
+
+You know how it works, just use `CREATE` or `MERGE`
+
+Find your most favorite Role with Movie and Actor in the CSV and `CREATE` the `Movie` and `MERGE` the `Person.
+
+NOTE: Look at the CSV structure for property-names and types.
+
+== Solution on next page
+
+== Answer: Creating Data
+
+[source,cypher]
+----
+CREATE (:Movie {movieId:5574, title:"Forrest Gump", tagline: ""
+        avgVote:7.7, releaseYear:1994, genres: ["Comedy","Drama","Romance"]);
+----
+
+[source,cypher]
+----
+MERGE (p:Person {personId: 31}) ON CREATE SET p.name = "Tom Hanks", p.birthYear = 1956;
+----
+
+[source,cypher]
+----
+MATCH (p:Person {personId:31}), (m:Movie {movieId:5574})
+CREATE (p)-[:ACTED_IN {roles:['Forrest Gump']}]->(m);
+----
+
+== LOAD CSV - Import Approaches
+
+* normalized data
+* denormalized data - multi-pass
+* denormalized data - single-pass
+* optimizations
+
+== Normalized Data
+
+* Separate CSV files
+* Create nodes individually, one per label
+* Create relationships, one per type
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{movies-url}' AS row
+CREATE (:Movie {movieId:toInt(row.movieId), title:row.title,  avgVote:toFloat(row.avgVote), 
+        releaseYear:toInt(row.releaseYear), genres: split(row.genres,":"));
+----
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM '{people-url}' as row
 
 MERGE(person:Person {id: toInt(row.personId)})
 ON CREATE SET person.name = row.name,
@@ -25,44 +215,153 @@ ON CREATE SET person.name = row.name,
               person.died = toInt(row.deathYear)
 ----
 
-We know that this file has unique people in so we may as well use CREATE?
-What would we do if there were duplicates?
-
-We should have something for recovering after messed up imports?
+NOTE: `deathYear` can be missing. `toInt()` returns null, property not set.
 
 [source, cypher, subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM '{csv-url}new_movies.csv' as row
-
-MERGE (movie:Movie {id:toInt(row.movieId)})
-ON CREATE SET
-  movie.title = row.title,
-  movie.avgVote = toFloat(row.avgVote),
-  movie.releaseYear = toInt(row.releaseYear),
-  movie.tagline = row.tagline,
-  movie.genres = split(row.genres, ":")
-----
-
-[source, cypher, subs=attributes]
-----
-LOAD CSV WITH HEADERS FROM '{csv-url}directors.csv' as row
+LOAD CSV WITH HEADERS FROM '{directors-url}' as row
 
 MATCH (movie:Movie {id:toInt(row.movieId)})
 MATCH (person:Person {id: toInt(row.personId)})
 MERGE (person)-[:DIRECTED]->(movie)
 ----
 
-[source, cypher, subs=attributes]
+[source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM '{csv-url}actors.csv' as row
+USING PERIODIC COMMIT 50000
+LOAD CSV WITH HEADERS FROM 
+     '{actors-url}' AS row
+FIELDTERMINATOR ','
 
-MATCH (movie:Movie {id:toInt(row.movieId)})
-MATCH (person:Person {id: toInt(row.personId)})
-
-MERGE (person)-[actedIn:ACTED_IN]->(movie)
-ON CREATE SET actedIn.roles = CASE WHEN row.characters IS NULL then [] ELSE split(row.characters, ":") END
+MATCH  (movie:Movie  {id: toInt(row.movieId) }) 
+MATCH  (person:Person {id: toInt(row.personId) }) 
+MERGE  (person)-[:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
 ----
 
+=== Pro
+
+* Simple statement
+* Single merge for movies and actors
+* Single Pass
+
+=== Con
+
+* Additional index lookups
+* Deadlocks for rels if parallelized
+
+=== Denormalized Data (1)
+
+* Single CSV file
+* Multi-Pass
+* Create nodes individually, one per label
+* Create relationships, one per type
+
+Same as before, just run multiple passes over the same file.
+
+=== Pro
+
+* Simple statement
+
+=== Con
+
+* Unnecessary merges for duplicate movies and actors
+* Additional index lookups
+* Multi Pass
+* Deadlocks for rels if parallelized
+
+=== Denormalized Data (2)
+
+* Single CSV file
+* Single-Pass
+* Create sub-graph per row, e.g. Movie and Person and Relationship
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{movies-roles-url}' AS row
+
+MERGE (m:Movie {movieId:toInt(row.movieId)}) 
+   ON CREATE SET m.title=row.title, m.avgVote=toFloat(row.avgVote), 
+      m.releaseYear=toInt(row.releaseYear), m.genres=split(row.genres,":")
+
+MERGE (p:Person {id: toInt(row.personId)})
+   ON CREATE SET p.name = row.name, p.born = toInt(row.birthYear), 
+      p.died = toInt(row.deathYear)
+
+CREATE (p)-[:ACTED_IN {roles: split(row.characters,':')}]->(m);
+----
+
+=== Pro
+
+* Saves index lookups
+* Single Pass
+* Works well with cost based planner
+
+=== Con
+
+* More complex statement
+* Unnecessary merges for duplicate movies and actors
+* Deadlocks if parallelized
+
+--------------
+
+== Reduce Index lookups
+
+* Small datasets (<1M) also work *without* PERIODIC COMMIT. Test it.
+* Use distinct with input data, can use CREATE instead of MERGE
+* MERGE has fewer lookups
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{movies-roles-url}' AS row
+
+WITH DISTINCT row.movieId as movieId, row.title as title, row.genres as genres,
+toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
+
+MERGE (m:Movie {movieId:movieId) 
+   ON CREATE SET m.title=title, m.avgVote=avgVote, 
+      m.releaseYear=toInt(row.releaseYear), m.genres=split(genres,":")
+
+----
+
+== Recovering if you messed up
+
+* Mark newly created data with label (rels with property) in (ON) CREATE
+* Remove nodes with that label / rels with that property
+
+* Neo4j-Shell / Cypher-Shell use begin/rollback transactions
+
+
+== Aggregate sub-structure
+
+* Reduce Index-Lookup for Movie
+* (disables periodic commit)
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     '{movies-roles-url}' AS row
+
+WITH row.movieId as movieId, row.title as title, row.genres as genres,
+toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
+
+collect({id: row.personId, name:row.name, born: toInt(row.birthYear), died:toInt(row.deathYear), 
+         roles: split(coalesce(row.characters,""),':')}) as people
+
+MERGE (m:Movie {movieId:movieId) 
+   ON CREATE SET m.title=title, m.avgVote=avgVote, 
+      m.releaseYear=toInt(row.releaseYear), m.genres=split(genres,":")
+
+UNWIND people as person
+
+MERGE (p:Person {id: person.id})
+   ON CREATE SET p.name = person.name, p.born = person.born, p.died = person.died
+
+CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m);
+----
+
+////
 == LOAD CSV today (create small subgraphs vs. nodes then rels)
 - we used to convey that you have to strictly create nodes first (separately)
 - and only then relationships
@@ -77,6 +376,7 @@ ON CREATE SET actedIn.roles = CASE WHEN row.characters IS NULL then [] ELSE spli
 - more sensible matches for long patterns or varlength
 - so it enables more complex create patterns again
 - eager is also better
+////
 
 == Next step
 
