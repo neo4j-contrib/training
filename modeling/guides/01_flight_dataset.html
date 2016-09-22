@@ -185,11 +185,12 @@ The following should suffice:</p>
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_initial.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
-MERGE (origin)-[flight:FLIGHT {airline: row.UniqueCarrier,
-                               flightNumber: row.FlightNum,
-                               year: TOINT(row.Year),
-                               month: TOINT(row.Month),
-                               day: TOINT(row.DayofMonth)}]->(destination)
+MERGE (origin)-[flight:HAS_FLIGHT {
+  airline: row.UniqueCarrier,
+  flightNumber: row.FlightNum,
+  year: TOINT(row.Year),
+  month: TOINT(row.Month),
+  day: TOINT(row.DayofMonth)}]->(destination)
 ON CREATE SET flight.departure = TOINT(row.CRSDepTime), flight.arrival = TOINT(row.CRSArrTime)<!--/code--></pre>
 </div>
 </div>
@@ -232,7 +233,7 @@ We know that <code>year</code>, <code>month</code>, and <code>day</code> are act
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Airport)-[:FLIGHT]-&gt;()
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Airport)-[:HAS_FLIGHT]-&gt;()
 RETURN a, COUNT(*) AS outgoing
 ORDER BY outgoing DESC
 LIMIT 10<!--/code--></pre>
@@ -247,10 +248,13 @@ LIMIT 10<!--/code--></pre>
 <p>finds every node with the <code>Airport</code> label</p>
 </li>
 <li>
-<p>uses the <code>SIZE</code> function to count the number of outgoing relationship of type <code>FLIGHT</code> for each <code>Airport</code> node</p>
+<p>finds all outgoing <code>HAS_FLIGHT</code> relationships</p>
 </li>
 <li>
-<p>returns the <code>code</code> property on the <code>Airport</code> nodes and the <code>outgoing</code> count in descending order by <code>outgoing</code></p>
+<p>counts them up grouped by airport</p>
+</li>
+<li>
+<p>returns the <code>Airport</code> nodes and the <code>outgoing</code> count in descending order by <code>outgoing</code></p>
 </li>
 <li>
 <p>limits the number of airports returned to 10</p>
@@ -296,12 +300,26 @@ Try and write queries to answer the following questions:</p>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Click through for the answers</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If you really want to see them&#8230;&#8203;</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Answer: Find the airports that have the most incoming flights</h3>
     <br/>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Airport)&lt;-[:FLIGHT]-()
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Airport)&lt;-[:HAS_FLIGHT]-()
 RETURN a, COUNT(*) AS incoming
 ORDER BY incoming DESC
 LIMIT 10<!--/code--></pre>
@@ -320,10 +338,10 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)-[flight:HAS_FLIGHT]-&gt;(destination:Airport)
 WHERE destination.code = "LAS"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+RETURN origin, destination, flight
+LIMIT 10<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -331,9 +349,9 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pr
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport {code: "LAS"})
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)-[flight:HAS_FLIGHT]-&gt;(destination:Airport {code: "LAS"})
+RETURN origin, destination, flight
+LIMIT 10<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -349,9 +367,9 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pr
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport {code: "LAX"})-[flight:FLIGHT]-&gt;(destination:Airport {code: "LAS"})
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAX"})-[flight:HAS_FLIGHT]-&gt;(destination:Airport {code: "LAS"})
+RETURN origin, destination, flight
+LIMIT 10<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -393,7 +411,7 @@ So that I know when I&#8217;ll be able to spot those planes taking off and landi
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:FLIGHT]-&gt;(destination:Airport)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH  (origin:Airport)-[flight:HAS_FLIGHT]-&gt;(destination:Airport)
 WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
 RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
 ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
@@ -414,7 +432,8 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pr
     <br/>
     <div>
       <div class="paragraph">
-<p>In the next section we&#8217;re going to learn how to profile queries and we&#8217;ll then refactor the model to introduce <code>Flight</code> as a first class concept.</p>
+<p>In the next section we&#8217;re going to learn how to <strong>profile queries</strong> so that we can see what work&#8217;s actually being done.
+We&#8217;ll then refactor the model to introduce <code>Flight</code> as a first class concept.</p>
 </div>
 <div class="paragraph">
 <p><a play-topic='http://guides.neo4j.com/modeling_airports/02_flight.html'>Flight as a first class citizen</a></p>

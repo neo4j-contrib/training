@@ -211,7 +211,7 @@ As we&#8217;re now dealing with much more data we&#8217;ll have to be a bit clev
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "{csv-url}_500k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/_500k.csv" AS row
 UNWIND [row.Origin, row.Dest] AS airport
 RETURN DISTINCT airport<!--/code--></pre>
 </div>
@@ -219,7 +219,7 @@ RETURN DISTINCT airport<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_500k.csv" AS row
 MATCH (origin:Airport {code: row.Origin})
 MATCH (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -230,8 +230,8 @@ ON CREATE SET newFlight.year = TOINT(row.Year),
               newFlight.number = row.FlightNum,
               newFlight.departure = row.Dest,
               newFlight.arrival = row.UniqueCarrier
-MERGE (origin)&lt;-[:ORIGIN]-(newFlight)
-MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
+MERGE (origin)<-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]->(destination)<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">

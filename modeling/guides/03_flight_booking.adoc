@@ -87,7 +87,7 @@ We want to introduce `:AirportDay` nodes so that we don't have to scan through a
 
 Try and write a query to evolve our current model to include this new concept.
 
-image::{img}/airport_day.jpg[]
+image::{img}/airport_day.png[]
 
 == Click through for the answers
 

@@ -52,6 +52,10 @@ Having convinced ourselves that our current model is quite inefficient, we're go
 
 image::{img}/flight_first_class.png[width=100%]
 
+We'll quickly talk about how we're going to evolve the model:
+
+image::{img}/slides.jpg[width=100%]
+
 == Creating flights
 
 When we refactor the model we want to make sure we only create each flight once.
@@ -59,7 +63,7 @@ Neo4j allows us to create unique constraints to ensure uniqueness across a label
 
 Before we refactor our model, look at the slides for a quick explanation of unique constraints and indexes which we'll use in the next section.
 
-image::{img}/slides.jpg[]
+image::{img}/slides.jpg[width=100%]
 
 == Ensuring flight uniqueness
 

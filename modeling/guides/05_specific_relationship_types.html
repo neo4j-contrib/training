@@ -89,12 +89,29 @@ If we load in 10 years that goes up to 3,650 relationships.</p>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Refactoring to specific relationship type</h3>
+    <h3>Exercise: Refactoring to specific relationship type</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>Creating relationships with dynamic names isn&#8217;t possible using pure Cypher but <code>apoc</code> contains some functions that can help us out.
-There are actually two functions which are interesting to us:</p>
+<p>Creating relationships with dynamic names isn&#8217;t possible using pure Cypher but <code>apoc</code> contains some functions that can help us out.</p>
+</div>
+<div class="paragraph">
+<p>Explore the <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/"><code>apoc</code> docs</a> and see if you work out which procedure we need to use.
+Bonus points if you can write the query which does the refactoring as well.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Refactoring to specific relationship type</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>There are actually two functions which are interesting to us:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -118,7 +135,7 @@ We can always delete <code>HAS_DAY</code> afterwards if necessary.</p>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Refactoring to specific relationship type</h3>
+    <h3>Answer: Refactoring to specific relationship type</h3>
     <br/>
     <div>
       <div class="paragraph">

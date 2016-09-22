@@ -151,6 +151,28 @@ The more flights an airport has the more we&#8217;ll have to scan through, and s
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Profiling the finding flights to book query</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can profile the query by prefixing it with the <code>PROFILE</code> keyword:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
+WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+RETURN path<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Introducing <code>AirportDay</code></h3>
     <br/>
     <div>
@@ -181,7 +203,7 @@ The more flights an airport has the more we&#8217;ll have to scan through, and s
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/airport_day.jpg" alt="airport day">
+<img src="http://guides.neo4j.com/modeling_airports/img/airport_day.png" alt="airport day" width="100%">
 </div>
 </div>
 	</div>
@@ -192,7 +214,21 @@ The more flights an airport has the more we&#8217;ll have to scan through, and s
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Solution: Introducing Airport Day</h3>
+    <h3>Click through for the answers</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If you really want to see them&#8230;&#8203;</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Introducing Airport Day</h3>
     <br/>
     <div>
       <div class="listingblock">
