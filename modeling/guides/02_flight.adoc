@@ -18,7 +18,7 @@ We can profile our query by prefixing it with the `PROFILE` keyword:
 [source, cypher]
 ----
 PROFILE
-MATCH (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
 WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
 RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
 ORDER BY flight.year, flight.month, flight.day, flight.departure
@@ -38,7 +38,7 @@ In fact we actually looked at every single flight, which we can confirm by execu
 
 [source, cypher]
 ----
-MATCH ()-[:FLIGHT]->()
+MATCH ()-[:HAS_FLIGHT]->()
 RETURN COUNT(*)
 ----
 
@@ -87,7 +87,7 @@ Run the following query:
 
 [source, cypher]
 ----
-MATCH (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
 MERGE (newFlight:Flight { id: flight.airline + flight.flightNumber + "_" + flight.year + "-" + flight.month + "-" + flight.day + "_" + origin.code + "_" + destination.code }   )
 ON CREATE SET newFlight.year = flight.year,
               newFlight.month = flight.month,
@@ -145,7 +145,7 @@ For reference, you can re-run the profile on our other query as well:
 [source, cypher]
 ----
 PROFILE
-MATCH (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
 WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
 RETURN origin, destination, flight
 ----
@@ -167,7 +167,7 @@ Run the following query:
 
 [source, cypher]
 ----
-MATCH ()-[flight:FLIGHT]->()
+MATCH ()-[flight:HAS_FLIGHT]->()
 DELETE flight
 ----
 

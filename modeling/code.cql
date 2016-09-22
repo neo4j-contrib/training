@@ -6,3 +6,51 @@ AS row       // return each row of the CSV as list of strings or map
 // ... rest of the Cypher statement ...
 
 
+LOAD CSV WITH HEADERS FROM "file:///flights.csv" AS row
+CREATE (:Airport {code: row.Origin})
+
+LOAD CSV WITH HEADERS FROM "file:///flights.csv" AS row
+CREATE (:Airport {code: row.Origin})
+CREATE (:Airport {code: row.Dest})
+
+LOAD CSV WITH HEADERS FROM "file:///flights.csv" AS row
+CREATE (origin:Airport {code: row.Origin})
+CREATE (destination:Airport {code: row.Dest})
+CREATE (origin)-[:FLIGHT {flightNumber: row.flightNum, airline: row.UniqueCarrier}]->(destination)
+
+
+LOAD CSV WITH HEADERS FROM "file:///flights.csv" AS row
+MATCH (origin:Airport {code: row.Origin})
+MATCH (destination:Airport {code: row.Dest})
+
+LOAD CSV WITH HEADERS FROM "file:///flights.csv" AS row
+MERGE (origin:Airport {code: row.Origin})
+MERGE (destination:Airport {code: row.Dest})
+MERGE (origin)-[:FLIGHT {flightNumber: row.flightNum, airline: row.UniqueCarrier}]->(destination)
+
+LOAD CSV WITH HEADERS FROM "file:///flights.csv" AS row
+MATCH (origin:Airport {code: row.Origin})
+MATCH (destination:Airport {code: row.Dest})
+
+
+MATCH (origin)-[flight:FLIGHT {flightNumber: row.flightNum}]->(destination)
+SET flight.airline = row.UniqueCarrier
+
+CREATE CONSTRAINT ON (label:Label)
+ASSERT label.property IS UNIQUE
+
+CREATE INDEX ON :Label(property)
+
+EXPLAIN
+MATCH (origin:Airport)-[flight:FLIGHT]
+      ->(destination:Airport)
+WHERE destination.code = "LAS"
+RETURN origin, destination, flight
+LIMIT 10
+
+MATCH (movie:Movie {title:"The Matrix"})
+RETURN movie
+
+MATCH (actor:Person)-[rel:ACTED_IN]->(movie:Movie)
+RETURN rel.roles, actor.name
+

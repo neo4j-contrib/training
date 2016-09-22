@@ -69,11 +69,12 @@ Run the following query to create nodes and relationships for these flights:
 LOAD CSV WITH HEADERS FROM "{csv-url}flights_initial.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
-MERGE (origin)-[flight:FLIGHT {airline: row.UniqueCarrier,
-                               flightNumber: row.FlightNum,
-                               year: TOINT(row.Year),
-                               month: TOINT(row.Month),
-                               day: TOINT(row.DayofMonth)}]->(destination)
+MERGE (origin)-[flight:HAS_FLIGHT {
+  airline: row.UniqueCarrier,
+  flightNumber: row.FlightNum,
+  year: TOINT(row.Year),
+  month: TOINT(row.Month),
+  day: TOINT(row.DayofMonth)}]->(destination)
 ON CREATE SET flight.departure = TOINT(row.CRSDepTime), flight.arrival = TOINT(row.CRSArrTime)
 ----
 
@@ -94,7 +95,7 @@ We can see some of what we've imported by writing the following query, which fin
 
 [source, cypher]
 ----
-MATCH (a:Airport)-[:FLIGHT]->()
+MATCH (a:Airport)-[:HAS_FLIGHT]->()
 RETURN a, COUNT(*) AS outgoing
 ORDER BY outgoing DESC
 LIMIT 10
@@ -103,7 +104,7 @@ LIMIT 10
 This query:
 
 * finds every node with the `Airport` label
-* finds all outgoing `FLIGHT` relationships
+* finds all outgoing `HAS_FLIGHT` relationships
 * counts them up grouped by airport
 * returns the `Airport` nodes and the `outgoing` count in descending order by `outgoing`
 * limits the number of airports returned to 10
@@ -127,7 +128,7 @@ If you really want to see them...
 
 [source, cypher]
 ----
-MATCH (a:Airport)<-[:FLIGHT]-()
+MATCH (a:Airport)<-[:HAS_FLIGHT]-()
 RETURN a, COUNT(*) AS incoming
 ORDER BY incoming DESC
 LIMIT 10
@@ -137,7 +138,7 @@ LIMIT 10
 
 [source, cypher]
 ----
-MATCH (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
 WHERE destination.code = "LAS"
 RETURN origin, destination, flight
 LIMIT 10
@@ -147,7 +148,7 @@ or
 
 [source, cypher]
 ----
-MATCH (origin:Airport)-[flight:FLIGHT]->(destination:Airport {code: "LAS"})
+MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport {code: "LAS"})
 RETURN origin, destination, flight
 LIMIT 10
 ----
@@ -156,7 +157,7 @@ LIMIT 10
 
 [source, cypher]
 ----
-MATCH (origin:Airport {code: "LAX"})-[flight:FLIGHT]->(destination:Airport {code: "LAS"})
+MATCH (origin:Airport {code: "LAX"})-[flight:HAS_FLIGHT]->(destination:Airport {code: "LAS"})
 RETURN origin, destination, flight
 LIMIT 10
 ----
@@ -181,7 +182,7 @@ Our next query finds all the instances of flight `WN 1016`:
 
 [source, cypher]
 ----
-MATCH  (origin:Airport)-[flight:FLIGHT]->(destination:Airport)
+MATCH  (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
 WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
 RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
 ORDER BY flight.year, flight.month, flight.day, flight.departure
