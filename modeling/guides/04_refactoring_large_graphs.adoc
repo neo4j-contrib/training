@@ -6,6 +6,10 @@
 In the previous section we noticed that our refactoring queries were slowing down once we'd loaded more flights into the database.
 
 Once the amount of date gets a big larger we'll probably want to execute these refactorings in batches.
+Let's look at how we'd do that.
+
+== Refactoring workflow
+
 A typical workflow would be:
 
 * tag all the nodes we need to process with a temporary label e.g. `Process`
@@ -37,6 +41,46 @@ MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 ----
 
 `Flight` is probably the easiest node to batch on.
+
+Before we execute the batching workflow, let's import a few more flights to keep it interesting.
+
+== Importing 500,000 flights
+
+As we're now dealing with much more data we'll have to be a bit cleverer about how we import the data.
+
+We know that most of the airports are going to be duplicates so there's no point calling `MERGE` loads of times.
+Instead we'll find the distinct set of airports and only `MERGE` on each airport once:
+
+[source, cypher, subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}_500k.csv" AS row
+UNWIND [row.Origin, row.Dest] AS airport
+WITH DISTINCT airport
+MERGE (:Airport {code: airport})
+----
+
+We'll also use the periodic commit functionality of `LOAD CSV`.
+This will flush the transaction every 10,000 rows rather than executing the whole query in one transaction.
+
+[source, cypher, subs=attributes]
+----
+USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+MATCH (origin:Airport {code: row.Origin})
+MATCH (destination:Airport {code: row.Dest})
+MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
+ON CREATE SET newFlight.year = TOINT(row.Year),
+              newFlight.month = TOINT(row.Month),
+              newFlight.day = TOINT(row.DayofMonth),
+              newFlight.airline = row.UniqueCarrier,
+              newFlight.number = row.FlightNum,
+              newFlight.departure = row.Dest,
+              newFlight.arrival = row.UniqueCarrier
+MERGE (origin)<-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]->(destination)
+----
+
+Now we're reading to do do some batch refactoring.
 
 == Batch refactoring flights
 
@@ -72,7 +116,7 @@ REMOVE flight:Process
 RETURN COUNT(*)
 ----
 
-We'd have to run this query 100,000 / 500 = 200 times to process all the flights, which would be a very boring way to pass the time!
+We'd have to run this query 500,000 / 500 = 1,000 times to process all the flights, which would be a very boring way to pass the time!
 
 Lucky for us, Neo4j 3.0 saw the introduction of procedures which can significantly simplify things.
 
@@ -87,44 +131,22 @@ But first let's get `apoc` setup on your machines:
 
 pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]
 
+== Exploring `apoc`
+
+Spend a bit of time looking through the collection of procedures that `apoc` provides.
+
+Can you work out which procedure we need to automate batch refactoring?
+
+_Hint_ The link:https://neo4j-contrib.github.io/neo4j-apoc-procedures/[user guide] will probably come in handy.
+
 == Batch refactoring with `apoc`
 
-The following query does exactly what we want:
+The following procedure is the one we want:
 
 [source, cypher]
 ----
 CALL apoc.help("apoc.periodic.commit")
 ----
-
-Before we give it a try, let's import a few more flights to keep it interesting.
-As we're now dealing with much more data we'll have to be a bit cleverer about how we import the data.
-
-[source, cypher, subs=attributes]
-----
-LOAD CSV WITH HEADERS FROM "{csv-url}_500k.csv" AS row
-UNWIND [row.Origin, row.Dest] AS airport
-RETURN DISTINCT airport
-----
-
-[source, cypher, subs=attributes]
-----
-USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
-MATCH (origin:Airport {code: row.Origin})
-MATCH (destination:Airport {code: row.Dest})
-MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
-ON CREATE SET newFlight.year = TOINT(row.Year),
-              newFlight.month = TOINT(row.Month),
-              newFlight.day = TOINT(row.DayofMonth),
-              newFlight.airline = row.UniqueCarrier,
-              newFlight.number = row.FlightNum,
-              newFlight.departure = row.Dest,
-              newFlight.arrival = row.UniqueCarrier
-MERGE (origin)<-[:ORIGIN]-(newFlight)
-MERGE (newFlight)-[:DESTINATION]->(destination)
-----
-
-Now we're reading to do do some batch refactoring.
 
 == Batch refactoring with `apoc`
 

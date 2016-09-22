@@ -231,11 +231,17 @@ RETURN path<!--/code--></pre>
     <h3>Answer: Introducing Airport Day</h3>
     <br/>
     <div>
-      <div class="listingblock">
+      <div class="paragraph">
+<p>Before we create anything let&#8217;s put a unique constraint on <code>:AirportDay</code> so we don&#8217;t create any duplicates:</p>
+</div>
+<div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (airportDay:AirportDay)
 ASSERT airportDay.id IS UNIQUE<!--/code--></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll use the combination of origin and the flight date as our unique key for an <code>:AirportDay</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -247,11 +253,6 @@ ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
 MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :AirportDay(date)<!--/code--></pre>
 </div>
 </div>
 	</div>

@@ -54,3 +54,9 @@ RETURN movie
 MATCH (actor:Person)-[rel:ACTED_IN]->(movie:Movie)
 RETURN rel.roles, actor.name
 
+MATCH (m1:Process) WITH m1 LIMIT 1000
+REMOVE m1:Process
+WITH m1
+// do the refactoring
+
+
