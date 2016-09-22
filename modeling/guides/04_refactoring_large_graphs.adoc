@@ -80,7 +80,7 @@ MERGE (origin)<-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]->(destination)
 ----
 
-Now we're reading to do do some batch refactoring.
+Now we're ready to do some batch refactoring.
 
 == Batch refactoring flights
 
@@ -148,6 +148,16 @@ The following procedure is the one we want:
 CALL apoc.help("apoc.periodic.commit")
 ----
 
+We can also pass the `apoc.help` procedure a package name and it'll show us all the procedures in that package.
+e.g.
+
+[source, cypher]
+---
+CALL apoc.help("apoc.periodic")
+---
+
+Let's get on with the batch refactoring.
+
 == Batch refactoring with `apoc`
 
 Since we've imported more nodes we'll need to tag them with the `Process` label.
@@ -185,6 +195,8 @@ call apoc.periodic.commit('
   RETURN COUNT(*)
 ',{limit:500})
 ----
+
+== 
 
 == Next
 
