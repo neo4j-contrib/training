@@ -95,11 +95,15 @@ If you really want to see them...
 
 == Answer: Introducing Airport Day
 
+Before we create anything let's put a unique constraint on `:AirportDay` so we don't create any duplicates:
+
 [source, cypher]
 ----
 CREATE CONSTRAINT ON (airportDay:AirportDay)
 ASSERT airportDay.id IS UNIQUE
 ----
+
+We'll use the combination of origin and the flight date as our unique key for an `:AirportDay`:
 
 [source, cypher]
 ----
@@ -111,11 +115,6 @@ ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-
 MERGE (origin)-[:HAS_DAY]->(originAirportDay)
 MERGE (originAirportDay)<-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
-----
-
-[source, cypher]
-----
-CREATE INDEX ON :AirportDay(date)
 ----
 
 == Find flights to book
