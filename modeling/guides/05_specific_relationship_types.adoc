@@ -16,7 +16,7 @@ We can refactor our model to change the `HAS_DAY` relationship to be the date of
 
 This is what our new model will look like:
 
-image::{img}/specific_relationship.jpg[]
+image::{img}/specific_rels.png[]
 
 == Exercise: Refactoring to specific relationship type
 

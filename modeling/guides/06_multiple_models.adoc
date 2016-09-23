@@ -3,6 +3,8 @@
 
 == Multiple Models
 
+During some of our refactoring queries we didn't 
+
 Multiple models
 
 You have to control the invariant from your application.

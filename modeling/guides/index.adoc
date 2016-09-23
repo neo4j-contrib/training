@@ -8,6 +8,7 @@
 . pass:a[<a play-topic='{guides}/04_refactoring_large_graphs.html'>Refactoring large graphs</a>]
 . pass:a[<a play-topic='{guides}/05_specific_relationship_types.html'>Specific relationship types</a>]
 . pass:a[<a play-topic='{guides}/06_multiple_models.html'>Multiple Models</a>]
+. pass:a[<a play-topic='{guides}/07_property_node.html'>Property or Node</a>]
 
 == Further Resources
 

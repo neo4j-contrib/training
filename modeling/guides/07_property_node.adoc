@@ -1,0 +1,100 @@
+= Property or Node
+:icons: font
+
+== Property or Node
+
+Sometimes we want to add to our model but aren't sure what the best way to do that is
+
+If we just want to return some information as part of a query then maybe we just set it as a property.
+If we want to query on that item maybe it makes more sense to pull it out as a node.
+
+The next piece of data we're going to introduce is the aircraft that a particular flight used.
+Every plane has a link:https://planefinder.net/data/aircraft/N484HA[registration number] which is captured in the `tailNum` field in our CSV file.
+
+Run the following query to find the most used planes in our dataset:
+
+[source, cypher, subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+RETURN row.TailNum, COUNT(*) AS times
+ORDER BY times DESC
+LIMIT 5
+----
+
+Let's put those registration numbers on the corresponding flights.
+
+[source, cypher, subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightId, row.TailNum AS registrationNumber
+
+MATCH (flight: {id: flightId})
+SET flight.planeRegistrationNumber = registrationNumber
+----
+
+Now we can return those registration numbers on our queries:
+
+[source, cypher]
+----
+MATCH path = (origin:Airport {code: "LAS"})-[:`2008-1-30`]->(:AirportDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay)<-[:`2008-1-30`]-(destination:Airport {code: "MDW"})
+RETURN path
+----
+
+
+Notice that some of the flights don't have a registration number.
+That's because they had a `null` entry in the CSV file.
+
+We can find some of the flights that are missing a registration number by running the following query:
+
+[source, cypher]
+----
+MATCH (flight:Flight)
+WHERE NOT EXISTS(flight.planeRegistrationNumber)
+RETURN flight
+LIMIT 5
+----
+
+We can get a summary of how many flights have/don't have a registration number with the following query:
+
+[source, cypher]
+----
+MATCH (flight:Flight)
+RETURN EXISTS(flight.planeRegistrationNumber) AS hasPlaneRegistrationNumber, COUNT(*)  AS count
+----
+
+Which planes have done the most flights?
+
+[source, cypher]
+----
+PROFILE
+MATCH (flight:Flight)
+WHERE EXISTS(flight.planeRegistrationNumber)
+RETURN flight.planeRegistrationNumber, COUNT(*) AS flights
+ORDER BY flights DESC
+LIMIT 5
+----
+
+[source, cypher]
+----
+CREATE INDEX ON :Flight(planeRegistrationNumber)
+----
+
+
+How many flights has this plane done:
+
+* Between these airports
+
+[source, cypher]
+----
+MATCH (destination:Airport)<-[:DESTINATION]-(flight:Flight {planeRegistrationNumber: "N484HA"})-[:ORIGIN]->(origin:Airport)
+RETURN destination.code, origin.code, flight.number, flight.year + "-" + flight.month + "-" + flight.day AS date, flight.departure
+ORDER BY flight.year, flight.month, flight.day, flight.departure
+----
+
+I'm not sure what would be a good query that'll force us to change the model?
+
+Maybe if we introduce other data about the plane that'd do the job?
+e.g. https://planefinder.net/data/aircraft/N484HA
+
+What route has this plane taken in its last 10 flights? 
