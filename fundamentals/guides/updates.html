@@ -1,0 +1,621 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Updating Graphs With Cypher</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Basics</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Using Cypher to created nodes, relationships and whole patterns</p>
+</li>
+<li>
+<p>Updating properties and labels</p>
+</li>
+<li>
+<p>Idempotent operations</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Creating Nodes</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Create Person node</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE (p:Person {name:"Me"})<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Find node again</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (p:Person)
+WHERE p.name="Me"
+RETURN p<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Insert a Movie with the title of "Mystic River" an a "released" year of 1993</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Insert a Movie with the title of "Mystic River" an a "released" year of 1993</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Create <code>Movie</code> with <code>title</code> and <code>released</code> properties</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE (m:Movie {title:"Mystic River", released:1993})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Adding properties</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Add a <code>tagline</code> property</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (movie:Movie)
+WHERE movie.title="Mystic River"
+//add the property
+SET movie.tagline = "We bury our sins here, Dave. We wash them clean."
+RETURN movie<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Changing properties</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Correct the <code>released</code> year</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (movie:Movie)
+WHERE movie.title="Mystic River"
+//set the property
+SET movie.released = 2003
+RETURN movie<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Creating relationships</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Create Relationships</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (movie:Movie),(kevin:Person)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+//create the relationship
+CREATE (kevin)-[:ACTED_IN {roles:["Sean"]}]-&gt;(movie)<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Find Pattern again</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (kevin)-[role:ACTED_IN]-&gt;(movie)
+WHERE kevin.name="Kevin Bacon"
+RETURN kevin, role, movie<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Merging Relationships</h3>
+    <br/>
+    <div>
+      <div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Create statements executed twice, will create <strong>duplicates</strong>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Use <code>MERGE</code> if you don&#8217;t want that.</p>
+</div>
+<div class="listingblock">
+<div class="title">MERGE Relationships</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (movie:Movie),(kevin:Person)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+//merge the relationship
+MERGE (kevin)-[:ACTED_IN {roles:["Sean"]}]-&gt;(movie)<!--/code--></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+All properties are taken into account
+</td>
+</tr>
+</table>
+</div>
+
+
+
+   <h4>Alternative Variant</h4>
+   <div class="listingblock">
+<div class="title">MERGE Relationships and SET properties</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (movie:Movie),(kevin:Person)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+//merge the relationship
+MERGE (kevin)-[role:ACTED_IN]-&gt;(movie)
+ON CREATE SET role.roles=["Sean"]<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Set Kevin Bacon’s roles in Mystic River from "Sean" to "Sean Devine"</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>find the pattern</p>
+</li>
+<li>
+<p>update the property</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Set Kevin Bacon’s roles in Mystic River from "Sean" to "Sean Devine"</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (kevin:Person)-[r:ACTED_IN]-&gt;(movie:Movie)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+SET r.roles = ["Sean Devine"]
+RETURN r.roles<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Alternative Solution - Keeps other Roles</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>filter list for keepers</p>
+</li>
+<li>
+<p>add the new entry</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (kevin:Person)-[r:ACTED_IN]-&gt;(movie:Movie)
+WHERE movie.title="Mystic River" AND
+      kevin.name="Kevin Bacon"
+SET r.roles = filter(x in r.roles WHERE x &lt;&gt; "Sean") + ["Sean Devine"]
+RETURN r.roles<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: List all the characters in the movie "The Matrix"</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: List all the characters in the movie "The Matrix"</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (matrix:Movie)&lt;-[r:ACTED_IN]-(actor)
+WHERE matrix.title="The Matrix"
+RETURN r.roles, actor.name<!--/code--></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Did you notice any unusual actors?</p>
+</li>
+<li>
+<p>Let&#8217;s get rid of him</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>DELETE: Nodes</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (emil:Person)
+WHERE emil.name="Emil Eifrem"
+DELETE emil<!--/code--></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Fails with error message "Node still has relationships"
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>Graph database consistency - nodes of a relationship must exist.</strong></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>DELETE: Relationships</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (emil:Person)-[r]-()
+WHERE emil.name="Emil Eifrem"
+DELETE r<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>DETACH DELETE: Deleting nodes and optionally relationships</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (emil:Person)
+WHERE emil.name="Emil Eifrem"
+DETACH DELETE emil<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Clean out the database</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Just for information, <strong>don&#8217;t do it now.</strong></p>
+</div>
+<div class="listingblock">
+<div class="title">delete all content in the database</div>
+<div class="content">
+<pre>MATCH (n)
+DETACH DELETE n</pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Match or Create is MERGE</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MERGE (p:Person {name:"Clint Eastwood"})
+RETURN p<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Uses constraints and locks to guarantee unique lookup and creation</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Match or Create is MERGE</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MERGE (p:Person {name:"Clint Eastwood"})
+ON CREATE SET p.created = timestamp()
+ON MATCH  SET p.accessed = coalesce(p.accessed,0) + 1
+RETURN p<!--/code--></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ON CREATE SET</code> - executed on create</p>
+</li>
+<li>
+<p><code>ON MATCH SET</code>  - executed on match</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>MERGE always CREATES the <strong>whole pattern</strong> if it is not found</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Always find nodes first, then MERGE</p>
+</li>
+<li>
+<p>MERGE on relationships also supports <code>ON ..</code> clauses</p>
+</li>
+<li>
+<p>Takes relationship type and properties into account for uniqueness</p>
+</li>
+<li>
+<p>Uniqueness in both directions, leave off arrow</p>
+</li>
+<li>
+<p>MERGE uses constraints for uniqueness guarantees</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Add Clint Eastwood as the director of Mystic River</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Add Clint Eastwood as the director of Mystic River</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Make sure, Clint Eastwood exists first</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MERGE (p:Person {name:"Clint Eastwood"})
+ON CREATE SET p.born = 1930<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Find both nodes, create the relationship</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (movie:Movie),(clint:Person)
+WHERE movie.title="Mystic River" AND
+      clint.name="Clint Eastwood"
+MERGE (clint)-[:DIRECTED]-&gt;(movie)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

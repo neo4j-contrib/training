@@ -1,0 +1,152 @@
+= My first movie app
+
+== My first movie app
+
+We're going to build the queries for a little movie application using a built in dataset that comes with Neo4j.
+We'll introduce Cypher constructs as our queries require them.
+
+Before we get started make sure you've imported the data:
+
+[source, cypher]
+----
+:play movies
+----
+
+== Exploring the dataset
+
+Let's have a quick look at what we've imported.
+
+Click on the image:{img}/top_icon.png[] icon on the left hand side.
+You should see 3 headings: `Node labels`, `Relationship types`, and `Property keys`.
+
+Try clicking on the different items under each of the headings.
+Each of them will execute a query and show the results in a query pane on the right hand side.
+
+== Finding an actor/actress
+
+Let's start with a user story and work from there.
+
+[verse]
+____
+As a movie enthusiast
+I want to view the profile page for my favourite actor/actress
+So that I can learn everything there is to know about them
+____
+
+To meet this requirement we'll first need to write a query to find a specific actor or actress in the database.
+
+== Finding an actor/actress
+
+Cypher's `MATCH` clause is what we need here.
+Run the following query:
+
+[source, cypher]
+----
+MATCH (person:Person)
+WHERE person.name = "Tom Hanks"
+RETURN person
+----
+
+This query:
+
+* scans through all nodes which have the label `Person`
+* filters those which have the value `Tom Hanks` for the `name` property
+* returns any matching nodes
+
+Try changing the query to find someone else.
+Can you work out the syntactic sugar for looking up a person without using a `WHERE` clause?
+
+_Hint_ The link:https://neo4j.com/docs/developer-manual/current/cypher/#query-read[Cypher query language section] of the developer manual may come in handy.
+
+
+== Finding an actor/actress (syntactic sugar version)
+
+The following query is equivalent:
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})
+RETURN person
+----
+
+This query returns the name and year of birth of a particular actor/actress.
+To build out the profile page further it'd be good to show a list of movies that they acted in.
+
+== Find the movies an actor/actress acted in
+
+We can write the following query to find the movies that Tom Hanks acted in:
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[:ACTED_IN]->(movie)
+RETURN movie
+----
+
+The first bit of this query is the same as the previous one but once we've found the `Tom Hanks` node we traverse any outgoing `ACTED_IN` relationships to find the movies he acted in.
+
+== Exercise: Find the movies an actor/actress directed
+
+Can you write a query to find the movies that Tom Hanks directed?
+
+== Answer: Find the movies an actor/actress directed
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[:DIRECTED]->(movie)
+RETURN movie
+----
+
+== Find the movies and actor/actress has acted in or directed
+
+That was easy enough.
+Now what if we want to return movies that he's acted in and directed?
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
+RETURN movie, role, TYPE(role) AS type
+----
+
+== Group by movie
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
+RETURN movie, COLLECT(TYPE(role)) AS roles
+ORDER BY LENGTH(roles) DESC
+----
+
+We have two movies which Tom Hanks has both acted in and directed.
+Which one did he direct but not act in?
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[:DIRECTED]->(movie)
+WHERE NOT (person)-[:ACTED_IN]->(movie)
+RETURN movie
+----
+
+== Exercise: Acting but not directing
+
+Can you find the movies that `Clint Eastwood` has acted in but not directed?
+Bonus points if you can write a query which returns the number of movies matching that criteria.
+
+_Hint_ Look at the aggregation section of the link:https://neo4j.com/docs/cypher-refcard/current/[Cypher refcard]
+
+== Answer: Acting but not directing
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Clint Eastwood"})-[:ACTED_IN]->(movie)
+WHERE NOT (person)-[:DIRECTED]->(movie)
+RETURN movie
+----
+
+== Answer: Acting but not directing (count)
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Clint Eastwood"})-[:ACTED_IN]->(movie)
+WHERE NOT (person)-[:DIRECTED]->(movie)
+RETURN COUNT(*)
+----

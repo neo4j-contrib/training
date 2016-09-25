@@ -1,0 +1,1156 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Advanced Queries with Cypher</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Aggregation</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/a_acted_in_m_directed_d.png" alt="a acted in m directed d">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:DIRECTED]-(d)
+RETURN a.name, m.title, d.name;<!--/code--></pre>
+</div>
+</div>
+<table class="tableblock frame-topbot grid-all spread">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">a.name</th>
+<th class="tableblock halign-left valign-top">m.title</th>
+<th class="tableblock halign-left valign-top">d.name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="highlight">"Keanu Reeves"</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"The Matrix"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="highlight">"Lilly Wachowski"</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="highlight">"Keanu Reeves"</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"The Matrix Reloaded"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="highlight">"Lilly Wachowski"</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Noah Wyle",	"A Few Good Men"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Rob Reiner"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Tom Hanks",	"Cloud Atlas"</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Returning all values from a 2-hop path. Note the duplicate values.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Aggregation Functions</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p><code>count(x)</code>	- add up the number of occurrences</p>
+</li>
+<li>
+<p><code>min(x)</code>	- get the lowest value</p>
+</li>
+<li>
+<p><code>max(x)</code>	- get the highest value</p>
+</li>
+<li>
+<p><code>avg(x)</code>	- get the average of a numeric value</p>
+</li>
+<li>
+<p><code>sum(x)</code>	- add up all values</p>
+</li>
+<li>
+<p><code>collect(x)</code>	- collected all the occurrences into an array</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Aggregating non-null values.
+More functions in the manual.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Aggregation: <code>count(*)</code></h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/a_acted_in_m_directed_d.png" alt="a acted in m directed d">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:DIRECTED]-(d)
+RETURN a.name, d.name, count(*);<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Aggregation: Count</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/a_acted_in_m_directed_d.png" alt="a acted in m directed d">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:DIRECTED]-(d)
+RETURN a.name, d.name, count(m);<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Counting non-null values.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Aliases</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/a_acted_in_m_directed_d.png" alt="a acted in m directed d">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:DIRECTED]-(d)
+RETURN
+ a.name AS actor,
+ d.name AS director,
+ count(m) AS count;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Your turn</h3>
+    <br/>
+    <div>
+      
+
+
+   <h4>Which directors acted also in their movie?</h4>
+   
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next slide</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Which directors acted also in their movie?</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/a_acted_in_m_directed_a.png" alt="a acted in m directed a">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:DIRECTED]-(a)
+RETURN a.name, m.title;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Unique relationships in paths</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/a_acted_in_m_directed_a.png" alt="a acted in m directed a">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:ACTED_IN]-(a)
+RETURN a.name, m.title<!--/code--></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Cypher guarantees that every relationship is traversed only once per path.
+</td>
+</tr>
+</table>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Pagination: Sort and Limit</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:DIRECTED]-(d)
+RETURN a.name, d.name, count(*) AS count
+ORDER BY count DESC
+LIMIT 5<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Aggregation: Collect</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/a_acted_in_m_directed_d.png" alt="a acted in m directed d">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN]-&gt;(m)&lt;-[:DIRECTED]-(d)
+RETURN
+  a.name,
+  d.name,
+  collect(m.title)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Creates a list (array) of values.
+Useful for aggregating dependent values.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Starting Points</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Get all Nodes</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/big_graph.png" alt="big graph">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (n)
+RETURN n<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find a specific node (within all-nodes)</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="http://localhost:8001/img/big_graph_t.png" alt="big graph t">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (n)
+WHERE n.name="Tom Hanks"
+RETURN n<!--/code--></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>WHERE</code> - filter the results</p>
+</li>
+<li>
+<p><code>n.name = "Tom Hanks"</code> - the name property must exist and have that value</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+this query is very inefficient.
+Always use a <strong>label with indexed property</strong> for direct lookup.
+</td>
+</tr>
+</table>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find a specific node (with a label)</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="http://localhost:8001/img/big_graph_t.png" alt="big graph t">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)
+WHERE tom.name="Tom Hanks"
+RETURN tom<!--/code--></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>:Person</code> - Matches only nodes labeled as Person</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Start with a specific (labeled) node</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="http://localhost:8001/img/big_graph_m_t_circled.png" alt="big graph m t circled">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Movies featuring Tom Hanks.</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie:Movie)
+WHERE tom.name="Tom Hanks"
+RETURN movie.title<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Start with a specific labeled node</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="http://localhost:8001/img/big_graph_d_t.png.png" alt="big graph d t.png">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Directors who worked with Tom Hanks</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie:Movie),
+      (director:Person)-[:DIRECTED]-&gt;(movie:Movie)
+WHERE tom.name="Tom Hanks"
+RETURN director.name<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Start with a specific labeled node</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="http://localhost:8001/img/big_graph_d_t.png.png" alt="big graph d t.png">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Directors who worked with Tom Hanks</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)-[:ACTED_IN]-&gt;()&lt;-[:DIRECTED]-(director)
+WHERE tom.name="Tom Hanks"
+RETURN DISTINCT director.name<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Indexing for fast Lookup</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Create label-specific index</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Nodes labeled as Movie, indexed by title property</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :Movie(title)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Indexes support</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>equality, (non-)existence, <code>IN</code></p>
+</li>
+<li>
+<p>text comparison (<code>CONTAINS, STARTS WITH, ENDS WITH</code>)</p>
+</li>
+<li>
+<p>numeric ranges</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Nodes labeled as Person, constrained by name property</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Constraints guarantee</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Single entry per value</p>
+</li>
+<li>
+<p>Uniqueness (fail on duplicate)</p>
+</li>
+<li>
+<p>Correctness for MERGE (incl. lock)</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Labels on pattern "anchors"</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="big_graph_k_t_m.png" alt="big graph k t m">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Movies featuring both Tom Hanks and Kevin Bacon</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie),
+(kevin:Person)-[:ACTED_IN]-&gt;(movie)
+WHERE tom.name="Tom Hanks" AND
+      kevin.name="Kevin Bacon"
+RETURN movie.title<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Conditions</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="big_graph_m_released.png" alt="big graph m released">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Movies in which Tom Hanks acted, that were released before 1992</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie:Movie)
+WHERE tom.name="Tom Hanks"
+AND movie.released &lt; 1992
+RETURN movie.title<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If range was indexed, Cypher <em>could</em> use the index.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Conditions on properties</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Movies in which Keanu Reeves played Neo</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (actor:Person)-[r:ACTED_IN]-&gt;(movie)
+WHERE actor.name="Keanu Reeves"
+AND "Neo" IN (r.roles)
+RETURN movie.title<!--/code--></pre>
+</div>
+</div>
+
+
+
+   <h4>Alternative Variant</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (actor:Person)-[r:ACTED_IN]-&gt;(movie)
+WHERE actor.name="Keanu Reeves"
+  AND ANY( x IN r.roles WHERE x = "Neo")
+RETURN movie.title<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Conditions based on comparisons</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Actors who worked with Tom and are older than he was</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie),
+      (a:Person)-[:ACTED_IN]-&gt;(movie)
+WHERE tom.name="Tom Hanks"
+  AND a.born &lt; tom.born
+RETURN DISTINCT a.name<!--/code--></pre>
+</div>
+</div>
+
+
+
+   <h4>Comparision and Computation</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie),
+      (a:Person)-[:ACTED_IN]-&gt;(movie)
+WHERE tom.name="Tom Hanks"
+  AND a.born &lt; tom.born
+RETURN DISTINCT a.name, (tom.born - a.born) AS diff<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Conditions based on patterns</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Actors who worked with Gene Hackman</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (gene:Person)-[:ACTED_IN]-&gt;(movie),
+      (n)-[:ACTED_IN]-&gt;(movie)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT n.name<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Conditions based on patterns</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Actors who worked with Gene and were directors</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (gene:Person)-[:ACTED_IN]-&gt;(movie),
+      (n)-[:ACTED_IN]-&gt;(movie)
+WHERE gene.name="Gene Hackman"
+  AND (n)-[:DIRECTED]-&gt;()
+RETURN DISTINCT n.name<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Conditions based on Patterns</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Actors who worked with Keanu, but not when he was also working with Hugo</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (keanu:Person)-[:ACTED_IN]-&gt;(movie),
+      (n)-[:ACTED_IN]-&gt;(movie),
+      (hugo:Person)
+WHERE keanu.name="Keanu Reeves" AND
+      hugo.name="Hugo Weaving"
+AND NOT (hugo)-[:ACTED_IN]-&gt;(movie)
+RETURN DISTINCT n.name<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Text Comparisons on Properties</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Case sensitive CONTAINS</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (matrix:Movie)&lt;-[r:ACTED_IN]-(a)
+WHERE matrix.title="The Matrix"
+  AND a.name CONTAINS "Emil"
+RETURN a<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">STARTS WITH</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (matrix:Movie)&lt;-[r:ACTED_IN]-(a)
+WHERE matrix.title STARTS WITH "The"
+  AND a.name CONTAINS "Emil"
+RETURN a<!--/code--></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>All text comparisons use existing indexes</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Text Comparisons on Properties</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Regular Expression</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (matrix:Movie)&lt;-[r:ACTED_IN]-(a)
+WHERE matrix.title="The Matrix"
+  AND a.name =~ ".*Emil.*"
+RETURN a<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Who are the five busiest actors?</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Who are the five busiest actors?</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Person)-[:ACTED_IN]-&gt;()
+RETURN a.name, count(*) AS count
+ORDER BY count DESC
+LIMIT 5<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Recommend 3 actors that Keanu Reeves should work with (but hasn’t).</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Note that you can base it on co-acting (or not).</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Recommend 3 actors that Keanu Reeves should work with (but hasn’t).</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (keanu:Person)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(c),
+      (c)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(coc)
+WHERE keanu.name="Keanu Reeves"
+  AND coc &lt;&gt; keanu
+  AND NOT((keanu)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(coc))
+RETURN coc.name, count(coc)
+ORDER BY count(coc) DESC
+LIMIT 3<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Add unique KNOWS relationships between all actors who acted in the same movie</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>find the co-actor pattern</p>
+</li>
+<li>
+<p>test query first to return pattern participants</p>
+</li>
+<li>
+<p>unique relationships with MERGE</p>
+</li>
+<li>
+<p>leave off relationships direction</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Add unique KNOWS relationships between all actors who acted in the same movie</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Person)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(b:Person)
+MERGE (a)-[:KNOWS]-(b);<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Matching multiple relationships</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="title">Create KNOWS relationships between anyone, Actors or Directors, who worked together</div>
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a)-[:ACTED_IN|:DIRECTED]-&gt;()&lt;-[:ACTED_IN|:DIRECTED]-(b)
+MERGE (a)-[:KNOWS]-(b)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Variable length paths</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="variable_length_path.png" alt="variable length path">
+</div>
+</div>
+<div class="listingblock big">
+<div class="content">
+<pre>(a)-[*1..3]-&gt;(b)</pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Friends-of-Friends</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (keanu:Person)-[:KNOWS*2]-(fof)
+WHERE keanu.name="Keanu Reeves"
+RETURN DISTINCT fof.name<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Return Friends-of-Friends of Keanu Reeves who are not immediate friends</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>2nd degree</p>
+</li>
+<li>
+<p>no friends</p>
+</li>
+<li>
+<p>return names</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Return Friends-of-Friends of Keanu Reeves who are not immediate friends</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (keanu:Person)-[:KNOWS*2]-(fof)
+WHERE keanu.name="Keanu Reeves"
+  AND keanu &lt;&gt; fof AND NOT (keanu)-[:KNOWS]-(fof)
+RETURN DISTINCT fof.name<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Bacon Number!</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH p=shortestPath(
+  (charlize:Person)-[:KNOWS*]-(bacon:Person)
+)
+WHERE charlize.name="Charlize Theron" AND
+      bacon.name="Kevin Bacon"
+RETURN length(rels(p))<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Return the names of the people joining Charlize to Kevin.</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Return the names of the people joining Charlize to Kevin.</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH p=shortestPath((charlize:Person)-[:KNOWS*]-(bacon:Person))
+WHERE charlize.name="Charlize Theron" AND
+      bacon.name="Kevin Bacon"
+RETURN [n in nodes(p) | n.name] AS names;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>
