@@ -99,13 +99,22 @@ RETURN movie
 == Find the movies and actor/actress has acted in or directed
 
 That was easy enough.
-Now what if we want to return movies that he's acted in and directed?
+If want to find the movies that he's acted in or directed we can tweak the query like this:
 
 [source, cypher]
 ----
 MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
 RETURN movie, role, TYPE(role) AS type
 ----
+
+This query gets us the results we wanted, but we get multiple rows for movies that he's acted in and directed.
+It'd be good to get one row per movie and list which roles were played.
+
+== Grouping by movie
+
+Look at the slides for a quick explanation about how grouping works in Cypher.
+
+image::{img}/slides.png[]
 
 == Group by movie
 
