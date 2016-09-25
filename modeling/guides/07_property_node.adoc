@@ -80,7 +80,6 @@ LIMIT 5
 CREATE INDEX ON :Flight(planeRegistrationNumber)
 ----
 
-
 How many flights has this plane done:
 
 * Between these airports
@@ -88,7 +87,7 @@ How many flights has this plane done:
 [source, cypher]
 ----
 MATCH (destination:Airport)<-[:DESTINATION]-(flight:Flight {planeRegistrationNumber: "N484HA"})-[:ORIGIN]->(origin:Airport)
-RETURN destination.code, origin.code, flight.number, flight.year + "-" + flight.month + "-" + flight.day AS date, flight.departure
+RETURN origin.code, destination.code, flight.number, flight.year + "-" + flight.month + "-" + flight.day AS date, flight.departure, flight.arrival
 ORDER BY flight.year, flight.month, flight.day, flight.departure
 ----
 
@@ -97,4 +96,47 @@ I'm not sure what would be a good query that'll force us to change the model?
 Maybe if we introduce other data about the plane that'd do the job?
 e.g. https://planefinder.net/data/aircraft/N484HA
 
-What route has this plane taken in its last 10 flights? 
+What route has this plane taken in its last 10 flights?
+
+There are loads of planes that do back and forth flights in Hawaii.
+
+Did the plane end the day in the same airport that it started in?
+
+What's the next flight it'll be part of after this one?
+
+Why would you need to pull the plane out to be an entity of its own?
+
+
+[source, cypher]
+----
+MATCH (flight:Flight)-[:ORIGIN|:DESTINATION]->(airport:Airport)
+WHERE EXISTS(flight.planeRegistrationNumber)
+WITH flight.planeRegistrationNumber AS planeRegistrationNumber, [flight.year, flight.month, flight.day] AS date, COLLECT(DISTINCT airport.code) AS airports
+RETURN planeRegistrationNumber, date, airports, SIZE(airports) AS number
+ORDER BY number DESC
+LIMIT 5
+----
+
+[source, cypher]
+----
+MATCH (flight:Flight)-[:ORIGIN|:DESTINATION]->(airport:Airport)
+RETURN flight.planeRegistrationNumber, [flight.year, flight.month, flight.day], COLLECT(DISTINCT airport.code) AS airports
+ORDER BY SIZE(airports) DESC
+LIMIT 5
+----
+
+Find a multi flight journey from origin -> destination in the different models
+
+
+Path searching on valid flights:
+
+
+[source, cypher]
+----
+MATCH (origin:Airport {code: "LAX"}), (destination:Airport {code: "IAD"})
+MATCH p = shortestPath((origin)-[r:HAS_FLIGHT*]->(destination))
+WHERE ALL (r IN rels(p) WHERE r.year = 2008 AND r.month = 1 AND r.day = 6)
+AND ALL(idx in range(0,size(r)-2) WHERE (r[idx]).arrival < (r[idx+1]).departure)
+RETURN [n in NODES(p) | n.code], [rel in rels(p) | [rel.departure, rel.arrival]]
+LIMIT 5
+----
