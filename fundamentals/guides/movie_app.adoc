@@ -24,6 +24,7 @@ Each of them will execute a query and show the results in a query pane on the ri
 
 == Finding an actor/actress
 
+Now we're going to start building out the queries for our movies app.
 Let's start with a user story and work from there.
 
 [verse]
@@ -37,7 +38,9 @@ To meet this requirement we'll first need to write a query to find a specific ac
 
 == Finding an actor/actress
 
-Cypher's `MATCH` clause is what we need here.
+We use the `MATCH` clause to find a pattern in the database.
+In this case the required pattern is relatively simple.
+
 Run the following query:
 
 [source, cypher]
@@ -54,12 +57,14 @@ This query:
 * returns any matching nodes
 
 Try changing the query to find someone else.
+
+== Exercise: Finding an actor/actress
+
 Can you work out the syntactic sugar for looking up a person without using a `WHERE` clause?
 
 _Hint_ The link:https://neo4j.com/docs/developer-manual/current/cypher/#query-read[Cypher query language section] of the developer manual may come in handy.
 
-
-== Finding an actor/actress (syntactic sugar version)
+== Answer: Finding an actor/actress (syntactic sugar version)
 
 The following query is equivalent:
 
@@ -69,10 +74,10 @@ MATCH (person:Person {name: "Tom Hanks"})
 RETURN person
 ----
 
-This query returns the name and year of birth of a particular actor/actress.
-To build out the profile page further it'd be good to show a list of movies that they acted in.
-
 == Find the movies an actor/actress acted in
+
+So far we've written a query that returns the name and year of birth of a particular actor/actress.
+To build out the profile page further it'd be good to show a list of movies that they acted in.
 
 We can write the following query to find the movies that Tom Hanks acted in:
 
@@ -98,7 +103,7 @@ RETURN movie
 
 == Find the movies and actor/actress has acted in or directed
 
-That was easy enough.
+Hopefully that was easy enough.
 If want to find the movies that he's acted in or directed we can tweak the query like this:
 
 [source, cypher]
