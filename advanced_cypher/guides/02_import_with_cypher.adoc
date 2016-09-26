@@ -1,10 +1,11 @@
 = Importing data with Cypher
-:csv-url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
-movies-roles-url: {csv-url}/movies.csv
-:movies-url: {csv-url}/new_movies.csv
-:people-url: {csv-url}/people.csv
-:actors-url: {csv-url}/actors.csv
-:directors-url: {csv-url}/directors.csv
+:csv_url: file:///
+:csv_url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
+:movies_roles_url: '{csv_url}/movies.csv'
+:movies_url: '{csv_url}/new_movies.csv'
+:people_url: '{csv_url}/people.csv'
+:actors_url: '{csv_url}/actors.csv'
+:directors_url: '{csv_url}/directors.csv'
 
 == Importing data with Cypher
 
@@ -46,7 +47,7 @@ FIELDTERMINATOR ';' // alternative delimiter
 ... rest of the Cypher statement ...
 ----
 
-NOTE: If you use file-url's, access is limited to within `$NEO4J_HOME/import`.
+NOTE: If you use file_url's, access is limited to within `$NEO4J_HOME/import`.
 
 == Let's look at the CSVs
 
@@ -118,8 +119,7 @@ So we want to see them how Cypher sees them, with Cypher.
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV FROM  
- '{movies-url}' AS row
+LOAD CSV FROM {movies-url} AS row
 RETURN count(*);
 ----
 
@@ -127,8 +127,7 @@ RETURN count(*);
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV FROM  
- '{movies-url}' AS row
+LOAD CSV FROM {movies-url} AS row
 RETURN * LIMIT 5;
 ----
 
@@ -139,7 +138,7 @@ RETURN * LIMIT 5;
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
- '{movies-url}' AS row
+ {movies_url} AS row
 RETURN row, keys(row) LIMIT 5;
 ----
 
@@ -150,9 +149,9 @@ RETURN row, keys(row) LIMIT 5;
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
-     '{movies-url}' AS row
+     {movies_url} AS row
 RETURN toFloat(row.avgVote) as avgVote, toInt(row.releaseYear) as releaseYear, split(row.genres,":") as genres, row
-LIMIT 10;
+LIMIT 5;
 ----
 
 == Exercise: Creating Data (10')
@@ -200,14 +199,14 @@ CREATE (p)-[:ACTED_IN {roles:['Forrest Gump']}]->(m);
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
-     '{movies-url}' AS row
+     {movies_url} AS row
 CREATE (:Movie {movieId:toInt(row.movieId), title:row.title,  avgVote:toFloat(row.avgVote), 
         releaseYear:toInt(row.releaseYear), genres: split(row.genres,":"));
 ----
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM '{people-url}' as row
+LOAD CSV WITH HEADERS FROM {people_url} as row
 
 MERGE(person:Person {id: toInt(row.personId)})
 ON CREATE SET person.name = row.name,
@@ -219,7 +218,7 @@ NOTE: `deathYear` can be missing. `toInt()` returns null, property not set.
 
 [source, cypher, subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM '{directors-url}' as row
+LOAD CSV WITH HEADERS FROM {directors_url} as row
 
 MATCH (movie:Movie {id:toInt(row.movieId)})
 MATCH (person:Person {id: toInt(row.personId)})
@@ -230,7 +229,7 @@ MERGE (person)-[:DIRECTED]->(movie)
 ----
 USING PERIODIC COMMIT 50000
 LOAD CSV WITH HEADERS FROM 
-     '{actors-url}' AS row
+     {actors_url} AS row
 FIELDTERMINATOR ','
 
 MATCH  (movie:Movie  {id: toInt(row.movieId) }) 
@@ -278,7 +277,7 @@ Same as before, just run multiple passes over the same file.
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
-     '{movies-roles-url}' AS row
+     {movies_roles_url} AS row
 
 MERGE (m:Movie {movieId:toInt(row.movieId)}) 
    ON CREATE SET m.title=row.title, m.avgVote=toFloat(row.avgVote), 
@@ -314,7 +313,7 @@ CREATE (p)-[:ACTED_IN {roles: split(row.characters,':')}]->(m);
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
-     '{movies-roles-url}' AS row
+     {movies_roles_url} AS row
 
 WITH DISTINCT row.movieId as movieId, row.title as title, row.genres as genres,
 toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
@@ -341,7 +340,7 @@ MERGE (m:Movie {movieId:movieId)
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
-     '{movies-roles-url}' AS row
+     {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -380,4 +379,4 @@ CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m);
 
 == Next step
 
-pass:a[<a play-topic='{guides}/03_aggregates.html'>Aggregate Queries</a>]
+pass:a[<a play-topic={guides}/03_aggregates.html'>Aggregate Queries</a>]

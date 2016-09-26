@@ -8,6 +8,75 @@ In these guides we'll write increasingly complex queries on an extended movies d
 
 Before we get to that, however, we've got a quick Cypher refresher session to get everyone on the same page.
 
+// no guide, slides only
+
+== Task: Complex Graph Query
+
+____
+*Find* all Actors and Movies they acted in
+*Whose* name starts with "T"
+*Aggregate* their activity
+          and movie titles
+*Filter by* who acted in more than 5 movies
+*Return* their name, birth-year and movie-titles
+*Ordered by* number of movies
+*Limited* to top 10
+____
+
+== In SQL
+
+[source,sql]
+----
+SELECT a.name, a.born,
+       group_concat(m.title) as movies,
+       count(*) as cnt
+FROM   actors as a JOIN actor_movie ON  (a.id = actor_movie.actor_id)
+JOIN   movies as m
+  ON  (actor_movie.movie_id = m.id)
+WHERE  a.name LIKE "T%"
+GROUP BY a.name, a.born
+HAVING cnt > 5 ORDER BY cnt DESC
+----
+
+== Cypher Query Structure
+
+----
+MATCH pattern
+WHERE predicate
+RETURN/WITH expression AS alias ...
+ORDER BY expression
+SKIP ... LIMIT ...
+----
+
+// split here
+== Exercise: Write and execute the query in Cypher (10')
+
+* Try to remember the query structure
+* Use the Cypher Refcard: http://neo4j.com/docs/cypher-refcard
+
+== Solution: Complex Graph Query
+
+////
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+WHERE a.name STARTS WITH "T"
+WITH a, count(m) AS cnt, collect(m.title) AS movies
+WHERE cnt > 5
+RETURN a.name, a.born, movies
+ORDER BY length(movies) DESC
+LIMIT 10
+////
+
+* go through it one clause at a time
+
+1. find people (click in browser)
+1. add limit
+2. find people where name starts with "T"
+3. find people who acted in movie whose name starts with t
+4. return aggregation
+6. ordering
+7. introduce WITH for in-between filter
+8. done
+
 == Next step
 
 pass:a[<a play-topic='{guides}/02_import_with_cypher.html'>Importing data with Cypher</a>]
