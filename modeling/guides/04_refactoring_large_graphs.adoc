@@ -152,9 +152,9 @@ We can also pass the `apoc.help` procedure a package name and it'll show us all 
 e.g.
 
 [source, cypher]
----
+----
 CALL apoc.help("apoc.periodic")
----
+----
 
 Let's get on with the batch refactoring.
 
@@ -196,7 +196,7 @@ call apoc.periodic.commit('
 ',{limit:500})
 ----
 
-== 
+==
 
 == Next
 

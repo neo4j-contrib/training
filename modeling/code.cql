@@ -106,4 +106,21 @@ RETURN movie, COLLECT(TYPE(role)) AS roles
 ORDER BY LENGTH(roles) DESC
 
 
+MATCH (p:Person)
+SET p.name = "Emil"
 
+MATCH (p:Person)
+RETURN p
+
+MATCH (n)
+WITH COUNT(*) AS nodeCount
+MATCH ()-[]->()
+RETURN nodeCount, COUNT(*) AS relationshipCount
+
+// default setting for enabling all supported metrics
+metrics.enabled=true
+
+metrics.graphite.enabled=true // default is 'false'
+metrics.graphite.server=<ip>:2003
+metrics.graphite.interval=<how often to send data, defaults to 3s>
+metrics.prefix=<Neo4j instance name, e.g. wwwneo1>

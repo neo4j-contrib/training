@@ -233,37 +233,11 @@ ORDER BY times DESC
 LIMIT 5
 ----
 
-We have two movies which Tom Hanks has both acted in and directed.
-Which one did he direct but not act in?
+== How are two people connected?
 
-[source, cypher]
-----
-MATCH (person:Person {name: "Tom Hanks"})-[:DIRECTED]->(movie)
-WHERE NOT (person)-[:ACTED_IN]->(movie)
-RETURN movie
-----
+Our product owner is happy with the profile page now but we've had requests to introduce a new page where the user can type in the names of two people and find out how they're connected.
+Let's quickly go over shortest path queries:
 
-== Exercise: Acting but not directing
+image::{img}/slides.jpg[]
 
-Can you find the movies that `Clint Eastwood` has acted in but not directed?
-Bonus points if you can write a query which returns the number of movies matching that criteria.
-
-_Hint_ Look at the aggregation section of the link:https://neo4j.com/docs/cypher-refcard/current/[Cypher refcard]
-
-== Answer: Acting but not directing
-
-[source, cypher]
-----
-MATCH (person:Person {name: "Clint Eastwood"})-[:ACTED_IN]->(movie)
-WHERE NOT (person)-[:DIRECTED]->(movie)
-RETURN movie
-----
-
-== Answer: Acting but not directing (count)
-
-[source, cypher]
-----
-MATCH (person:Person {name: "Clint Eastwood"})-[:ACTED_IN]->(movie)
-WHERE NOT (person)-[:DIRECTED]->(movie)
-RETURN COUNT(*)
-----
+== Shortest path from <x> to <y>
