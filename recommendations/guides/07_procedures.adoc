@@ -1,0 +1,170 @@
+= Procedures
+include::include.adoc[]
+
+== Procedures
+
+Procedures are a new feature in Neo4j 3.x which allow you to write custom code which can be invoked directly from Cypher.
+
+You can read more details in the link:http://neo4j.com/docs/developer-manual/current/#procedures[documentation].
+
+There are some built in procedures.
+You can see what they are by running the following command:
+
+[source, cypher]
+----
+CALL dbms.procedures()
+----
+
+Try running some of the procedures listed on the page.
+Do they work as you expected?
+
+== Using a procedure's output in a query
+
+We can use the output of procedures in a query as well as passing the output of a query into a procedure.
+For example if we want to get the list of labels in the database in alphabetical order we could write the following query:
+
+[source, cypher]
+----
+CALL db.labels() YIELD label AS label
+RETURN label
+ORDER BY label
+----
+
+All the built in procedures are used to introspect the database but we can also write our own procedures which can do whatever we want!
+
+== Installing apoc (Awesome procedures)
+
+Lucky for us link:https://twitter.com/mesirii[Michael] has actually done the heavy lifting already and created the link:https://github.com/neo4j-contrib/neo4j-apoc-procedures[apoc] library which contains lots of useful procedures that we can use in our recommendations queries.
+
+First follow these instructions to get `apoc` installed on your local instance of Neo4j:
+
+* You should have already copied `apoc.jar` onto your machine.
+If you haven't then grab a USB stick from one of the trainers or download the latest version of apoc from link:https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest[]
+
+* Copy `apoc.jar` into your `plugins` folder wherever you have installed Neo4j.
+
+////
+* If you're using Neo4j desktop you'll need to explicitly specify where that plugins folder is.
+You can do that by setting `dbms.directories.plugins` in `neo4j.conf`
+
+e.g. `dbms.directories.plugins=/Applications/Neo4j\ Community\ Edition.app/Contents/Resources/app/plugins` on Mac OS X
+////
+
+* Restart Neo4j
+
+== Check apoc installed correctly
+
+If you run the following command you can see which additional procedures are now available to us:
+
+[source,cypher]
+----
+CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name STARTS WITH "apoc"
+RETURN name, signature
+----
+
+If you don't see any rows grab your closest trainer for help.
+
+Let's give the procedures a try!
+
+== Formatting timestamps
+
+A common request in the Neo4j forums is for a function to format timestamps in a human friendly way and we have just the function for that in `apoc.`
+We can use it to find out the date and time of the last 5 events in our dataset:
+
+[source,cypher]
+----
+MATCH (venue)<-[:VENUE]-(event:Event)<-[:HOSTED_EVENT]-(group:Group)
+WHERE event.time < timestamp()
+WITH event, venue, group
+ORDER BY event.time DESC
+LIMIT 5
+CALL apoc.date.formatDefault(event.time, 'ms') YIELD value as dateTime
+RETURN event.name, group.name, venue.name, dateTime
+----
+
+This procedure returns only one column: `value`.
+If we aren't sure which columns a procedure is going to return we can query the procedures list and check the signature:
+
+[source,cypher]
+----
+CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name = "apoc.meta.data"
+RETURN signature
+----
+
+== Importing JSON documents
+
+One of the procedures that we should have seen in our list is `apoc.load.json`.
+You can check that you've got it by running the following command:
+
+[source, cypher]
+----
+CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name = "apoc.load.json"
+RETURN name, signature
+----
+
+This procedure allows us to consume JSON documents directly into Neo4j and import data straight into Neo4j without the CSV transformation step.
+
+We're going to use this procedure to import some more data from meetup, this time in JSON format.
+
+== Importing JSON from the meetup.com API
+
+The meetup.com API for photos is accessible without needing a key so we're going to import the meta data for photos posted to the Neo4j Meetup group.
+First let's see what photos have been posted:
+
+[source, cypher,subs=attributes,none]
+----
+CALL apoc.load.json("https://api.meetup.com/{neo4j-meetup-id}/photos?&sign=true&photo-host=public")
+YIELD value AS document
+WITH document WHERE EXISTS(document.photo_album.event.id)
+RETURN document.link AS link,
+       document.created AS time,
+       document.id AS photoId,
+       document.member.id as memberId,
+       document.photo_album.event.id AS eventId
+----
+
+Try changing the `{neo4j-meetup-id}` bit of the URI to see which photos were posted in other groups.
+This API uses the `urlname` property to look up photos for a group.
+
+Run the following query to find the `urlname` for other groups:
+
+[source, cypher]
+----
+MATCH (group:Group)
+RETURN group.urlname
+ORDER BY rand()
+LIMIT 10
+----
+
+ifdef::env-training[]
+
+== Exercise: Import photos meta data
+
+* Import the photo meta data into the graph.
+
+We probably want to create this pattern `+(member)-[:POSTED]->(photo)-[:EVENT]->(event)+` although you are of course free to create whatever you like!
+
+== Answers ahead !
+
+image::{img}/slides.jpg[]
+
+pass:a[<a play-topic='{guides}/07_photos_answers.html'>Answers: Photos</a>]
+
+endif::env-training[]
+ifndef::env-training[]
+
+include::07_photos_answers.adoc[lines=4..-1]
+
+endif::env-training[]
+
+== Next Step
+
+In the next couple of sections we'll use these procedures to extend the layered event recommendation we've been building up over the last few sections.
+
+pass:a[<a play-topic='{guides}/08_latent_social_graph.html'>Latent Social Graph</a>]

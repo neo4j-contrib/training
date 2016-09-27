@@ -1,0 +1,249 @@
+= Similar groups
+include::include.adoc[]
+
+== Find similar groups to Neo4j
+
+image::{img}/group_has_topic.png[]
+
+[verse]
+____
+As a member of the Neo4j Meetup group
+I want to find other similar meetup groups
+So that I can join those groups
+____
+
+One thing that makes groups similar is the topics that they’re about.
+We're going to start the session by importing meetup groups and their topics into Neo4j.
+
+== What makes groups similar?
+
+We've done the pre processing work of taking JSON from meetup.com's APIs and converting it into CSV files to make it easy to import into Neo4j.
+
+Let's start by exploring the groups CSV file to see what data we have available to us:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS
+FROM "{csv-url}groups.csv"
+AS row
+RETURN row
+LIMIT 10
+----
+
+Click on the block to put the query in the topmost window on the query editor.
+Hit the triangular icon:play-circle[] button or press kbd:[Ctrl+Enter] to run it and see the query results.
+More shortcuts are available, see pass:a[<a help-topic='keys'>:help keys</a>]
+
+
+We've got a group id, name, description and a few other attributes as well.
+Now we'll convert those rows in the CSV file into entities in the graph.
+
+== Import Groups
+
+Run the following query to create a node for each group in the CSV file.
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS
+FROM "{csv-url}groups.csv"
+AS row
+CREATE (:Group { id:row.id,
+                 name:row.name,
+                 urlname:row.urlname,
+                 rating:toInt(row.rating),
+                 created:toInt(row.created) })
+----
+
+We use the `CREATE` command because we know the database is empty when we start.
+Each node we've created has the `Group` label to make it easy to look them up later.
+
+We've also added several properties.
+By default properties are stored as strings.
+We need to do an explicit conversion (e.g. `toInt`, `toFloat`, `split`) if we know that the data in our CSV file has a different type.
+
+Let's run a quick query to check what we've actually imported:
+
+[source,cypher]
+----
+MATCH (g:Group)
+RETURN g.id, g.name, g.urlname
+----
+
+== MERGE & Constraints
+
+In the next section we're going to create topics but our CSV file contains lots of duplicates so we're going to use the `MERGE` command to avoid creating duplicates in the graph.
+We're also going to put a unique constraint on `:Topic(id)` so that we don’t create the same topic twice.
+
+== Back to the slides...
+
+image::{img}/slides.jpg[]
+
+== MERGE & Constraints
+
+Run the following query to create a unique constraint on `:Topic(id)`:
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (t:Topic) ASSERT t.id IS UNIQUE
+----
+
+We can also retrospectively apply constraints as long as the data we've previously imported doesn't violate them.
+Run the following query to create a unique constraint on `:Group(id)` so we don't accidentally end up with duplicate groups.
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (g:Group) ASSERT g.id IS UNIQUE
+----
+
+You can check that the constraints have been applied by running the following command:
+
+[source,cypher]
+----
+:schema
+----
+
+We can also run the following command:
+
+[source,cypher]
+----
+CALL db.constraints()
+----
+
+== Import Topics
+
+Now we're going to import topics.
+Let's first check what we've got in our CSV file:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}groups_topics.csv"  AS row
+RETURN row
+LIMIT 10
+----
+
+So we've got a topic id, name and urlkey as well as a group id.
+We'll ignore the group id for now and run the following query to import topics into the graph:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}groups_topics.csv"  AS row
+MERGE (topic:Topic {id: row.id})
+ON CREATE SET topic.name = row.name, topic.urlkey = row.urlkey
+----
+
+Let's quickly check that they got imported correctly:
+
+[source,cypher]
+----
+MATCH (t:Topic)
+RETURN t.id, t.name
+----
+
+At this point we've got topics and groups floating around but nothing connecting them together!
+In the next section we'll add relationships between them.
+
+== Connect groups and topics
+
+You'll have noticed that the CSV file we used to import topics also contained a `group_id` field for each row.
+We're now going to process this file again but this time we'll find a topic and group for each row and then create a relationship between them.
+
+Run the following query:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}groups_topics.csv"  AS row
+MATCH (topic:Topic {id: row.id})
+MATCH (group:Group {id: row.groupId})
+MERGE (group)-[:HAS_TOPIC]->(topic)
+----
+
+The use of `MERGE` here ensures that we end up with a single unique link between a group and a topic.
+
+If we run the query a second time nothing will happen.
+If we run another `MERGE` query that tries to create a `:HAS_TOPIC` relationship when one already exists it won’t do anything.
+
+Let's now check that the data was imported correctly:
+
+[source,cypher]
+----
+MATCH (group:Group)-[:HAS_TOPIC]->(topic:Topic)
+RETURN group, topic
+LIMIT 10
+----
+
+Try double clicking on the nodes to expand other nodes that are connected to them.
+You can also single click to view a context menu with other options.
+
+== Additional Indexes
+
+It's quite likely that we'll want to search for groups by name so we'll create an index on `:Group(name)` to make that easier.
+
+[source,cypher]
+----
+CREATE INDEX ON :Group(name)
+----
+
+Let's do the same for topics as well:
+
+[source,cypher]
+----
+CREATE INDEX ON :Topic(name)
+----
+
+We can see which indexes we have by using the `:schema` command or by running the following command:
+
+[source,cypher]
+----
+CALL db.indexes()
+----
+
+ifdef::env-training[]
+
+== Exercise: Explore the graph
+
+We've now loaded groups and topics but we don't know exactly what's in our graph so let's do some exploration.
+
+. What's the most popular topic?
+. Which group was created most recently?
+. How many groups have been running for at least 4 years?
+
+_Hint:_ The link:{refcard}[Cypher refcard] will come in handy for syntax we haven't covered yet!
+
+== Look at the slides...we have answers!
+
+image::{img}/slides.jpg[]
+
+pass:a[<a play-topic='{guides}/01_explore_graph_answers.html'>Answers: Explore the graph</a>]
+
+endif::env-training[]
+
+==  Find similar groups to Neo4j
+
+So you've hopefully now got an idea of what the data looks like.
+It's time to write our first recommendation query which will find groups that have the same topics as the Neo4j Meetup group:
+
+[source,cypher,subs=attributes,none]
+----
+MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE (group.name CONTAINS {neo4j-group-name} OR group.name CONTAINS {neo4j-group-name-alt})
+RETURN otherGroup.name, COUNT(topic) AS topicsInCommon,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC, otherGroup.name
+LIMIT 10
+----
+
+This query
+
+* starts from the Neo4j group,
+* finds its topics,
+* then looks for other groups that have those topics
+* and aggregates the groups with the most topics in common.
+
+Try changing the group name e.g. `Big Data Debate` or `Docker Meetup` and see how the results change.
+
+== Next Step
+
+In the next section we're going to introduce members into the graph.
+We'll then look at our graphs and write some queries to recommend new groups for ourselves.
+
+pass:a[<a play-topic='{guides}/02_my_similar_groups.html'>Groups similar to mine</a>]

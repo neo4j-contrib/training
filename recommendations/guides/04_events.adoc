@@ -1,0 +1,190 @@
+= Events
+include::include.adoc[]
+
+== Events
+
+So far we've only made recommendations for meetup groups that we might like to join.
+It's been fun but things start getting much more interesting once we bring events into the equation.
+
+We'll start with exploration of the events CSV file:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+RETURN row
+LIMIT 5
+----
+
+As you can see we've got an event id, name, time, and description as well as some ids that reference other entities.
+
+== Create constraints and indexes
+
+First a bit of preparatory work before we import the events:
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (e:Event) ASSERT e.id IS UNIQUE
+----
+
+[source,cypher,subs=attributes]
+----
+CREATE INDEX ON :Event(time)
+----
+
+Now we're all set to import the events into the graph:
+
+== Import Events
+
+Run the following query to import the events:
+
+[source,cypher,subs=attributes]
+----
+USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+MERGE (event:Event {id: row.id})
+ON CREATE SET event.name = row.name,
+              event.time = toInt(row.time),
+              event.utcOffset = toInt(row.utc_offset)
+----
+
+Let's check that the events imported correctly:
+
+[source,cypher]
+----
+MATCH (event:Event)
+RETURN event
+LIMIT 10
+----
+
+Looks good!
+
+== Connect events and groups
+
+Our events are floating around not connected to anything so let's resolve that.
+We'll use the `groupId` field from the CSV file to lookup a group that we created earlier and create a relationship between the event and group:
+
+[source,cypher,subs=attributes]
+----
+USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+
+WITH distinct row.group_id as groupId, row.id as eventId
+MATCH (group:Group {id: groupId})
+MATCH (event:Event {id: eventId})
+MERGE (group)-[:HOSTED_EVENT]->(event)
+----
+
+Run the following query to check that worked as expected:
+
+[source,cypher,subs=attributes,none]
+----
+MATCH (group:Group)-[hosted:HOSTED_EVENT]->(event)
+WHERE group.name STARTS WITH {neo4j-group-name} AND event.time < timestamp()
+RETURN event, group, hosted
+ORDER BY event.time DESC
+LIMIT 10
+----
+
+If all's well you should see the last 10 events hosted by the Neo4j Meetup group.
+
+== Find future events in my groups
+
+The simplest event recommendation we can make is to find the groups we’re a member of and then find its future events.
+We'll start with that and build from there:
+
+include::form.adoc[tags=name]
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member)-[:MEMBER_OF]->(group)-[:HOSTED_EVENT]->(futureEvent)
+WHERE member.name CONTAINS {name} AND futureEvent.time > timestamp()
+RETURN group.name,
+       futureEvent.name,
+       round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+ORDER BY days
+----
+
+That's a good start but it's a bit restrictive - I'm never going to learn about events in groups that I haven't joined yet.
+
+== Find future events for my topics
+
+One way we could make a better recommendation is to suggest events hosted by groups that have my topics even if I'm not a member of those groups.
+
+include::form.adoc[tags=name]
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name}
+MATCH (futureEvent:Event) WHERE futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+RETURN futureEvent.name, futureEvent.time, group.name, commonTopics, myGroup
+ORDER BY futureEvent.time
+----
+
+This query:
+
+  * finds all future events
+  * checks whether those events are hosted by a group that we're a member of
+  * counts how many common topics we have with the group hosting the event
+  * finds the group hosting the event
+  * returns the events ordered by time
+
+ifdef::env-training[]
+
+== Exercise: Extending events recommendation
+
+Update the recommendations query to:
+
+* Filter out events which have less than 3 common topics
+* Only show events happening in the next 7 days
+
+== You know the drill by now!
+
+image::{img}/slides.jpg[]
+
+pass:a[<a play-topic='{guides}/04_events_answers.html'>Answers: Extending events recommendation</a>]
+
+endif::env-training[]
+
+== Sorting the results
+
+We have ~ 300 events that we can recommend to people but at the moment we don't show them in any particular order - we just sort them in date order.
+We can do better by using the information that we've captured explaining the relationship between the user and the event.
+i.e. we know whether the event is in our group and we know how many of our topics it covers.
+
+We'll give a score of `5` if it's an event in one of our groups, add that to the number of common topics, add a penalty for events further in the future and then order by the total.
+
+include::form.adoc[tags=name2]
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name2}
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH futureEvent, group, commonTopics, myGroup, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, commonTopics, myGroup, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, commonTopics, myGroup, days, myGroupScore + commonTopics - days AS score
+ORDER BY score DESC
+LIMIT 10
+----
+
+== Next Step
+
+Next we're going to introduce venues into the model so we can make recommendations based on where events are being held.
+
+pass:a[<a play-topic='{guides}/05_venues.html'>Venues</a>]

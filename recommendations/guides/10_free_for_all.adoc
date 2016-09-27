@@ -1,0 +1,28 @@
+= Free for all
+include::include.adoc[]
+
+== Your turn
+
+What else can we add to the model to come up with more interesting recommendations?
+Here you have some time to play around with the data and come up with something new
+
+Here are some ideas that we thought of:
+
+* Merge duplicate venues - can we write a query that finds duplicate venues?
+* Social network - what events do our twitter/Facebook friends attend? Can we import that data and use it?
+* Topic ontology - how are topics related? Can you find an ontology that we could encode in the graph?
+* Event similarity based on descriptions - use Latent Dirichlet Allocation to derive categories
+* Day of the week - do we only go to events on certain days of the week?  do we go to different events on weekdays vs weekend?
+* meetup.com provides several streaming APIs - http://www.meetup.com/meetup_api/docs/stream/2/rsvps/#polling - can we use those to update the graph on the fly?
+
+Or if none of those appeal you can try something of your own.
+
+If we have time we'll let a few people show the group what they've come up with.
+
+== Thank you for coming!
+
+We hope you had a good day and if you have any suggestions for making the session better do let us know.
+
+See you at our next meetup or event!
+
+// image::{img}/gc.png[link="http://graphconnect.com/"]

@@ -1,0 +1,407 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Groups similar to mine</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exclude groups I’m a member of</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Finding groups similar to the Neo4j group is a decent start but most good recommendation engines try to make recommendations customised for the user.</p>
+</div>
+<div class="paragraph">
+<p>Although our first query was a good one to get us started, unfortunately it was suggesting that we join groups that we might already be a member of.
+The worst type of recommendation!</p>
+</div>
+<div class="paragraph">
+<p>In this section we&#8217;re going to add membership data to our model to fix that.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+</div>
+</div>
+<div class="verseblock">
+<pre class="content">As a member of the Neo4j Meetup group
+I want to find other similar meetup groups that I’m not already a member of
+So that I can join those groups</pre>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Explore Members data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s see what data we&#8217;ve got to play with.
+Run the following query to show the first ten rows of the members CSV file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
+FROM "file:///members.csv" AS row
+RETURN row
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve got a member id and name as well as a group id and join date for that group.
+You&#8217;ll also have noticed a <code>;</code> separated list of topic ids - we&#8217;ll look at how to handle that in a few sections time.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Add Members</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Before we run our query to import members we&#8217;ll create a unique constraint on <code>:Member(id)</code> to ensure we don&#8217;t insert the same member twice.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (m:Member)
+ASSERT m.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The CSV file contains one entry for each group a member is part of so we will iterate over some members multiple times.
+We&#8217;ve got a lot of members to process so we&#8217;re going to use the <code>PERIODIC COMMIT</code> clause to process them in batches.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Look at the slides to reveal all about <code>PERIODIC COMMIT</code></h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Add Members</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to import members into the graph:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS
+FROM "file:///members.csv" AS row
+WITH DISTINCT row.id AS id, row.name AS name
+MERGE (member:Member {id: id})
+ON CREATE SET member.name = name<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The use of periodic commit means that we&#8217;ll commit every 10,000 rows rather than processing the whole file in one large transaction.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Connect members and groups</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now that we&#8217;ve got the members imported, the next step is to get them connected to the groups that we loaded in the first section.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query to create a <code>MEMBER_OF</code> relationship between members and groups:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS
+FROM "file:///members.csv" AS row
+WITH row WHERE NOT row.joined is null
+MATCH (member:Member {id: row.id})
+MATCH (group:Group {id: row.groupId})
+MERGE (member)-[membership:MEMBER_OF]->(group)
+ON CREATE SET membership.joined=toInt(row.joined);<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s see what our graph looks like now:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[membership:MEMBER_OF]-&gt;(group)
+RETURN member, group, membership
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Additional Indexes</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re going to search for members by name so we&#8217;ll put an index on <code>:Member(name)</code> so we can quickly do that.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :Member(name)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now it&#8217;s your turn!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Find yourself and your groups</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;ve now got groups, topics and members loaded into our database so it&#8217;s time for a bit more exploration.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If you&#8217;re local, write a query to find yourself in the database. If not try and find your neighbour.</p>
+</li>
+<li>
+<p>How many groups are you a member of?</p>
+</li>
+<li>
+<p>Which topics do those groups have?</p>
+</li>
+<li>
+<p><em>(For bonus points)</em> Which topic shows up the most?</p>
+</li>
+</ol>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>All the answers will be revealed&#8230;&#8203;just as soon as you look at the slides</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/02_find_yourself_answers.html'>Answers: Find yourself and your groups</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exclude groups I’m a member of</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>For our next recommendation we&#8217;re still going to be finding similar groups to the Neo4j one but we&#8217;ll also check whether we&#8217;re already a member of the other groups.</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name = '<span  value-key="name">Mark Needham</span>'
+MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE (group.name CONTAINS 'Graph Database' OR group.name CONTAINS 'Neo4j')
+       AND NOT((member)-[:MEMBER_OF]->(otherGroup) )
+RETURN otherGroup.name,
+       COUNT(topic) AS topicsInCommon,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So now we identify them as being ones we’re already a member of so there’s no point in recommending them again.</p>
+</div>
+<div class="paragraph">
+<p>An interesting thing to notice is that we now get back groups which we didn’t before.
+That’s because we didn’t force any ordering other than <code>topicsInCommon</code> so we won&#8217;t get a repeatable order on other columns.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Try changing the member name to your name or your neighbours and see how the results change.</p>
+</li>
+<li>
+<p>Try changing the names of the group and member to see how the results vary.</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find my similar groups</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now that we&#8217;ve got the data loaded in let&#8217;s start making recommendations on an individual basis.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of_interested_in.png" alt="group has topic member of interested in">
+</div>
+</div>
+<div class="verseblock">
+<pre class="content">As a member of several meetup groups
+I want to find other similar meetup groups that I’m not already a member of
+So that I can join those groups</pre>
+</div>
+<div class="paragraph">
+<p>So now rather than finding groups that have the same topics as the Neo4j group we&#8217;ll be finding groups that have the same topics as our groups.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find my similar groups</h3>
+    <br/>
+    <div>
+      <input style="display:inline;width:30%;" value-for="name2" class="form-control" value="Mark Needham" size="40">
+<div class="paragraph">
+<p>We only have to change our previous query slightly to find our similar groups rather than Neo4j&#8217;s:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE member.name CONTAINS '<span  value-key="name2">Mark Needham</span>'
+  AND NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name,
+       COUNT(*) AS topicsInCommon
+ORDER BY topicsInCommon DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try changing the name to someone who&#8217;s a member of lots of meetups to see how the result varies.
+The following query will help you find people who are members of the most groups:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:MEMBER_OF]-&gt;()
+WITH member, COUNT(*) AS groups
+ORDER BY groups DESC
+LIMIT 10
+RETURN member.name, groups<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Looking at our interests we can determine new interesting groups as well as infer new interests based on my membership and attendance.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/03_my_interests.html'>My Interests</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

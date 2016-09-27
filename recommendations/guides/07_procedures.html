@@ -1,0 +1,328 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Procedures</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Procedures</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Procedures are a new feature in Neo4j 3.x which allow you to write custom code which can be invoked directly from Cypher.</p>
+</div>
+<div class="paragraph">
+<p>You can read more details in the <a href="http://neo4j.com/docs/developer-manual/current/#procedures">documentation</a>.</p>
+</div>
+<div class="paragraph">
+<p>There are some built in procedures.
+You can see what they are by running the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures()<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try running some of the procedures listed on the page.
+Do they work as you expected?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Using a procedure&#8217;s output in a query</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can use the output of procedures in a query as well as passing the output of a query into a procedure.
+For example if we want to get the list of labels in the database in alphabetical order we could write the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL db.labels() YIELD label AS label
+RETURN label
+ORDER BY label<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All the built in procedures are used to introspect the database but we can also write our own procedures which can do whatever we want!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Installing apoc (Awesome procedures)</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Lucky for us <a href="https://twitter.com/mesirii">Michael</a> has actually done the heavy lifting already and created the <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures">apoc</a> library which contains lots of useful procedures that we can use in our recommendations queries.</p>
+</div>
+<div class="paragraph">
+<p>First follow these instructions to get <code>apoc</code> installed on your local instance of Neo4j:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You should have already copied <code>apoc.jar</code> onto your machine.
+If you haven&#8217;t then grab a USB stick from one of the trainers or download the latest version of apoc from <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest" class="bare">https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest</a></p>
+</li>
+<li>
+<p>Copy <code>apoc.jar</code> into your <code>plugins</code> folder wherever you have installed Neo4j.</p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Restart Neo4j</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Check apoc installed correctly</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If you run the following command you can see which additional procedures are now available to us:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name STARTS WITH "apoc"
+RETURN name, signature<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you don&#8217;t see any rows grab your closest trainer for help.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s give the procedures a try!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Formatting timestamps</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>A common request in the Neo4j forums is for a function to format timestamps in a human friendly way and we have just the function for that in <code>apoc.</code>
+We can use it to find out the date and time of the last 5 events in our dataset:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (venue)&lt;-[:VENUE]-(event:Event)&lt;-[:HOSTED_EVENT]-(group:Group)
+WHERE event.time &lt; timestamp()
+WITH event, venue, group
+ORDER BY event.time DESC
+LIMIT 5
+CALL apoc.date.formatDefault(event.time, 'ms') YIELD value as dateTime
+RETURN event.name, group.name, venue.name, dateTime<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This procedure returns only one column: <code>value</code>.
+If we aren&#8217;t sure which columns a procedure is going to return we can query the procedures list and check the signature:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name = "apoc.meta.data"
+RETURN signature<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing JSON documents</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>One of the procedures that we should have seen in our list is <code>apoc.load.json</code>.
+You can check that you&#8217;ve got it by running the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name = "apoc.load.json"
+RETURN name, signature<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This procedure allows us to consume JSON documents directly into Neo4j and import data straight into Neo4j without the CSV transformation step.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;re going to use this procedure to import some more data from meetup, this time in JSON format.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing JSON from the meetup.com API</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The meetup.com API for photos is accessible without needing a key so we&#8217;re going to import the meta data for photos posted to the Neo4j Meetup group.
+First let&#8217;s see what photos have been posted:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/graphdb-london/photos?&sign=true&photo-host=public")
+YIELD value AS document
+WITH document WHERE EXISTS(document.photo_album.event.id)
+RETURN document.link AS link,
+       document.created AS time,
+       document.id AS photoId,
+       document.member.id as memberId,
+       document.photo_album.event.id AS eventId<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try changing the <code>graphdb-london</code> bit of the URI to see which photos were posted in other groups.
+This API uses the <code>urlname</code> property to look up photos for a group.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query to find the <code>urlname</code> for other groups:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (group:Group)
+RETURN group.urlname
+ORDER BY rand()
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Import photos meta data</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Import the photo meta data into the graph.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We probably want to create this pattern <code>(member)-[:POSTED]-&gt;(photo)-[:EVENT]-&gt;(event)</code> although you are of course free to create whatever you like!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answers ahead !</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/07_photos_answers.html'>Answers: Photos</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In the next couple of sections we&#8217;ll use these procedures to extend the layered event recommendation we&#8217;ve been building up over the last few sections.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/08_latent_social_graph.html'>Latent Social Graph</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

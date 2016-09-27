@@ -1,0 +1,207 @@
+= Scoring recommendations
+include::include.adoc[]
+
+
+== Scoring components of our recommendation query
+
+We're now at the point where we have multiple facets to our events recommendation query.
+Each of these makes a contribution but perhaps not all equally.
+
+e.g. perhaps we should give more weight to venues closer to our workplace and less weight to very popular events.
+
+== The pareto function
+
+The pareto function in `apoc` allows us to apply a log function to a score.
+We want to dampen the weight of really high scores so they don't completely dominate the recommendation.
+
+Run the following query to see what arguments the function takes:
+
+[source, cypher]
+----
+CALL dbms.procedures() YIELD name AS name, signature AS signature
+WITH name, signature
+WHERE name = "apoc.scoring.pareto"
+RETURN signature
+----
+
+[width="70%"]
+|=======
+|minimumThreshold |the minimum score required. If less than this the score will be set to `0`
+|eightyPercentValue |the score at which you receive 80% of the `maximumValue`
+|maximumValue |the maximum score
+|score | your actual score
+|=======
+
+== The pareto function
+
+Let's give it a try on some fake data to get the hang of it:
+
+[source,cypher]
+----
+CALL apoc.scoring.pareto(1,10,20,12)
+----
+
+We start with a score of `12` that we want to transform.
+We're saying that the maximum possible score is `20` and you get 80% of that score (i.e. `16`) if you have a score of `10`.
+After that you get less credit for having a higher score
+
+Try changing some of the values and see how the score changes.
+
+== Scoring with Pareto
+
+Now let's try applying the Pareto function to our event recommendation query.
+
+include::form.adoc[tags=name]
+
+[source, cypher, subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name}
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+
+OPTIONAL MATCH (member)-[:FRIENDS]-(friend:Member)-[rsvpFriend:RSVPD]->(futureEvent)
+WITH member, futureEvent, commonTopics, myGroup, previousEvents, COUNT(rsvpFriend) AS friendsGoing, COLLECT(friend.name) AS friends
+
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance(point(venue), point({training-location})) AS distance
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
+WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, COUNT(previousEvent) AS eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, toint(round((futureEvent.time - timestamp()) / (24.0*60*60*1000))) AS days
+
+CALL apoc.scoring.existence(5, myGroup) YIELD value AS myGroupScore
+CALL apoc.scoring.pareto(1, 3, 10, days) YIELD value AS daysScore
+CALL apoc.scoring.pareto(1, 5, 10, commonTopics) YIELD value AS topicsScore
+CALL apoc.scoring.pareto(1, 7, 20, eventsAtVenue) YIELD value AS eventsAtVenueScore
+CALL apoc.scoring.pareto(1, 5, 20, friendsGoing) YIELD value AS friendsGoingScore
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, friends[..5], days, distance, eventsAtVenue, myGroupScore + topicsScore + eventsAtVenueScore + friendsGoingScore - daysScore AS score
+ORDER BY score DESC
+----
+
+Try changing the parameters in the various calls to `apoc.scoring.pareto()` and see how the results change.
+
+== Scoring our friends
+
+In the previous section we created `FRIENDS` relationships between people who'd attended the same events.
+However, we didn't try scoring those friendships in any way so each `FRIENDS` relationship has the same value when in reality we might be better friends with some people than others.
+
+Let's update the `FRIENDS` relationship to have a `score` to indicate the strength of the friendship.
+
+First we'll tag all members that we're going to process:
+
+[source,cypher]
+----
+MATCH (m:Member)-[:FRIENDS]-()
+SET m:Process
+RETURN count(DISTINCT m)
+----
+
+== Scoring our friendships
+
+We're going to calculate a similarity score between members who have a `FRIENDS` relationship connecting them which we'll use as our friendship score.
+
+There are lots of different similarity measures we could choose from.
+link:http://tagging.pui.ch/automated_tag_clustering[This article] has a good overview.
+
+We'll calculate the 'dice similarity' between members and add the score as a property on the `FRIENDS` relationship.
+Run the following query to find the top 10 people similar to you:
+
+include::form.adoc[tags=name2]
+
+[source, cypher, subs=attributes]
+----
+MATCH (m1:Member) WHERE m1.name CONTAINS {name2}
+
+MATCH (m1)-[friendship:FRIENDS]-(m2:Member)
+WITH m1, m2, friendship
+MATCH (m1)-[:RSVPD]->(commonEvent)<-[:RSVPD]-(m2)
+WITH m1, m2, COUNT(commonEvent) AS commonEvents
+WITH m1, m2, commonEvents, SIZE((m1)-[:RSVPD]->()) AS m1Rsvps, SIZE((m2)-[:RSVPD]->()) AS m2Rsvps
+RETURN m1.name, m2.name, commonEvents, m1Rsvps, m2Rsvps, (2 * 1.0 * commonEvents) / (m1Rsvps + m2Rsvps) AS diceSimilarity
+ORDER BY diceSimilarity DESC
+LIMIT 10
+----
+
+In the next section we'll calculate that score for all pairs of friends and store it on the `FRIENDS` relationship.
+
+== Adding a score to the `FRIENDS` relationship
+
+[source,cypher,subs=attributes]
+----
+call apoc.periodic.commit("
+  MATCH (m1:Process)
+
+  WITH m1 LIMIT {limit}
+  REMOVE m1:Process
+
+  WITH m1
+  MATCH (m1)-[friendship:FRIENDS]-(m2:Member)
+
+  WITH m1, m2, friendship
+  MATCH (m1)-[:RSVPD]->(commonEvent)<-[:RSVPD]-(m2)
+
+  WITH m1, m2, friendship, COUNT(commonEvent) AS commonEvents
+  WITH m1, m2, friendship, commonEvents, SIZE((m1)-[:RSVPD]->()) AS m1Rsvps, SIZE((m2)-[:RSVPD]->()) AS m2Rsvps
+  WITH m1, m2, friendship, commonEvents, m1Rsvps, m2Rsvps, (2 * 1.0 * commonEvents) / (m1Rsvps + m2Rsvps) AS diceSimilarity
+
+  SET friendship.score = diceSimilarity
+
+  RETURN COUNT(*)
+",{limit:500})
+----
+
+== Friendship based recommendations
+
+Let's get away from the mega event recommendation query we've built up over the day and do some recommendations based purely on our best meetup friendships.
+
+In the following query we'll find the events that our best 10 friends are planning to attend:
+
+include::form.adoc[tags=name3]
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name3}
+MATCH (member)-[friendship:FRIENDS]-(friend)
+WITH member, friend, friendship
+ORDER By friendship.score DESC
+LIMIT 10
+MATCH (friend)-[:RSVPD]->(futureEvent)<-[:HOSTED_EVENT]-(group)
+WHERE futureEvent.time > timestamp()
+RETURN futureEvent.name, group.name, COUNT(*) AS friendsGoing, COLLECT(friend.name) AS friends
+ORDER BY friendsGoing DESC
+----
+
+Try changing the name and see what results you get.
+
+== Other similarity measures
+
+Dice similarity is just one of the similarity metrics that we could have used.
+There's also jaccard, cosine and overlap to name just a few
+
+Pick one of these and write a query that calculates it.
+Once you've done that store the value as another property on the `FRIENDS` relationships.
+
+Then we can try our friendship based recommendation again and see if/how it differs.
+
+_Tip_ Don't forget that you'll also need to re-run the query to put `Process` labels on members before running the query to add the friendship score.
+
+== Next Step
+
+By now you probably have lots of ideas of how we can improve the graph to make even better recommendations.
+In this last session you'll have the chance to explore some of this solo or in a team with other attendees.
+
+pass:a[<a play-topic='{guides}/10_free_for_all.html'>Your turn</a>]

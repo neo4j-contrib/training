@@ -1,0 +1,104 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Recommendations by implicit interest</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				<dt>author"</dt><dd>++++</dd>
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+<div class="paragraph">
+<p>&lt;label&gt;Name:&lt;/label&gt; &lt;input value-for="name" class="form-control" value="A Name"&gt;</p>
+</div>
+== Exercise: Find yourself and your groups
+
+We've now got groups, topics and members loaded into our database so it's time for a bit more exploration.
+
+* If you're local, write a query to find yourself in the database. If not try and find your neighbour.
+* How many groups are you a member of?
+* Which topics do those groups have?
+* _(For bonus points)_ Which topic shows up the most?
+
+== Find yourself
+
+[source,cypher,subs=attributes]
+----
+MATCH (m:Member)
+WHERE m.name = {name}
+RETURN m
+----
+
+== Find yourself
+
+We can also inline the equality of the `name` property which will compile down to the same query plan:
+
+[source,cypher,subs=attributes]
+----
+MATCH (m:Member {name: {name}})
+RETURN m
+----
+
+== How many groups are you a member of?
+
+[source,cypher,subs=attributes]
+----
+MATCH (m:Member)-[:MEMBER_OF]->(group)
+WHERE m.name = {name}
+RETURN group
+----
+
+== Which topics do these groups have?
+
+[source,cypher,subs=attributes]
+----
+MATCH (m:Member)-[:MEMBER_OF]->(group), (group)-[:HAS_TOPIC]->(topic)
+WHERE m.name = {name}
+RETURN group, topic
+----
+
+
+== Which topic shows up the most?
+
+[source,cypher,subs=attributes]
+----
+MATCH (m:Member)-[:MEMBER_OF]->(group), (group)-[:HAS_TOPIC]->(topic)
+WHERE m.name = {name}
+RETURN topic.name, COUNT(*) AS times
+ORDER BY times DESC
+----
+  </carousel>
+</article>

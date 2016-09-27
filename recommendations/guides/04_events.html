@@ -1,0 +1,359 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Events</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Events</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>So far we&#8217;ve only made recommendations for meetup groups that we might like to join.
+It&#8217;s been fun but things start getting much more interesting once we bring events into the equation.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll start with exploration of the events CSV file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///events.csv" AS row
+RETURN row
+LIMIT 5<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As you can see we&#8217;ve got an event id, name, time, and description as well as some ids that reference other entities.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Create constraints and indexes</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>First a bit of preparatory work before we import the events:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (e:Event) ASSERT e.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :Event(time)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re all set to import the events into the graph:</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Import Events</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to import the events:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "file:///events.csv" AS row
+MERGE (event:Event {id: row.id})
+ON CREATE SET event.name = row.name,
+              event.time = toInt(row.time),
+              event.utcOffset = toInt(row.utc_offset)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s check that the events imported correctly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (event:Event)
+RETURN event
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Looks good!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Connect events and groups</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Our events are floating around not connected to anything so let&#8217;s resolve that.
+We&#8217;ll use the <code>groupId</code> field from the CSV file to lookup a group that we created earlier and create a relationship between the event and group:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "file:///events.csv" AS row
+
+WITH distinct row.group_id as groupId, row.id as eventId
+MATCH (group:Group {id: groupId})
+MATCH (event:Event {id: eventId})
+MERGE (group)-[:HOSTED_EVENT]->(event)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Run the following query to check that worked as expected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (group:Group)-[hosted:HOSTED_EVENT]->(event)
+WHERE group.name STARTS WITH 'Graph Database' AND event.time < timestamp()
+RETURN event, group, hosted
+ORDER BY event.time DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If all&#8217;s well you should see the last 10 events hosted by the Neo4j Meetup group.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find future events in my groups</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The simplest event recommendation we can make is to find the groups we’re a member of and then find its future events.
+We&#8217;ll start with that and build from there:</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:MEMBER_OF]->(group)-[:HOSTED_EVENT]->(futureEvent)
+WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>' AND futureEvent.time > timestamp()
+RETURN group.name,
+       futureEvent.name,
+       round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+ORDER BY days<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s a good start but it&#8217;s a bit restrictive - I&#8217;m never going to learn about events in groups that I haven&#8217;t joined yet.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find future events for my topics</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>One way we could make a better recommendation is to suggest events hosted by groups that have my topics even if I&#8217;m not a member of those groups.</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+MATCH (futureEvent:Event) WHERE futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+RETURN futureEvent.name, futureEvent.time, group.name, commonTopics, myGroup
+ORDER BY futureEvent.time<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>finds all future events</p>
+</li>
+<li>
+<p>checks whether those events are hosted by a group that we&#8217;re a member of</p>
+</li>
+<li>
+<p>counts how many common topics we have with the group hosting the event</p>
+</li>
+<li>
+<p>finds the group hosting the event</p>
+</li>
+<li>
+<p>returns the events ordered by time</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Extending events recommendation</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Update the recommendations query to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Filter out events which have less than 3 common topics</p>
+</li>
+<li>
+<p>Only show events happening in the next 7 days</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>You know the drill by now!</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/04_events_answers.html'>Answers: Extending events recommendation</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Sorting the results</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We have ~ 300 events that we can recommend to people but at the moment we don&#8217;t show them in any particular order - we just sort them in date order.
+We can do better by using the information that we&#8217;ve captured explaining the relationship between the user and the event.
+i.e. we know whether the event is in our group and we know how many of our topics it covers.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll give a score of <code>5</code> if it&#8217;s an event in one of our groups, add that to the number of common topics, add a penalty for events further in the future and then order by the total.</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name2" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name2">Mark Needham</span>'
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH futureEvent, group, commonTopics, myGroup, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, commonTopics, myGroup, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, commonTopics, myGroup, days, myGroupScore + commonTopics - days AS score
+ORDER BY score DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Next we&#8217;re going to introduce venues into the model so we can make recommendations based on where events are being held.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/05_venues.html'>Venues</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

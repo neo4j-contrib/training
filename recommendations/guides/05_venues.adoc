@@ -1,0 +1,121 @@
+= Venues
+include::include.adoc[]
+
+== Venues
+
+One of the most important factors influencing which events people attend is where those events are being hosted.
+In this section we're going to introduce venues into the graph and then use those in our recommendation queries.
+
+We'll start by seeing what data we've got on venues:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS
+FROM "{csv-url}venues.csv"
+AS row
+RETURN row
+LIMIT 10
+----
+
+So we've got a venue id, name and then some address details including the lat and long.
+Let's get that imported!
+
+ifdef::env-training[]
+
+== Exercise: Importing venues
+
+Before you start writing your LOAD CSV script you'll want to create a unique constraint on `:Venue(id)`:
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (v:Venue)
+ASSERT v.id IS UNIQUE
+----
+
+Once you've done that:
+
+* Load the venues into the graph - make sure you store `latitude` and `longitude` as properties as we'll be using those in the next section.
+* Connect the events we loaded earlier to our newly loaded venues
+
+_Tip_ You'll have to iterate over the events CSV file again to get the `venue_id` for each event
+
+== It's slide time
+
+image::{img}/slides.jpg[]
+
+pass:a[<a play-topic='{guides}/05_venues_import_answers.html'>Answers: Importing Venues</a>]
+
+endif::env-training[]
+ifndef::env-training[]
+
+include::05_venues_import_answers[lines=4..-1]
+
+endif::env-training[]
+
+== Verifying venues import
+
+Hopefully you've got `latitude` and `longitude` properties on each of the venues we just imported.
+You can check by running the following query:
+
+[source,cypher,subs=attributes]
+----
+MATCH (venue:Venue)
+WHERE EXISTS(venue.latitude) AND EXISTS(venue.longitude)
+RETURN COUNT(*)
+----
+
+You should see a count > 0.
+If you don't then grab one of the trainers and we can help you fix it.
+
+ifdef::env-training[]
+
+Next we're going to do some distance calculations with those values.
+
+== Tell me everything about distances I'm paying attention, I swear!
+
+image::{img}/slides.jpg[]
+
+endif::env-training[]
+
+== Distance to venues
+
+We'll start with a simple query to find venues near here:
+
+[source,cypher,subs=attributes,none]
+----
+WITH point({trainingLocation}) AS trainingVenue
+MATCH (venue:Venue)
+
+WITH venue, distance(point(venue), trainingVenue) AS distance
+RETURN venue.id, venue.name, venue.address, distance
+ORDER BY distance
+LIMIT 10
+----
+
+This query
+
+* specifies our current location in a variable called `trainingVenue`
+* iterates over all venues
+* calculates the distance from our current location to each venue
+* returns the 10 closest venues to us along with the distance in metres.
+
+Try changing the first line to point to some other latitude / longitude, e.g from Google Maps.
+
+ifdef::env-training[]
+== Exercise: Using venues in recommendations
+
+* Update the events recommendation query we wrote earlier to return the distance to here
+* Filter out events which are more than 1km away
+
+== The answers are waiting...
+
+image::{img}/slides.jpg[]
+
+pass:a[<a play-topic='{guides}/05_venues_distance_queries_answers.html'>Answers: Using venues in recommendations</a>]
+
+endif::env-training[]
+
+== Next Step
+Can we now make use of previous locations where people have attended events to help make better recommendations?
+
+pass:a[<a play-topic='{guides}/06_rsvps.html'>RSVPs</a>]

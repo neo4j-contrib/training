@@ -1,0 +1,163 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Latent Social Graph Answers</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    <div id="preamble">
+<div class="sectionbody">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+</div>
+</div>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Adding friends to the recommendations query</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Update the events recommendation query to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>count how many of our friends have <code>RSVPD</code> for an event</p>
+</li>
+<li>
+<p>return the names of those friends as well</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>How many of our friends have <code>RSVPD</code>?</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+
+OPTIONAL MATCH (member)-[:FRIENDS]-(:Member)-[rsvpFriend:RSVPD]->(futureEvent)
+WITH member, futureEvent, commonTopics, myGroup, previousEvents, COUNT(rsvpFriend) AS friendsGoing
+
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance(point(venue), point({training-location})) AS distance
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
+WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, COUNT(previousEvent) AS eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2) - days AS score
+ORDER BY score DESC<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Who are these friends?</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+
+OPTIONAL MATCH (member)-[:FRIENDS]-(friend:Member)-[rsvpFriend:RSVPD]->(futureEvent)
+WITH member, futureEvent, commonTopics, myGroup, previousEvents, COUNT(rsvpFriend) AS friendsGoing, COLLECT(friend.name) AS friends
+
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance(point(venue), point({training-location})) AS distance
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
+WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, COUNT(previousEvent) AS eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, friends[..5], days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2) - days AS score
+ORDER BY score DESC<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

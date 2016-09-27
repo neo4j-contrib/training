@@ -1,0 +1,248 @@
+= Groups similar to Neo4j
+
+[source, cypher]
+----
+MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE group.name CONTAINS 'Neo4j'
+RETURN otherGroup.name,
+       COUNT(topic) AS topicsInCommon,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC
+LIMIT 10
+----
+
+= Groups similar to Neo4j that I'm not already a member of
+
+[source, cypher]
+----
+MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE group.name CONTAINS 'Neo4j'
+  AND NOT (:Member {name: "Mark Needham"})-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name,
+       COUNT(topic) AS topicsInCommon,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC
+LIMIT 10
+----
+
+= Groups similar to the ones I'm already a member of
+
+[source, cypher]
+----
+MATCH (member:Member {name: "Mark Needham"})-[:INTERESTED_IN]->(topic), (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+RETURN otherGroup.name, EXISTS((member)-[:MEMBER_OF]->(otherGroup)) AS alreadyMember,
+       COLLECT(topic.name),
+       SUM(score) as score
+ORDER BY score DESC
+----
+
+= Groups similar to the ones I'm already a member of that I'm not already a member of
+
+[source, cypher]
+----
+MATCH (member:Member {name: "Mark Needham"})-[:INTERESTED_IN]->(topic),
+      (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name,
+       COLLECT(topic.name),
+       SUM(score) as score
+ORDER BY score DESC
+----
+
+= Groups similar to the ones I'm already a member of that I'm not already a member of ignoring my espoused interests
+
+[source, cypher]
+----
+MATCH (member:Member {name: "Mark Needham"})-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name,
+       COLLECT(topic.name),
+       SUM(score) as score
+ORDER BY score DESC
+----
+
+= Next group that people join
+
+[source, cypher]
+----
+MATCH (group:Group)<-[membership:MEMBER_OF]-(member),
+      (member)-[otherMembership:MEMBER_OF]->(otherGroup)
+WHERE group.name CONTAINS 'Neo4j'
+  AND membership.joined < otherMembership.joined
+WITH member, otherGroup
+ORDER BY otherMembership.joined
+WITH member, COLLECT(otherGroup)[0] AS nextGroup
+RETURN nextGroup.name,
+       COUNT(*) AS times
+ORDER BY times DESC
+----
+
+= Next group that people join with explicit membership
+
+[source, cypher]
+----
+MATCH (group:Group)<-[:OF_GROUP]-(membership)-[:NEXT]->(nextMembership),
+      (membership)<-[:HAS_MEMBERSHIP]-(member:Member)-[:HAS_MEMBERSHIP]->(nextMembership),
+      (nextMembership)-[:OF_GROUP]->(nextGroup)
+WHERE group.name CONTAINS 'Neo4j'
+RETURN nextGroup.name, COUNT(*) AS times
+ORDER BY times DESC
+----
+
+= Events to attend in the next 2 weeks
+
+[source, cypher]
+----
+MATCH (member:Member {name: "Mark Needham"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:RSVPD {response: "yes"}]-(otherMember:Member)
+WHERE (timestamp() - 30*24*60*60*1000) <= event.time < timestamp()
+
+WITH DISTINCT member, otherMember
+MATCH (otherMember)-[:RSVPD {response: "yes"}]->(other:Event)<-[:HOSTED_EVENT]-(group)
+WHERE timestamp() <= other.time < (timestamp() + (14*24*60*60*1000))
+AND NOT ((member)-[:RSVPD]->(other))
+RETURN group.name,
+       other.name, COUNT(otherMember) AS times,
+       COLLECT(otherMember.name) AS people,
+       (other.time - timestamp()) / 1000 / 60 / 60 / 24.0 AS days
+ORDER BY times DESC
+----
+
+= Finding common events
+
+[source, cypher]
+----
+MATCH (member:Member {name: "Mark Needham"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:RSVPD {response: "yes"}]-(otherMember:Member)
+WHERE (timestamp() - 30*24*60*60*1000) <= event.time < timestamp()
+
+WITH member, otherMember, COLLECT(event.name) AS commonEvents
+MATCH (otherMember)-[:RSVPD {response: "yes"}]->(other:Event)<-[:HOSTED_EVENT]-(group)
+WHERE other.time > timestamp() AND NOT ((member)-[:RSVPD]->(other))
+
+WITH group, other, COUNT(otherMember) AS times,
+     COLLECT({other: otherMember.name, events: commonEvents}) AS people
+RETURN group.name,
+       other.name,
+       COLLECT(people) AS people,
+       times,
+       (other.time - timestamp()) / 1000 / 60 / 60 / 24.0 AS days
+ORDER BY times DESC
+----
+
+
+Layered event recommendation
+
+* Events for groups I'm a member of
+
+[source, cypher]
+----
+WITH 24.0*60*60*1000 AS oneDay
+MATCH (member:Member {name: "Mark Needham"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:HOSTED_EVENT]-(group)
+WHERE event.time < timestamp()
+
+WITH  member, oneDay, group, COUNT(*) AS times
+MATCH (group)-[:HOSTED_EVENT]->(event)
+WHERE event.time >= timestamp()
+
+WITH event,
+     group,
+     SUM(times) AS previousEvents,
+     round((event.time - timestamp()) / oneDay) AS days,
+     EXISTS((member)-[:RSVPD {response: "yes"}]->(event)) AS attending
+RETURN event.name,
+       group.name,
+       previousEvents,
+       50 * (1 - exp((-1.0 * (log(5.0) / 40)) * previousEvents)) AS eventScore,
+       days, attending
+ORDER BY eventScore DESC
+----
+
+
+* Events for topics I'm interested in
+* Events for indirect topics that I'm interested in
+* Events that my peers go to
+
+Cosine similarity between people based on liking the same movies
+
+[source, cypher]
+----
+MATCH (p1:Person) -[x:RATED]-> (m:Movie) <-[y:RATED]- (p2:Person)
+WITH  SUM(x.rating * y.rating) AS xyDotProduct,
+      SQRT(REDUCE(xDot = 0.0, a IN COLLECT(x.rating) | xDot + a^2)) AS xLength,
+      SQRT(REDUCE(yDot = 0.0, b IN COLLECT(y.rating) | yDot + b^2)) AS yLength,
+      p1, p2
+MERGE (p1)-[s:SIMILARITY]-(p2)
+SET   s.similarity = xyDotProduct / (xLength * yLength)
+----
+
+* Use this for people similarity based on attending the same events
+* Also use for similarity between topics based on how many times they co-occur in groups/members
+
+[source, cypher]
+----
+MATCH (m:Member)-[:RSVPD {response: "yes"}]->()
+WITH m, COUNT(*) AS times
+RETURN round(log(times)) AS log, COUNT(*)
+ORDER BY log
+----
+
+[source, cypher]
+----
+// checking which topics we're missing that I'm probably interested in
+MATCH (m:Member {name:"Mark Needham"})-[:RSVPD {response:"yes"}]->(event)<-[:HOSTED_EVENT]->()-[:HAS_TOPIC]->(topic)
+WITH m, topic, COUNT(*) AS times, COLLECT(event.name) AS events WHERE times > 5
+RETURN topic.name, EXISTS( (m)-[:INTERESTED_IN]->(topic)  ) AS alreadyInterested, times
+ORDER BY times DESC
+----
+
+[source, cypher]
+----
+// A ∩ B / √(A ∪ B)
+
+match (topic:Topic)<-[:HAS_TOPIC]-()-[:HAS_TOPIC]->(otherTopic:Topic)
+WHERE ID(topic) < ID(otherTopic)
+WITH topic, otherTopic, COUNT(*) AS times
+
+MATCH (topic)<-[:HAS_TOPIC]-(group1)
+WITH topic, otherTopic, times, COLLECT(group1) AS topic1Groups
+
+MATCH (otherTopic)<-[:HAS_TOPIC]-(group2)
+WITH topic, otherTopic, times, COLLECT(group2) AS topic2Groups, topic1Groups
+UNWIND topic1Groups + topic2Groups AS group
+WITH topic, otherTopic, times, COUNT(DISTINCT group) AS groups WHERE times > 1
+RETURN topic.name, otherTopic.name, times, groups, (times * 1.0) / groups AS similarity
+ORDER BY similarity DESC
+LIMIT 1000
+----
+
+Similar topics
+
+[source, cypher]
+----
+MATCH (t1:Topic)<-[:HAS_TOPIC]-(:Group)-[:HAS_TOPIC]-(t2:Topic)
+WHERE ID(t1) < ID(t2)
+WITH t1, t2, COUNT(*) AS score
+MERGE (t1)-[:SIMILAR {score: score}]-(t2)
+----
+
+[source, cypher]
+----
+match (topic:Topic)<-[:HAS_TOPIC]-()-[:HAS_TOPIC]->(otherTopic:Topic)
+WHERE ID(topic) < ID(otherTopic)
+WITH topic, otherTopic, COUNT(*) AS times
+
+MATCH (topic)<-[:HAS_TOPIC]-(group1)
+WITH topic, otherTopic, times, COLLECT(group1) AS topic1Groups
+
+MATCH (otherTopic)<-[:HAS_TOPIC]-(group2)
+WITH topic, otherTopic, times, COLLECT(group2) AS topic2Groups, topic1Groups
+UNWIND topic1Groups + topic2Groups AS group
+WITH topic, otherTopic, times, COUNT(DISTINCT group) AS groups WHERE times > 1
+WITH topic, otherTopic, times, groups, (times * 1.0) / groups AS similarity
+MERGE (topic)-[:SIMILAR_TO {score: similarity}]-(otherTopic)
+----

@@ -1,0 +1,41 @@
+= Venues Import Answers
+include::include.adoc[]
+
+== Exercise: Importing venues
+
+Before you start writing your LOAD CSV script you'll want to create a unique constraint on `:Venue(id)`:
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (v:Venue)
+ASSERT v.id IS UNIQUE
+----
+
+Once you've done that:
+
+* Load the venues into the graph - make sure you store `latitude` and `longitude` as properties as we'll be using those in the next section.
+* Connect the events we loaded earlier to our newly loaded venues
+
+_Tip_ You'll have to iterate over the events CSV file again to get the `venue_id` for each event
+
+== Load the venues into the graph
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}venues.csv" AS row
+MERGE (venue:Venue {id: row.id})
+ON CREATE SET venue.name = row.name,
+              venue.latitude = tofloat(row.lat),
+              venue.longitude = tofloat(row.lon),
+              venue.address = row.address_1
+----
+
+== Connect events to venues
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+MATCH (venue:Venue {id: row.venue_id})
+MATCH (event:Event {id: row.id})
+MERGE (event)-[:VENUE]->(venue)
+----

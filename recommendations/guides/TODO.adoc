@@ -1,0 +1,6 @@
+Things to do before Monday:
+
+* For each of the recos have a slide / guide-page that highlights the pattern and the aggregation
+* Cosine on the friendships that we computed using the stored proc
+* Update the venues answers to take into account what we do in the events section
+* Add an inferred property to the `INTERESTED_IN` relationships that we generate

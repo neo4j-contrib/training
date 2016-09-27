@@ -1,0 +1,83 @@
+= Latent Social Graph Answers
+
+include::include.adoc[]
+include::form.adoc[tags=name]
+
+== Exercise: Adding friends to the recommendations query
+
+Update the events recommendation query to:
+
+* count how many of our friends have `RSVPD` for an event
+* return the names of those friends as well
+
+== How many of our friends have `RSVPD`?
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name}
+
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+
+OPTIONAL MATCH (member)-[:FRIENDS]-(:Member)-[rsvpFriend:RSVPD]->(futureEvent)
+WITH member, futureEvent, commonTopics, myGroup, previousEvents, COUNT(rsvpFriend) AS friendsGoing
+
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance(point(venue), point({training-location})) AS distance
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
+WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, COUNT(previousEvent) AS eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2) - days AS score
+ORDER BY score DESC
+----
+
+== Who are these friends?
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name}
+
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+
+OPTIONAL MATCH (member)-[:FRIENDS]-(friend:Member)-[rsvpFriend:RSVPD]->(futureEvent)
+WITH member, futureEvent, commonTopics, myGroup, previousEvents, COUNT(rsvpFriend) AS friendsGoing, COLLECT(friend.name) AS friends
+
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance(point(venue), point({training-location})) AS distance
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
+WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, COUNT(previousEvent) AS eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, friends[..5], days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2) - days AS score
+ORDER BY score DESC
+----

@@ -1,0 +1,237 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>RSVPs</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>RSVPs</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>To make location based recommendations we need to know where people have previously attended events and luckily the meetup.com API gives us RSVPs which can serve as a proxy for attendance.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s see what data we&#8217;ve got to work with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
+FROM "file:///rsvps.csv" AS row
+RETURN row
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we get an identifier for each RSVP, an event id which the RSVP is for, a member id that identifies the user and a few other attributes.
+Let&#8217;s get the RSVPs into the graph then!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing RSVPs</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re only going to worry ourselves with 'yes' RSVPs, we won&#8217;t import any 'no' or 'waitlist' responses.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "file:///rsvps.csv" AS row
+WITH row WHERE row.response = "yes"
+
+MATCH (member:Member {id: row.member_id})
+MATCH (event:Event {id: row.event_id})
+MERGE (member)-[rsvp:RSVPD {id: row.rsvp_id}]->(event)
+ON CREATE SET rsvp.created = toint(row.created),
+              rsvp.lastModified = toint(row.mtime),
+              rsvp.guests = toint(row.guests)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s check they got imported correctly:</p>
+</div>
+<input style="display:inline;width:30%;" value-for="event" class="form-control" value="An Event" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (event:Event)<-[rsvp:RSVPD]-(attendee)
+WHERE event.name CONTAINS '<span  value-key="event">An Event</span>'
+RETURN *<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query shows us who&#8217;s signed up for the hackathons we&#8217;ve run as part of GraphConnect over the years. Have any of you been to multiple GraphHacks?</p>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re ready to make use of RSVPs and venues in our events recommendation query.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Our previous RSVPS</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>First we&#8217;ll update the query to add a score for an event based on previous events we&#8217;ve attended in that group.</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({training-location})) AS distance
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, days, distance, myGroupScore + commonTopics - days AS score
+ORDER BY score DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now it&#8217;s your turn!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Events at my venues</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>At the moment our event recommendation query takes into account our groups, topics and the previous events we&#8217;ve been to but it doesn&#8217;t take into account where those events were hosted which could be an important factor.
+Let&#8217;s now update the query to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>calculate a score for events at venues that I&#8217;ve previously visited</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You&#8217;ll remember from the venues guide that we saw some venues appear many times under different names.
+Let&#8217;s also update the query to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>calculate a score for events within 500 metres of venues that I&#8217;ve previously visited</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>to account for that problem with the data.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>To the slides!</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/06_my_venues_answers.html'>Answers: Events at my venues</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In our next section we&#8217;re going to take a brief detour to introduce procedures, a new addition in Neo4j 3.0.0.
+We&#8217;ll then make use of them in our recommendations and even write some of our own if time permits.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/07_procedures.html'>Procedures</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

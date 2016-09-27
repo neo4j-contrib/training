@@ -1,0 +1,38 @@
+== Collaborative filtering
+include::include.adoc[]
+include::form.adoc[tags=name]
+
+This query is too slow so we can't use it at the moment:
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member {name: {name}})-[:MEMBER_OF]->(group)<-[:MEMBER_OF]-()-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name, COUNT(*) AS score
+ORDER BY score DESC
+----
+
+
+
+== Hybrid
+
+I don't like these queries - I think we should change them to use the INTERESTED_IN relationship that we create a bit further on
+Can also show how you could run a procedure to keep those inferred interests up to date later on maybe?
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member {name: {name}})-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name, COLLECT(topic.name), SUM(score) as score
+ORDER BY score DESC
+----
+
+== Exercise: Tweak the recommendation query
+
+*
+
+* It would be good to do collaborative filtering query here showing another way of finding similar groups - the ones people in my groups are in
+Is it still going to be too slow?
+
+We could have a query for people to make our user join a new group and then see how the recommendations change.

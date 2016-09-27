@@ -1,0 +1,81 @@
+= My venues answers
+
+include::include.adoc[]
+include::form.adoc[tags=name]
+
+== Exercise: Events at my venues
+
+At the moment our event recommendation query takes into account our groups, topics and the previous events we've been to but it doesn't take into account where those events were hosted which could be an important factor.
+Let's now update the query to:
+
+* calculate a score for events at venues that I've previously visited
+
+You'll remember from the venues guide that we saw some venues appear many times under different names.
+Let's also update the query to:
+
+* calculate a score for events within 500 metres of venues that I've previously visited
+
+to account for that problem with the data.
+
+== Events at my venues
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name}
+
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({trainingLocation})) AS distance
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(venue)
+WHERE previousEvent.time < timestamp()
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, COUNT(previousEvent) AS eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue - days AS score
+ORDER BY score DESC
+----
+
+== Events near my venues
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name}
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({trainingLocation})) AS distance
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
+WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, COUNT(previousEvent) AS eventsAtVenue
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue - days AS score
+ORDER BY score DESC
+----

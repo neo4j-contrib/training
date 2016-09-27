@@ -1,0 +1,207 @@
+= Groups similar to mine
+include::include.adoc[]
+
+== Exclude groups I’m a member of
+
+Finding groups similar to the Neo4j group is a decent start but most good recommendation engines try to make recommendations customised for the user.
+
+Although our first query was a good one to get us started, unfortunately it was suggesting that we join groups that we might already be a member of.
+The worst type of recommendation!
+
+In this section we're going to add membership data to our model to fix that.
+
+image::{img}/group_has_topic_member_of.png[]
+
+[verse]
+____
+As a member of the Neo4j Meetup group
+I want to find other similar meetup groups that I’m not already a member of
+So that I can join those groups
+____
+
+== Explore Members data
+
+Let's see what data we've got to play with.
+Run the following query to show the first ten rows of the members CSV file:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS
+FROM "{csv-url}members.csv" AS row
+RETURN row
+LIMIT 10
+----
+
+We've got a member id and name as well as a group id and join date for that group.
+You'll also have noticed a `;` separated list of topic ids - we'll look at how to handle that in a few sections time.
+
+== Add Members
+
+Before we run our query to import members we'll create a unique constraint on `:Member(id)` to ensure we don't insert the same member twice.
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (m:Member)
+ASSERT m.id IS UNIQUE
+----
+
+The CSV file contains one entry for each group a member is part of so we will iterate over some members multiple times.
+We've got a lot of members to process so we're going to use the `PERIODIC COMMIT` clause to process them in batches.
+
+ifdef::env-training[]
+
+== Look at the slides to reveal all about `PERIODIC COMMIT`
+
+image::{img}/slides.jpg[]
+
+endif::env-training[]
+
+== Add Members
+
+Run the following query to import members into the graph:
+
+[source,cypher,subs=attributes]
+----
+USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS
+FROM "{csv-url}members.csv" AS row
+WITH DISTINCT row.id AS id, row.name AS name
+MERGE (member:Member {id: id})
+ON CREATE SET member.name = name
+----
+
+The use of periodic commit means that we'll commit every 10,000 rows rather than processing the whole file in one large transaction.
+
+== Connect members and groups
+
+Now that we've got the members imported, the next step is to get them connected to the groups that we loaded in the first section.
+
+Run the following query to create a `MEMBER_OF` relationship between members and groups:
+
+[source,cypher,subs=attributes]
+----
+USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS
+FROM "{csv-url}members.csv" AS row
+WITH row WHERE NOT row.joined is null
+MATCH (member:Member {id: row.id})
+MATCH (group:Group {id: row.groupId})
+MERGE (member)-[membership:MEMBER_OF]->(group)
+ON CREATE SET membership.joined=toInt(row.joined);
+----
+
+Let's see what our graph looks like now:
+
+[source,cypher]
+----
+MATCH (member:Member)-[membership:MEMBER_OF]->(group)
+RETURN member, group, membership
+LIMIT 10
+----
+
+== Additional Indexes
+
+We're going to search for members by name so we'll put an index on `:Member(name)` so we can quickly do that.
+
+[source,cypher]
+----
+CREATE INDEX ON :Member(name)
+----
+
+ifdef::env-training[]
+
+Now it's your turn!
+
+== Exercise: Find yourself and your groups
+
+We've now got groups, topics and members loaded into our database so it's time for a bit more exploration.
+
+. If you're local, write a query to find yourself in the database. If not try and find your neighbour.
+. How many groups are you a member of?
+. Which topics do those groups have?
+. _(For bonus points)_ Which topic shows up the most?
+
+== All the answers will be revealed...just as soon as you look at the slides
+
+image::{img}/slides.jpg[]
+
+pass:a[<a play-topic='{guides}/02_find_yourself_answers.html'>Answers: Find yourself and your groups</a>]
+
+endif::env-training[]
+
+== Exclude groups I’m a member of
+
+For our next recommendation we're still going to be finding similar groups to the Neo4j one but we'll also check whether we're already a member of the other groups.
+
+include::form.adoc[tags=name]
+
+[source,cypher,subs="attributes,none"]
+----
+MATCH (member:Member) WHERE member.name = {name}
+MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE (group.name CONTAINS {neo4j-group-name} OR group.name CONTAINS {neo4j-group-name-alt})
+       AND NOT((member)-[:MEMBER_OF]->(otherGroup) )
+RETURN otherGroup.name,
+       COUNT(topic) AS topicsInCommon,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC
+LIMIT 10
+----
+
+So now we identify them as being ones we’re already a member of so there’s no point in recommending them again.
+
+An interesting thing to notice is that we now get back groups which we didn’t before.
+That’s because we didn’t force any ordering other than `topicsInCommon` so we won't get a repeatable order on other columns.
+
+* Try changing the member name to your name or your neighbours and see how the results change.
+* Try changing the names of the group and member to see how the results vary.
+
+== Find my similar groups
+
+Now that we've got the data loaded in let's start making recommendations on an individual basis.
+
+image::{img}/group_has_topic_member_of_interested_in.png[]
+
+[verse]
+____
+As a member of several meetup groups
+I want to find other similar meetup groups that I’m not already a member of
+So that I can join those groups
+____
+
+So now rather than finding groups that have the same topics as the Neo4j group we'll be finding groups that have the same topics as our groups.
+
+== Find my similar groups
+
+include::form.adoc[tags=name2]
+
+We only have to change our previous query slightly to find our similar groups rather than Neo4j's:
+
+[source,cypher,subs="attributes,none"]
+----
+MATCH (member:Member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE member.name CONTAINS {name2}
+  AND NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name,
+       COUNT(*) AS topicsInCommon
+ORDER BY topicsInCommon DESC
+LIMIT 10
+----
+
+Try changing the name to someone who's a member of lots of meetups to see how the result varies.
+The following query will help you find people who are members of the most groups:
+
+[source,cypher]
+----
+MATCH (member:Member)-[:MEMBER_OF]->()
+WITH member, COUNT(*) AS groups
+ORDER BY groups DESC
+LIMIT 10
+RETURN member.name, groups
+----
+
+== Next Step
+
+Looking at our interests we can determine new interesting groups as well as infer new interests based on my membership and attendance.
+
+pass:a[<a play-topic='{guides}/03_my_interests.html'>My Interests</a>]

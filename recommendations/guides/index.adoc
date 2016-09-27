@@ -1,0 +1,61 @@
+= Building a Recommendation Engine with Neo4j
+
+ifeval::["{csv-url}" == "file:///"]
+
+== Welcome to the Neo4j recommendations training
+
+[NOTE]
+Before we get started, copy the CSV files in the `import` directory from your machine into the Neo4j `import` directory.
+
+////
+
+Configure the *import* directory in your `config/neo4j.conf` as follows.
+(Remove any leading `#`)
+
+.config/neo4j.conf
+----
+dbms.security.allow_csv_import_from_file_urls=true
+dbms.directories.import=import
+----
+
+If you're using the desktop version of Neo4j then you will have to set an absolute path for `dbms.directories.import` and import the files there instead
+e.g.
+
+.config/neo4j.conf
+----
+dbms.directories.import=C:/Neo4j/data
+----
+////
+
+endif::[]
+
+== Our schedule for the day
+
+image::{img}/meetup.png[float=right]
+
+. pass:a[<a play-topic='{guides}/01_similar_groups_by_topic.html'>Recommend Groups by Topic</a>]
+. pass:a[<a play-topic='{guides}/02_my_similar_groups.html'>Groups similar to mine</a>]
+. pass:a[<a play-topic='{guides}/03_my_interests.html'>My Interests</a>]
+. pass:a[<a play-topic='{guides}/04_events.html'>Event Recommendations</a>]
+ifdef::env-training[]
+. pass:a[<a play-topic='{guides}/05_venues.html'>Venues</a>]
+endif::env-training[]
+. pass:a[<a play-topic='{guides}/06_rsvps.html'>RSVPs</a>]
+ifdef::env-training[]
+. pass:a[<a play-topic='{guides}/07_procedures.html'>Procedures</a>]
+endif::env-training[]
+ifdef::env-training[]
+. pass:a[<a play-topic='{guides}/08_latent_social_graph.html'>Latent Social Graph</a>]
+endif::env-training[]
+. pass:a[<a play-topic='{guides}/09_scoring.html'>Scoring recommendations</a>]
+ifdef::env-training[]
+//. pass:a[<a play-topic='{guides}/10_free_for_all.html'>Free for all</a>]
+endif::env-training[]
+
+== Further Resources
+
+* http://neo4j.com/graphgists[Graph Gist Examples]
+* http://neo4j.com/docs/cypher-refcard/current/[Cypher Reference Card]
+* http://neo4j.com/docs/developer-manual/current/#cypher-query-lang[Neo4j Developer Manual]
+* http://neo4j.com/developer/resources#_neo4j_cypher_resources[Cypher Resource Collection]
+* http://graphdatabases.com[e-book: Graph Databases (free)]

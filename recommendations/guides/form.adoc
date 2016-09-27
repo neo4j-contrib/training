@@ -1,0 +1,37 @@
+// tag::group[]
+++++
+<input style="display:inline;width:30%;" value-for="group" class="form-control" value="Group" size="40">
+++++
+// end::group[]
+
+
+// tag::topic[]
+++++
+<input style="display:inline;width:30%;" value-for="topic" class="form-control" value="Topic" size="40">
+++++
+// end::topic[]
+
+// tag::name[]
+++++
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+++++
+// end::name[]
+
+// tag::name2[]
+++++
+<input style="display:inline;width:30%;" value-for="name2" class="form-control" value="Mark Needham" size="40">
+++++
+// end::name2[]
+
+// tag::name3[]
+++++
+<input style="display:inline;width:30%;" value-for="name3" class="form-control" value="Mark Needham" size="40">
+++++
+// end::name3[]
+
+
+// tag::event[]
+++++
+<input style="display:inline;width:30%;" value-for="event" class="form-control" value="An Event" size="40">
+++++
+// end::event[]

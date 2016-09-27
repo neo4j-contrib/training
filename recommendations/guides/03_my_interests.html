@@ -1,0 +1,397 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Recommendations by explicit interest</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Member Interests (Topics)</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>What data do we have?
+Run the following query to find out:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
+FROM "file:///members.csv" AS row
+RETURN row.id, row.topics
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that we&#8217;re still processing the same members file as we were earlier but returning different columns this time.</p>
+</div>
+<div class="paragraph">
+<p>So we&#8217;ve got one column containing the member id and one with a <code>;</code> delimited set of topic ids.
+Our next task is to create a relationship between members and their topics.
+To do that we&#8217;re going to need to split up the string containing topic ids so we can process them one at a time.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll use <a href="http://neo4j.com/docs/new-manual/developer-manual/3.0-RC1/#functions-split">split()</a> and <a href="http://neo4j.com/docs/new-manual/developer-manual/3.0-RC1/#query-plan-unwind">UNWIND</a> to help us do this.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>The slides are waiting&#8230;&#8203;for you!</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Member Interests (Topics)</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to create an <code>INTERESTED_IN</code> relationship between members and topics:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "file:///members.csv" AS row
+
+WITH split(row.topics, ";") AS topics, row.id AS memberId
+UNWIND topics AS topicId
+
+WITH DISTINCT memberId, topicId
+MATCH (member:Member {id: memberId})
+MATCH (topic:Topic {id: topicId})
+MERGE (member)-[:INTERESTED_IN]->(topic)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This might take a bit of time - there&#8217;s a lot of members and topics to get through!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find my similar groups</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now we&#8217;re ready to write our first query which uses some data we&#8217;ve explicitly provided meetup.com.</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Mark Needham</span>'})-[:INTERESTED_IN]->(topic),
+      (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name, COLLECT(topic.name), SUM(score) as score
+ORDER BY score DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this query we</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>start from a user</p>
+</li>
+<li>
+<p>find the topics they are interested in</p>
+</li>
+<li>
+<p>find the groups they are a member of that have those topics</p>
+</li>
+<li>
+<p>aggregates the number of times each topic appears</p>
+</li>
+<li>
+<p>finds other groups that have these topics, filtering out ones that they are already a member of</p>
+</li>
+<li>
+<p>returns those other groups sorted by how many of the member&#8217;s topics they cater for</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is quite a crude scoring mechanism which favours generally popular topics.
+We&#8217;ll have a look at how to address that later on.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>What if I don&#8217;t specify any interests?</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s find someone who didn&#8217;t specify any interests but is member of a few groups.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE NOT (member)-[:INTERESTED_IN]-&gt;()
+MATCH (member)-[:MEMBER_OF]-&gt;()
+RETURN member.name, count(*) as groups
+ORDER BY count(*) DESC
+LIMIT 50<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s take someone from that list who didn&#8217;t specify any interests when they signed up for meetup.com:</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Mark Needham</span>'})-[:INTERESTED_IN]->(topic), (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name, COLLECT(topic.name), SUM(score) as score
+ORDER BY score DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we can&#8217;t make any recommendations to them.
+Sad times!</p>
+</div>
+<div class="paragraph">
+<p>However, if they are a member of some groups we can infer their interests.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>What am I actually interested in?</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The <code>INTERESTED_IN</code> relationships that we created are based on interests that a user declared when they signed up for meetup.com.
+People typically don&#8217;t change those as their interests change but they do join new groups frequently which allows us to know their interests better than they do!</p>
+</div>
+<div class="paragraph">
+<p>We can do this by inferring <code>INTERESTED_IN</code> relationships based on these groups.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Inferring interests</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Find topics that I&#8217;m interested in via the groups I&#8217;m a member of that I don&#8217;t have an <code>INTERESTED_IN</code> relationship to.</p>
+</li>
+<li>
+<p>Which topic shows up most frequently?</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>The answers are waiting&#8230;&#8203;</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Persisting inferred interests</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can write the following query to add inferred <code>INTERESTED_IN</code> relationships to each member:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member)-[:MEMBER_OF]-&gt;()-[:HAS_TOPIC]-&gt;(topic)
+WHERE NOT (m)-[:INTERESTED_IN]-&gt;(topic)
+
+WITH m, topic, COUNT(*) AS times
+WHERE times &gt;= 3
+
+MERGE (m)-[interestedIn:INTERESTED_IN]-&gt;(topic)
+SET interestedIn.inferred = true<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The query:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>goes over each member</p>
+</li>
+<li>
+<p>finds the groups they&#8217;re a member of and which topics those groups advertise</p>
+</li>
+<li>
+<p>counts how many times each topic has showed up</p>
+</li>
+<li>
+<p>removes any topics that show up less than 3 times</p>
+</li>
+<li>
+<p>creates an <code>INTERESTED_IN</code> relationship between the member and the remaining topics</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>On this dataset we have a sufficiently small number of members that we can process them all in one go.
+With a production sized dataset we&#8217;d need to process members in batches.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find my similar groups (even if I don&#8217;t know it yet)</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>So we&#8217;re still answering the same fundamental question as before:</p>
+</div>
+<div class="verseblock">
+<pre class="content">As a member of several meetup groups
+I want to find other similar meetup groups that I’m not already a member of
+So that I can join those groups</pre>
+</div>
+<div class="paragraph">
+<p>But now we&#8217;ve added in some extra relationships which allow us to make recommendations even to people like Aleks who haven&#8217;t specified any interests.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query:</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<label>Name:</label> <input value-for="name" class="form-control" value="Mark Needham">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:INTERESTED_IN]->(topic),
+      (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name, COLLECT(topic.name), SUM(score) as score
+ORDER BY score DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Hopefully you can now see some results where previously there weren&#8217;t any.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re now reached the end of the group recommendation section of the training.
+In the next section we&#8217;re going to explore the events hosted by our groups and then make event recommendations.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/04_events.html'>Event Recommendations</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

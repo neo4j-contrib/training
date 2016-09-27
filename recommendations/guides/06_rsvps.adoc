@@ -1,0 +1,115 @@
+= RSVPs
+include::include.adoc[]
+
+== RSVPs
+
+To make location based recommendations we need to know where people have previously attended events and luckily the meetup.com API gives us RSVPs which can serve as a proxy for attendance.
+
+Let's see what data we've got to work with:
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS
+FROM "{csv-url}rsvps.csv" AS row
+RETURN row
+LIMIT 10
+----
+
+So we get an identifier for each RSVP, an event id which the RSVP is for, a member id that identifies the user and a few other attributes.
+Let's get the RSVPs into the graph then!
+
+== Importing RSVPs
+
+We're only going to worry ourselves with 'yes' RSVPs, we won't import any 'no' or 'waitlist' responses.
+
+[source,cypher,subs=attributes]
+----
+USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "{csv-url}rsvps.csv" AS row
+WITH row WHERE row.response = "yes"
+
+MATCH (member:Member {id: row.member_id})
+MATCH (event:Event {id: row.event_id})
+MERGE (member)-[rsvp:RSVPD {id: row.rsvp_id}]->(event)
+ON CREATE SET rsvp.created = toint(row.created),
+              rsvp.lastModified = toint(row.mtime),
+              rsvp.guests = toint(row.guests)
+----
+
+Let's check they got imported correctly:
+
+include::form.adoc[tags=event]
+
+[source,cypher,subs=attributes]
+----
+MATCH (event:Event)<-[rsvp:RSVPD]-(attendee)
+WHERE event.name CONTAINS {event}
+RETURN *
+----
+
+
+This query shows us who's signed up for the hackathons we've run as part of GraphConnect over the years. Have any of you been to multiple GraphHacks?
+
+Now we're ready to make use of RSVPs and venues in our events recommendation query.
+
+== Our previous RSVPS
+
+First we'll update the query to add a score for an event based on previous events we've attended in that group.
+
+include::form.adoc[tags=name]
+
+[source,cypher,subs=attributes]
+----
+MATCH (member:Member) WHERE member.name CONTAINS {name}
+
+MATCH (futureEvent:Event)
+WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
+
+WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
+OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+
+WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
+WHERE commonTopics >= 3
+
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)<-[:HOSTED_EVENT]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE previousEvent.time < timestamp()
+
+WITH futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
+
+MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({training-location})) AS distance
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
+
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, days, distance, myGroupScore + commonTopics - days AS score
+ORDER BY score DESC
+----
+
+Now it's your turn!
+
+== Exercise: Events at my venues
+
+At the moment our event recommendation query takes into account our groups, topics and the previous events we've been to but it doesn't take into account where those events were hosted which could be an important factor.
+Let's now update the query to:
+
+* calculate a score for events at venues that I've previously visited
+
+You'll remember from the venues guide that we saw some venues appear many times under different names.
+Let's also update the query to:
+
+* calculate a score for events within 500 metres of venues that I've previously visited
+
+to account for that problem with the data.
+
+== To the slides!
+
+image::{img}/slides.jpg[]
+
+pass:a[<a play-topic='{guides}/06_my_venues_answers.html'>Answers: Events at my venues</a>]
+
+== Next Step
+In our next section we're going to take a brief detour to introduce procedures, a new addition in Neo4j 3.0.0.
+We'll then make use of them in our recommendations and even write some of our own if time permits.
+
+pass:a[<a play-topic='{guides}/07_procedures.html'>Procedures</a>]

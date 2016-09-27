@@ -1,0 +1,279 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Venues</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Venues</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>One of the most important factors influencing which events people attend is where those events are being hosted.
+In this section we&#8217;re going to introduce venues into the graph and then use those in our recommendation queries.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll start by seeing what data we&#8217;ve got on venues:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
+FROM "file:///venues.csv"
+AS row
+RETURN row
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we&#8217;ve got a venue id, name and then some address details including the lat and long.
+Let&#8217;s get that imported!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Importing venues</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Before you start writing your LOAD CSV script you&#8217;ll want to create a unique constraint on <code>:Venue(id)</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (v:Venue)
+ASSERT v.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once you&#8217;ve done that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Load the venues into the graph - make sure you store <code>latitude</code> and <code>longitude</code> as properties as we&#8217;ll be using those in the next section.</p>
+</li>
+<li>
+<p>Connect the events we loaded earlier to our newly loaded venues</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><em>Tip</em> You&#8217;ll have to iterate over the events CSV file again to get the <code>venue_id</code> for each event</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>It&#8217;s slide time</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/05_venues_import_answers.html'>Answers: Importing Venues</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Verifying venues import</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Hopefully you&#8217;ve got <code>latitude</code> and <code>longitude</code> properties on each of the venues we just imported.
+You can check by running the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (venue:Venue)
+WHERE EXISTS(venue.latitude) AND EXISTS(venue.longitude)
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see a count &gt; 0.
+If you don&#8217;t then grab one of the trainers and we can help you fix it.</p>
+</div>
+<div class="paragraph">
+<p>Next we&#8217;re going to do some distance calculations with those values.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Tell me everything about distances I&#8217;m paying attention, I swear!</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Distance to venues</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;ll start with a simple query to find venues near here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH point({latitude: 37.7952919, longitude: -122.4036433}) AS trainingVenue
+MATCH (venue:Venue)
+
+WITH venue, distance(point(venue), trainingVenue) AS distance
+RETURN venue.id, venue.name, venue.address, distance
+ORDER BY distance
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>specifies our current location in a variable called <code>trainingVenue</code></p>
+</li>
+<li>
+<p>iterates over all venues</p>
+</li>
+<li>
+<p>calculates the distance from our current location to each venue</p>
+</li>
+<li>
+<p>returns the 10 closest venues to us along with the distance in metres.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Try changing the first line to point to some other latitude / longitude, e.g from Google Maps.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Using venues in recommendations</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Update the events recommendation query we wrote earlier to return the distance to here</p>
+</li>
+<li>
+<p>Filter out events which are more than 1km away</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>The answers are waiting&#8230;&#8203;</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/05_venues_distance_queries_answers.html'>Answers: Using venues in recommendations</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Can we now make use of previous locations where people have attended events to help make better recommendations?</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/06_rsvps.html'>RSVPs</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

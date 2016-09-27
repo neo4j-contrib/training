@@ -1,0 +1,255 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Latent Social Graph</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find the social graph lurking within</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The social graph is a common feature of a lot of modern web applications.
+Typically that social graph is imported from a 3rd party system e.g. Twitter followers or Facebook friends.</p>
+</div>
+<div class="paragraph">
+<p>In this dataset there is actually a latent social graph hiding beneath the data we&#8217;ve looked at so far.
+RSVPs give us a reasonable idea of which people may know each other based on common meetups they&#8217;ve attended.</p>
+</div>
+<div class="paragraph">
+<p>We can write the following query to see which people on the meetup scene that I may know:</p>
+</div>
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (me:Member)-[:RSVPD]->()<-[:RSVPD]-(otherPerson)
+WHERE me.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+WITH otherPerson, COUNT(*) AS commonEvents
+ORDER BY commonEvents DESC
+LIMIT 10
+RETURN otherPerson.name, commonEvents<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Materialising the latent social graph</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this next section we&#8217;re going to materialise this inferred social network and create a <code>FRIENDS</code> relationship between people who have been to 7 or more of the same events.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll have to run a graph global query to materialise this inferred social network so we&#8217;re going to process members in batches.</p>
+</div>
+<div class="paragraph">
+<p>First we&#8217;ll add a <code>Process</code> label to active members so we know which ones we&#8217;ve still got left to process in the next step.
+Run the following query.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member) WHERE size( (m)-[:RSVPD]-&gt;() ) &gt;= 7
+SET m:Process
+RETURN count(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we should have just over 9,000 members to process.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Transaction State</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Materialising the latent social graph</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s try processing just the first 500 of those members.
+Run the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m1:Process) WITH m1 LIMIT 500
+REMOVE m1:Process
+WITH m1
+MATCH (m1)-[:RSVPD]-&gt;(event)&lt;-[:RSVPD]-(m2)
+
+WITH m1, m2, COUNT(*) AS times
+WHERE times &gt;= 5
+
+MERGE (m1)-[:FRIENDS]-(m2)
+RETURN count(*);<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see that quite a number of relationships have been created.</p>
+</div>
+<div class="paragraph">
+<p>It would be nice if we could execute that query multiple times until all members have been processed.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Materialising the latent social graph</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The <code>apoc.periodic.commit(statement,params)</code> stored procedure allows us to do just that.
+Run the following query but be patient, it&#8217;s got a lot of friendships to make!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->call apoc.periodic.commit("
+  MATCH (m1:Process) WITH m1 LIMIT {limit} REMOVE m1:Process
+  WITH m1 MATCH (m1)-[:RSVPD]-&gt;(event)&lt;-[:RSVPD]-(m2)
+  WITH m1, m2, COUNT(*) AS times WHERE times &gt;= 5
+  MERGE (m1)-[:FRIENDS]-(m2) RETURN count(*)
+",{limit:500})<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query will probably run for a couple of minutes, creating a lot of <code>FRIENDS</code> relationships.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query to check that they&#8217;ve been created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[:FRIENDS]-() RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Adding friends to the recommendations query</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Update the events recommendation query to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>count how many of our friends have <code>RSVPD</code> for an event</p>
+</li>
+<li>
+<p>return the names of those friends as well</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Do we have friends ?</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/08_latent_answers.html'>Answers: Social Graph</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next Step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In our next section we&#8217;re going to apply some more sophisticated scoring functions to the recommendation queries that we&#8217;ve built so far.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/reco/file/09_scoring.html'>Scoring</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>
