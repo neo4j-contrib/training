@@ -19,4 +19,5 @@ create_guide guides basics.adoc basics.html "img/*.png img/*.jpg"
 create_guide guides advanced.adoc advanced.html
 create_guide guides updates.adoc updates.html
 create_guide guides import.adoc import.html
+create_guide guides movies.adoc movies.html
 create_guide "guides" guides.adoc index.html

@@ -12,6 +12,8 @@ Before we get started make sure you've imported the data:
 :play movies
 ----
 
+If you've already run it, don't run it again or you'll end up with all the data imported twice!
+
 == Exploring the dataset
 
 Let's have a quick look at what we've imported.
@@ -109,25 +111,57 @@ If want to find the movies that he's acted in or directed we can tweak the query
 [source, cypher]
 ----
 MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
-RETURN movie, role, TYPE(role) AS type
+RETURN movie, TYPE(role) AS type
 ----
 
-This query gets us the results we wanted, but we get multiple rows for movies that he's acted in and directed.
-It'd be good to get one row per movie and list which roles were played.
+This query gets us the results we wanted, but we have multiple rows for movies that he's acted in and directed.
+It'd be good to get one row per movie and have a list containing the `ACTED_IN` and `DIRECTED` relationships.
 
 == Grouping by movie
 
 Look at the slides for a quick explanation about how grouping works in Cypher.
 
-image::{img}/slides.png[]
+image::{img}/slides.jpg[]
 
 == Group by movie
+
+We can write the following query to return one row per movie Tom Hanks acted in or directed:
 
 [source, cypher]
 ----
 MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
 RETURN movie, COLLECT(TYPE(role)) AS roles
-ORDER BY LENGTH(roles) DESC
+ORDER BY SIZE(roles) DESC
+----
+
+We can use the `SIZE` function to work out how many items are in a collection.
+In this case we're using is so we show the movies that Tom Hanks acted in and directed first.
+
+== Exercise: Group by release year.
+
+The next requirement for our movie app is to show the movies an actor/actress has acted in or directed in chronological order grouped by `releaseYear`.
+
+Can you write that query?
+
+== Answer: Group by release year.
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
+RETURN movie.releaseYear, COLLECT(movie.title) AS movies
+ORDER BY movie.releaseYear
+----
+
+You may have noticed that we have some duplicate movies in 1996 and 2011.
+Those are the years that Tom Hanks acted in movies that he also directed.
+
+We can fix the duplicate issue by using the `DISTINCT` keyword:
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
+RETURN movie.releaseYear, COLLECT(DISTINCT movie.title) AS movies
+ORDER BY movie.releaseYear
 ----
 
 We have two movies which Tom Hanks has both acted in and directed.

@@ -99,3 +99,11 @@ RETURN topicId
 MATCH (member:Member {name: "Mark Needham"})
 OPTIONAL MATCH (member)-[:MEMBER_OF]->(group)
 RETURN member, COLLECT(group) AS groups
+
+MATCH (person:Person {name: "Tom Hanks"})
+      -[role:DIRECTED|:ACTED_IN]->(movie)
+RETURN movie, COLLECT(TYPE(role)) AS roles
+ORDER BY LENGTH(roles) DESC
+
+
+
