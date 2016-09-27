@@ -164,6 +164,75 @@ RETURN movie.releaseYear, COLLECT(DISTINCT movie.title) AS movies
 ORDER BY movie.releaseYear
 ----
 
+== Filtering patterns
+
+All the queries we've written have used the `MATCH` clause to find new bits of data, but sometimes we'll want to filter things out.
+
+Our next requirement is to build a list of the recent movies that a person has acted in.
+
+Let's quickly introduce the `WHERE` clause:
+
+image::{img}/slides.jpg[]
+
+== Finding recent movies
+
+The following query only returns movies released this century:
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})-[role:DIRECTED|:ACTED_IN]->(movie)
+WHERE movie.releaseYear > 2000
+RETURN movie
+----
+
+Try changing the query to find the movies released in the year 2000 or before the year 2000.
+
+== Paths, paths, are everywhere
+
+Our next requirement is to return the people that Tom Hanks has worked with in a format that we could feed into a visualisation library.
+To do this we're going to write a query that returns a set of paths that could be reconstructed into a visualisation:
+
+image::{img}/slides.jpg[]
+
+== Finding co-actor paths
+
+We can write the following query to find Tom Hanks' co-actors and the movies that they appeared in together:
+
+[source, cypher]
+----
+MATCH path = (person:Person {name: "Tom Hanks"})-[:DIRECTED|:ACTED_IN]->()<-[:DIRECTED|:ACTED_IN]-()
+RETURN path
+----
+
+This time we're returning the full path rather than its components as we have in previous queries.
+
+If we wanted to find the `(Person)-->(Movie)<--(Person)` triples in each path we can use the `NODES` function:
+
+[source, cypher]
+----
+MATCH path = (person:Person {name: "Tom Hanks"})-[:DIRECTED|:ACTED_IN]->()<-[:DIRECTED|:ACTED_IN]-()
+RETURN NODES(path) AS triples
+----
+
+There's also a `RELS` function which you can use to extract the relationships from a path.
+
+== Exercise: Similar actors/actresses
+
+We have some space on the side bar of the profile page to show 5 similar actors/actresses.
+We'll take similar to mean that they've appeared in the most movies with the actor/actress in question.
+
+Can you write a query to find the most similar actors/actresses to `Halle Berry`?
+
+== Answer: Similar actors/actresses
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Halle Berry"})-[:DIRECTED|:ACTED_IN]->()<-[:DIRECTED|:ACTED_IN]-(coactor)
+RETURN coactor, COUNT(*) AS times
+ORDER BY times DESC
+LIMIT 5
+----
+
 We have two movies which Tom Hanks has both acted in and directed.
 Which one did he direct but not act in?
 
