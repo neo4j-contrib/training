@@ -3,6 +3,15 @@ include::include.adoc[]
 
 == Member Interests (Topics)
 
+In the previous section we finished by looking at groups similar to the ones that people were already members of.
+In this section we'll take that a step further by looking at members explicit interests as well as inferring them if they aren't specified.
+
+image::{img}/slides.jpg[]
+
+== Member Interests (Topics)
+
+image::{img}/group_has_topic_member_of_interested_in.png[]
+
 What data do we have?
 Run the following query to find out:
 

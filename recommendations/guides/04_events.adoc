@@ -106,6 +106,10 @@ ORDER BY days
 
 That's a good start but it's a bit restrictive - I'm never going to learn about events in groups that I haven't joined yet.
 
+== Layered recommendations
+
+image::{img}/slides.jpg[]
+
 == Find future events for my topics
 
 One way we could make a better recommendation is to suggest events hosted by groups that have my topics even if I'm not a member of those groups.
@@ -147,8 +151,6 @@ Update the recommendations query to:
 == You know the drill by now!
 
 image::{img}/slides.jpg[]
-
-pass:a[<a play-topic='{guides}/04_events_answers.html'>Answers: Extending events recommendation</a>]
 
 endif::env-training[]
 

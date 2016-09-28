@@ -8,9 +8,11 @@ Finding groups similar to the Neo4j group is a decent start but most good recomm
 Although our first query was a good one to get us started, unfortunately it was suggesting that we join groups that we might already be a member of.
 The worst type of recommendation!
 
-In this section we're going to add membership data to our model to fix that.
+image::{img}/slides.jpg[]
 
-image::{img}/group_has_topic_member_of.png[]
+== Exclude groups I’m a member of
+
+We're going to evolve our model to answer the following question:
 
 [verse]
 ____
@@ -18,6 +20,8 @@ As a member of the Neo4j Meetup group
 I want to find other similar meetup groups that I’m not already a member of
 So that I can join those groups
 ____
+
+image::{img}/group_has_topic_member_of.png[]
 
 == Explore Members data
 
@@ -158,9 +162,7 @@ That’s because we didn’t force any ordering other than `topicsInCommon` so w
 
 == Find my similar groups
 
-Now that we've got the data loaded in let's start making recommendations on an individual basis.
-
-image::{img}/group_has_topic_member_of_interested_in.png[]
+Now that we've got the data loaded we can make recommendations on an individual basis.
 
 [verse]
 ____
@@ -169,7 +171,7 @@ I want to find other similar meetup groups that I’m not already a member of
 So that I can join those groups
 ____
 
-So now rather than finding groups that have the same topics as the Neo4j group we'll be finding groups that have the same topics as our groups.
+Rather than finding groups that have the same topics as the Neo4j group we'll now find groups that have the same topics as our groups.
 
 == Find my similar groups
 
@@ -180,8 +182,7 @@ We only have to change our previous query slightly to find our similar groups ra
 [source,cypher,subs="attributes,none"]
 ----
 MATCH (member:Member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
-WHERE member.name CONTAINS {name2}
-  AND NOT (member)-[:MEMBER_OF]->(otherGroup)
+WHERE member.name CONTAINS {name2} AND NOT (member)-[:MEMBER_OF]->(otherGroup)
 RETURN otherGroup.name,
        COUNT(*) AS topicsInCommon
 ORDER BY topicsInCommon DESC
@@ -202,6 +203,6 @@ RETURN member.name, groups
 
 == Next Step
 
-Looking at our interests we can determine new interesting groups as well as infer new interests based on my membership and attendance.
+In the next section we'll introduce member interests into the graph as well as infer new interests based on group memberships.
 
 pass:a[<a play-topic='{guides}/03_my_interests.html'>My Interests</a>]
