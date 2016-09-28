@@ -56,18 +56,34 @@
 <p>Although our first query was a good one to get us started, unfortunately it was suggesting that we join groups that we might already be a member of.
 The worst type of recommendation!</p>
 </div>
-<div class="paragraph">
-<p>In this section we&#8217;re going to add membership data to our model to fix that.</p>
-</div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
 </div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exclude groups I’m a member of</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re going to evolve our model to answer the following question:</p>
 </div>
 <div class="verseblock">
 <pre class="content">As a member of the Neo4j Meetup group
 I want to find other similar meetup groups that I’m not already a member of
 So that I can join those groups</pre>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+</div>
 </div>
 	</div>
   </div>
@@ -330,12 +346,7 @@ That’s because we didn’t force any ordering other than <code>topicsInCommon<
     <br/>
     <div>
       <div class="paragraph">
-<p>Now that we&#8217;ve got the data loaded in let&#8217;s start making recommendations on an individual basis.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of_interested_in.png" alt="group has topic member of interested in">
-</div>
+<p>Now that we&#8217;ve got the data loaded we can make recommendations on an individual basis.</p>
 </div>
 <div class="verseblock">
 <pre class="content">As a member of several meetup groups
@@ -343,7 +354,7 @@ I want to find other similar meetup groups that I’m not already a member of
 So that I can join those groups</pre>
 </div>
 <div class="paragraph">
-<p>So now rather than finding groups that have the same topics as the Neo4j group we&#8217;ll be finding groups that have the same topics as our groups.</p>
+<p>Rather than finding groups that have the same topics as the Neo4j group we&#8217;ll now find groups that have the same topics as our groups.</p>
 </div>
 	</div>
   </div>
@@ -363,8 +374,7 @@ So that I can join those groups</pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
-WHERE member.name CONTAINS '<span  value-key="name2">Mark Needham</span>'
-  AND NOT (member)-[:MEMBER_OF]->(otherGroup)
+WHERE member.name CONTAINS '<span  value-key="name2">Mark Needham</span>' AND NOT (member)-[:MEMBER_OF]->(otherGroup)
 RETURN otherGroup.name,
        COUNT(*) AS topicsInCommon
 ORDER BY topicsInCommon DESC
@@ -396,7 +406,7 @@ RETURN member.name, groups<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Looking at our interests we can determine new interesting groups as well as infer new interests based on my membership and attendance.</p>
+<p>In the next section we&#8217;ll introduce member interests into the graph as well as infer new interests based on group memberships.</p>
 </div>
 <div class="paragraph">
 <p><a play-topic='http://guides.neo4j.com/reco/file/03_my_interests.html'>My Interests</a></p>

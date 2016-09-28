@@ -6,6 +6,10 @@ include::include.adoc[]
 So far we've only made recommendations for meetup groups that we might like to join.
 It's been fun but things start getting much more interesting once we bring events into the equation.
 
+image::{img}/slides.jpg[]
+
+== Exploring events data
+
 We'll start with exploration of the events CSV file:
 
 [source,cypher,subs=attributes]
@@ -31,7 +35,9 @@ CREATE CONSTRAINT ON (e:Event) ASSERT e.id IS UNIQUE
 CREATE INDEX ON :Event(time)
 ----
 
-Now we're all set to import the events into the graph:
+Now we're all set to import the events into the graph. Remember this is the model that we're moving towards:
+
+image::{img}/events.png[]
 
 == Import Events
 

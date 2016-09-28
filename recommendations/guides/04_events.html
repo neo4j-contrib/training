@@ -53,7 +53,23 @@
 <p>So far we&#8217;ve only made recommendations for meetup groups that we might like to join.
 It&#8217;s been fun but things start getting much more interesting once we bring events into the equation.</p>
 </div>
-<div class="paragraph">
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploring events data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
 <p>We&#8217;ll start with exploration of the events CSV file:</p>
 </div>
 <div class="listingblock">
@@ -91,7 +107,12 @@ LIMIT 5<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now we&#8217;re all set to import the events into the graph:</p>
+<p>Now we&#8217;re all set to import the events into the graph. Remember this is the model that we&#8217;re moving towards:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/events.png" alt="events">
+</div>
 </div>
 	</div>
   </div>
@@ -208,6 +229,22 @@ ORDER BY days<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Layered recommendations</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Find future events for my topics</h3>
     <br/>
     <div>
@@ -291,9 +328,6 @@ ORDER BY futureEvent.time<!--/code--></pre>
 <div class="content">
 <img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
 </div>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/04_events_answers.html'>Answers: Extending events recommendation</a></p>
 </div>
 	</div>
   </div>
