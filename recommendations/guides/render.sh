@@ -43,5 +43,5 @@ else
 # copy the csv files to $NEO4J_HOME/import
   render http://$URL -a csv-url=file:/// -a env-training
   echo "Starting Websever at $URL Ctrl-c to stop"
-  python $GUIDES/http.py
+  python $GUIDES/http-server.py
 fi

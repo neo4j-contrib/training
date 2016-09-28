@@ -40,7 +40,7 @@ To meet this requirement we'll first need to write a query to find a specific ac
 
 == Finding an actor/actress
 
-We use the `MATCH` clause to find a pattern in the database.
+Cypher is all about finding patterns in the graph and we use the `MATCH` clause to find these patterns.
 In this case the required pattern is relatively simple.
 
 Run the following query:
@@ -125,7 +125,7 @@ image::{img}/slides.jpg[]
 
 == Group by movie
 
-We can write the following query to return one row per movie Tom Hanks acted in or directed:
+We can write the following query to return one row per movie that Tom Hanks acted in or directed:
 
 [source, cypher]
 ----
@@ -134,8 +134,8 @@ RETURN movie, COLLECT(TYPE(role)) AS roles
 ORDER BY SIZE(roles) DESC
 ----
 
-We can use the `SIZE` function to work out how many items are in a collection.
-In this case we're using is so we show the movies that Tom Hanks acted in and directed first.
+We use the `SIZE` function to work out how many items are in a collection.
+In this case we're using it so we show the movies that Tom Hanks acted in and directed first.
 
 == Exercise: Group by release year.
 
@@ -240,4 +240,30 @@ Let's quickly go over shortest path queries:
 
 image::{img}/slides.jpg[]
 
-== Shortest path from <x> to <y>
+== Exercise: Shortest path from <x> to <y>
+
+* Can you write a query to find the shortest path between two other actors/actresses?
+* Which actors/actresses are furthest apart?
+* How many hops is it from `Halle Berry` to `Carrie-Anne Moss`?
+
+== Answer: Which actors/actresses are furthest apart?
+
+[source, cypher]
+----
+MATCH (p1:Person)
+MATCH (p2:Person)
+MATCH path = shortestpath((p1)-[*]-(p2))
+RETURN path
+ORDER BY LENGTH(path) DESC
+LIMIT 1
+----
+
+== Answer: How many hops is it from `Halle Berry` to `Carrie-Anne Moss`?
+
+[source, cypher]
+----
+MATCH (p1:Person {name: "Halle Berry"})
+MATCH (p2:Person {name: "Carrie-Anne Moss"})
+MATCH path = shortestpath((p1)-[*]-(p2))
+RETURN length(path)
+----

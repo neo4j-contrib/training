@@ -213,8 +213,6 @@ _Hint:_ The link:{refcard}[Cypher refcard] will come in handy for syntax we have
 
 image::{img}/slides.jpg[]
 
-pass:a[<a play-topic='{guides}/01_explore_graph_answers.html'>Answers: Explore the graph</a>]
-
 endif::env-training[]
 
 ==  Find similar groups to Neo4j

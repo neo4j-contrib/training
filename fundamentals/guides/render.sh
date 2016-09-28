@@ -7,7 +7,7 @@ function render {
   $GUIDES/run.sh guides.adoc index.html +1 "$@"
   $GUIDES/run.sh advanced.adoc advanced.html +1 "$@"
   $GUIDES/run.sh updates.adoc updates.html +1 "$@"
-  $GUIDES/run.sh movie_app.adoc movie_app.html +1 "$@"
+  $GUIDES/run.sh movies.adoc movies.html +1 "$@"
 }
 
 # -a env-training is a flag to enable full content, if you comment it out, the guides are rendered minimally e.g. for a presentation

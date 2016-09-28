@@ -124,3 +124,41 @@ metrics.graphite.enabled=true // default is 'false'
 metrics.graphite.server=<ip>:2003
 metrics.graphite.interval=<how often to send data, defaults to 3s>
 metrics.prefix=<Neo4j instance name, e.g. wwwneo1>
+
+MATCH ()-[]->()
+WITH COUNT(*) AS count
+RETURN "relationships" AS type, count
+
+UNION
+
+MATCH ()
+WITH COUNT(*) AS count
+RETURN "nodes" AS type, count
+
+CALL dbms.listQueries;
+
+MATCH (m), (n), (o)
+RETURN COUNT(*)
+
+CALL dbms.listQueries()
+
+
+YIELD queryId, query
+WITH queryId, query WHERE query starts with "MATCH"
+RETURN queryId
+
+
+CALL dbms.killQuery("query-482")
+
+MATCH (alice:Person {name: "Alice"})-[:KNOWS]-(bob:Person {name:"Bob"})
+RETURN alice, bob
+
+ MATCH (p1:Person {name: "River Phoenix"})
+ MATCH (p2:Person {name: "Hugo Weaving"})
+ MATCH path = shortestpath((p1)-[*]-(p2))
+ RETURN path
+
+MATCH (p1:Person {name: "Halle Berry"})
+MATCH (p2:Person {name: "River Phoenix"})
+MATCH path = shortestpath((p1)-[:ACTED_IN*]-(p2))
+RETURN path

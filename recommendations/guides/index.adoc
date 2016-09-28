@@ -4,7 +4,6 @@ ifeval::["{csv-url}" == "file:///"]
 
 == Welcome to the Neo4j recommendations training
 
-[NOTE]
 Before we get started, copy the CSV files in the `import` directory from your machine into the Neo4j `import` directory.
 
 ////
