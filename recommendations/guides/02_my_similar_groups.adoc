@@ -125,11 +125,13 @@ We've now got groups, topics and members loaded into our database so it's time f
 . Which topics do those groups have?
 . _(For bonus points)_ Which topic shows up the most?
 
+image::{img}/group_has_topic_member_of.png[]
+
 == All the answers will be revealed...just as soon as you look at the slides
 
 image::{img}/slides.jpg[]
 
-pass:a[<a play-topic='{guides}/02_find_yourself_answers.html'>Answers: Find yourself and your groups</a>]
+// pass:a[<a play-topic='{guides}/answers/2.html'>Answers: Find yourself and your groups</a>]
 
 endif::env-training[]
 
@@ -142,9 +144,11 @@ include::form.adoc[tags=name]
 [source,cypher,subs="attributes,none"]
 ----
 MATCH (member:Member) WHERE member.name = {name}
-MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
-WHERE (group.name CONTAINS {neo4j-group-name} OR group.name CONTAINS {neo4j-group-name-alt})
-       AND NOT((member)-[:MEMBER_OF]->(otherGroup) )
+MATCH (group:Group) 
+WHERE group.name CONTAINS {neo4j-group-name} OR group.name CONTAINS {neo4j-group-name-alt}
+
+MATCH (group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE NOT EXISTS( (member)-[:MEMBER_OF]->(otherGroup) )
 RETURN otherGroup.name,
        COUNT(topic) AS topicsInCommon,
        COLLECT(topic.name) AS topics
@@ -181,8 +185,9 @@ We only have to change our previous query slightly to find our similar groups ra
 
 [source,cypher,subs="attributes,none"]
 ----
-MATCH (member:Member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
-WHERE member.name CONTAINS {name2} AND NOT (member)-[:MEMBER_OF]->(otherGroup)
+MATCH (member:Member) WHERE member.name CONTAINS {name2}
+MATCH (member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE NOT EXISTS ((member)-[:MEMBER_OF]->(otherGroup))
 RETURN otherGroup.name,
        COUNT(*) AS topicsInCommon
 ORDER BY topicsInCommon DESC
@@ -201,8 +206,12 @@ LIMIT 10
 RETURN member.name, groups
 ----
 
+== The `WITH` Clause
+
+image::{img}/slides.jpg[]
+
 == Next Step
 
 In the next section we'll introduce member interests into the graph as well as infer new interests based on group memberships.
 
-pass:a[<a play-topic='{guides}/03_my_interests.html'>My Interests</a>]
+// pass:a[<a play-topic='{guides}/03_my_interests.html'>My Interests</a>]

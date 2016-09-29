@@ -55,7 +55,7 @@ In this section we&#8217;ll take that a step further by looking at members expli
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -71,7 +71,7 @@ In this section we&#8217;ll take that a step further by looking at members expli
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of_interested_in.png" alt="group has topic member of interested in">
+<img src="http://localhost:8001/img/group_has_topic_member_of_interested_in.png" alt="group has topic member of interested in">
 </div>
 </div>
 <div class="paragraph">
@@ -110,7 +110,7 @@ To do that we&#8217;re going to need to split up the string containing topic ids
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -129,7 +129,7 @@ To do that we&#8217;re going to need to split up the string containing topic ids
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 1000
 LOAD CSV WITH HEADERS FROM "file:///members.csv" AS row
 
 WITH split(row.topics, ";") AS topics, row.id AS memberId
@@ -156,7 +156,7 @@ MERGE (member)-[:INTERESTED_IN]->(topic)<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Now we&#8217;re ready to write our first query which uses some data we&#8217;ve explicitly provided meetup.com.</p>
+<p>Now we&#8217;re ready to write our first query which uses some data we&#8217;ve explicitly provided to meetup.com.</p>
 </div>
 <input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
 <div class="listingblock">
@@ -183,13 +183,13 @@ LIMIT 10<!--/code--></pre>
 <p>find the topics they are interested in</p>
 </li>
 <li>
-<p>find the groups they are a member of that have those topics</p>
+<p>find the groups they are a member of that have those (relevant) topics</p>
 </li>
 <li>
 <p>aggregates the number of times each topic appears</p>
 </li>
 <li>
-<p>finds other groups that have these topics, filtering out ones that they are already a member of</p>
+<p>finds other groups that have these topics, filtering out ones that the user is already a member of</p>
 </li>
 <li>
 <p>returns those other groups sorted by how many of the member&#8217;s topics they cater for</p>
@@ -255,53 +255,9 @@ Sad times!</p>
     <h3>What am I actually interested in?</h3>
     <br/>
     <div>
-      <div class="paragraph">
-<p>The <code>INTERESTED_IN</code> relationships that we created are based on interests that a user declared when they signed up for meetup.com.
-People typically don&#8217;t change those as their interests change but they do join new groups frequently which allows us to know their interests better than they do!</p>
-</div>
-<div class="paragraph">
-<p>We can do this by inferring <code>INTERESTED_IN</code> relationships based on these groups.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
-</div>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Exercise: Inferring interests</h3>
-    <br/>
-    <div>
-      <div class="ulist">
-<ul>
-<li>
-<p>Find topics that I&#8217;m interested in via the groups I&#8217;m a member of that I don&#8217;t have an <code>INTERESTED_IN</code> relationship to.</p>
-</li>
-<li>
-<p>Which topic shows up most frequently?</p>
-</li>
-</ul>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>The answers are waiting&#8230;&#8203;</h3>
-    <br/>
-    <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -376,13 +332,12 @@ I want to find other similar meetup groups that I’m not already a member of
 So that I can join those groups</pre>
 </div>
 <div class="paragraph">
-<p>But now we&#8217;ve added in some extra relationships which allow us to make recommendations even to people like Aleks who haven&#8217;t specified any interests.</p>
+<p>But now we&#8217;ve added in some extra relationships which allow us to make recommendations even to people who haven&#8217;t specified any interests.</p>
 </div>
 <div class="paragraph">
 <p>Run the following query:</p>
 </div>
 <input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
-<label>Name:</label> <input value-for="name" class="form-control" value="Mark Needham">
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:INTERESTED_IN]->(topic),
@@ -414,7 +369,7 @@ ORDER BY score DESC<!--/code--></pre>
 In the next section we&#8217;re going to explore the events hosted by our groups and then make event recommendations.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/04_events.html'>Event Recommendations</a></p>
+<p><a play-topic='http://localhost:8001/04_events.html'>Event Recommendations</a></p>
 </div>
 	</div>
   </div>

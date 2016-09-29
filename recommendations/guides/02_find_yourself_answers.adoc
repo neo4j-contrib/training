@@ -12,6 +12,8 @@ We've now got groups, topics and members loaded into our database so it's time f
 * Which topics do those groups have?
 * _(For bonus points)_ Which topic shows up the most?
 
+image::{img}/group_has_topic_member_of.png[]
+
 == Find yourself
 
 [source,cypher,subs=attributes]

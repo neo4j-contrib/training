@@ -206,6 +206,8 @@ We've now loaded groups and topics but we don't know exactly what's in our graph
 . What's the most popular topic?
 . Which group was created most recently?
 . How many groups have been running for at least 4 years?
+. Find groups with 'Neo4j' or 'Data' in their name.
+. What are the distinct topics for those groups ?
 
 _Hint:_ The link:{refcard}[Cypher refcard] will come in handy for syntax we haven't covered yet!
 
@@ -213,35 +215,46 @@ _Hint:_ The link:{refcard}[Cypher refcard] will come in handy for syntax we have
 
 image::{img}/slides.jpg[]
 
+----
+:play http://guides.neo4j.com/reco/answers/
+----
+
 endif::env-training[]
 
 ==  Find similar groups to Neo4j
 
 So you've hopefully now got an idea of what the data looks like.
+
+image::{img}/group_has_topic.png[]
+
 It's time to write our first recommendation query which will find groups that have the same topics as the Neo4j Meetup group:
 
 [source,cypher,subs=attributes,none]
 ----
-MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
+MATCH (group:Group)
 WHERE (group.name CONTAINS {neo4j-group-name} OR group.name CONTAINS {neo4j-group-name-alt})
+
+MATCH (group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
 RETURN otherGroup.name, COUNT(topic) AS topicsInCommon,
        COLLECT(topic.name) AS topics
 ORDER BY topicsInCommon DESC, otherGroup.name
 LIMIT 10
 ----
 
-This query
+Let's build this query step by step:
 
 * starts from the Neo4j group,
 * finds its topics,
 * then looks for other groups that have those topics
-* and aggregates the groups with the most topics in common.
+* and aggregates by the other groups on the topics in common
+* sorts by most topics in common
+* and returns the top 10.
 
-Try changing the group name e.g. `Big Data Debate` or `Docker Meetup` and see how the results change.
+Try also changing the group name e.g. `Big Data Debate` or `Docker Meetup` and see how the results change.
 
 == Next Step
 
 In the next section we're going to introduce members into the graph.
 We'll then look at our graphs and write some queries to recommend new groups for ourselves.
 
-pass:a[<a play-topic='{guides}/02_my_similar_groups.html'>Groups similar to mine</a>]
+// pass:a[<a play-topic='{guides}/02_my_similar_groups.html'>Groups similar to mine</a>]

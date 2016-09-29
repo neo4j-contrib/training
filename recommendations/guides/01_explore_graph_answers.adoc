@@ -39,3 +39,22 @@ MATCH (g:Group)
 WHERE g.created < timestamp() - fourYears
 RETURN g
 ----
+
+== Find groups with 'Neo4j' or 'Data' in their name.
+
+[source,cypher,subs=attributes]
+----
+MATCH (g:Group)
+WHERE g.name CONTAINS 'Neo4j' OR g.name CONTAINS 'Data'
+RETURN g
+----
+
+
+== What are the distinct topics for those groups ?
+
+[source,cypher,subs=attributes]
+----
+MATCH (g:Group)-[:HAS_TOPIC]->(t:Topic)
+WHERE g.name CONTAINS 'Neo4j' OR g.name CONTAINS 'Data'
+RETURN t.name, count(*)
+----

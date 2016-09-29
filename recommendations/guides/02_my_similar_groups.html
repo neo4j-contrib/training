@@ -58,7 +58,7 @@ The worst type of recommendation!</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -82,7 +82,7 @@ So that I can join those groups</pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+<img src="http://localhost:8001/img/group_has_topic_member_of.png" alt="group has topic member of">
 </div>
 </div>
 	</div>
@@ -149,7 +149,7 @@ We&#8217;ve got a lot of members to process so we&#8217;re going to use the <cod
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -270,6 +270,11 @@ LIMIT 10<!--/code--></pre>
 </li>
 </ol>
 </div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/group_has_topic_member_of.png" alt="group has topic member of">
+</div>
+</div>
 	</div>
   </div>
 </slide>
@@ -283,11 +288,8 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/02_find_yourself_answers.html'>Answers: Find yourself and your groups</a></p>
 </div>
 	</div>
   </div>
@@ -307,9 +309,11 @@ LIMIT 10<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name = '<span  value-key="name">Mark Needham</span>'
-MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
-WHERE (group.name CONTAINS 'Graph Database' OR group.name CONTAINS 'Neo4j')
-       AND NOT((member)-[:MEMBER_OF]->(otherGroup) )
+MATCH (group:Group)
+WHERE group.name CONTAINS 'Graph Database' OR group.name CONTAINS 'Neo4j'
+
+MATCH (group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE NOT EXISTS( (member)-[:MEMBER_OF]->(otherGroup) )
 RETURN otherGroup.name,
        COUNT(topic) AS topicsInCommon,
        COLLECT(topic.name) AS topics
@@ -373,8 +377,9 @@ So that I can join those groups</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
-WHERE member.name CONTAINS '<span  value-key="name2">Mark Needham</span>' AND NOT (member)-[:MEMBER_OF]->(otherGroup)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name2">Mark Needham</span>'
+MATCH (member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE NOT EXISTS ((member)-[:MEMBER_OF]->(otherGroup))
 RETURN otherGroup.name,
        COUNT(*) AS topicsInCommon
 ORDER BY topicsInCommon DESC
@@ -402,14 +407,27 @@ RETURN member.name, groups<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>The <code>WITH</code> Clause</h3>
+    <br/>
+    <div>
+      <div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Next Step</h3>
     <br/>
     <div>
       <div class="paragraph">
 <p>In the next section we&#8217;ll introduce member interests into the graph as well as infer new interests based on group memberships.</p>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/03_my_interests.html'>My Interests</a></p>
 </div>
 	</div>
   </div>

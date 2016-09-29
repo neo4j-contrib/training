@@ -45,7 +45,7 @@ Run the following query to create an `INTERESTED_IN` relationship between member
 
 [source,cypher,subs=attributes]
 ----
-USING PERIODIC COMMIT 10000
+USING PERIODIC COMMIT 1000
 LOAD CSV WITH HEADERS FROM "{csv-url}members.csv" AS row
 
 WITH split(row.topics, ";") AS topics, row.id AS memberId
@@ -61,7 +61,7 @@ This might take a bit of time - there's a lot of members and topics to get throu
 
 == Find my similar groups
 
-Now we're ready to write our first query which uses some data we've explicitly provided meetup.com.
+Now we're ready to write our first query which uses some data we've explicitly provided to meetup.com.
 
 include::form.adoc[tags=name]
 
@@ -81,9 +81,9 @@ In this query we
 
   * start from a user
   * find the topics they are interested in
-  * find the groups they are a member of that have those topics
+  * find the groups they are a member of that have those (relevant) topics
   * aggregates the number of times each topic appears
-  * finds other groups that have these topics, filtering out ones that they are already a member of
+  * finds other groups that have these topics, filtering out ones that the user is already a member of
   * returns those other groups sorted by how many of the member's topics they cater for
 
 This is quite a crude scoring mechanism which favours generally popular topics.
@@ -123,12 +123,19 @@ However, if they are a member of some groups we can infer their interests.
 
 == What am I actually interested in?
 
+image::{img}/slides.jpg[]
+
+////
+
+== What am I actually interested in?
+
 The `INTERESTED_IN` relationships that we created are based on interests that a user declared when they signed up for meetup.com.
 People typically don't change those as their interests change but they do join new groups frequently which allows us to know their interests better than they do!
 
 We can do this by inferring `INTERESTED_IN` relationships based on these groups.
 
 image::{img}/group_has_topic_member_of.png[]
+
 
 ifdef::env-training[]
 
@@ -142,6 +149,8 @@ ifdef::env-training[]
 image::{img}/slides.jpg[]
 
 endif::env-training[]
+
+////
 
 == Persisting inferred interests
 
@@ -181,15 +190,11 @@ I want to find other similar meetup groups that I’m not already a member of
 So that I can join those groups
 ____
 
-But now we've added in some extra relationships which allow us to make recommendations even to people like Aleks who haven't specified any interests.
+But now we've added in some extra relationships which allow us to make recommendations even to people who haven't specified any interests.
 
 Run the following query:
 
 include::form.adoc[tags=name]
-
-++++
-<label>Name:</label> <input value-for="name" class="form-control" value="Mark Needham">
-++++
 
 [source,cypher,subs="attributes,none"]
 ----
@@ -210,4 +215,4 @@ Hopefully you can now see some results where previously there weren't any.
 We're now reached the end of the group recommendation section of the training.
 In the next section we're going to explore the events hosted by our groups and then make event recommendations.
 
-pass:a[<a play-topic='{guides}/04_events.html'>Event Recommendations</a>]
+// pass:a[<a play-topic='{guides}/04_events.html'>Event Recommendations</a>]

@@ -51,7 +51,7 @@
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic.png" alt="group has topic">
+<img src="http://localhost:8001/img/group_has_topic.png" alt="group has topic">
 </div>
 </div>
 <div class="verseblock">
@@ -170,7 +170,7 @@ We&#8217;re also going to put a unique constraint on <code>:Topic(id)</code> so 
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -370,6 +370,12 @@ You can also single click to view a context menu with other options.</p>
 <li>
 <p>How many groups have been running for at least 4 years?</p>
 </li>
+<li>
+<p>Find groups with 'Neo4j' or 'Data' in their name.</p>
+</li>
+<li>
+<p>What are the distinct topics for those groups ?</p>
+</li>
 </ol>
 </div>
 <div class="paragraph">
@@ -388,7 +394,12 @@ You can also single click to view a context menu with other options.</p>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>:play http://guides.neo4j.com/reco/answers/</pre>
 </div>
 </div>
 	</div>
@@ -403,13 +414,22 @@ You can also single click to view a context menu with other options.</p>
     <br/>
     <div>
       <div class="paragraph">
-<p>So you&#8217;ve hopefully now got an idea of what the data looks like.
-It&#8217;s time to write our first recommendation query which will find groups that have the same topics as the Neo4j Meetup group:</p>
+<p>So you&#8217;ve hopefully now got an idea of what the data looks like.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/group_has_topic.png" alt="group has topic">
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s time to write our first recommendation query which will find groups that have the same topics as the Neo4j Meetup group:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (group:Group)
 WHERE (group.name CONTAINS 'Graph Database' OR group.name CONTAINS 'Neo4j')
+
+MATCH (group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
 RETURN otherGroup.name, COUNT(topic) AS topicsInCommon,
        COLLECT(topic.name) AS topics
 ORDER BY topicsInCommon DESC, otherGroup.name
@@ -417,7 +437,7 @@ LIMIT 10<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This query</p>
+<p>Let&#8217;s build this query step by step:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -431,12 +451,18 @@ LIMIT 10<!--/code--></pre>
 <p>then looks for other groups that have those topics</p>
 </li>
 <li>
-<p>and aggregates the groups with the most topics in common.</p>
+<p>and aggregates by the other groups on the topics in common</p>
+</li>
+<li>
+<p>sorts by most topics in common</p>
+</li>
+<li>
+<p>and returns the top 10.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Try changing the group name e.g. <code>Big Data Debate</code> or <code>Docker Meetup</code> and see how the results change.</p>
+<p>Try also changing the group name e.g. <code>Big Data Debate</code> or <code>Docker Meetup</code> and see how the results change.</p>
 </div>
 	</div>
   </div>
@@ -452,9 +478,6 @@ LIMIT 10<!--/code--></pre>
       <div class="paragraph">
 <p>In the next section we&#8217;re going to introduce members into the graph.
 We&#8217;ll then look at our graphs and write some queries to recommend new groups for ourselves.</p>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/02_my_similar_groups.html'>Groups similar to mine</a></p>
 </div>
 	</div>
   </div>

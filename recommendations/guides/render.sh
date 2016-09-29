@@ -5,7 +5,6 @@ GUIDES=../../neo4j-guides
 function render {
 $GUIDES/run.sh index.adoc index.html +1 "$@"
 $GUIDES/run.sh 01_similar_groups_by_topic.adoc 01_similar_groups_by_topic.html +1 "$@"
-$GUIDES/run.sh 01_explore_graph_answers.adoc 01_explore_graph_answers.html +1 "$@"
 $GUIDES/run.sh 01_explore_graph_answers.adoc answers/1.html +1 "$@"
 $GUIDES/run.sh 02_my_similar_groups.adoc 02_my_similar_groups.html +1 "$@"
 $GUIDES/run.sh 02_find_yourself_answers.adoc answers/2.html +1 "$@"

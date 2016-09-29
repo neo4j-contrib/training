@@ -127,5 +127,41 @@ RETURN g<!--/code--></pre>
 	</div>
   </div>
 </slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Find groups with 'Neo4j' or 'Data' in their name.</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (g:Group)
+WHERE g.name CONTAINS 'Neo4j' OR g.name CONTAINS 'Data'
+RETURN g<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>What are the distinct topics for those groups ?</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (g:Group)-[:HAS_TOPIC]->(t:Topic)
+WHERE g.name CONTAINS 'Neo4j' OR g.name CONTAINS 'Data'
+RETURN t.name, count(*)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
   </carousel>
 </article>
