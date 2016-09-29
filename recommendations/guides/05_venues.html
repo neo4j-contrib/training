@@ -53,7 +53,23 @@
 <p>One of the most important factors influencing which events people attend is where those events are being hosted.
 In this section we&#8217;re going to introduce venues into the graph and then use those in our recommendation queries.</p>
 </div>
-<div class="paragraph">
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploring the data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
 <p>We&#8217;ll start by seeing what data we&#8217;ve got on venues:</p>
 </div>
 <div class="listingblock">
@@ -68,6 +84,25 @@ LIMIT 10<!--/code--></pre>
 <div class="paragraph">
 <p>So we&#8217;ve got a venue id, name and then some address details including the lat and long.
 Let&#8217;s get that imported!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>The model</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Before we get started, a quick reminder that this is the model we want to end up with:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/venues.png" alt="venues">
+</div>
 </div>
 	</div>
   </div>
@@ -98,7 +133,7 @@ ASSERT v.id IS UNIQUE<!--/code--></pre>
 <p>Load the venues into the graph - make sure you store <code>latitude</code> and <code>longitude</code> as properties as we&#8217;ll be using those in the next section.</p>
 </li>
 <li>
-<p>Connect the events we loaded earlier to our newly loaded venues</p>
+<p>Connect the events we loaded earlier to our newly loaded venues with a <code>VENUE</code> relationship type.</p>
 </li>
 </ul>
 </div>
@@ -120,9 +155,6 @@ ASSERT v.id IS UNIQUE<!--/code--></pre>
 <div class="content">
 <img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
 </div>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/05_venues_import_answers.html'>Answers: Importing Venues</a></p>
 </div>
 	</div>
   </div>
@@ -252,9 +284,6 @@ LIMIT 10<!--/code--></pre>
 <div class="content">
 <img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
 </div>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/05_venues_distance_queries_answers.html'>Answers: Using venues in recommendations</a></p>
 </div>
 	</div>
   </div>

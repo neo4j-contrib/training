@@ -52,7 +52,23 @@
       <div class="paragraph">
 <p>To make location based recommendations we need to know where people have previously attended events and luckily the meetup.com API gives us RSVPs which can serve as a proxy for attendance.</p>
 </div>
-<div class="paragraph">
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploring the data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
 <p>Let&#8217;s see what data we&#8217;ve got to work with:</p>
 </div>
 <div class="listingblock">
@@ -66,6 +82,25 @@ LIMIT 10<!--/code--></pre>
 <div class="paragraph">
 <p>So we get an identifier for each RSVP, an event id which the RSVP is for, a member id that identifies the user and a few other attributes.
 Let&#8217;s get the RSVPs into the graph then!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Adding RSVPs to the model</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In case you&#8217;ve forgotten, this is the model that we&#8217;re driving towards:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/reco/file/img/rsvps.png" alt="rsvps">
+</div>
 </div>
 	</div>
   </div>

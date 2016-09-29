@@ -30,7 +30,7 @@ ifdef::env-training[]
 
 Before we get started, a quick reminder that this is the model we want to end up with:
 
-image::{img}/slides.jpg[]
+image::{img}/venues.png[]
 
 == Exercise: Importing venues
 

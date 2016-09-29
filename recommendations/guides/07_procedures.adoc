@@ -158,8 +158,6 @@ We probably want to create this pattern `+(member)-[:POSTED]->(photo)-[:EVENT]->
 
 image::{img}/slides.jpg[]
 
-pass:a[<a play-topic='{guides}/07_photos_answers.html'>Answers: Photos</a>]
-
 endif::env-training[]
 ifndef::env-training[]
 

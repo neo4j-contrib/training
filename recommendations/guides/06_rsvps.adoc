@@ -22,6 +22,12 @@ LIMIT 10
 So we get an identifier for each RSVP, an event id which the RSVP is for, a member id that identifies the user and a few other attributes.
 Let's get the RSVPs into the graph then!
 
+== Adding RSVPs to the model
+
+In case you've forgotten, this is the model that we're driving towards:
+
+image::{img}/rsvps.png[]
+
 == Importing RSVPs
 
 We're only going to worry ourselves with 'yes' RSVPs, we won't import any 'no' or 'waitlist' responses.
