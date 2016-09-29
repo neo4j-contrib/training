@@ -1,13 +1,13 @@
 = Scoring recommendations
 include::include.adoc[]
 
-
 == Scoring components of our recommendation query
 
 We're now at the point where we have multiple facets to our events recommendation query.
 Each of these makes a contribution but perhaps not all equally.
-
 e.g. perhaps we should give more weight to venues closer to our workplace and less weight to very popular events.
+
+image::{img}/slides.jpg[]
 
 == The pareto function
 
@@ -199,9 +199,15 @@ Then we can try our friendship based recommendation again and see if/how it diff
 
 _Tip_ Don't forget that you'll also need to re-run the query to put `Process` labels on members before running the query to add the friendship score.
 
-== Next Step
+== Thank you for coming!
+
+We've reached the end of the session so let's do a quick wrap up.
+
+image::{img}/slides.jpg[]
+
+== Bonus section
 
 By now you probably have lots of ideas of how we can improve the graph to make even better recommendations.
-In this last session you'll have the chance to explore some of this solo or in a team with other attendees.
+In this bonus session you'll have the chance to explore some of this solo or in a team with other attendees.
 
 pass:a[<a play-topic='{guides}/10_free_for_all.html'>Your turn</a>]

@@ -6,6 +6,10 @@ include::include.adoc[]
 One of the most important factors influencing which events people attend is where those events are being hosted.
 In this section we're going to introduce venues into the graph and then use those in our recommendation queries.
 
+image::{img}/slides.jpg[]
+
+== Exploring the data
+
 We'll start by seeing what data we've got on venues:
 
 [source,cypher,subs=attributes]
@@ -22,6 +26,12 @@ Let's get that imported!
 
 ifdef::env-training[]
 
+== The model
+
+Before we get started, a quick reminder that this is the model we want to end up with:
+
+image::{img}/slides.jpg[]
+
 == Exercise: Importing venues
 
 Before you start writing your LOAD CSV script you'll want to create a unique constraint on `:Venue(id)`:
@@ -35,15 +45,13 @@ ASSERT v.id IS UNIQUE
 Once you've done that:
 
 * Load the venues into the graph - make sure you store `latitude` and `longitude` as properties as we'll be using those in the next section.
-* Connect the events we loaded earlier to our newly loaded venues
+* Connect the events we loaded earlier to our newly loaded venues with a `VENUE` relationship type.
 
 _Tip_ You'll have to iterate over the events CSV file again to get the `venue_id` for each event
 
 == It's slide time
 
 image::{img}/slides.jpg[]
-
-pass:a[<a play-topic='{guides}/05_venues_import_answers.html'>Answers: Importing Venues</a>]
 
 endif::env-training[]
 ifndef::env-training[]
@@ -110,8 +118,6 @@ ifdef::env-training[]
 == The answers are waiting...
 
 image::{img}/slides.jpg[]
-
-pass:a[<a play-topic='{guides}/05_venues_distance_queries_answers.html'>Answers: Using venues in recommendations</a>]
 
 endif::env-training[]
 

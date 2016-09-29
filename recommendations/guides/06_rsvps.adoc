@@ -5,6 +5,10 @@ include::include.adoc[]
 
 To make location based recommendations we need to know where people have previously attended events and luckily the meetup.com API gives us RSVPs which can serve as a proxy for attendance.
 
+image::{img}/slides.jpg[]
+
+== Exploring the data
+
 Let's see what data we've got to work with:
 
 [source,cypher,subs=attributes]

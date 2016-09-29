@@ -7,6 +7,10 @@ Procedures are a new feature in Neo4j 3.x which allow you to write custom code w
 
 You can read more details in the link:http://neo4j.com/docs/developer-manual/current/#procedures[documentation].
 
+image::{img}/slides.jpg[]
+
+== Built in procedures
+
 There are some built in procedures.
 You can see what they are by running the following command:
 

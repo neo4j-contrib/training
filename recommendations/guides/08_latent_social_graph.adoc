@@ -9,6 +9,10 @@ Typically that social graph is imported from a 3rd party system e.g. Twitter fol
 In this dataset there is actually a latent social graph hiding beneath the data we've looked at so far.
 RSVPs give us a reasonable idea of which people may know each other based on common meetups they've attended.
 
+image::{img}/slides.jpg[]
+
+== Finding people that I know
+
 We can write the following query to see which people on the meetup scene that I may know:
 
 include::form.adoc[tags=name]
@@ -101,11 +105,9 @@ Update the events recommendation query to:
 * count how many of our friends have `RSVPD` for an event
 * return the names of those friends as well
 
-== Do we have friends ?
+== Do we have friends?
 
 image::{img}/slides.jpg[]
-
-pass:a[<a play-topic='{guides}/08_latent_answers.html'>Answers: Social Graph</a>]
 
 endif::env-training[]
 ifndef::env-training[]
@@ -113,7 +115,6 @@ ifndef::env-training[]
 include::08_latent_answers.adoc[lines=4..-1]
 
 endif::env-training[]
-
 
 == Next Step
 In our next section we're going to apply some more sophisticated scoring functions to the recommendation queries that we've built so far.
