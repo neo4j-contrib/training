@@ -168,19 +168,42 @@ NOTE: Look at the CSV structure for property-names and types.
 
 [source,cypher]
 ----
-CREATE (:Movie {movieId:5574, title:"Forrest Gump", tagline: ""
+CREATE (:Movie {id:5574, title:"Forrest Gump", tagline: ""
         avgVote:7.7, releaseYear:1994, genres: ["Comedy","Drama","Romance"]);
 ----
 
 [source,cypher]
 ----
-MERGE (p:Person {personId: 31}) ON CREATE SET p.name = "Tom Hanks", p.birthYear = 1956;
+MERGE (p:Person {id: 31}) ON CREATE SET p.name = "Tom Hanks", p.birthYear = 1956;
 ----
 
 [source,cypher]
 ----
-MATCH (p:Person {personId:31}), (m:Movie {movieId:5574})
+MATCH (p:Person {id:31}), (m:Movie {id:5574})
 CREATE (p)-[:ACTED_IN {roles:['Forrest Gump']}]->(m);
+----
+
+== LOAD CSV - Prep
+
+Create indexes & constraints esp. for relationship creation.
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (m:Movie) ASSERT m.id IS UNIQUE;
+----
+[source,cypher]
+----
+CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE;
+----
+
+[source,cypher]
+----
+CREATE INDEX ON :Person(name);
+----
+
+[source,cypher]
+----
+CREATE INDEX ON :Movie(title);
 ----
 
 == LOAD CSV - Import Approaches
@@ -200,7 +223,7 @@ CREATE (p)-[:ACTED_IN {roles:['Forrest Gump']}]->(m);
 ----
 LOAD CSV WITH HEADERS FROM  
      {movies_url} AS row
-CREATE (:Movie {movieId:toInt(row.movieId), title:row.title,  avgVote:toFloat(row.avgVote), 
+CREATE (:Movie {id:toInt(row.movieId), title:row.title,  avgVote:toFloat(row.avgVote), 
         releaseYear:toInt(row.releaseYear), genres: split(row.genres,":"));
 ----
 
@@ -211,7 +234,7 @@ LOAD CSV WITH HEADERS FROM {people_url} as row
 MERGE(person:Person {id: toInt(row.personId)})
 ON CREATE SET person.name = row.name,
               person.born = toInt(row.birthYear),
-              person.died = toInt(row.deathYear)
+              person.died = toInt(row.deathYear);
 ----
 
 NOTE: `deathYear` can be missing. `toInt()` returns null, property not set.
@@ -222,7 +245,7 @@ LOAD CSV WITH HEADERS FROM {directors_url} as row
 
 MATCH (movie:Movie {id:toInt(row.movieId)})
 MATCH (person:Person {id: toInt(row.personId)})
-MERGE (person)-[:DIRECTED]->(movie)
+MERGE (person)-[:DIRECTED]->(movie);
 ----
 
 [source,cypher,subs=attributes]
@@ -234,7 +257,7 @@ FIELDTERMINATOR ','
 
 MATCH  (movie:Movie  {id: toInt(row.movieId) }) 
 MATCH  (person:Person {id: toInt(row.personId) }) 
-MERGE  (person)-[:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
+MERGE  (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
 ----
 
 === Pro
@@ -279,7 +302,7 @@ Same as before, just run multiple passes over the same file.
 LOAD CSV WITH HEADERS FROM  
      {movies_roles_url} AS row
 
-MERGE (m:Movie {movieId:toInt(row.movieId)}) 
+MERGE (m:Movie {id:toInt(row.movieId)}) 
    ON CREATE SET m.title=row.title, m.avgVote=toFloat(row.avgVote), 
       m.releaseYear=toInt(row.releaseYear), m.genres=split(row.genres,":")
 
