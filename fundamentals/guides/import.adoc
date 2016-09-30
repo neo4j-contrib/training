@@ -91,9 +91,8 @@ RETURN row, keys(row) LIMIT 5;
 ----
 LOAD CSV WITH HEADERS FROM  
      '{movies-url}' AS row
-WITH row.person as person, toInt(row.hours) as hours, row.department as dept, row.company = 'GraphIT' as `is graph-it`
-ORDER BY row.company LIMIT 10
-RETURN *;
+RETURN row.title as title, toInt(row.released) as released, row.tagline as tagline
+ORDER BY released DESC LIMIT 10;
 ----
 
 == Let's create some nodes & relationships
@@ -146,17 +145,19 @@ RETURN p;
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM 
-     '{movie-actors-url}' AS row
+     '{actors-url}' AS row
 FIELDTERMINATOR ','
 MATCH  (p:Person {name: row.person }) 
-MATCH  (m:Movie    {name: row.movie}) 
+MATCH  (m:Movie  {title: row.movie}) 
 CREATE (p)-[:ACTED_IN {roles: split(row.roles,';')}]->(o)
 RETURN *;
 ----
 
+////
 == Meet the LOAD CSV Wizard 
 
-*Trainer Demo and Excercise*
+*Optional Trainer Demo and Excercise*
+////
 
 == Clean out Database
 

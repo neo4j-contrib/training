@@ -23,18 +23,10 @@ image::{img}/triangle.png[]
 
 image::{img}/big_graph.png[]
 
-== Matching Pattern in the Graph
+=== Matching Pattern in the Graph
 
 image::{img}/big_graph_circled.png[]
 
-== Two nodes, one relationship
-
-image::{img}/a_arrow_b.png[]
-
-[source,options={options}]
-----
-(a)-->(b)
-----
 
 == Two nodes, one relationship
 
@@ -48,16 +40,19 @@ MATCH (a)--(b)
 RETURN a, b
 ----
 
-== Two nodes, one relationship
+== Two nodes, one directed relationship
 
-image::{img}/a_to_anonymous.png[]
+image::{img}/big_graph_a_to_b.png[float=right]
 
-[source]
+image::{img}/a_arrow_b.png[]
+
+[source,cypher,options={options}]
 ----
-(a)-->()
+MATCH (a)-->(b)
+RETURN a, b
 ----
 
-== Two nodes, one relationship
+== One node, One relationship
 
 image::{img}/a_to_anonymous.png[]
 
@@ -65,14 +60,6 @@ image::{img}/a_to_anonymous.png[]
 ----
 MATCH (a)-->()
 RETURN a.name
-----
-
-== Two nodes, one relationship
-
-image::{img}/a_r_anonymous.png[]
-
-----
-(a)-[r]->()
 ----
 
 == Two nodes, one relationship
@@ -121,7 +108,7 @@ image::{img}/big_graph_abc.png[float=right]
 
 image::{img}/a_b_c.png[]
 
-[source,cypher,role=big]
+[role=big]
 ----
 (a) --> (b) --> (c)
 ----
@@ -132,7 +119,7 @@ image::{img}/big_graph_acb.png[float=right]
 
 image::{img}/a_c_b.png[]
 
-[source,cypher,role=big]
+[role=big]
 ----
 (a) --> (b) <-- (c)
 ----
