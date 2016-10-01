@@ -162,3 +162,161 @@ MATCH (p1:Person {name: "Halle Berry"})
 MATCH (p2:Person {name: "River Phoenix"})
 MATCH path = shortestpath((p1)-[:ACTED_IN*]-(p2))
 RETURN path
+
+MATCH (origin:Airport {code: "LAX"})-[flight:HAS_FLIGHT]->(destination:Airport {code: "LAS"})
+RETURN origin, destination, flight
+LIMIT 10;
+
+
+CREATE (lax:Airport {code: "LAX"})
+CREATE (las:Airport {code: "LAS"})
+CREATE (lax)-[flight:CONNECTED_TO]->(las)
+SET flight.flightNumber = 82
+
+MERGE (las:Airport {code: "LAS"})
+MERGE (lax:Airport {code: "LAX"})
+MERGE (las)-[flight:CONNECTED_TO]->(lax)
+
+MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "LAX"})
+MERGE (las)-[flight:CONNECTED_TO]->(lax);
+
+MERGE (las:Airport {code: "LAS"})
+RETURN las;
+
+MATCH (person:Person)-[:IS_FRIEND_OF]->(friend),
+   (friend)-[:LIKES]->(restaurant),
+      (restaurant)-[:LOCATED_IN]->(loc:Location),
+      (restaurant)-[:SERVES]->(type:Cuisine)
+
+WHERE person.name = 'Philip' AND loc.location='New York' AND
+      type.cuisine='Sushi'
+
+RETURN restaurant.name;
+
+CREATE (p:Person {name: 'Your Name'})
+RETURN p;
+
+MATCH (p:Person {name: 'Your Name'})
+RETURN p;
+
+->
+MATCH (n) DETACH DELETE n;
+
+CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;
+
+MATCH (p:Person {name: 'Your Name'})
+SET p.city = 'Your City'
+RETURN p;
+
+MATCH (p:Person)
+RETURN p.name, p.city;
+
+MATCH (p:Person)
+RETURN p.city, collect(p.name) AS people, count(*) AS number
+ORDER BY number DESC
+LIMIT 3;
+
+MATCH (p:Person)
+RETURN p.city, collect(p.name) AS people;
+
+MATCH (p:Person)
+RETURN p.city, collect(p.name) AS people, count(*) AS number
+ORDER BY number DESC
+LIMIT 3;
+
+CREATE (p:Person {name: 'Your Name'});
+
+MERGE (p:Person {name: 'Your Name'})
+RETURN p;
+
+MATCH (p1:Person {name: 'Your Name'})
+MATCH (p2:Person {name: 'Your Neighbour'})
+RETURN p1, p2;
+
+MATCH (p1:Person {name: 'Your Name'}),
+      (p2:Person {name: 'Your Neighbour'})
+RETURN p1, p2;
+
+MATCH (p1:Person {name: 'Your Name'})
+MATCH (p2:Person {name: 'Your Neighbour'})
+CREATE (p1)-[:KNOWS]->(p2);
+
+MATCH (p1:Person {name: 'Your Name'})
+MATCH (p2:Person {name: 'Your Neighbour'})
+MERGE (p1)-[:KNOWS]->(p2);
+
+MATCH (p:Person {name: 'Your Name'})
+DELETE p;
+
+MATCH (p:Person {name: 'Your Name'})
+DETACH DELETE p;
+
+PROFILE
+MATCH
+(m:Movie)<-[:ACTED_IN]-(a:Person)
+RETURN m.title, count(*) as cast
+ORDER BY cast DESC
+LIMIT 10;
+
+PROFILE
+MATCH (m:Movie)
+RETURN m.title,
+ size( (m)<-[:ACTED_IN]-() ) as cast
+ORDER BY cast DESC
+LIMIT 10;
+
+MATCH (m:Movie)
+UNWIND m.genres as genre
+WITH genre, collect(m) as movies
+// 1 lookup per genre
+MERGE (g:Genre {name: genre})
+WITH g, movies
+UNWIND movies as m
+CREATE (m)-[:GENRE]->(g);
+
+
+MATCH (m:Movie)
+UNWIND m.genres as genre
+// 1 genre lookup per movie
+MERGE (g:Genre {name: genre})
+CREATE (m)-[:GENRE]->(g);
+
+// mark nodes to process
+MATCH (m:Movie) SET :Process;
+
+  // process marked nodes and remove mark
+MATCH (m:Movie:Process) WITH m LIMIT 10000
+REMOVE m:Process
+UNWIND m.genres as genre
+MATCH (g:Genre {name: genre})
+CREATE (m)-[:GENRE]->(g)
+RETURN count(*);
+
+MATCH (m) WHERE not exists (m)-[:GENRE]->()
+WITH m LIMIT 10000
+UNWIND m.genres as genre
+MATCH (g:Genre {name: genre})
+CREATE (m)-[:GENRE]->(g)
+RETURN count(*);
+
+PROFILE
+MATCH  (p:Person)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-
+       (p2:Person)-[:ACTED_IN]->(m2:Movie)
+WHERE p.name = "Tom Hanks"
+RETURN count(*), count(distinct m2);
+
+PROFILE
+MATCH  (p:Person)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-
+       (p2:Person)
+WHERE p.name = "Tom Hanks"
+WITH distinct p2
+MATCH (p2)-[:ACTED_IN]->(m2:Movie)
+RETURN count(*), count(distinct m2)
+
+
+
+
+
+
+

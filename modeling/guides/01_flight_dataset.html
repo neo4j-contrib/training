@@ -73,11 +73,8 @@ We&#8217;ll start with the following question:</p>
 </div>
 <div class="verseblock">
 <pre class="content">As a plane enthusiast
-I want to know how many flights there are between &lt;origin&gt; and &lt;destination&gt;
-So that I can know how busy various airports are</pre>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s have a look what data we&#8217;ve got to help us answer this question:</p>
+I want to know how airports are connected
+So that I can find the busiest ones</pre>
 </div>
 	</div>
   </div>
@@ -87,16 +84,166 @@ So that I can know how busy various airports are</pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Exploring data with <code>LOAD CSV</code></h3>
+    <h3>Manually creating the model</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>As we saw from our brief command line exploration, we&#8217;ve got a lot of flights to work with.
-We could use command line tools to explore this further but Cypher&#8217;s <code>LOAD CSV</code> command is actually perfect for exploring CSV files.</p>
+<p>Before we start working with a large dataset let&#8217;s create some nodes and relationships manually.
+First we&#8217;ll create some airports:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE (:Airport {code: "LAX"})
+CREATE (:Airport {code: "LAS"})
+CREATE (:Airport {code: "ABQ"})<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can find <code>LAX</code> by changing the <code>CREATE</code> to a <code>MATCH</code> and returning the matched node:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (lax:Airport {code: "LAX"})
+RETURN lax<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Create relationships</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now let&#8217;s create some connections between those airports.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "LAX"})
+CREATE (las)-[flight:CONNECTED_TO {
+  airline: "WN",
+  flightNumber: "82",
+  date: "2008-1-3",
+  departure: 1715,
+  arrival: 1820}]-&gt;(lax)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can check that the relationship was created correctly by executing the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH connection = (las:Airport {code: "LAS"})-[:CONNECTED_TO]-&gt;(lax:Airport {code: "LAX"})
+RETURN connection<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Create relationships idempotently</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If we were to run our relationship creating query again we&#8217;d end up creating the same relationship twice.
+To avoid this we can use Cypher&#8217;s <code>MERGE</code> keyword instead of <code>CREATE</code>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Create relationships idempotently</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>When using the <code>MERGE</code> command, we only need to inline the properties that make the <code>CONNECTED_TO</code> relationship unique.
+In this case it&#8217;s the combination of <code>airline</code>, <code>flightNumber</code>, and <code>date</code>.
+To idempotently create a specific connection between airports we can run the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "LAX"})
+MERGE (las)-[flight:CONNECTED_TO {
+  airline: "WN",
+  flightNumber: "82",
+  date: "2008-1-3"}]-&gt;(lax)
+ON CREATE SET flight.departure = 1715, flight.arrival = 1820<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s try it with another connection to get the hang of it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "ABQ"})
+MERGE (las)-[flight:CONNECTED_TO {
+  airline: "WN",
+  flightNumber: "500",
+  date: "2008-1-3"}]-&gt;(lax)
+ON CREATE SET flight.departure = 1445, flight.arrival = 1710<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try running the query multiple times.
+The relationship will only be created once.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>All the flights leaving <code>LAS</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can now find any flights leaving <code>LAS</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH connection = (las:Airport {code: "LAS"})-[:CONNECTED_TO]-&gt;(:Airport)
+RETURN connection<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>The modeling workflow</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s quickly have a look at the workflow that we&#8217;ve just followed and introduce the <code>LOAD CSV</code> that we\ll be using in the next section:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -119,7 +266,7 @@ A smaller dataset containing the first 10,000 flights lives in <code>flights_ini
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_initial.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_initial.csv" AS row
 RETURN row
 LIMIT 5<!--/code--></pre>
 </div>
@@ -160,7 +307,7 @@ The following should suffice:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/initial.png" alt="initial" width="100%">
+<img src="http://guides.neo4j.com/modeling_airports/img/initial.png" alt="initial" width="100%">
 </div>
 </div>
 <div class="paragraph">
@@ -182,7 +329,7 @@ The following should suffice:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_initial.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_initial.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (origin)-[flight:HAS_FLIGHT {
@@ -436,7 +583,7 @@ ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pr
 We&#8217;ll then refactor the model to introduce <code>Flight</code> as a first class concept.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://localhost:8001/02_flight.html'>Flight as a first class citizen</a></p>
+<p><a play-topic='http://guides.neo4j.com/modeling_airports/02_flight.html'>Flight as a first class citizen</a></p>
 </div>
 	</div>
   </div>

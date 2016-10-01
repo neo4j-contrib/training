@@ -1,10 +1,10 @@
-= Intro to The Flight Dataset
+= Intro to The connection Dataset
 :icons: font
 
-== Intro to The Flight Dataset
+== Intro to The connection Dataset
 
 Welcome to the first of a set of interactive guides.
-In these guides we'll evolve a dataset containing the flights between US airports in 2008.
+In these guides we'll evolve a dataset containing the connections between US airports in 2008.
 
 Let's get started!
 
@@ -16,23 +16,108 @@ We'll start with the following question:
 [verse]
 ____
 As a plane enthusiast
-I want to know how many flights there are between <origin> and <destination>
-So that I can know how busy various airports are
+I want to know how airports are connected
+So that I can find the busiest ones
 ____
 
-Let's have a look what data we've got to help us answer this question:
+== Manually creating the model
 
-== Exploring data with `LOAD CSV`
+Before we start working with a large dataset let's create some nodes and relationships manually.
+First we'll create some airports:
 
-As we saw from our brief command line exploration, we've got a lot of flights to work with.
-We could use command line tools to explore this further but Cypher's `LOAD CSV` command is actually perfect for exploring CSV files.
+[source, cypher]
+----
+CREATE (:Airport {code: "LAX"})
+CREATE (:Airport {code: "LAS"})
+CREATE (:Airport {code: "ABQ"})
+----
+
+We can find `LAX` by changing the `CREATE` to a `MATCH` and returning the matched node:
+
+[source, cypher]
+----
+MATCH (lax:Airport {code: "LAX"})
+RETURN lax
+----
+
+== Create relationships
+
+Now let's create some connections between those airports.
+
+[source, cypher]
+----
+MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "LAX"})
+CREATE (las)-[connection:CONNECTED_TO {
+  airline: "WN",
+  connectionNumber: "82",
+  date: "2008-1-3",
+  departure: 1715,
+  arrival: 1820}]->(lax)
+----
+
+We can check that the relationship was created correctly by executing the following query:
+
+[source, cypher]
+----
+MATCH connection = (las:Airport {code: "LAS"})-[:CONNECTED_TO]->(lax:Airport {code: "LAX"})
+RETURN connection
+----
+
+== Create relationships idempotently
+
+If we were to run our relationship creating query again we'd end up creating the same relationship twice.
+To avoid this we can use Cypher's `MERGE` keyword instead of `CREATE`.
+
+image::{img}/slides.jpg[]
+
+== Create relationships idempotently
+
+When using the `MERGE` command, we only need to inline the properties that make the `CONNECTED_TO` relationship unique.
+In this case it's the combination of `airline`, `connectionNumber`, and `date`.
+To idempotently create a specific connection between airports we can run the following query:
+
+[source, cypher]
+----
+MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "LAX"})
+MERGE (las)-[connection:CONNECTED_TO { airline: "WN", flightNumber: "82", date: "2008-1-3"}]->(lax)
+ON CREATE SET connection.departure = 1715, connection.arrival = 1820
+----
+
+Let's try it with another connection to get the hang of it:
+
+[source, cypher]
+----
+MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "ABQ"})
+MERGE (las)-[connection:CONNECTED_TO { airline: "WN", flightNumber: "500", date: "2008-1-3"}]->(lax)
+ON CREATE SET connection.departure = 1445, connection.arrival = 1710
+----
+
+Try running the query multiple times.
+The relationship will only be created once.
+
+== All the connections leaving `LAS`
+
+We can now find any connections leaving `LAS`:
+
+[source, cypher]
+----
+MATCH connection = (las:Airport {code: "LAS"})-[:CONNECTED_TO]->(:Airport)
+RETURN connection
+----
+
+== The modeling workflow
+
+Let's quickly have a look at the workflow that we've just followed and introduce the `LOAD CSV` that we'll be using in the next section:
 
 image::{img}/slides.jpg[]
 
 == Exploring data with `LOAD CSV`
 
 While we're working out the appropriate model for our dataset it's much easier to work with a subset of the data so that we can iterate quickly.
-A smaller dataset containing the first 10,000 flights lives in `flights_initial.csv`.
+A smaller dataset containing the first 10,000 connections lives in `flights_initial.csv`.
 
 We can run the following query to see what data we've got to work with:
 
@@ -49,40 +134,37 @@ This query:
 * iterates over the file, referring to each line as the variable `row`
 * and returns the first 5 lines in the file
 
-We've got lots of different fields but the ones that will be helpful for answering our question are: `Origin`, `Dest`, and `FlightNum`.
+We've got lots of different fields but the ones that will be helpful for answering our question are: `Origin`, `Dest`, and `flightNum`.
 
-== Modeling flights and airports
+== Modeling connections and airports
 
-Before we use `LOAD CSV` to import any data we need to know what model we want to create.
-The following should suffice:
+Before we use `LOAD CSV` let's remind ourselves what model we're going to be creating:
 
 image::{img}/initial.png[width="100%"]
 
-We should do a quite primer here on the building blocks of the model.
+== Importing connections and airports
 
-== Importing flights and airports
-
-Run the following query to create nodes and relationships for these flights:
+Run the following query to create nodes and relationships for these connections:
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_initial.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}connections_initial.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
-MERGE (origin)-[flight:HAS_FLIGHT {
+MERGE (origin)-[connection:CONNECTED_TO {
   airline: row.UniqueCarrier,
-  flightNumber: row.FlightNum,
+  connectionNumber: row.connectionNum,
   year: TOINT(row.Year),
   month: TOINT(row.Month),
   day: TOINT(row.DayofMonth)}]->(destination)
-ON CREATE SET flight.departure = TOINT(row.CRSDepTime), flight.arrival = TOINT(row.CRSArrTime)
+ON CREATE SET connection.departure = TOINT(row.CRSDepTime), connection.arrival = TOINT(row.CRSArrTime)
 ----
 
 This query:
 
 * iterates through each row in the file
 * creates nodes with the `Airport` label for the origin and destination airports if they don't already exist
-* creates a `FLIGHT` relationship between origin and destination airports for each row in the file
+* creates a `connection` relationship between origin and destination airports for each row in the file
 
 By default properties will be stored as strings.
 We know that `year`, `month`, and `day` are actually numeric values so we'll coerce them using the link:/docs[`TOINT`] function.
@@ -91,11 +173,11 @@ Now we're ready to start querying the data.
 
 == Finding the most popular airports
 
-We can see some of what we've imported by writing the following query, which finds the airports with the outgoing flights.
+We can see some of what we've imported by writing the following query, which finds the airports with the most outgoing connections.
 
 [source, cypher]
 ----
-MATCH (a:Airport)-[:HAS_FLIGHT]->()
+MATCH (a:Airport)-[:CONNECTED_TO]->()
 RETURN a, COUNT(*) AS outgoing
 ORDER BY outgoing DESC
 LIMIT 10
@@ -104,19 +186,19 @@ LIMIT 10
 This query:
 
 * finds every node with the `Airport` label
-* finds all outgoing `HAS_FLIGHT` relationships
+* finds all outgoing `CONNECTED_TO` relationships
 * counts them up grouped by airport
 * returns the `Airport` nodes and the `outgoing` count in descending order by `outgoing`
 * limits the number of airports returned to 10
 
-== Exercise: Finding flights
+== Exercise: Finding connections
 
 Now it's your turn!
 Try and write queries to answer the following questions:
 
-* Find the airports that have the most incoming flights
-* Find all the flights that go to Las Vegas (`LAS`)
-* Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`)
+* Find the airports that have the most incoming connections
+* Find all the connections into Las Vegas (`LAS`)
+* Find all the connections from Las Vegas (`LAS`) to Los Angeles (`LAX`)
 
 _Hint_ You'll want to refer to the link:http://neo4j.com/docs/stable/cypher-refcard/[Cypher refcard] for the syntax for the second question.
 
@@ -124,23 +206,23 @@ _Hint_ You'll want to refer to the link:http://neo4j.com/docs/stable/cypher-refc
 
 If you really want to see them...
 
-== Answer: Find the airports that have the most incoming flights
+== Answer: Find the airports that have the most incoming connections
 
 [source, cypher]
 ----
-MATCH (a:Airport)<-[:HAS_FLIGHT]-()
+MATCH (a:Airport)<-[:CONNECTED_TO]-()
 RETURN a, COUNT(*) AS incoming
 ORDER BY incoming DESC
 LIMIT 10
 ----
 
-== Answer: Find all the flights that go to Las Vegas (`LAS`)
+== Answer: Find all the connections into Las Vegas (`LAS`)
 
 [source, cypher]
 ----
-MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
+MATCH (origin:Airport)-[connection:CONNECTED_TO]->(destination:Airport)
 WHERE destination.code = "LAS"
-RETURN origin, destination, flight
+RETURN origin, destination, connection
 LIMIT 10
 ----
 
@@ -148,51 +230,62 @@ or
 
 [source, cypher]
 ----
-MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport {code: "LAS"})
-RETURN origin, destination, flight
+MATCH (origin:Airport)-[connection:CONNECTED_TO]->(destination:Airport {code: "LAS"})
+RETURN origin, destination, connection
 LIMIT 10
 ----
 
-== Answer: Find all the flights from Las Vegas (`LAS`) to Los Angeles (`LAX`)
+== Answer: Find all the connections from Las Vegas (`LAS`) to Los Angeles (`LAX`)
 
 [source, cypher]
 ----
-MATCH (origin:Airport {code: "LAX"})-[flight:HAS_FLIGHT]->(destination:Airport {code: "LAS"})
-RETURN origin, destination, flight
+MATCH (origin:Airport {code: "LAX"})-[connection:CONNECTED_TO]->(destination:Airport {code: "LAS"})
+RETURN origin, destination, connection
 LIMIT 10
 ----
 
-== Finding specific flights
+== Finding specific connections
 
 The model has worked well so far.
-We've been able to find the popular airports and find the flights between pairs of airports without much trouble.
+We've been able to find the popular airports and find the connections between pairs of airports without much trouble.
 
-What about if we want to find all the occurrences of a specific flight?
+What about if we want to find all the occurrences of a specific connection?
 
 [verse]
 ____
 As a plane enthusiast
-I want to know the schedule for <flight number>
+I want to know the schedule for <connection number>
 So that I know when I'll be able to spot those planes taking off and landing
 ____
 
-== Finding flight `WN 1016`
+== Finding connection `WN 1016`
 
-Our next query finds all the instances of flight `WN 1016`:
+Our next query finds all the instances of connection `WN 1016`:
 
 [source, cypher]
 ----
-MATCH  (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
-WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure
+MATCH  (origin:Airport)-[connection:CONNECTED_TO]->(destination:Airport)
+WHERE connection.airline = "WN" AND connection.flightNumber = "1016"
+RETURN origin.code, destination.code, connection.year, connection.month, connection.day, connection.departure, connection.arrival
+ORDER BY connection.year, connection.month, connection.day, connection.departure
 ----
 
 It's still reasonably quick because we only have 10,000 rows, but under the covers we're actually doing a lot of unnecessary work.
+
+== Finding dependable connections
+
+[source, cypher]
+----
+PROFILE
+MATCH p = (origin:Airport {code: "LAX"})-[r:CONNECTED_TO* {flightNumber: "2969", airline: "WN"}]->(destination:Airport {code: "SLC"})
+WHERE ALL (r IN rels(p) WHERE r.year = 2008 AND r.month = 1 AND r.day = 4)
+AND ALL(idx in range(0,size(r)-2) WHERE (r[idx]).arrival < (r[idx+1]).departure)
+RETURN [n in NODES(p) | n.code], [rel in rels(p) | {dep: rel.departure, arr: rel.arrival}]
+---
 
 == Next Step
 
 In the next section we're going to learn how to *profile queries* so that we can see what work's actually being done.
 We'll then refactor the model to introduce `Flight` as a first class concept.
 
-pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]
+pass:a[<a play-topic='{guides}/02_connection.html'>Flight as a first class citizen</a>]
