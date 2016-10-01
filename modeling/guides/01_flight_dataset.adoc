@@ -15,10 +15,14 @@ We'll start with the following question:
 
 [verse]
 ____
-As a plane enthusiast
+As an air travel enthusiast
 I want to know how airports are connected
 So that I can find the busiest ones
 ____
+
+This is the model that we're going to create:
+
+image::{img}/initial.png[width="100%"]
 
 == Manually creating the model
 
@@ -50,7 +54,7 @@ MATCH (las:Airport {code: "LAS"})
 MATCH (lax:Airport {code: "LAX"})
 CREATE (las)-[connection:CONNECTED_TO {
   airline: "WN",
-  connectionNumber: "82",
+  flightNumber: "82",
   date: "2008-1-3",
   departure: 1715,
   arrival: 1820}]->(lax)
@@ -74,7 +78,7 @@ image::{img}/slides.jpg[]
 == Create relationships idempotently
 
 When using the `MERGE` command, we only need to inline the properties that make the `CONNECTED_TO` relationship unique.
-In this case it's the combination of `airline`, `connectionNumber`, and `date`.
+In this case it's the combination of `airline`, `flightNumber`, and `date`.
 To idempotently create a specific connection between airports we can run the following query:
 
 [source, cypher]
@@ -134,13 +138,7 @@ This query:
 * iterates over the file, referring to each line as the variable `row`
 * and returns the first 5 lines in the file
 
-We've got lots of different fields but the ones that will be helpful for answering our question are: `Origin`, `Dest`, and `flightNum`.
-
-== Modeling connections and airports
-
-Before we use `LOAD CSV` let's remind ourselves what model we're going to be creating:
-
-image::{img}/initial.png[width="100%"]
+We've got lots of different fields but the ones that will be helpful for answering our question are: `Origin`, `Dest`, and `FlightNum`.
 
 == Importing connections and airports
 
@@ -148,15 +146,13 @@ Run the following query to create nodes and relationships for these connections:
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}connections_initial.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_initial.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (origin)-[connection:CONNECTED_TO {
   airline: row.UniqueCarrier,
-  connectionNumber: row.connectionNum,
-  year: TOINT(row.Year),
-  month: TOINT(row.Month),
-  day: TOINT(row.DayofMonth)}]->(destination)
+  flightNumber: row.FlightNum,
+  date: TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth)}]->(destination)
 ON CREATE SET connection.departure = TOINT(row.CRSDepTime), connection.arrival = TOINT(row.CRSArrTime)
 ----
 
@@ -253,8 +249,8 @@ What about if we want to find all the occurrences of a specific connection?
 
 [verse]
 ____
-As a plane enthusiast
-I want to know the schedule for <connection number>
+As an air travel enthusiast
+I want to know the schedule for <flight number>
 So that I know when I'll be able to spot those planes taking off and landing
 ____
 
@@ -266,26 +262,14 @@ Our next query finds all the instances of connection `WN 1016`:
 ----
 MATCH  (origin:Airport)-[connection:CONNECTED_TO]->(destination:Airport)
 WHERE connection.airline = "WN" AND connection.flightNumber = "1016"
-RETURN origin.code, destination.code, connection.year, connection.month, connection.day, connection.departure, connection.arrival
-ORDER BY connection.year, connection.month, connection.day, connection.departure
+RETURN origin.code, destination.code, connection.date, connection.departure, connection.arrival
 ----
 
 It's still reasonably quick because we only have 10,000 rows, but under the covers we're actually doing a lot of unnecessary work.
-
-== Finding dependable connections
-
-[source, cypher]
-----
-PROFILE
-MATCH p = (origin:Airport {code: "LAX"})-[r:CONNECTED_TO* {flightNumber: "2969", airline: "WN"}]->(destination:Airport {code: "SLC"})
-WHERE ALL (r IN rels(p) WHERE r.year = 2008 AND r.month = 1 AND r.day = 4)
-AND ALL(idx in range(0,size(r)-2) WHERE (r[idx]).arrival < (r[idx+1]).departure)
-RETURN [n in NODES(p) | n.code], [rel in rels(p) | {dep: rel.departure, arr: rel.arrival}]
----
 
 == Next Step
 
 In the next section we're going to learn how to *profile queries* so that we can see what work's actually being done.
 We'll then refactor the model to introduce `Flight` as a first class concept.
 
-pass:a[<a play-topic='{guides}/02_connection.html'>Flight as a first class citizen</a>]
+pass:a[<a play-topic='{guides}/02_flight.html'>Flight as a first class citizen</a>]

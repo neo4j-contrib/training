@@ -60,7 +60,7 @@
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -80,10 +80,9 @@
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
-MATCH (origin:Airport)-[flight:HAS_FLIGHT]-&gt;(destination:Airport)
-WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure<!--/code--></pre>
+MATCH  (origin:Airport)-[connection:CONNECTED_TO]-&gt;(destination:Airport)
+WHERE connection.airline = "WN" AND connection.flightNumber = "1016"
+RETURN origin.code, destination.code, connection.date, connection.departure, connection.arrival<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -113,7 +112,7 @@ Next we followed the <code>FLIGHT</code> relationship to <code>origin</code> air
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[:HAS_FLIGHT]-&gt;()
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[:CONNECTED_TO]-&gt;()
 RETURN COUNT(*)<!--/code--></pre>
 </div>
 </div>
@@ -139,7 +138,7 @@ RETURN COUNT(*)<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/flight_first_class.png" alt="flight first class" width="100%">
+<img src="http://localhost:8001/img/flight_first_class.png" alt="flight first class">
 </div>
 </div>
 <div class="paragraph">
@@ -147,7 +146,7 @@ RETURN COUNT(*)<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides" width="100%">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -170,7 +169,7 @@ Neo4j allows us to create unique constraints to ensure uniqueness across a label
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides" width="100%">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -222,15 +221,13 @@ Run the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)-[flight:HAS_FLIGHT]-&gt;(destination:Airport)
-MERGE (newFlight:Flight { id: flight.airline + flight.flightNumber + "_" + flight.year + "-" + flight.month + "-" + flight.day + "_" + origin.code + "_" + destination.code }   )
-ON CREATE SET newFlight.year = flight.year,
-              newFlight.month = flight.month,
-              newFlight.day = flight.day,
-              newFlight.airline = flight.airline,
-              newFlight.number = flight.flightNumber,
-              newFlight.departure = flight.departure,
-              newFlight.arrival = flight.arrival
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)-[connection:CONNECTED_TO]-&gt;(destination:Airport)
+MERGE (newFlight:Flight { id: connection.airline + connection.flightNumber + "_" + connection.date +  "_" + origin.code + "_" + destination.code }   )
+ON CREATE SET newFlight.date = connection.date,
+              newFlight.airline = connection.airline,
+              newFlight.number = connection.flightNumber,
+              newFlight.departure = connection.departure,
+              newFlight.arrival = connection.arrival
 MERGE (origin)&lt;-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
 </div>
@@ -314,7 +311,7 @@ RETURN origin, destination, flight<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
-MATCH (origin:Airport)-[flight:HAS_FLIGHT]-&gt;(destination:Airport)
+MATCH (origin:Airport)-[flight:CONNECTED_TO]-&gt;(destination:Airport)
 WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
 RETURN origin, destination, flight<!--/code--></pre>
 </div>
@@ -348,18 +345,18 @@ Instead we&#8217;re able to use the <code>:Flight(number)</code> index to find t
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Deleting the <code>FLIGHT</code> relationship</h3>
+    <h3>Deleting the <code>CONNECTED_TO</code> relationship</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>Since the <code>FLIGHT</code> relationship between airports doesn&#8217;t seem to be much use anymore, let&#8217;s delete.</p>
+<p>Since the <code>CONNECTED_TO</code> relationship between airports doesn&#8217;t seem to be much use anymore, let&#8217;s delete.</p>
 </div>
 <div class="paragraph">
 <p>Run the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[flight:HAS_FLIGHT]-&gt;()
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[flight:CONNECTED_TO]-&gt;()
 DELETE flight<!--/code--></pre>
 </div>
 </div>
@@ -378,7 +375,7 @@ DELETE flight<!--/code--></pre>
 <p>In the next section we&#8217;re going to write some more queries against the dataset, but this time with a different user in mind.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/modeling_airports/03_flight_booking.html'>Flight booking</a></p>
+<p><a play-topic='http://localhost:8001/03_flight_booking.html'>Flight booking</a></p>
 </div>
 	</div>
   </div>

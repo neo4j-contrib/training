@@ -312,7 +312,16 @@ MATCH  (p:Person)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-
 WHERE p.name = "Tom Hanks"
 WITH distinct p2
 MATCH (p2)-[:ACTED_IN]->(m2:Movie)
-RETURN count(*), count(distinct m2)
+RETURN count(*), count(distinct m2);
+
+
+MATCH (las:Airport {code: "LAS"})
+MATCH (lax:Airport {code: "LAX"})
+CREATE (las)-[connection:CONNECTED_TO { airline: "WN",
+  flightNumber: "82",
+  date: "2008-1-3",
+  departure: 1715,
+  arrival: 1820}]->(lax)
 
 
 

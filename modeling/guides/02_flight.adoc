@@ -18,10 +18,9 @@ We can profile our query by prefixing it with the `PROFILE` keyword:
 [source, cypher]
 ----
 PROFILE
-MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
-WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
-RETURN origin.code, destination.code, flight.year, flight.month, flight.day, flight.departure, flight.arrival
-ORDER BY flight.year, flight.month, flight.day, flight.departure
+MATCH  (origin:Airport)-[connection:CONNECTED_TO]->(destination:Airport)
+WHERE connection.airline = "WN" AND connection.flightNumber = "1016"
+RETURN origin.code, destination.code, connection.date, connection.departure, connection.arrival
 ----
 
 What we get back is an execution plan which describes the Cypher operators used to execute this query.
@@ -38,7 +37,7 @@ In fact we actually looked at every single flight, which we can confirm by execu
 
 [source, cypher]
 ----
-MATCH ()-[:HAS_FLIGHT]->()
+MATCH ()-[:CONNECTED_TO]->()
 RETURN COUNT(*)
 ----
 
@@ -50,11 +49,11 @@ It's time to refactor the model.
 
 Having convinced ourselves that our current model is quite inefficient, we're going to refactor the model to introduce a `Flight` node:
 
-image::{img}/flight_first_class.png[width=100%]
+image::{img}/flight_first_class.png[]
 
 We'll quickly talk about how we're going to evolve the model:
 
-image::{img}/slides.jpg[width=100%]
+image::{img}/slides.jpg[]
 
 == Creating flights
 
@@ -63,7 +62,7 @@ Neo4j allows us to create unique constraints to ensure uniqueness across a label
 
 Before we refactor our model, look at the slides for a quick explanation of unique constraints and indexes which we'll use in the next section.
 
-image::{img}/slides.jpg[width=100%]
+image::{img}/slides.jpg[]
 
 == Ensuring flight uniqueness
 
@@ -91,15 +90,13 @@ Run the following query:
 
 [source, cypher]
 ----
-MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
-MERGE (newFlight:Flight { id: flight.airline + flight.flightNumber + "_" + flight.year + "-" + flight.month + "-" + flight.day + "_" + origin.code + "_" + destination.code }   )
-ON CREATE SET newFlight.year = flight.year,
-              newFlight.month = flight.month,
-              newFlight.day = flight.day,
-              newFlight.airline = flight.airline,
-              newFlight.number = flight.flightNumber,
-              newFlight.departure = flight.departure,
-              newFlight.arrival = flight.arrival
+MATCH (origin:Airport)-[connection:CONNECTED_TO]->(destination:Airport)
+MERGE (newFlight:Flight { id: connection.airline + connection.flightNumber + "_" + connection.date +  "_" + origin.code + "_" + destination.code }   )
+ON CREATE SET newFlight.date = connection.date,
+              newFlight.airline = connection.airline,
+              newFlight.number = connection.flightNumber,
+              newFlight.departure = connection.departure,
+              newFlight.arrival = connection.arrival
 MERGE (origin)<-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]->(destination)
 ----
@@ -149,7 +146,7 @@ For reference, you can re-run the profile on our other query as well:
 [source, cypher]
 ----
 PROFILE
-MATCH (origin:Airport)-[flight:HAS_FLIGHT]->(destination:Airport)
+MATCH (origin:Airport)-[flight:CONNECTED_TO]->(destination:Airport)
 WHERE flight.airline = "WN" AND flight.flightNumber = "1016"
 RETURN origin, destination, flight
 ----
@@ -163,15 +160,15 @@ It looks like a good refactoring - we can see by comparing the `db hits` that th
 This is because we no longer have to *scan every flight* looking for ones which have an `airline` of `WN` and a `number` of `1016`.
 Instead we're able to use the `:Flight(number)` index to find the flights we're interested in and only determine the origins and destinations for those flights.
 
-== Deleting the `FLIGHT` relationship
+== Deleting the `CONNECTED_TO` relationship
 
-Since the `FLIGHT` relationship between airports doesn't seem to be much use anymore, let's delete.
+Since the `CONNECTED_TO` relationship between airports doesn't seem to be much use anymore, let's delete.
 
 Run the following query:
 
 [source, cypher]
 ----
-MATCH ()-[flight:HAS_FLIGHT]->()
+MATCH ()-[flight:CONNECTED_TO]->()
 DELETE flight
 ----
 
