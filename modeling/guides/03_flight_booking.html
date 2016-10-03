@@ -52,13 +52,32 @@
       <div class="paragraph">
 <p>In this section we&#8217;re going to write some queries from the perspective of a frequent traveller trying to find flights to book.</p>
 </div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Flight booking</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;ve got a new requirement to satisfy:</p>
+</div>
 <div class="verseblock">
 <pre class="content">As a frequent traveller
 I want to find flights from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;
 So that I can book my business flight</pre>
 </div>
 <div class="paragraph">
-<p>Before we write those queries let&#8217;s import some more data.</p>
+<p>Before we write queries to satisfy this requirement, let&#8217;s import some more data.</p>
 </div>
 	</div>
   </div>
@@ -73,7 +92,7 @@ So that I can book my business flight</pre>
     <div>
       <div class="paragraph">
 <p>We initially loaded 10,000 flights.
-That was a fun initial dataset to play with, but now that we&#8217;ve got a model we&#8217;re happy let&#8217;s load in a bit more data.</p>
+That was a fun initial dataset to play with, but now that we&#8217;ve got a model we&#8217;re happy with let&#8217;s load in a bit more data.</p>
 </div>
 <div class="paragraph">
 <p><code>flights_50k.csv</code> contains 50,000 flights.
@@ -85,14 +104,12 @@ We can run the following query to import those flights:</p>
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
-ON CREATE SET newFlight.year = TOINT(row.Year),
-              newFlight.month = TOINT(row.Month),
-              newFlight.day = TOINT(row.DayofMonth),
+ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
               newFlight.airline = row.UniqueCarrier,
               newFlight.number = row.FlightNum,
               newFlight.departure = row.Dest,
               newFlight.arrival = row.UniqueCarrier
-MERGE (origin)&lt;-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:ORIGIN]-&gt;(origin)
 MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
 </div>
 </div>
@@ -117,7 +134,7 @@ Run the following query:</p>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
-WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+WHERE flight.date = "2008-1-30"
 RETURN path<!--/code--></pre>
 </div>
 </div>
@@ -161,7 +178,7 @@ The more flights an airport has the more we&#8217;ll have to scan through, and s
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
 MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
-WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+WHERE flight.date = "2008-1-30"
 RETURN path<!--/code--></pre>
 </div>
 </div>
@@ -173,11 +190,11 @@ RETURN path<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Introducing <code>AirportDay</code></h3>
+    <h3>Bundling relationships</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>One way that we can tweak our model to be more aligned with our queries is by introducing the concept of an <code>AirportDay</code></p>
+<p>One way that we can tweak our model to be more aligned with our queries is by bundling flights by day.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -246,10 +263,8 @@ ASSERT airportDay.id IS UNIQUE<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
-MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
-MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
 MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
@@ -273,7 +288,7 @@ To recap, this was our original query:</p>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
-WHERE flight.year = 2008 AND flight.month = 1 AND flight.day = 30
+WHERE flight.date = "2008-1-30"
 RETURN path<!--/code--></pre>
 </div>
 </div>

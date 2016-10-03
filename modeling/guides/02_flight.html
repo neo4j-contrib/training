@@ -152,27 +152,15 @@ RETURN COUNT(*)<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Creating flights</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>When we refactor the model we want to make sure we only create each flight once.
-Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair.</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
     <h3>Ensuring flight uniqueness</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>At the moment Neo4j only allows us to create constraints on single properties.
-In our case we want to ensure uniqueness across several properties so we&#8217;ll combine those together into a single dummy property.</p>
+<p>When we refactor the model we want to make sure we only create each flight once.</p>
+</div>
+<div class="paragraph">
+<p>Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair, but at the moment we can only create constraints on single properties.
+We want to ensure uniqueness across several properties so we&#8217;ll combine those together into a single dummy property.</p>
 </div>
 <div class="paragraph">
 <p>The combination of airline, flight number, and date makes a flight unique.
@@ -203,7 +191,8 @@ ASSERT f.id IS UNIQUE<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Now we&#8217;re reading to create <code>Flight</code> nodes. Remember this is the model we&#8217;re going to end up at:</p>
+<p>We&#8217;re now ready to create <code>Flight</code> nodes.
+Remember this is the model we&#8217;re going to end up at:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -222,7 +211,7 @@ ASSERT f.id IS UNIQUE<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Run the following query to convert the <code>CONNECTED_TO</code> relationships into <code>Flight</code> nodes:</p>
+<p>Run the following query to create <code>Flight</code> nodes for every <code>CONNECTED_TO</code> relationship:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -286,7 +275,7 @@ RETURN origin, destination, flight<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Before we delete the <code>FLIGHT</code> relationship we should profile the two versions of the query to see whether our refactoring has improved things.</p>
+<p>Before we delete the <code>CONNECTED_TO</code> relationship we should profile the two versions of the query to see whether our refactoring has improved things.</p>
 </div>
 	</div>
   </div>
@@ -300,7 +289,7 @@ RETURN origin, destination, flight<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Let&#8217;s now profile our new version of the query to see if we&#8217;ve improved things:</p>
+<p>Run the following query to profile the new version of the query to see if we&#8217;ve improved things:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -354,7 +343,7 @@ Instead we&#8217;re able to use the <code>:Flight(number)</code> index to find t
     <br/>
     <div>
       <div class="paragraph">
-<p>Since the <code>CONNECTED_TO</code> relationship between airports doesn&#8217;t seem to be much use anymore, let&#8217;s delete.</p>
+<p>Since the <code>CONNECTED_TO</code> relationship between airports doesn&#8217;t seem to be much use anymore let&#8217;s delete it.</p>
 </div>
 <div class="paragraph">
 <p>Run the following query:</p>
