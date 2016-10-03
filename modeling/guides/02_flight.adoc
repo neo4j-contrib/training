@@ -53,15 +53,12 @@ Let's quick look at how we're going to evolve the model:
 
 image::{img}/slides.jpg[]
 
-== Creating flights
-
-When we refactor the model we want to make sure we only create each flight once.
-Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair.
-
 == Ensuring flight uniqueness
 
-At the moment Neo4j only allows us to create constraints on single properties.
-In our case we want to ensure uniqueness across several properties so we'll combine those together into a single dummy property.
+When we refactor the model we want to make sure we only create each flight once.
+
+Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair, but at the moment we can only create constraints on single properties.
+We want to ensure uniqueness across several properties so we'll combine those together into a single dummy property.
 
 The combination of airline, flight number, and date makes a flight unique.
 As we saw in the previous section, however, some flights can have multiple legs so we'll need to consider departure and arrival airports as well.
@@ -79,13 +76,14 @@ Ok, now let the refactoring begin.
 
 == Creating flights
 
-Now we're reading to create `Flight` nodes. Remember this is the model we're going to end up at:
+We're now ready to create `Flight` nodes.
+Remember this is the model we're going to end up at:
 
 image::{img}/flight_first_class.png[]
 
 == Creating flights
 
-Run the following query to convert the `CONNECTED_TO` relationships into `Flight` nodes:
+Run the following query to create `Flight` nodes for every `CONNECTED_TO` relationship:
 
 [source, cypher]
 ----
@@ -126,11 +124,11 @@ WHERE flight.airline = "WN" AND flight.number = "1016"
 RETURN origin, destination, flight
 ----
 
-Before we delete the `FLIGHT` relationship we should profile the two versions of the query to see whether our refactoring has improved things.
+Before we delete the `CONNECTED_TO` relationship we should profile the two versions of the query to see whether our refactoring has improved things.
 
 == Exercise: Profiling the two flight models
 
-Let's now profile our new version of the query to see if we've improved things:
+Run the following query to profile the new version of the query to see if we've improved things:
 
 [source, cypher]
 ----
@@ -161,7 +159,7 @@ Instead we're able to use the `:Flight(number)` index to find the flights we're 
 
 == Deleting the `CONNECTED_TO` relationship
 
-Since the `CONNECTED_TO` relationship between airports doesn't seem to be much use anymore, let's delete.
+Since the `CONNECTED_TO` relationship between airports doesn't seem to be much use anymore let's delete it.
 
 Run the following query:
 

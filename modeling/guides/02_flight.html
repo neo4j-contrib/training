@@ -134,15 +134,10 @@ RETURN COUNT(*)<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Having convinced ourselves that our current model is quite inefficient, we&#8217;re going to refactor the model to introduce a <code>Flight</code> node:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="http://localhost:8001/img/flight_first_class.png" alt="flight first class">
-</div>
+<p>Having convinced ourselves that our current model is quite inefficient, we&#8217;re going to refactor the model.</p>
 </div>
 <div class="paragraph">
-<p>We&#8217;ll quickly talk about how we&#8217;re going to evolve the model:</p>
+<p>Let&#8217;s quick look at how we&#8217;re going to evolve the model:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -163,14 +158,6 @@ RETURN COUNT(*)<!--/code--></pre>
       <div class="paragraph">
 <p>When we refactor the model we want to make sure we only create each flight once.
 Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair.</p>
-</div>
-<div class="paragraph">
-<p>Before we refactor our model, look at the slides for a quick explanation of unique constraints and indexes which we&#8217;ll use in the next section.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
-</div>
 </div>
 	</div>
   </div>
@@ -216,8 +203,26 @@ ASSERT f.id IS UNIQUE<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Now we&#8217;re reading to create <code>Flight</code> nodes.
-Run the following query:</p>
+<p>Now we&#8217;re reading to create <code>Flight</code> nodes. Remember this is the model we&#8217;re going to end up at:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/flight_first_class.png" alt="flight first class">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Creating flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to convert the <code>CONNECTED_TO</code> relationships into <code>Flight</code> nodes:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -238,7 +243,7 @@ MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
 <div class="ulist">
 <ul>
 <li>
-<p>finds all <code>(origin, flight, destination)</code> paths</p>
+<p>finds all <code>(origin, connection, destination)</code> paths</p>
 </li>
 <li>
 <p>creates a <code>Flight</code> node if one doesn&#8217;t already exist</p>
@@ -334,7 +339,7 @@ RETURN origin, destination, flight<!--/code--></pre>
 <p>It looks like a good refactoring - we can see by comparing the <code>db hits</code> that the 2nd query does 20x less work</p>
 </div>
 <div class="paragraph">
-<p>This is because we no longer have to <strong>scan every flight</strong> looking for ones which have an <code>airline</code> of <code>WN</code> and a <code>number</code> of <code>1016</code>.
+<p>This is because we no longer have to <strong>scan every connection</strong> looking for ones which have an <code>airline</code> of <code>WN</code> and a <code>number</code> of <code>1016</code>.
 Instead we&#8217;re able to use the <code>:Flight(number)</code> index to find the flights we&#8217;re interested in and only determine the origins and destinations for those flights.</p>
 </div>
 	</div>
