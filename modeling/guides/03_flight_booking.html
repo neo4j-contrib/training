@@ -100,7 +100,7 @@ We can run the following query to import those flights:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "{csv-url}flights_50k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_50k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -109,8 +109,8 @@ ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + 
               newFlight.number = row.FlightNum,
               newFlight.departure = row.Dest,
               newFlight.arrival = row.UniqueCarrier
-MERGE (newFlight)-[:ORIGIN]-&gt;(origin)
-MERGE (newFlight)-[:DESTINATION]-&gt;(destination)<!--/code--></pre>
+MERGE (newFlight)-[:ORIGIN]->(origin)
+MERGE (newFlight)-[:DESTINATION]->(destination)<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -314,10 +314,32 @@ What do you notice?</p>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Modeling guidelines</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Before we move onto the next guide we&#8217;re going to go over some modeling guidelines which you can apply when working with graphs.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Next Step</h3>
     <br/>
     <div>
       <div class="paragraph">
+<p>In this next stage we&#8217;re going to look at unique relationship types.</p>
+</div>
+<div class="paragraph">
 <p>Depending on how powerful your laptop is, you might have noticed that our refactoring query is getting a bit slow.
 In the next section we&#8217;ll look at how we can process refactoring queries in batches.</p>
 </div>

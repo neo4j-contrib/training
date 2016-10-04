@@ -321,7 +321,77 @@ CREATE (las)-[connection:CONNECTED_TO { airline: "WN",
   flightNumber: "82",
   date: "2008-1-3",
   departure: 1715,
-  arrival: 1820}]->(lax)
+  arrival: 1820}]->(lax);
+
+
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(originDay:AirportDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(destinationDay:AirportDay)<-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+WHERE originDay.date IN ["2008-1-3", "2008-1-4"] AND destinationDay.date IN ["2008-1-3", "2008-1-4"] AND originDay.date = destinationDay.date
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure;
+
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(originDay:AirportDay),
+      (originDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(destinationDay),
+      (destinationDay:AirportDay)<-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+
+WHERE originDay.date = "2008-1-3"
+AND destinationDay.date = "2008-1-3"
+
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure;
+
+MATCH (origin:Airport {code: "LAS"})-[:`2008-1-3`]->(originDay:AirportDay),
+      (originDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(destinationDay),
+      (destinationDay:AirportDay)<-[:`2008-1-3`]-(destination:Airport {code: "MDW"})
+
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure;
+
+
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(originDay:AirportDay),
+      (originDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(destinationDay),
+      (destinationDay:AirportDay)<-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+
+WHERE originDay.date IN ["2008-1-3", "2008-1-4", "2008-1-5"]
+AND destinationDay.date IN ["2008-1-3", "2008-1-4", "2008-1-5"]
+AND originDay.date = destinationDay.date
+
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure;
+
+MATCH (origin:Airport {code: "LAS"})-[originDate:`2008-1-3`|:`2008-1-4`|:`2008-1-5`]->(originDay:AirportDay),
+      (originDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(destinationDay),
+      (destinationDay:AirportDay)<-[destinationDate:`2008-1-3`|:`2008-1-4`|:`2008-1-5`]-(destination:Airport {code: "MDW"})
+
+WHERE TYPE(originDate) = TYPE(destinationDate)
+
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure;
+
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(originDay:AirportDay),
+      (originDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(destinationDay),
+      (destinationDay:AirportDay)<-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+
+WHERE originDay.y IN ["2008-1-3", "2008-1-4", "2008-1-5"]
+AND destinationDay.date IN ["2008-1-3", "2008-1-4", "2008-1-5"]
+AND originDay.date = destinationDay.date
+
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure;
+
+
+
+
+
+
+
+
+
 
 
 

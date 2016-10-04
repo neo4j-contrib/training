@@ -30,13 +30,13 @@ To recap, this was the refactoring query from the previous section:
 MATCH (origin:Airport)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport)
 
 MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+ON CREATE SET originAirportDay.date = flight.date
 
 MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+ON CREATE SET destinationAirportDay.date = flight.date
 
 MERGE (origin)-[:HAS_DAY]->(originAirportDay)
-MERGE (originAirportDay)<-[:ORIGIN]-(flight)
+MERGE (flight)-[:ORIGIN]->(originAirportDay)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
 ----
 
@@ -69,9 +69,7 @@ LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
 MATCH (origin:Airport {code: row.Origin})
 MATCH (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
-ON CREATE SET newFlight.year = TOINT(row.Year),
-              newFlight.month = TOINT(row.Month),
-              newFlight.day = TOINT(row.DayofMonth),
+ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
               newFlight.airline = row.UniqueCarrier,
               newFlight.number = row.FlightNum,
               newFlight.departure = row.Dest,

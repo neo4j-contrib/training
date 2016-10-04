@@ -1,7 +1,7 @@
-= Intro to The connection Dataset
+= Intro to the dataset
 :icons: font
 
-== Intro to The connection Dataset
+== Intro to the dataset
 
 Welcome to the first of a set of interactive guides.
 In these guides we'll evolve a dataset containing the connections between US airports in 2008.
