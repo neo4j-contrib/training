@@ -390,6 +390,8 @@ ORDER BY flight.date, flight.departure;
 
 
 
+MATCH (:Person {name:'Eric'})-[:KNOWS]-(p2)
+RETURN p2
 
 
 

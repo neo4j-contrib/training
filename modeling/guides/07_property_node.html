@@ -65,7 +65,7 @@ Every plane has a <a href="https://planefinder.net/data/aircraft/N484HA">registr
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_500k.csv" AS row
 RETURN row.TailNum, COUNT(*) AS times
 ORDER BY times DESC
 LIMIT 5<!--/code--></pre>
@@ -76,7 +76,7 @@ LIMIT 5<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_500k.csv" AS row
 WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightId, row.TailNum AS registrationNumber
 
 MATCH (flight: {id: flightId})

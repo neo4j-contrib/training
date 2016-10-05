@@ -54,7 +54,7 @@
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -100,7 +100,7 @@ We can run the following query to import those flights:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_50k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_50k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -134,7 +134,7 @@ Run the following query:</p>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
-WHERE flight.date = "2008-1-30"
+WHERE flight.date = "2008-1-3"
 RETURN path<!--/code--></pre>
 </div>
 </div>
@@ -154,33 +154,11 @@ What do you notice?</p>
     <br/>
     <div>
       <div class="paragraph">
-<p>The query starts by using an index to find <code>MDW</code> but then has to traverse all incoming <code>DESTINATION</code> relationships and check 3 properties on the <code>:Flight</code> nodes on the other side.
+<p>The query starts by using an index to find <code>MDW</code> but then has to traverse all incoming <code>DESTINATION</code> relationships and check the <code>date</code> property on the <code>:Flight</code> nodes on the other side.
 The more flights an airport has the more we&#8217;ll have to scan through, and since we&#8217;re only working with 10,000 flights we should probably find a better way to model our data before importing any more rows.</p>
 </div>
 <div class="paragraph">
 <p>Can you think of a way that we can change our model to avoid doing all these property lookups?</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Profiling the finding flights to book query</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>We can profile the query by prefixing it with the <code>PROFILE</code> keyword:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
-MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
-WHERE flight.date = "2008-1-30"
-RETURN path<!--/code--></pre>
-</div>
 </div>
 	</div>
   </div>
@@ -198,7 +176,7 @@ RETURN path<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -220,7 +198,7 @@ RETURN path<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/airport_day.png" alt="airport day">
+<img src="http://guides.neo4j.com/modeling_airports/img/airport_day.png" alt="airport day">
 </div>
 </div>
 	</div>
@@ -264,7 +242,9 @@ ASSERT airportDay.id IS UNIQUE<!--/code--></pre>
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
 MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
+SET originAirportDay.date = flight.date
 MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
+SET destinationAirportDay.date = flight.date
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
 MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
@@ -288,7 +268,7 @@ To recap, this was our original query:</p>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (origin:Airport {code: "LAS"})&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport {code: "MDW"})
-WHERE flight.date = "2008-1-30"
+WHERE flight.date = "2008-1-3"
 RETURN path<!--/code--></pre>
 </div>
 </div>
@@ -297,8 +277,8 @@ RETURN path<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:ORIGIN]-(flight:Flight),
-      (flight)-[:DESTINATION]-&gt;(:AirportDay {date: "2008-1-30"})&lt;-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(:AirportDay {date: "2008-1-3"})&lt;-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]-&gt;(:AirportDay {date: "2008-1-3"})&lt;-[:HAS_DAY]-(destination:Airport {code: "MDW"})
 RETURN *<!--/code--></pre>
 </div>
 </div>
@@ -322,7 +302,7 @@ What do you notice?</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -344,7 +324,7 @@ What do you notice?</p>
 In the next section we&#8217;ll look at how we can process refactoring queries in batches.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://localhost:8001/04_refactoring_large_graphs.html'>Refactoring large graphs</a></p>
+<p><a play-topic='http://guides.neo4j.com/modeling_airports/04_refactoring_large_graphs.html'>Refactoring large graphs</a></p>
 </div>
 	</div>
   </div>
