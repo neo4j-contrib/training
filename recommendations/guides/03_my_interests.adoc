@@ -185,8 +185,8 @@ So we're still answering the same fundamental question as before:
 
 [verse]
 ____
-As a member of several meetup groups
-I want to find other similar meetup groups that I’m not already a member of
+As a member of several Meetup groups
+I want to find other similar Meetup groups that I’m not already a member of
 So that I can join those groups
 ____
 

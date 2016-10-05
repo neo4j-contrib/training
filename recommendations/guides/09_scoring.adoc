@@ -9,9 +9,9 @@ e.g. perhaps we should give more weight to venues closer to our workplace and le
 
 image::{img}/slides.jpg[]
 
-== The pareto function
+== The Pareto function
 
-The pareto function in `apoc` allows us to apply a log function to a score.
+The Pareto function in `apoc` allows us to apply a log function to a score.
 We want to dampen the weight of really high scores so they don't completely dominate the recommendation.
 
 Run the following query to see what arguments the function takes:
@@ -32,7 +32,7 @@ RETURN signature
 |score | your actual score
 |=======
 
-== The pareto function
+== The Pareto function
 
 Let's give it a try on some fake data to get the hang of it:
 
@@ -164,9 +164,9 @@ call apoc.periodic.commit("
 ",{limit:500})
 ----
 
-== Friendship based recommendations
+== Friendship-based recommendations
 
-Let's get away from the mega event recommendation query we've built up over the day and do some recommendations based purely on our best meetup friendships.
+Let's get away from the mega event recommendation query we've built up over the day and do some recommendations based purely on our best Meetup friendships.
 
 In the following query we'll find the events that our best 10 friends are planning to attend:
 
@@ -190,7 +190,7 @@ Try changing the name and see what results you get.
 == Other similarity measures
 
 Dice similarity is just one of the similarity metrics that we could have used.
-There's also jaccard, cosine and overlap to name just a few
+There's also Jaccard, cosine and overlap to name just a few
 
 Pick one of these and write a query that calculates it.
 Once you've done that store the value as another property on the `FRIENDS` relationships.
