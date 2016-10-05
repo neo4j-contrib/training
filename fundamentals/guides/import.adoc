@@ -52,7 +52,7 @@ FIELDTERMINATOR ';' // alternative delimiter
 ... rest of the Cypher statement ...
 ----
 
-NOTE: If you use file-url's, access is limited to within `$NEO4J_HOME/import`.
+NOTE: If you use file URLs, access is limited to within `$NEO4J_HOME/import`.
 
 == LOAD CSV - Data Inspection
 
@@ -108,7 +108,7 @@ CREATE (m:Movie {title:'The Matrix', released: 1999, tagline: '...'});
 
 [source,cypher]
 ----
-MERGE  (p:Person {name:'Keanu Reeves'}) ON CREATE SET p.born = 1964;
+`MERGE`  (p:Person {name:'Keanu Reeves'}) ON CREATE SET p.born = 1964;
 ----
 
 [source,cypher]
