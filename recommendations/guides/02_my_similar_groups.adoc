@@ -17,7 +17,7 @@ We're going to evolve our model to answer the following question:
 [verse]
 ____
 As a member of the Neo4j Meetup group
-I want to find other similar meetup groups that I’m not already a member of
+I want to find other similar Meetup groups that I’m not already a member of
 So that I can join those groups
 ____
 
@@ -170,8 +170,8 @@ Now that we've got the data loaded we can make recommendations on an individual 
 
 [verse]
 ____
-As a member of several meetup groups
-I want to find other similar meetup groups that I’m not already a member of
+As a member of several Meetup groups
+I want to find other similar Meetup groups that I’m not already a member of
 So that I can join those groups
 ____
 

@@ -74,7 +74,7 @@ Let's give the procedures a try!
 
 == Formatting timestamps
 
-A common request in the Neo4j forums is for a function to format timestamps in a human friendly way and we have just the function for that in `apoc.`
+A common request in the Neo4j forums is for a function to format timestamps in a human friendly way and we have just the function for that in `apoc`.
 We can use it to find out the date and time of the last 5 events in our dataset:
 
 [source,cypher]
@@ -114,7 +114,7 @@ RETURN name, signature
 
 This procedure allows us to consume JSON documents directly into Neo4j and import data straight into Neo4j without the CSV transformation step.
 
-We're going to use this procedure to import some more data from meetup, this time in JSON format.
+We're going to use this procedure to import some more data from Meetup, this time in JSON format.
 
 == Importing JSON from the meetup.com API
 

@@ -33,7 +33,7 @@ Returning all values from a 2-hop path. Note the duplicate values.
 * `collect(x)`	- collected all the occurrences into an array
 
 Aggregating non-null values.
-More functions in the manual.
+There are more functions in the manual.
 
 == Aggregation: `count(*)`
 
@@ -215,7 +215,7 @@ RETURN movie.title
 
 == Start with a specific labeled node
 
-image::{img}/big_graph_d_t.png.png[float=right]
+image::{img}/big_graph_d_t.png[float=right]
 
 .Directors who worked with Tom Hanks
 [source,cypher,options={options}]
@@ -228,7 +228,7 @@ RETURN director.name
 
 == Start with a specific labeled node
 
-image::{img}/big_graph_d_t.png.png[float=right]
+image::{img}/big_graph_d_t.png[float=right]
 
 .Directors who worked with Tom Hanks
 [source,cypher,options={options}]
@@ -255,7 +255,7 @@ Indexes support
 * text comparison (`CONTAINS, STARTS WITH, ENDS WITH`)
 * numeric ranges
 
-.Nodes labeled as Person, constrained by name property
+.Nodes labeled as `Person`, constrained by name property
 [source,cypher,options={options}]
 ----
 CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;
@@ -265,7 +265,7 @@ Constraints guarantee
 
 * Single entry per value
 * Uniqueness (fail on duplicate)
-* Correctness for MERGE (incl. lock)
+* Correctness for `MERGE` (Including lock)
 
 == Labels on pattern "anchors"
 

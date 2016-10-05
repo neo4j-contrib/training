@@ -8,16 +8,16 @@ image::{img}/group_has_topic.png[]
 [verse]
 ____
 As a member of the Neo4j Meetup group
-I want to find other similar meetup groups
+I want to find other similar Meetup groups
 So that I can join those groups
 ____
 
 One thing that makes groups similar is the topics that they’re about.
-We're going to start the session by importing meetup groups and their topics into Neo4j.
+We're going to start the session by importing Meetup groups and their topics into Neo4j.
 
 == What makes groups similar?
 
-We've done the pre processing work of taking JSON from meetup.com's APIs and converting it into CSV files to make it easy to import into Neo4j.
+We've done the pre-processing work of taking JSON from meetup.com's APIs and converting it into CSV files to make it easy to import into Neo4j.
 
 Let's start by exploring the groups CSV file to see what data we have available to us:
 

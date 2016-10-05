@@ -3,7 +3,7 @@ include::include.adoc[]
 
 == Events
 
-So far we've only made recommendations for meetup groups that we might like to join.
+So far we've only made recommendations for Meetup groups that we might like to join.
 It's been fun but things start getting much more interesting once we bring events into the equation.
 
 image::{img}/slides.jpg[]

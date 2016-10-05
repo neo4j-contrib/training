@@ -13,7 +13,7 @@ image::{img}/slides.jpg[]
 
 == Finding people that I know
 
-We can write the following query to see which people on the meetup scene that I may know:
+We can write the following query to see which people on the Meetup scene that I may know:
 
 include::form.adoc[tags=name]
 
