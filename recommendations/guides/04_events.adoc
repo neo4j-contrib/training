@@ -195,4 +195,4 @@ LIMIT 10
 
 Next we're going to introduce venues into the model so we can make recommendations based on where events are being held.
 
-pass:a[<a play-topic='{guides}/05_venues.html'>Venues</a>]
+// pass:a[<a play-topic='{guides}/05_venues.html'>Venues</a>]

@@ -9,8 +9,6 @@ Typically that social graph is imported from a 3rd party system e.g. Twitter fol
 In this dataset there is actually a latent social graph hiding beneath the data we've looked at so far.
 RSVPs give us a reasonable idea of which people may know each other based on common meetups they've attended.
 
-image::{img}/slides.jpg[]
-
 == Finding people that I know
 
 We can write the following query to see which people on the Meetup scene that I may know:
@@ -56,7 +54,7 @@ Run the following query:
 
 [source,cypher]
 ----
-MATCH (m1:Process) WITH m1 LIMIT 500
+MATCH (m1:Member:Process) WITH m1 LIMIT 500
 REMOVE m1:Process
 WITH m1
 MATCH (m1)-[:RSVPD]->(event)<-[:RSVPD]-(m2)
@@ -80,7 +78,7 @@ Run the following query but be patient, it's got a lot of friendships to make!
 [source,cypher]
 ----
 call apoc.periodic.commit("
-  MATCH (m1:Process) WITH m1 LIMIT {limit} REMOVE m1:Process
+  MATCH (m1:Member:Process) WITH m1 LIMIT {limit} REMOVE m1:Process
   WITH m1 MATCH (m1)-[:RSVPD]->(event)<-[:RSVPD]-(m2)
   WITH m1, m2, COUNT(*) AS times WHERE times >= 5
   MERGE (m1)-[:FRIENDS]-(m2) RETURN count(*)
@@ -119,4 +117,4 @@ endif::env-training[]
 == Next Step
 In our next section we're going to apply some more sophisticated scoring functions to the recommendation queries that we've built so far.
 
-pass:a[<a play-topic='{guides}/09_scoring.html'>Scoring</a>]
+// pass:a[<a play-topic='{guides}/09_scoring.html'>Scoring</a>]

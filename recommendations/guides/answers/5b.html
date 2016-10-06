@@ -88,11 +88,11 @@ OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(
 WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
 WHERE commonTopics >= 3
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
+WITH futureEvent, group, venue, commonTopics, myGroup, distance(point(venue), point({training-location})) AS distance
+WITH futureEvent, group, venue, commonTopics, myGroup, distance, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
+WITH futureEvent, group, venue, commonTopics, myGroup, distance, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
 
-WITH futureEvent, group, venue, commonTopics, myGroup, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
-WITH futureEvent, group, venue, commonTopics, myGroup, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
-
-RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, days, distance(point(venue), point({training-location})) AS distance, myGroupScore + commonTopics - days AS score
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, days, distance , myGroupScore + commonTopics - days AS score
 ORDER BY score DESC<!--/code--></pre>
 </div>
 </div>

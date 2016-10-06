@@ -131,8 +131,6 @@ image::{img}/group_has_topic_member_of.png[]
 
 image::{img}/slides.jpg[]
 
-// pass:a[<a play-topic='{guides}/answers/2.html'>Answers: Find yourself and your groups</a>]
-
 endif::env-training[]
 
 == Exclude groups I’m a member of

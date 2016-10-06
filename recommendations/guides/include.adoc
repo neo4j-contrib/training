@@ -4,10 +4,10 @@
 :group: pass:['<span  value-key="group">Group</span>']
 :topic: pass:['<span  value-key="topic">Topic</span>']
 :event: pass:['<span  value-key="event">An Event</span>']
-:trainingLocation: {latitude: 37.7952919, longitude: -122.4036433}
+:trainingLocation: {latitude: 55.6729893, longitude: 12.585799}
 :neo4j-group-name: 'Graph Database'
 :neo4j-group-name-alt: 'Neo4j'
-:neo4j-meetup-id: graphdb-london
+:neo4j-meetup-id: Neo4j-Oresund
 :csv-url: https://raw.githubusercontent.com/neo4j-meetups/modeling-worked-example/master/data/
 :icons: font
 :experimental:

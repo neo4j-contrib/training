@@ -55,11 +55,6 @@
 <div class="paragraph">
 <p>You can read more details in the <a href="http://neo4j.com/docs/developer-manual/current/#procedures">documentation</a>.</p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
-</div>
-</div>
 	</div>
   </div>
 </slide>
@@ -256,7 +251,7 @@ First let&#8217;s see what photos have been posted:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/graphdb-london/photos?&sign=true&photo-host=public")
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/Neo4j-Oresund/photos?&sign=true&photo-host=public")
 YIELD value AS document
 WITH document WHERE EXISTS(document.photo_album.event.id)
 RETURN document.link AS link,
@@ -267,7 +262,7 @@ RETURN document.link AS link,
 </div>
 </div>
 <div class="paragraph">
-<p>Try changing the <code>graphdb-london</code> bit of the URI to see which photos were posted in other groups.
+<p>Try changing the <code>Neo4j-Oresund</code> bit of the URI to see which photos were posted in other groups.
 This API uses the <code>urlname</code> property to look up photos for a group.</p>
 </div>
 <div class="paragraph">
@@ -315,7 +310,7 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -331,9 +326,6 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="paragraph">
 <p>In the next couple of sections we&#8217;ll use these procedures to extend the layered event recommendation we&#8217;ve been building up over the last few sections.</p>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://localhost:8001/08_latent_social_graph.html'>Latent Social Graph</a></p>
 </div>
 	</div>
   </div>

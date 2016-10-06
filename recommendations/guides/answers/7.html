@@ -77,7 +77,7 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/graphdb-london/photos?&sign=true&photo-host=public")
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/Neo4j-Oresund/photos?&sign=true&photo-host=public")
 YIELD value AS document
 
 WITH document WHERE document.photo_album.event.id IS NOT NULL

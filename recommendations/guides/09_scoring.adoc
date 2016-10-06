@@ -7,8 +7,6 @@ We're now at the point where we have multiple facets to our events recommendatio
 Each of these makes a contribution but perhaps not all equally.
 e.g. perhaps we should give more weight to venues closer to our workplace and less weight to very popular events.
 
-image::{img}/slides.jpg[]
-
 == The Pareto function
 
 The Pareto function in `apoc` allows us to apply a log function to a score.
@@ -38,7 +36,9 @@ Let's give it a try on some fake data to get the hang of it:
 
 [source,cypher]
 ----
-CALL apoc.scoring.pareto(1,10,20,12)
+UNWIND range(0,21) as value
+CALL apoc.scoring.pareto(1,10,20,value) YIELD value as score
+RETURN value, score
 ----
 
 We start with a score of `12` that we want to transform.

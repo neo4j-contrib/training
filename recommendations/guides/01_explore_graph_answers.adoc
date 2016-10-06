@@ -5,11 +5,12 @@ include::include.adoc[]
 
 We've now loaded groups and topics but we don't know exactly what's in our graph so let's do some exploration.
 
-* What's the most popular topic?
-* Which group was created most recently?
-* How many groups have been running for 4 years or more?
+. What's the most popular topic?
+. Which group was created most recently?
+. How many groups have been running for at least 4 years?
+. Find groups with 'Neo4j' or 'Data' in their name.
+. What are the distinct topics for those groups ?
 
-_Hint:_ The link:{refcard}[Cypher refcard] will come in handy for syntax we haven't covered yet!
 
 ==  What's the most popular topic?
 
@@ -34,9 +35,8 @@ LIMIT 1
 
 [source,cypher,subs=attributes]
 ----
-WITH (4 * 365 * 24 * 60 * 60 * 1000) AS fourYears
 MATCH (g:Group)
-WHERE g.created < timestamp() - fourYears
+WHERE (g.created - timestamp()) / 1000 / 3600 / 24 / 365 > 0
 RETURN g
 ----
 

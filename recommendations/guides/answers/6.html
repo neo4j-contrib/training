@@ -108,7 +108,7 @@ WHERE previousEvent.time < timestamp()
 WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({latitude: 37.7952919, longitude: -122.4036433})) AS distance
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({latitude: 55.6729893, longitude: 12.585799})) AS distance
 OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(venue)
 WHERE previousEvent.time < timestamp()
 
@@ -148,7 +148,7 @@ WHERE previousEvent.time < timestamp()
 WITH member, futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({latitude: 37.7952919, longitude: -122.4036433})) AS distance
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({latitude: 55.6729893, longitude: 12.585799})) AS distance
 OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
 WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
 

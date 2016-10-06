@@ -57,8 +57,7 @@ WHERE event.name CONTAINS {event}
 RETURN *
 ----
 
-
-This query shows us who's signed up for the hackathons we've run as part of GraphConnect over the years. Have any of you been to multiple GraphHacks?
+This query shows us who's signed up for the past events with the text in the title.
 
 Now we're ready to make use of RSVPs and venues in our events recommendation query.
 
@@ -116,10 +115,8 @@ to account for that problem with the data.
 
 image::{img}/slides.jpg[]
 
-pass:a[<a play-topic='{guides}/06_my_venues_answers.html'>Answers: Events at my venues</a>]
-
 == Next Step
 In our next section we're going to take a brief detour to introduce procedures, a new addition in Neo4j 3.0.0.
 We'll then make use of them in our recommendations and even write some of our own if time permits.
 
-pass:a[<a play-topic='{guides}/07_procedures.html'>Procedures</a>]
+// pass:a[<a play-topic='{guides}/07_procedures.html'>Procedures</a>]

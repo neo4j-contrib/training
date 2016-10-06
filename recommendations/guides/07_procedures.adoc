@@ -7,7 +7,7 @@ Procedures are a new feature in Neo4j 3.x which allow you to write custom code w
 
 You can read more details in the link:http://neo4j.com/docs/developer-manual/current/#procedures[documentation].
 
-image::{img}/slides.jpg[]
+// image::{img}/slides.jpg[]
 
 == Built in procedures
 
@@ -169,4 +169,4 @@ endif::env-training[]
 
 In the next couple of sections we'll use these procedures to extend the layered event recommendation we've been building up over the last few sections.
 
-pass:a[<a play-topic='{guides}/08_latent_social_graph.html'>Latent Social Graph</a>]
+// pass:a[<a play-topic='{guides}/08_latent_social_graph.html'>Latent Social Graph</a>]

@@ -209,7 +209,9 @@ We've now loaded groups and topics but we don't know exactly what's in our graph
 . Find groups with 'Neo4j' or 'Data' in their name.
 . What are the distinct topics for those groups ?
 
-_Hint:_ The link:{refcard}[Cypher refcard] will come in handy for syntax we haven't covered yet!
+NOTE: The link:{refcard}[Cypher refcard] will come in handy for syntax we haven't covered yet!
+Look for the keywords `count`, `ORDER BY`, `LIMIT`, `CONTAINS`.
+
 
 == Look at the slides...we have answers!
 
