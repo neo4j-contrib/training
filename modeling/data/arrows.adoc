@@ -1,0 +1,199 @@
+All as properties
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="0" data-y="0">
+    <span class="caption">Flight</span><dl class="properties"><dt>origin</dt><dd>LAS</dd><dt>destination</dt><dd>LAX</dd><dt>airline</dt><dd>WN</dd><dt>date</dt><dd>2008-1-8</dd><dt>departure</dt><dd>1700</dd><dt>arrival</dt><dd>2000</dd></dl></li>
+</ul>
+----
+
+All as nodes
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="12.878921508789062" data-y="107.03546905517578">
+    <span class="caption">Flight</span><dl class="properties"><dt>number</dt><dd>335</dd></dl></li>
+  <li class="node" data-node-id="1" data-x="-582.7906188964844" data-y="107.03546905517578">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>LAS</dd></dl></li>
+  <li class="node" data-node-id="2" data-x="639.8757934570312" data-y="107.03546905517578">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>LAX</dd></dl></li>
+  <li class="node" data-node-id="3" data-x="639.8757934570312" data-y="528.8045501708984">
+    <span class="caption">Time</span><dl class="properties"><dt>value</dt><dd>1700</dd></dl></li>
+  <li class="node" data-node-id="4" data-x="-582.7906188964844" data-y="528.8045501708984">
+    <span class="caption">Time</span><dl class="properties"><dt>value</dt><dd>2000</dd></dl></li>
+  <li class="node" data-node-id="5" data-x="12.878921508789062" data-y="-312.89141845703125">
+    <span class="caption">Date</span><dl class="properties"><dt>value</dt><dd>2008-1-8</dd></dl></li>
+  <li class="node" data-node-id="6" data-x="12.878921508789062" data-y="528.8045501708984">
+    <span class="caption">Airline</span><dl class="properties"><dt>name</dt><dd>WN</dd></dl></li>
+  <li class="relationship" data-from="0" data-to="1">
+    <span class="type">ORIGIN</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="2">
+    <span class="type">DESTINATION</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="3">
+    <span class="type">DEPARTURE_TIME</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="4">
+    <span class="type">ARRIVAL_TIME</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="5">
+    <span class="type">DATE</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="6">
+    <span class="type">AIRLINE</span>
+  </li>
+</ul>
+----
+
+Generic relationship types
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="0" data-y="0">
+    <span class="caption">Flight</span><dl class="properties"><dt>number</dt><dd>335</dd></dl></li>
+  <li class="node" data-node-id="1" data-x="-659.968017578125" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>LAS</dd></dl></li>
+  <li class="node" data-node-id="2" data-x="664.8795700073242" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>LAX</dd></dl></li>
+  <li class="relationship" data-from="0" data-to="1">
+    <span class="type">CONNECTED_TO</span><dl class="properties"><dt>type</dt><dd>origin</dd></dl></li>
+  <li class="relationship" data-from="0" data-to="2">
+    <span class="type">CONNECTED_TO</span><dl class="properties"><dt>type</dt><dd>destination</dd></dl></li>
+</ul>
+----
+
+Very specific relationship types
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="0" data-y="0">
+    <span class="caption">Flight</span><dl class="properties"><dt>number</dt><dd>335</dd></dl></li>
+  <li class="node" data-node-id="1" data-x="-699.9855346679688" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>LAS</dd></dl></li>
+  <li class="node" data-node-id="2" data-x="664.8795700073242" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>LAX</dd></dl></li>
+  <li class="relationship" data-from="0" data-to="1">
+    <span class="type">FLIGHT_FROM_LAS</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="2">
+    <span class="type">FLIGHT_TO_LAX</span><dl class="properties"><dt>type</dt><dd>destination</dd></dl></li>
+</ul>
+----
+
+
+Airport Day
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="0" data-y="0">
+    <span class="caption">Flight</span><dl class="properties"><dt>airline</dt><dd>string</dd><dt>number</dt><dd>string</dd><dt>departure</dt><dd>long</dd><dt>arrival</dt><dd>long</dd><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="1" data-x="-699.9855346679688" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="2" data-x="664.8795700073242" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="3" data-x="-699.9855346679688" data-y="-495.1563949584961">
+    <span class="caption">Airport Day</span><dl class="properties"><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="4" data-x="664.8795700073242" data-y="-495.1563949584961">
+    <span class="caption">Airport Day</span><dl class="properties"><dt>date</dt><dd>string</dd></dl></li>
+  <li class="relationship" data-from="1" data-to="3">
+    <span class="type">HAS_DAY</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="3">
+    <span class="type">ORIGIN</span>
+  </li>
+  <li class="relationship" data-from="2" data-to="4">
+    <span class="type">HAS_DAY</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="4">
+    <span class="type">DESTINATION</span>
+  </li>
+</ul>
+----
+
+Coloured airport day
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="0" data-y="0">
+    <span class="caption">Flight</span><dl class="properties"><dt>airline</dt><dd>string</dd><dt>number</dt><dd>string</dd><dt>departure</dt><dd>long</dd><dt>arrival</dt><dd>long</dd><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="1" data-x="-699.9855346679688" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="2" data-x="664.8795700073242" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="3" data-x="-699.9855346679688" data-y="-495.1563949584961">
+    <span class="caption">Airport Day</span><dl class="properties"><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="4" data-x="664.8795700073242" data-y="-495.1563949584961">
+    <span class="caption">Airport Day</span><dl class="properties"><dt>date</dt><dd>string</dd></dl></li>
+  <li class="relationship" data-from="1" data-to="3">
+    <span class="type">HAS_DAY</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="3">
+    <span class="type">ORIGIN</span>
+  </li>
+  <li class="relationship" data-from="2" data-to="4">
+    <span class="type">HAS_DAY</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="4">
+    <span class="type">DESTINATION</span>
+  </li>
+</ul>
+----
+
+Airline pulled out
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="0" data-y="0">
+    <span class="caption">Flight</span><dl class="properties"><dt>number</dt><dd>string</dd><dt>departure</dt><dd>long</dd><dt>arrival</dt><dd>long</dd><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="3" data-x="-585.2035522460938" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="4" data-x="613.907341003418" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="5" data-x="0" data-y="408.0379333496094">
+    <span class="caption">Airline</span><dl class="properties"><dt>name</dt><dd>string</dd></dl></li>
+  <li class="relationship" data-from="0" data-to="3">
+    <span class="type">ORIGIN</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="4">
+    <span class="type">DESTINATION</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="5">
+    <span class="type">AIRLINE</span>
+  </li>
+</ul>
+----
+
+Flight as node
+
+[source, text]
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="0" data-y="0">
+    <span class="caption">Flight</span><dl class="properties"><dt>airline</dt><dd>string</dd><dt>number</dt><dd>string</dd><dt>departure</dt><dd>long</dd><dt>arrival</dt><dd>long</dd><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="3" data-x="-585.2035522460938" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="4" data-x="613.907341003418" data-y="0">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="relationship" data-from="0" data-to="3">
+    <span class="type">ORIGIN</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="4">
+    <span class="type">DESTINATION</span>
+  </li>
+</ul>
+----
+
+Linked list of flights
+
+[source, text]
+----
+
+----

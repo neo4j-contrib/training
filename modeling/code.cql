@@ -391,7 +391,14 @@ ORDER BY flight.date, flight.departure;
 
 
 MATCH (:Person {name:'Eric'})-[:KNOWS]-(p2)
-RETURN p2
+RETURN p2;
+
+CALL dbms.security.listRoles();
+CALL dbms.security.createUser("restrictedUser", "neo4j", false);
+
+CALL dbms.security.addRoleToUser("reader", "restrictedUser");
+
+CREATE (p:Person);
 
 
 
