@@ -36,7 +36,7 @@ LIMIT 1
 [source,cypher,subs=attributes]
 ----
 MATCH (g:Group)
-WHERE (g.created - timestamp()) / 1000 / 3600 / 24 / 365 > 0
+WHERE g.created < timestamp() / (4 * 365 * 24 * 3600 * 1000)
 RETURN g
 ----
 
