@@ -1,0 +1,122 @@
+= Specific Relationship Types
+:icons: font
+
+== Specific Relationship Types
+
+In this section we're going to look at the differences between using general and specific relationship types.
+
+image::{img}/slides.jpg[]
+
+== Specific Relationship Types
+
+If we load in all the data for one year we'll have to scan through ~365 `HAS_DAY` relationships for each airport and check the `date` property for the `:AirportDay` node at the end of each relationship.
+If we load in 10 years that goes up to 3,650 relationships.
+
+So it's not an optimal model just yet but what can we do about it?
+
+== Making our relationships more specific
+
+Neo4j is optimized for searching by unique relationship types and in this case the date of a flight provides that uniqueness.
+
+We can refactor our model to change the `HAS_DAY` relationship to be the date of the flight instead e.g. `2008-1-3`
+
+This is what our new model will look like:
+
+image::{img}/specific_rels.png[]
+
+== Refactoring to specific relationship type
+
+Creating relationships with dynamic names isn't possible using pure Cypher.
+
+Luckily for us, Neo4j 3.0 saw the release of procedures and Neo4j's Michael Hunger maintains the `apoc` procedures library which contains some procedures that we can use.
+
+== Procedures
+
+Procedures allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.
+
+The Neo4j community has built a collection of over 200 procedures in the Awesome Procedures (`apoc`) package over the last 6 months.
+Hopefully we'll find one which can help us out with our batch refactoring efforts.
+
+But first let's get `apoc` setup on your machines:
+
+pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]
+
+== Exploring `apoc`
+
+Spend a bit of time looking through the collection of procedures that `apoc` provides.
+
+Can you work out which procedure we need to change a relationship type?
+
+_Hint_ The link:https://neo4j-contrib.github.io/neo4j-apoc-procedures/[user guide] will probably come in handy.
+
+Explore the link:https://neo4j-contrib.github.io/neo4j-apoc-procedures/[`apoc` docs] and see if you work out which procedure we need to use.
+Bonus points if you can write the query which does the refactoring as well.
+
+== Exploring `apoc`
+
+There are actually two functions which are interesting to us:
+
+[source,cypher]
+----
+UNWIND ["apoc.create.relationship", "apoc.refactor.setType"] AS procedureName
+CALL apoc.help(procedureName)  YIELD name, text
+RETURN name, text
+----
+
+To delete the `HAS_DAY` relationship and replace it with a date based relationship we could use `apoc.refactor.setType` but for now we'll add the new relationship `HAS_DAY` so we can compare the execution plans of both queries.
+We can always delete `HAS_DAY` afterwards if necessary.
+
+== Exercise: Refactoring to specific relationship type
+
+Can you write a query which finds all the `HAS_DAY` relationships and creates a new relationship type named after the `date` property on the `AirportDay` nodes?
+
+You can use the following as a template:
+
+[source, cypher]
+----
+MATCH (origin:Airport)-[hasDay:HAS_DAY]->(ad:AirportDay)
+// code that creates a new relationship type based on ad.date
+----
+
+== Answer: Refactoring to specific relationship type
+
+The following query will create new relationships from `:Airport` to `:AirportDay`
+
+[source,cypher]
+----
+MATCH (origin:Airport)-[hasDay:HAS_DAY]->(ad:AirportDay)
+CALL apoc.create.relationship(startNode(hasDay), ad.date, {}, endNode(hasDay) ) YIELD rel
+RETURN COUNT(*)
+----
+
+Now it's time to check whether this refactoring has sped up our query.
+
+== Finding flights between Los Angeles and Chicago Midtown International:
+
+Our query to find flights from Los Angeles to Chicago Midtown International now reads like this:
+
+[source, cypher]
+----
+MATCH (origin:Airport {code: "LAS"})-[:`2008-1-3`]->(:AirportDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay)<-[:`2008-1-3`]-(destination:Airport {code: "MDW"})
+RETURN *
+----
+
+Try profiling this query against the query using the `HAS_DAY` relationship from before:
+
+[source, cypher]
+----
+PROFILE
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(:AirportDay {date: "2008-1-3"})<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay {date: "2008-1-3"})<-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+RETURN *
+----
+
+What do you notice?
+
+== Next
+
+In each of the last two stages we've added in new relationships without deleting the old ones.
+In the next section we'll look at the advantages and disadvantages of maintaining multiple models.
+
+pass:a[<a play-topic='{guides}/05_multiple_models.html'>Multiple Models</a>]

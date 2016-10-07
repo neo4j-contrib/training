@@ -54,7 +54,7 @@
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -100,7 +100,7 @@ We can run the following query to import those flights:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_50k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_50k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -176,7 +176,7 @@ The more flights an airport has the more we&#8217;ll have to scan through, and s
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -198,7 +198,7 @@ The more flights an airport has the more we&#8217;ll have to scan through, and s
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/airport_day.png" alt="airport day">
+<img src="http://localhost:8001/img/airport_day.png" alt="airport day">
 </div>
 </div>
 	</div>
@@ -302,7 +302,7 @@ What do you notice?</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -317,14 +317,10 @@ What do you notice?</p>
     <br/>
     <div>
       <div class="paragraph">
-<p>In this next stage we&#8217;re going to look at unique relationship types.</p>
+<p>In the next stage we&#8217;re going to look at specific relationship types.</p>
 </div>
 <div class="paragraph">
-<p>Depending on how powerful your laptop is, you might have noticed that our refactoring query is getting a bit slow.
-In the next section we&#8217;ll look at how we can process refactoring queries in batches.</p>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/modeling_airports/04_refactoring_large_graphs.html'>Refactoring large graphs</a></p>
+<p><a play-topic='http://localhost:8001/04_specific_relationship_types.html'>Specific Relationship Types</a></p>
 </div>
 	</div>
   </div>

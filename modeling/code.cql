@@ -401,6 +401,27 @@ CALL dbms.security.addRoleToUser("reader", "restrictedUser");
 CREATE (p:Person);
 
 
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(originDay:AirportDay),
+      (originDay)<-[:ORIGIN]-(flight:Flight)
+
+WHERE date STARTS WITH "2008-1"
+
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+
+ORDER BY flight.date, flight.departure;
+
+MATCH (origin:Airport {code: "LAS"})-[:`2008-1-3`|:`2008-1-4`|`2008-1-5`]->(originDay:AirportDay),
+      (originDay)<-[:ORIGIN]-(flight:Flight)
+
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+
+ORDER BY flight.date, flight.departure
+
+
+
+
+
+
 
 
 

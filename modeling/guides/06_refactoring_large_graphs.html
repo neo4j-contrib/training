@@ -1,0 +1,336 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Refactoring large graphs</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Refactoring large graphs</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In the previous section we noticed that our refactoring queries were slowing down once we&#8217;d loaded more flights into the database.</p>
+</div>
+<div class="paragraph">
+<p>Once the amount of date gets a big larger we&#8217;ll probably want to execute these refactorings in batches.
+Let&#8217;s look at how we&#8217;d do that.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Refactoring workflow</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>A typical workflow would be:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>tag all the nodes we need to process with a temporary label e.g. <code>Process</code></p>
+</li>
+<li>
+<p>iterate over a subset of nodes flagged with that label (using <code>LIMIT</code>) and execute the refactoring</p>
+</li>
+<li>
+<p>remove the tag from the node</p>
+</li>
+<li>
+<p>return a count of how many rows were processed</p>
+</li>
+<li>
+<p>once the count reaches 0 then we&#8217;ve finished.</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Manual batching</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re now sacrificing the atomicity that we&#8217;d get if we did everything in one transaction so it makes sense to make our refactoring queries idempotent in case we need to re-run them.
+We also need to decide which node we&#8217;re going to center the refactoring around.</p>
+</div>
+<div class="paragraph">
+<p>To recap, this was the refactoring query from the previous section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
+
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.date
+
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.date
+
+MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
+MERGE (flight)-[:ORIGIN]-&gt;(originAirportDay)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Flight</code> is probably the easiest node to batch on.</p>
+</div>
+<div class="paragraph">
+<p>Before we execute the batching workflow, let&#8217;s import a few more flights to keep it interesting.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing 500,000 flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>As we&#8217;re now dealing with much more data we&#8217;ll have to be a bit cleverer about how we import the data.</p>
+</div>
+<div class="paragraph">
+<p>We know that most of the airports are going to be duplicates so there&#8217;s no point calling <code>MERGE</code> loads of times.
+Instead we&#8217;ll find the distinct set of airports and only <code>MERGE</code> on each airport once:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///_500k.csv" AS row
+UNWIND [row.Origin, row.Dest] AS airport
+WITH DISTINCT airport
+MERGE (:Airport {code: airport})<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll also use the periodic commit functionality of <code>LOAD CSV</code>.
+This will flush the transaction every 10,000 rows rather than executing the whole query in one transaction.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
+MATCH (origin:Airport {code: row.Origin})
+MATCH (destination:Airport {code: row.Dest})
+MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
+ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
+              newFlight.airline = row.UniqueCarrier,
+              newFlight.number = row.FlightNum,
+              newFlight.departure = row.Dest,
+              newFlight.arrival = row.UniqueCarrier
+MERGE (origin)<-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]->(destination)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re ready to do some batch refactoring.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Batch refactoring flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Let&#8217;s put a <code>Process</code> label on each of our <code>Flight</code> nodes so that we know which ones we&#8217;ve still got to process.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (f:Flight)
+SET f:Process<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re ready to run the refactoring query.
+We&#8217;ll start by processing 500 flights at a time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Process)
+WITH flight LIMIT 500
+
+MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight)-[:DESTINATION]-&gt;(destination:Airport)
+
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
+MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+
+REMOVE flight:Process
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;d have to run this query 500,000 / 500 = 1,000 times to process all the flights, which would be a very boring way to pass the time!</p>
+</div>
+<div class="paragraph">
+<p>Lucky for us, Neo4j 3.0 saw the introduction of procedures which can significantly simplify things.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Batch refactoring with <code>apoc</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The following procedure is the one we want:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.help("apoc.periodic.commit")<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can also pass the <code>apoc.help</code> procedure a package name and it&#8217;ll show us all the procedures in that package.
+e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.help("apoc.periodic")<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s get on with the batch refactoring.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Batch refactoring with <code>apoc</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Since we&#8217;ve imported more nodes we&#8217;ll need to tag them with the <code>Process</code> label.
+For simplicity&#8217;s sake we&#8217;ll just put the <code>Process</code> tag on all our flights and process them all again.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (f:Flight)
+SET f:Process<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Hint</em> Remember, since our query is idempotent, if a flight has already been processed before the query won&#8217;t actually do anything with that flight.</p>
+</div>
+<div class="paragraph">
+<p>We can now call our refactoring query inside the procedure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->call apoc.periodic.commit('
+  MATCH (flight:Process)
+  WITH flight LIMIT {limit}
+
+  MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight)-[:DESTINATION]-&gt;(destination:Airport)
+
+  MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+  ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+  MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+  ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+
+  MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
+  MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
+  MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+
+  REMOVE flight:Process
+  RETURN COUNT(*)
+',{limit:500})<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>==</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In the next section we&#8217;re going to spend some time looking at specific relationship types.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://localhost:8001/05_specific_relationship_types.html'>Specific Relationship Types</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

@@ -116,6 +116,43 @@ Airport Day
 </ul>
 ----
 
+Elongated airport day
+
+[source, cypher
+----
+<ul class="graph-diagram-markup" data-internal-scale="1" data-external-scale="1">
+  <li class="node" data-node-id="0" data-x="-113.61632919311523" data-y="-495.1563949584961">
+    <span class="caption">Flight</span><dl class="properties"><dt>airline</dt><dd>string</dd><dt>number</dt><dd>string</dd><dt>departure</dt><dd>long</dd><dt>arrival</dt><dd>long</dd><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="1" data-x="-1283.1409912109375" data-y="-495.1563949584961">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="2" data-x="1268.6674118041992" data-y="-495.1563949584961">
+    <span class="caption">Airport</span><dl class="properties"><dt>code</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="3" data-x="-699.9855346679688" data-y="-495.1563949584961">
+    <span class="caption">Airport Day</span><dl class="properties"><dt>date</dt><dd>string</dd></dl></li>
+  <li class="node" data-node-id="4" data-x="664.8795700073242" data-y="-495.1563949584961">
+    <span class="caption">Airport Day</span><dl class="properties"><dt>date</dt><dd>string</dd></dl></li>
+  <li class="relationship" data-from="1" data-to="3">
+    <span class="type">HAS_DAY</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="3">
+    <span class="type">ORIGIN</span>
+  </li>
+  <li class="relationship" data-from="2" data-to="4">
+    <span class="type">HAS_DAY</span>
+  </li>
+  <li class="relationship" data-from="0" data-to="4">
+    <span class="type">DESTINATION</span>
+  </li>
+</ul>
+----
+
+Elongated specific airport day
+
+[source, cypher]
+----
+
+----
+
 Coloured airport day
 
 [source, text]

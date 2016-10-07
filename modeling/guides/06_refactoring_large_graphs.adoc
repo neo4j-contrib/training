@@ -118,25 +118,6 @@ We'd have to run this query 500,000 / 500 = 1,000 times to process all the fligh
 
 Lucky for us, Neo4j 3.0 saw the introduction of procedures which can significantly simplify things.
 
-== Procedures
-
-Procedures allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.
-
-The Neo4j community has built a collection of over 200 procedures in the Awesome Procedures (`apoc`) package over the last 6 months.
-Hopefully we'll find one which can help us out with our batch refactoring efforts.
-
-But first let's get `apoc` setup on your machines:
-
-pass:a[<a play-topic='{guides}/installing_apoc.html'>Awesome Procedures</a>]
-
-== Exploring `apoc`
-
-Spend a bit of time looking through the collection of procedures that `apoc` provides.
-
-Can you work out which procedure we need to automate batch refactoring?
-
-_Hint_ The link:https://neo4j-contrib.github.io/neo4j-apoc-procedures/[user guide] will probably come in handy.
-
 == Batch refactoring with `apoc`
 
 The following procedure is the one we want:

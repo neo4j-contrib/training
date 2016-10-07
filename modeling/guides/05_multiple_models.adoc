@@ -3,7 +3,7 @@
 
 == Multiple Models
 
-During some of our refactoring queries we didn't 
+During some of our refactoring queries we didn't delete the old model.
 
 Multiple models
 
@@ -88,4 +88,4 @@ Should we bother with this careful refactoring or should we just load all our da
 
 == Next
 
-pass:a[<a play-topic='{guides}/06_specific_relationship_types.html'>Specific Relationship Types</a>]
+pass:a[<a play-topic='{guides}/06_refactoring_large_graphs.html'>Refactoring Large Graphs</a>]

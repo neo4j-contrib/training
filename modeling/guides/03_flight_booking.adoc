@@ -141,9 +141,6 @@ image::{img}/slides.jpg[]
 
 == Next Step
 
-In this next stage we're going to look at unique relationship types.
+In the next stage we're going to look at specific relationship types.
 
-Depending on how powerful your laptop is, you might have noticed that our refactoring query is getting a bit slow.
-In the next section we'll look at how we can process refactoring queries in batches.
-
-pass:a[<a play-topic='{guides}/04_refactoring_large_graphs.html'>Refactoring large graphs</a>]
+pass:a[<a play-topic='{guides}/04_specific_relationship_types.html'>Specific Relationship Types</a>]
