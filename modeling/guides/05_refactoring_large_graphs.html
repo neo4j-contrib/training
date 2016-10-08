@@ -50,44 +50,16 @@
     <br/>
     <div>
       <div class="paragraph">
-<p>In the previous section we noticed that our refactoring queries were slowing down once we&#8217;d loaded more flights into the database.</p>
+<p>As our graph gets bigger in size it starts to become unfeasible to refactor the whole thing in one go.
+Instead we&#8217;ll have to update it in batches.</p>
 </div>
 <div class="paragraph">
-<p>Once the amount of date gets a big larger we&#8217;ll probably want to execute these refactorings in batches.
-Let&#8217;s look at how we&#8217;d do that.</p>
+<p>Let&#8217;s look at how we&#8217;d do that.</p>
 </div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Refactoring workflow</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>A typical workflow would be:</p>
+<div class="imageblock">
+<div class="content">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>tag all the nodes we need to process with a temporary label e.g. <code>Process</code></p>
-</li>
-<li>
-<p>iterate over a subset of nodes flagged with that label (using <code>LIMIT</code>) and execute the refactoring</p>
-</li>
-<li>
-<p>remove the tag from the node</p>
-</li>
-<li>
-<p>return a count of how many rows were processed</p>
-</li>
-<li>
-<p>once the count reaches 0 then we&#8217;ve finished.</p>
-</li>
-</ul>
 </div>
 	</div>
   </div>
@@ -101,7 +73,8 @@ Let&#8217;s look at how we&#8217;d do that.</p>
     <br/>
     <div>
       <div class="paragraph">
-<p>We&#8217;re now sacrificing the atomicity that we&#8217;d get if we did everything in one transaction so it makes sense to make our refactoring queries idempotent in case we need to re-run them.
+<p>When batching we sacrifice the atomicity that we&#8217;d get if we did everything in one transaction.
+It&#8217;s therefore useful to make our refactoring queries idempotent in case we need to re-run them.
 We also need to decide which node we&#8217;re going to center the refactoring around.</p>
 </div>
 <div class="paragraph">
@@ -111,10 +84,10 @@ We also need to decide which node we&#8217;re going to center the refactoring ar
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight:Flight)-[:DESTINATION]-&gt;(destination:Airport)
 
-MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
 ON CREATE SET originAirportDay.date = flight.date
 
-MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
 ON CREATE SET destinationAirportDay.date = flight.date
 
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
@@ -148,7 +121,7 @@ Instead we&#8217;ll find the distinct set of airports and only <code>MERGE</code
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/_500k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///_500k.csv" AS row
 UNWIND [row.Origin, row.Dest] AS airport
 WITH DISTINCT airport
 MERGE (:Airport {code: airport})<!--/code--></pre>
@@ -161,7 +134,7 @@ This will flush the transaction every 10,000 rows rather than executing the whol
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_500k.csv" AS row
+LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
 MATCH (origin:Airport {code: row.Origin})
 MATCH (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -226,51 +199,7 @@ RETURN COUNT(*)<!--/code--></pre>
 <p>We&#8217;d have to run this query 500,000 / 500 = 1,000 times to process all the flights, which would be a very boring way to pass the time!</p>
 </div>
 <div class="paragraph">
-<p>Lucky for us, Neo4j 3.0 saw the introduction of procedures which can significantly simplify things.</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Procedures</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>Procedures allow us to write custom code in any JVM language, wrap it up in a function, and call it from Cypher.</p>
-</div>
-<div class="paragraph">
-<p>The Neo4j community has built a collection of over 200 procedures in the Awesome Procedures (<code>apoc</code>) package over the last 6 months.
-Hopefully we&#8217;ll find one which can help us out with our batch refactoring efforts.</p>
-</div>
-<div class="paragraph">
-<p>But first let&#8217;s get <code>apoc</code> setup on your machines:</p>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/modeling_airports/installing_apoc.html'>Awesome Procedures</a></p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Exploring <code>apoc</code></h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>Spend a bit of time looking through the collection of procedures that <code>apoc</code> provides.</p>
-</div>
-<div class="paragraph">
-<p>Can you work out which procedure we need to automate batch refactoring?</p>
-</div>
-<div class="paragraph">
-<p><em>Hint</em> The <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/">user guide</a> will probably come in handy.</p>
+<p>Lucky for us, the <code>apoc</code> library that we installed in the previous section has a procedure that we can use to batch operations.</p>
 </div>
 	</div>
   </div>
@@ -338,11 +267,11 @@ SET f:Process<!--/code--></pre>
 
   MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight)-[:DESTINATION]-&gt;(destination:Airport)
 
-  MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-  ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+  MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
+  ON CREATE SET originAirportDay.date = flight.date
 
-  MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-  ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+  MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
+  ON CREATE SET destinationAirportDay.date = flight.date
 
   MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
   MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
@@ -353,8 +282,20 @@ SET f:Process<!--/code--></pre>
 ',{limit:500})<!--/code--></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>==</p>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Specific date relationships</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We forgot to add the specific date relationships between <code>:Airport</code> and <code>:AirportDay</code> nodes that we introduced in the previous section!
+Can you write a refactoring query using <code>apoc</code> to do this?</p>
 </div>
 	</div>
   </div>
@@ -371,7 +312,7 @@ SET f:Process<!--/code--></pre>
 <p>In the next section we&#8217;re going to spend some time looking at specific relationship types.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/modeling_airports/05_specific_relationship_types.html'>Specific Relationship Types</a></p>
+<p><a play-topic='http://localhost:8001/05_specific_relationship_types.html'>Specific Relationship Types</a></p>
 </div>
 	</div>
   </div>

@@ -415,11 +415,34 @@ MATCH (origin:Airport {code: "LAS"})-[:`2008-1-3`|:`2008-1-4`|`2008-1-5`]->(orig
 
 RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
 
-ORDER BY flight.date, flight.departure
+ORDER BY flight.date, flight.departure;
+
+CALL dbms.cluster.overview();
 
 
+UNWIND range(0, 100) AS value
+MERGE (p1:Person {id: value})
+MERGE (p2:Person {id: TOINT(100.0 * rand())})
+MERGE (p1)-[:FRIENDS]->(p2);
 
+MATCH path = (p:Person)-[:FRIENDS]-(friend)
+RETURN path
+LIMIT 10
+;
 
+CALL dbms.security.createRole("movies_only")
+CALL dbms.security.createUser("lockedDown", "abc", false)
+CALL dbms.security.addRoleToUser("movies_only", "lockedDown")
+
+CALL dbms.security.listRoles()
+
+CALL training.actors("Tom Hanks")
+
+MATCH (n)
+RETURN n
+LIMIT 5;
+
+(airport)-[:HAS_DAY]->(airportDay {date: "2008-1-3"})
 
 
 

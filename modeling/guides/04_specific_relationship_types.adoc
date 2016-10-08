@@ -116,7 +116,6 @@ What do you notice?
 
 == Next
 
-In each of the last two stages we've added in new relationships without deleting the old ones.
-In the next section we'll look at the advantages and disadvantages of maintaining multiple models.
+In the next section we'll have a look at how refactoring works when dealing with more data.
 
-pass:a[<a play-topic='{guides}/05_multiple_models.html'>Multiple Models</a>]
+pass:a[<a play-topic='{guides}/06_refactoring_large_graphs.html'>Refactoring Large Graphs</a>]

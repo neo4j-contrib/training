@@ -81,6 +81,8 @@ Try and write a query to evolve our current model to include this new concept.
 
 image::{img}/airport_day.png[]
 
+_Note_ We'll have one `:AirportDay` node for each airport so keep that in mind when writing the refactoring query.
+
 == Click through for the answers
 
 If you really want to see them...

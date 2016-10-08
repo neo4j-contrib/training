@@ -5,6 +5,7 @@
 
 During some of our refactoring queries we didn't delete the old model.
 
+
 Multiple models
 
 You have to control the invariant from your application.

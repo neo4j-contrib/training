@@ -3,24 +3,17 @@
 
 == Refactoring large graphs
 
-In the previous section we noticed that our refactoring queries were slowing down once we'd loaded more flights into the database.
+As our graph gets bigger in size it starts to become unfeasible to refactor the whole thing in one go.
+Instead we'll have to update it in batches.
 
-Once the amount of date gets a big larger we'll probably want to execute these refactorings in batches.
 Let's look at how we'd do that.
 
-== Refactoring workflow
-
-A typical workflow would be:
-
-* tag all the nodes we need to process with a temporary label e.g. `Process`
-* iterate over a subset of nodes flagged with that label (using `LIMIT`) and execute the refactoring
-* remove the tag from the node
-* return a count of how many rows were processed
-* once the count reaches 0 then we've finished.
+image::{img}/slides.jpg[]
 
 == Manual batching
 
-We're now sacrificing the atomicity that we'd get if we did everything in one transaction so it makes sense to make our refactoring queries idempotent in case we need to re-run them.
+When batching we sacrifice the atomicity that we'd get if we did everything in one transaction.
+It's therefore useful to make our refactoring queries idempotent in case we need to re-run them.
 We also need to decide which node we're going to center the refactoring around.
 
 To recap, this was the refactoring query from the previous section:
@@ -29,10 +22,10 @@ To recap, this was the refactoring query from the previous section:
 ----
 MATCH (origin:Airport)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:Airport)
 
-MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
 ON CREATE SET originAirportDay.date = flight.date
 
-MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
 ON CREATE SET destinationAirportDay.date = flight.date
 
 MERGE (origin)-[:HAS_DAY]->(originAirportDay)
@@ -116,7 +109,7 @@ RETURN COUNT(*)
 
 We'd have to run this query 500,000 / 500 = 1,000 times to process all the flights, which would be a very boring way to pass the time!
 
-Lucky for us, Neo4j 3.0 saw the introduction of procedures which can significantly simplify things.
+Lucky for us, the `apoc` library that we installed in the previous section has a procedure that we can use to batch operations.
 
 == Batch refactoring with `apoc`
 
@@ -160,11 +153,11 @@ call apoc.periodic.commit('
 
   MATCH (origin:Airport)<-[:ORIGIN]-(flight)-[:DESTINATION]->(destination:Airport)
 
-  MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-  ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+  MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
+  ON CREATE SET originAirportDay.date = flight.date
 
-  MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-  ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+  MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
+  ON CREATE SET destinationAirportDay.date = flight.date
 
   MERGE (origin)-[:HAS_DAY]->(originAirportDay)
   MERGE (originAirportDay)<-[:ORIGIN]-(flight)
@@ -175,7 +168,11 @@ call apoc.periodic.commit('
 ',{limit:500})
 ----
 
-==
+== Exercise: Specific date relationships
+
+We forgot to add the specific date relationships between `:Airport` and `:AirportDay` nodes that we introduced in the previous section!
+Can you write a refactoring query using `apoc` to do this?
+
 
 == Next
 
