@@ -12,6 +12,23 @@ image::{img}/slides.jpg[]
 Create a group with some of the people near you if you haven't already.
 
 Once you've done that decide amongst you what you're going to do next.
-Here are some suggestions:
+Here are some suggestions of what we can add to the model:
 
-* 
+* Additional airport data - `airports.csv`
+* Flight delays and cancellations - look at the `Cancelled`, `CancellationCode`, `*Delay` fields in the existing CSV files
+
+If you don't like any of these you can always import your dataset.
+
+The `apoc` library has lots of procedures to help you import data from different sources.
+See the link:https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_data_integration[Data Integration] section of the manual for more details.
+
+== Wrapping up
+
+Let's wrap up by going over what we've done today.
+
+image::{img}/slides.jpg[]
+
+== Thank you!
+
+We hope you had fun in this session.
+If you have feedback do let your trainer know so we can improve the course.
