@@ -442,10 +442,18 @@ MATCH (n)
 RETURN n
 LIMIT 5;
 
-(airport)-[:HAS_DAY]->(airportDay {date: "2008-1-3"})
+MATCH (airport {code:  "LAX"})
+MERGE (airportDay:AirportDay {id: "LAX_2008-2-1"})
+ON CREATE SET airportDay.date = "2008-2-1"
+CREATE (airport)-[:HAS_DAY]->(airportDay)
+CREATE (airport)-[:`2008-2-1`]->(airportDay);
 
 
-
+MATCH (airport {code:  "LAX"})
+MATCH (airportDay:AirportDay {id: "LAX_2008-2-1"})
+MATCH (airport)-[general:HAS_DAY]->(airportDay)
+MATCH (airport)-[specific:`2008-2-1`]->(airportDay)
+DELETE general, specific
 
 
 

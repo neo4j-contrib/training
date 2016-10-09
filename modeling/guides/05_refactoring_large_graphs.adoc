@@ -31,6 +31,7 @@ ON CREATE SET destinationAirportDay.date = flight.date
 MERGE (origin)-[:HAS_DAY]->(originAirportDay)
 MERGE (flight)-[:ORIGIN]->(originAirportDay)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+MERGE (destination)-[:HAS_DAY]->(destinationAirportDay)
 ----
 
 `Flight` is probably the easiest node to batch on.
@@ -65,8 +66,8 @@ MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year
 ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
               newFlight.airline = row.UniqueCarrier,
               newFlight.number = row.FlightNum,
-              newFlight.departure = row.Dest,
-              newFlight.arrival = row.UniqueCarrier
+              newFlight.departure = TOINT(row.CRSDepTime),
+              newFlight.arrival = TOINT(row.CRSArrTime)
 MERGE (origin)<-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]->(destination)
 ----
@@ -102,6 +103,7 @@ ON CREATE SET destinationAirportDay.date = flight.date
 MERGE (origin)-[:HAS_DAY]->(originAirportDay)
 MERGE (originAirportDay)<-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+MERGE (destination)-[:HAS_DAY]->(destinationAirportDay)
 
 REMOVE flight:Process
 RETURN COUNT(*)
@@ -162,6 +164,7 @@ call apoc.periodic.commit('
   MERGE (origin)-[:HAS_DAY]->(originAirportDay)
   MERGE (originAirportDay)<-[:ORIGIN]-(flight)
   MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+  MERGE (destination)-[:HAS_DAY]->(destinationAirportDay)
 
   REMOVE flight:Process
   RETURN COUNT(*)
