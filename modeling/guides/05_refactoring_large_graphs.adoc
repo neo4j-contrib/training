@@ -258,6 +258,7 @@ The number of db hits for the first query hasn't changed.
 
 == Next
 
-In the next section we're going to look at the mer
+Thus far we haven't been deleting the old model when we refactored it.
+In the next section we'll look at the advantages/disadvantages of having multiple models in the graph.
 
 pass:a[<a play-topic='{guides}/06_multiple_models.html'>Multiple Models</a>]
