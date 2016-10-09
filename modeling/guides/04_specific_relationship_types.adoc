@@ -118,4 +118,4 @@ What do you notice?
 
 In the next section we'll have a look at how refactoring works when dealing with more data.
 
-pass:a[<a play-topic='{guides}/06_refactoring_large_graphs.html'>Refactoring Large Graphs</a>]
+pass:a[<a play-topic='{guides}/05_refactoring_large_graphs.html'>Refactoring Large Graphs</a>]

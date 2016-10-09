@@ -46,7 +46,7 @@ Instead we'll find the distinct set of airports and only `MERGE` on each airport
 
 [source, cypher, subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}_500k.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
 UNWIND [row.Origin, row.Dest] AS airport
 WITH DISTINCT airport
 MERGE (:Airport {code: airport})
@@ -93,11 +93,11 @@ WITH flight LIMIT 500
 
 MATCH (origin:Airport)<-[:ORIGIN]-(flight)-[:DESTINATION]->(destination:Airport)
 
-MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
+ON CREATE SET originAirportDay.date = flight.date
 
-MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
+ON CREATE SET destinationAirportDay.date = flight.date
 
 MERGE (origin)-[:HAS_DAY]->(originAirportDay)
 MERGE (originAirportDay)<-[:ORIGIN]-(flight)
@@ -168,14 +168,96 @@ call apoc.periodic.commit('
 ',{limit:500})
 ----
 
+== Check the import worked
+
+Run the following query to check our import worked:
+
+[source, cypher]
+----
+MATCH (:Flight)
+RETURN COUNT(*)
+----
+
+Try repeating some of the queries from earlier sections with this new larger dataset.
+You can see the previous queries you've run by executing the following command:
+
+[source, cypher]
+----
+:history
+----
+
 == Exercise: Specific date relationships
 
 We forgot to add the specific date relationships between `:Airport` and `:AirportDay` nodes that we introduced in the previous section!
+
 Can you write a refactoring query using `apoc` to do this?
 
+_Hint_ We'll need to figure out how not to create duplicate relationships between `:Airport` and `:AirportDay` nodes that we processed in the previous guide.
+
+== Answer: Specific date relationships
+
+This time we need to process `:AirportDay` nodes so we'll put the temporary `:Process` label on those:
+
+[source, cypher]
+----
+MATCH (ad:AirportDay)
+SET ad:Process
+----
+
+The simplest way to not create duplicate date relationships between `:Airport` and `:AirportDay` nodes is to delete the ones we created earlier:
+
+[source, cypher]
+----
+MATCH (airport:Airport)-[r]->(:AirportDay)
+WHERE NOT TYPE(r) = "HAS_DAY"
+DELETE r
+----
+
+Now we can create the new relationships:
+
+[source, cypher]
+----
+call apoc.periodic.commit('
+  MATCH (ad:Process)
+  WITH ad LIMIT {limit}
+
+  MATCH (origin:Airport)-[hasDay:HAS_DAY]->(ad:AirportDay)
+  CALL apoc.create.relationship(startNode(hasDay), ad.date, {}, endNode(hasDay) ) YIELD rel
+
+  REMOVE ad:Process
+  RETURN COUNT(*)
+',{limit:500})
+----
+
+== Specific vs general
+
+Now let's go back and compare the queries from the end of the previous guide.
+
+[source, cypher]
+----
+PROFILE
+MATCH (origin:Airport {code: "LAS"})-[:`2008-1-3`]->(:AirportDay)<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay)<-[:`2008-1-3`]-(destination:Airport {code: "MDW"})
+RETURN *
+----
+
+vs
+
+[source, cypher]
+----
+PROFILE
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(:AirportDay {date: "2008-1-3"})<-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]->(:AirportDay {date: "2008-1-3"})<-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+RETURN *
+----
+
+The number of db hits has increase for the second query since we've now imported another ~20 extra days for the airport.
+This means that we need to check extra `:Airport(date)` properties each time we traverse `HAS_DAY` relationships.
+
+The number of db hits for the first query hasn't changed.
 
 == Next
 
-In the next section we're going to spend some time looking at specific relationship types.
+In the next section we're going to look at the mer
 
-pass:a[<a play-topic='{guides}/05_specific_relationship_types.html'>Specific Relationship Types</a>]
+pass:a[<a play-topic='{guides}/06_multiple_models.html'>Multiple Models</a>]

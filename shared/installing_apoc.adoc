@@ -12,6 +12,8 @@ If you haven't then grab a USB stick from one of the trainers or download the la
 
 * Copy `apoc.jar` into your `plugins` folder wherever you have installed Neo4j.
 
+* Restart Neo4j 
+
 == Check apoc installed correctly
 
 If you run the following command you can see which additional procedures are now available to us:

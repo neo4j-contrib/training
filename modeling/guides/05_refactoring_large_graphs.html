@@ -121,7 +121,7 @@ Instead we&#8217;ll find the distinct set of airports and only <code>MERGE</code
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///_500k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
 UNWIND [row.Origin, row.Dest] AS airport
 WITH DISTINCT airport
 MERGE (:Airport {code: airport})<!--/code--></pre>
@@ -181,11 +181,11 @@ WITH flight LIMIT 500
 
 MATCH (origin:Airport)&lt;-[:ORIGIN]-(flight)-[:DESTINATION]-&gt;(destination:Airport)
 
-MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET originAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + flight.date})
+ON CREATE SET originAirportDay.date = flight.date
 
-MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.year + "-" + flight.month + "-" + flight.day})
-ON CREATE SET destinationAirportDay.date = flight.year + "-" + flight.month + "-" + flight.day
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
+ON CREATE SET destinationAirportDay.date = flight.date
 
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
 MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
@@ -290,12 +290,93 @@ SET f:Process<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Check the import worked</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to check our import worked:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (:Flight)
+RETURN COUNT(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try repeating some of the queries from earlier sections with this new larger dataset.
+You can see the previous queries you&#8217;ve run by executing the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->:history<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Exercise: Specific date relationships</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>We forgot to add the specific date relationships between <code>:Airport</code> and <code>:AirportDay</code> nodes that we introduced in the previous section!
-Can you write a refactoring query using <code>apoc</code> to do this?</p>
+<p>We forgot to add the specific date relationships between <code>:Airport</code> and <code>:AirportDay</code> nodes that we introduced in the previous section!</p>
+</div>
+<div class="paragraph">
+<p>Can you write a refactoring query using <code>apoc</code> to do this?</p>
+</div>
+<div class="paragraph">
+<p><em>Hint</em> We&#8217;ll need to figure out how not to create duplicate relationships between <code>:Airport</code> and <code>:AirportDay</code> nodes that we processed in the previous guide.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Specific date relationships</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>This time we need to process <code>:AirportDay</code> nodes so we&#8217;ll put the temporary <code>:Process</code> label on those:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (ad:AirportDay)
+SET ad:Process<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The simplest way to not create duplicate date relationships between <code>:Airport</code> and <code>:AirportDay</code> nodes is to delete the ones we created earlier:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (airport:Airport)-[r]-&gt;(:AirportDay)
+WHERE NOT TYPE(r) = "HAS_DAY"
+DELETE r<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can create the new relationships:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->call apoc.periodic.commit('
+  MATCH (ad:Process)
+  WITH ad LIMIT {limit}
+
+  MATCH (origin:Airport)-[hasDay:HAS_DAY]-&gt;(ad:AirportDay)
+  CALL apoc.create.relationship(startNode(hasDay), ad.date, {}, endNode(hasDay) ) YIELD rel
+
+  REMOVE ad:Process
+  RETURN COUNT(*)
+',{limit:500})<!--/code--></pre>
+</div>
 </div>
 	</div>
   </div>
@@ -312,7 +393,7 @@ Can you write a refactoring query using <code>apoc</code> to do this?</p>
 <p>In the next section we&#8217;re going to spend some time looking at specific relationship types.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://localhost:8001/05_specific_relationship_types.html'>Specific Relationship Types</a></p>
+<p><a play-topic='http://localhost:8001/06_multiple_models.html'>Multiple Models</a></p>
 </div>
 	</div>
   </div>
