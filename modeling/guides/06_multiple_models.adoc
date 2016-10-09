@@ -4,7 +4,11 @@
 == Multiple Models
 
 During some of our refactoring queries we didn't delete the old model.
+Let's look at that decision in more detail.
 
+image::{img}/slides.jpg[]
+
+== Multiple Models
 
 Multiple models
 

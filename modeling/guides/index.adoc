@@ -8,6 +8,7 @@
 . pass:a[<a play-topic='{guides}/04_specific_relationship_types.html'>Specific relationship types</a>]
 . pass:a[<a play-topic='{guides}/05_refactoring_large_graphs.html'>Refactoring large graphs</a>]
 . pass:a[<a play-topic='{guides}/06_multiple_models.html'>Multiple Models</a>]
+. pass:a[<a play-topic='{guides}/07_your_turn.html'>Your Turn</a>]
 
 == Further Resources
 

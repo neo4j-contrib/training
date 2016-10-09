@@ -11,6 +11,7 @@ function render {
   $GUIDES/run.sh 05_refactoring_large_graphs.adoc 05_refactoring_large_graphs.html +1 "$@"
 
   $GUIDES/run.sh 06_multiple_models.adoc 06_multiple_models.html +1 "$@"
+  $GUIDES/run.sh 07_your_turn.adoc 07_your_turn.html +1 "$@"
   $GUIDES/run.sh 07_property_node.adoc 07_property_node.html +1 "$@"
   $GUIDES/run.sh ../../shared/installing_apoc.adoc installing_apoc.html +1 "$@"
 }

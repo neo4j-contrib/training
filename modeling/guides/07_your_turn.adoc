@@ -1,0 +1,17 @@
+= Your Turn
+:icons: font
+
+== Your Turn
+
+Now it's your turn to evolve the model further.
+
+image::{img}/slides.jpg[]
+
+== Choose your dataset
+
+Create a group with some of the people near you if you haven't already.
+
+Once you've done that decide amongst you what you're going to do next.
+Here are some suggestions:
+
+* 
