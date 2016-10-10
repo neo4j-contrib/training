@@ -55,7 +55,7 @@ Let&#8217;s look at that decision in more detail.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -66,134 +66,34 @@ Let&#8217;s look at that decision in more detail.</p>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Multiple Models</h3>
+    <h3>General or Specific or Both</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>Multiple models</p>
-</div>
-<div class="paragraph">
-<p>You have to control the invariant from your application.
-e.g. if an airline decides to cancel</p>
-</div>
-<div class="paragraph">
-<p>Maybe this can be a slide based section?</p>
-</div>
-<div class="paragraph">
-<p>What if we have multiple query patterns that we need to satisfy?</p>
-</div>
-<div class="paragraph">
-<p>e.g. the model with dates in between <code>:Airport</code> and <code>AirportDay</code> is very optimised for finding flights on a specific date but it doesn&#8217;t work so well if we want to search across multiple dates</p>
-</div>
-<div class="paragraph">
-<p>Find me all the flights between &lt;origin&gt; and &lt;destination&gt; on &lt;date&gt;</p>
-</div>
-<div class="paragraph">
-<p>vs</p>
-</div>
-<div class="paragraph">
-<p>Find me all the flights between &lt;origin&gt; and &lt;destination on &lt;date1&gt; or &lt;date2&gt; or &lt;date3&gt;</p>
-</div>
-<div class="paragraph">
-<p>With that second version our query becomes a bit more maintainable if we have the <code>HAS_DAY</code> relationship although it would still be slower.</p>
-</div>
-<div class="paragraph">
-<p>Which date will make it easier to filter?
-Should I load in all the flights for two of the hubs and have those in another CSV file?</p>
-</div>
-<div class="paragraph">
-<p>Hmm multiple CSV files.</p>
-</div>
-<div class="paragraph">
-<p>Our model looks good so far but let&#8217;s import some more data and see how it fares as we add more queries.</p>
-</div>
-<div class="paragraph">
-<p>We need to import some more of the dataset in so we can see the problem with dense nodes</p>
-</div>
-<div class="paragraph">
-<p>It’s not a bad model, but we will have very dense nodes. Think about major hubs like Atlanta, Beijing, Dubai, London Heathrow, or even my local Chicago O’Hare. These would be very massive nodes with no quick way to filter routes without checking multiple properties which will slow our traversal down quite a bit.</p>
-</div>
-<div class="paragraph">
-<p>When a user is trying to book a flight, they know where they are starting from, where they want to go, and what day they want to fly. So lets reimagine our model to introduce the concept of days.</p>
-</div>
-<div class="paragraph">
-<p>As a user I want to book a flight from &lt;origin&gt; to &lt;destination&gt; on &lt;date&gt;</p>
-</div>
-<div class="paragraph">
-<p>(airport)-[:HAS_DAY]&#8594;(airportDay)-[:HAS_FLIGHT]&#8594;(flight)</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Exercise</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>We want to introduce the concept of an <code>Airline</code> so that we can quickly find fights by our favorite airline without having to scan through all the flights.
-Don&#8217;t forget to connect the <code>Airline</code> nodes to the appropriate flights.</p>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Answer: Create <code>Airline</code> nodes</h3>
-    <br/>
-    <div>
-      <div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
-MERGE (airline:Airline {code: flight.airline})
-MERGE (flight)-[:AIRLINE]-&gt;(airline)<!--/code--></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>We can make this even faster by forcing the use of indexes on both sides, but this seems like more of a solution for advanced Cypher than for modelling.</p>
+<p>In the specific relationship types guide we introduced data based relationships between <code>:Airport</code> and <code>:AirportDay</code> nodes.
+We saw that this refactoring gave us a performance boost when trying to find the flights between two airports on a particular day.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
-MATCH (origin:Airport {code: "LAS"})-[:`2008-1-30`]-&gt;(:AirportDay)&lt;-[:ORIGIN]-(flight:Flight),
-      (flight)-[:DESTINATION]-&gt;(:AirportDay)&lt;-[:`2008-1-30`]-(destination:Airport {code: "MDW"})
-USING INDEX origin:Airport(code)
-USING INDEX destination:Airport(code)
+MATCH (origin:Airport {code: "LAS"})-[:`2008-1-3`]-&gt;(:AirportDay)&lt;-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]-&gt;(:AirportDay)&lt;-[:`2008-1-3`]-(destination:Airport {code: "MDW"})
 RETURN *<!--/code--></pre>
 </div>
 </div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Other ideas</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>We could even connect the different legs of the flight together?</p>
+<div class="paragraph">
+<p>vs</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(:AirportDay {date: "2008-1-3"})&lt;-[:ORIGIN]-(flight:Flight),
+      (flight)-[:DESTINATION]-&gt;(:AirportDay {date: "2008-1-3"})&lt;-[:HAS_DAY]-(destination:Airport {code: "MDW"})
+RETURN *<!--/code--></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>Other modeling topics:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Inferred relationships</p>
-</li>
-<li>
-<p>Maintaining multiple models for optimal write speed</p>
-</li>
-</ul>
+<p>If that&#8217;s the only date based query that we want to run then it&#8217;d make sense to delete the <code>HAS_DAY</code> relationships and just go with the more specific relationship type.</p>
 </div>
 	</div>
   </div>
@@ -203,12 +103,141 @@ RETURN *<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Reload all the data vs refactoring</h3>
+    <h3>Find flights by year and month</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>What do you think?
-Should we bother with this careful refactoring or should we just load all our data from scratch?</p>
+<p>But what if a new requirement comes up to allow our users to search all flights that happened in a particular month?</p>
+</div>
+<div class="paragraph">
+<p>This would be very easy to write with the <code>HAS_DAY</code> relationship:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]-&gt;(originDay:AirportDay),
+      (originDay)&lt;-[:ORIGIN]-(flight:Flight)
+WHERE originDay.date STARTS WITH "2008-1"
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With the data based relationships we&#8217;d need to specify each of them individually:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})
+       -[:`2008-1-3`|:`2008-1-4`|:`2008-1-5`|:`2008-1-6`]-&gt;(originDay:AirportDay),
+      (originDay)&lt;-[:ORIGIN]-(flight:Flight)
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The above query only finds the flights on 4 of the days in January 2008.
+We&#8217;d need to add a few more relationship types to cover the whole month.</p>
+</div>
+<div class="paragraph">
+<p>In summary, the date based relationship type works really well when we want to find flights on a specific date but becomes a bit unwieldy when we want to search more broadly.
+So should we keep both relationship types?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Keep both?</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If we keep both relationships it seems like we get the best of both worlds.
+We can have our fast specific day queries and we can easily write queries to find flights in a specific month.</p>
+</div>
+<div class="paragraph">
+<p>The disadvantage is that we need to keep these relationships in sync from our application code.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Archiving flights</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>For example, let&#8217;s say we decide to archive all the flights from January 1st 2008 which means we need to delete them from our graph.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (airportDay:AirportDay {date: "2008-1-1"})
+MATCH (airportDay)&lt;-[general:HAS_DAY]-()
+MATCH (airportDay)&lt;-[specific:`2008-1-1`]-()
+DELETE general, specific<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We need to make sure we delete both the <code>HAS_DAY</code> and date specific relationship otherwise the data will be inconsistent depending on which relationship type we query through.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Adding flights on new dates</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We have the same problem when adding flights on a new date.
+Run the following query to add flights from a different day:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_february.csv" AS row
+
+MERGE (origin:Airport {code: row.Origin})
+MERGE (destination:Airport {code: row.Dest})
+
+MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
+ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
+              newFlight.airline = row.UniqueCarrier,
+              newFlight.number = row.FlightNum,
+              newFlight.departure = TOINT(row.CRSDepTime),
+              newFlight.arrival = TOINT(row.CRSArrTime)
+MERGE (origin)<-[:ORIGIN]-(newFlight)
+MERGE (newFlight)-[:DESTINATION]->(destination)
+
+MERGE (originAirportDay:AirportDay {id: origin.code + "_" + newFlight.date})
+ON CREATE SET originAirportDay.date = newFlight.date
+
+MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + newFlight.date})
+ON CREATE SET destinationAirportDay.date = newFlight.date
+
+MERGE (originAirportDay)<-[:ORIGIN]-(flight)
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+
+MERGE (origin)-[hasDayOrigin:HAS_DAY]->(originAirportDay)
+MERGE (destination)-[hasDayDestination:HAS_DAY]->(destinationAirportDay)
+
+WITH *
+UNWIND [[hasDayOrigin, originAirportDay], [hasDayDestination, destinationAirportDay]] AS pair
+
+WITH DISTINCT pair
+CALL apoc.convert.toRelationship(pair[0]) YIELD rel
+WITH rel AS hasDay, pair[1] AS day
+
+CALL apoc.create.relationship(startNode(hasDay), day.date, {}, endNode(hasDay) )
+YIELD rel
+RETURN COUNT(*)<!--/code--></pre>
+</div>
 </div>
 	</div>
   </div>
@@ -222,7 +251,10 @@ Should we bother with this careful refactoring or should we just load all our da
     <br/>
     <div>
       <div class="paragraph">
-<p><a play-topic='http://localhost:8001/06_refactoring_large_graphs.html'>Refactoring Large Graphs</a></p>
+<p>In the next section we&#8217;re going to split into groups and you&#8217;ll have a chance to apply some of the things you&#8217;ve learnt.</p>
+</div>
+<div class="paragraph">
+<p><a play-topic='http://guides.neo4j.com/modeling_airports/07_your_turn.html'>Your Turn</a></p>
 </div>
 	</div>
   </div>

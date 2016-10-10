@@ -58,7 +58,7 @@ Instead we&#8217;ll have to update it in batches.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://localhost:8001/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -92,7 +92,8 @@ ON CREATE SET destinationAirportDay.date = flight.date
 
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
 MERGE (flight)-[:ORIGIN]-&gt;(originAirportDay)
-MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
+MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+MERGE (destination)-[:HAS_DAY]-&gt;(destinationAirportDay)<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -121,7 +122,7 @@ Instead we&#8217;ll find the distinct set of airports and only <code>MERGE</code
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_500k.csv" AS row
 UNWIND [row.Origin, row.Dest] AS airport
 WITH DISTINCT airport
 MERGE (:Airport {code: airport})<!--/code--></pre>
@@ -134,15 +135,15 @@ This will flush the transaction every 10,000 rows rather than executing the whol
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_500k.csv" AS row
 MATCH (origin:Airport {code: row.Origin})
 MATCH (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
 ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
               newFlight.airline = row.UniqueCarrier,
               newFlight.number = row.FlightNum,
-              newFlight.departure = row.Dest,
-              newFlight.arrival = row.UniqueCarrier
+              newFlight.departure = TOINT(row.CRSDepTime),
+              newFlight.arrival = TOINT(row.CRSArrTime)
 MERGE (origin)<-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]->(destination)<!--/code--></pre>
 </div>
@@ -190,6 +191,7 @@ ON CREATE SET destinationAirportDay.date = flight.date
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
 MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
 MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+MERGE (destination)-[:HAS_DAY]-&gt;(destinationAirportDay)
 
 REMOVE flight:Process
 RETURN COUNT(*)<!--/code--></pre>
@@ -276,6 +278,7 @@ SET f:Process<!--/code--></pre>
   MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
   MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
   MERGE (flight)-[:DESTINATION]-(destinationAirportDay)
+  MERGE (destination)-[:HAS_DAY]-&gt;(destinationAirportDay)
 
   REMOVE flight:Process
   RETURN COUNT(*)
@@ -434,7 +437,7 @@ This means that we need to check extra <code>:Airport(date)</code> properties ea
 In the next section we&#8217;ll look at the advantages/disadvantages of having multiple models in the graph.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://localhost:8001/06_multiple_models.html'>Multiple Models</a></p>
+<p><a play-topic='http://guides.neo4j.com/modeling_airports/06_multiple_models.html'>Multiple Models</a></p>
 </div>
 	</div>
   </div>
