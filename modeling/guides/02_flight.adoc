@@ -165,8 +165,8 @@ Run the following query:
 
 [source, cypher]
 ----
-MATCH ()-[flight:CONNECTED_TO]->()
-DELETE flight
+MATCH ()-[connection:CONNECTED_TO]->()
+DELETE connection
 ----
 
 == Next Step
