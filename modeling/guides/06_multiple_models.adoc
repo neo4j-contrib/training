@@ -131,6 +131,51 @@ YIELD rel
 RETURN COUNT(*)
 ----
 
+== Do we really need both models?
+
+At this point it's becoming quite onerous keeping both models in check.
+Perhaps we can find a way to achieve our querying goals without having two models?
+
+image::{img}/slides.jpg[]
+
+== Deleting airports
+
+Since we don't need airports anymore, let's get rid of them:
+
+[source, cypher]
+----
+MATCH (airport:Airport)
+DETACH DELETE airport
+----
+
+`DETACH DELETE` removes a node and all the relationships attached to it, which is exactly what we want to do.
+
+== Exercise: Find flights with our new model
+
+Try writing queries that start from `:AirportDay` to find:
+
+* flights between `LAS` and `MDM` on `2008-1-3`
+* flights going out of `LAS` on in January 2008
+
+== Answer: Find flights on a particular day
+
+[source, cypher]
+----
+MATCH (origin:AirportDay)<-[:ORIGIN]-(flight:Flight)-[:DESTINATION]->(destination:AirportDay)
+WHERE origin.id = "LAS_2008-1-3" AND destination.id = "MDM_2008-1-3"
+RETURN *
+----
+
+== Answer: Find flights by year and month
+
+[source, cypher]
+----
+MATCH (originDay:AirportDay)<-[:ORIGIN]-(flight:Flight)
+WHERE originDay.id STARTS WITH "LAS_2008-1"
+RETURN flight.date, flight.number, flight.airline, flight.departure, flight.arrival
+ORDER BY flight.date, flight.departure
+----
+
 == Next
 
 In the next section we're going to split into groups and you'll have a chance to apply some of the things you've learnt.

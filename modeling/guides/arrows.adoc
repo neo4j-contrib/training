@@ -227,10 +227,3 @@ Flight as node
   </li>
 </ul>
 ----
-
-Linked list of flights
-
-[source, text]
-----
-
-----

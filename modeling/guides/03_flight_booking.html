@@ -249,8 +249,10 @@ SET originAirportDay.date = flight.date
 MERGE (destinationAirportDay:AirportDay {id: destination.code + "_" + flight.date})
 SET destinationAirportDay.date = flight.date
 MERGE (origin)-[:HAS_DAY]-&gt;(originAirportDay)
-MERGE (originAirportDay)&lt;-[:ORIGIN]-(flight)
-MERGE (flight)-[:DESTINATION]-(destinationAirportDay)<!--/code--></pre>
+MERGE (flight)-[:ORIGIN]-&gt;(originAirportDay)
+
+MERGE (flight)-[:DESTINATION]-&gt;(destinationAirportDay)
+MERGE (destination)-[:HAS_DAY]-&gt;(destinationAirportDay)<!--/code--></pre>
 </div>
 </div>
 	</div>
