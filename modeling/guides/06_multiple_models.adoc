@@ -157,6 +157,10 @@ Try writing queries that start from `:AirportDay` to find:
 * flights between `LAS` and `MDM` on `2008-1-3`
 * flights going out of `LAS` on in January 2008
 
+== Click through for the answers
+
+If you really want to see them...
+
 == Answer: Find flights on a particular day
 
 [source, cypher]

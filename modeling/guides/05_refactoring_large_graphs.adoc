@@ -197,6 +197,10 @@ Can you write a refactoring query using `apoc` to do this?
 
 _Hint_ We'll need to figure out how not to create duplicate relationships between `:Airport` and `:AirportDay` nodes that we processed in the previous guide.
 
+== Click through for the answers
+
+If you really want to see them...
+
 == Answer: Specific date relationships
 
 This time we need to process `:AirportDay` nodes so we'll put the temporary `:Process` label on those:

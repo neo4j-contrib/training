@@ -78,6 +78,10 @@ MATCH (origin:Airport)-[hasDay:HAS_DAY]->(ad:AirportDay)
 // code that creates a new relationship type based on ad.date
 ----
 
+== Click through for the answers
+
+If you really want to see them...
+
 == Answer: Refactoring to specific relationship type
 
 The following query will create new relationships from `:Airport` to `:AirportDay`
