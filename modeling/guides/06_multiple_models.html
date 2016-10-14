@@ -55,7 +55,7 @@ Let&#8217;s look at that decision in more detail.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling-airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -201,7 +201,7 @@ Run the following query to add flights from a different day:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_february.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_february.csv" AS row
 
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
@@ -256,7 +256,7 @@ Perhaps we can find a way to achieve our querying goals without having two model
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling-airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -314,6 +314,20 @@ DETACH DELETE airport<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Click through for the answers</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If you really want to see them&#8230;&#8203;</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Answer: Find flights on a particular day</h3>
     <br/>
     <div>
@@ -358,7 +372,7 @@ ORDER BY flight.date, flight.departure<!--/code--></pre>
 <p>In the next section we&#8217;re going to split into groups and you&#8217;ll have a chance to apply some of the things you&#8217;ve learnt.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/modeling_airports/07_your_turn.html'>Your Turn</a></p>
+<p><a play-topic='http://guides.neo4j.com/modeling-airports/07_your_turn.html'>Your Turn</a></p>
 </div>
 	</div>
   </div>
