@@ -115,7 +115,7 @@ CSV Data Problems:
 
 So we want to see them how Cypher sees them, with Cypher.
 
-=== Row Count
+== Row Count
 
 [source,cypher,subs=attributes]
 ----
@@ -123,7 +123,7 @@ LOAD CSV FROM {movies-url} AS row
 RETURN count(*);
 ----
 
-=== Row as List Data
+== Row as List Data
 
 [source,cypher,subs=attributes]
 ----
@@ -133,7 +133,7 @@ RETURN * LIMIT 5;
 
 == LOAD CSV - WITH HEADERS
 
-=== Row as Map Data
+== Row as Map Data
 
 [source,cypher,subs=attributes]
 ----
@@ -142,7 +142,7 @@ LOAD CSV WITH HEADERS FROM
 RETURN row, keys(row) LIMIT 5;
 ----
 
-=== Data Conversion
+== Data Conversion
 
 * Use conversion functions, toInt, toFloat, split
 
@@ -219,6 +219,8 @@ CREATE INDEX ON :Movie(title);
 * Create nodes individually, one per label
 * Create relationships, one per type
 
+== Import Movies
+
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM  
@@ -226,6 +228,30 @@ LOAD CSV WITH HEADERS FROM
 CREATE (:Movie {id:toInt(row.movieId), title:row.title,  avgVote:toFloat(row.avgVote), 
         releaseYear:toInt(row.releaseYear), genres: split(row.genres,":"));
 ----
+
+Data Transformation from string
+
+* to integer for releaseYear
+* to floating point for avgVote
+* to a list for genres
+
+
+== Exercise: Import People (10')
+
+* Import the people from {people_url}
+* Determine the number of rows
+* Determine structure of first 5 rows
+* Goal: `:Person(id,name,born,died)`
+* Import people with `CREATE` 
+* Re-run with `MERGE`
+
+Make sure to transform the time
+
+== Exercise: Import People 
+
+Solution on next slide, don't peek.
+
+== Import People
 
 [source,cypher,subs=attributes]
 ----
@@ -239,14 +265,34 @@ ON CREATE SET person.name = row.name,
 
 NOTE: `deathYear` can be missing. `toInt()` returns null, property not set.
 
+== Import Directors
+
 [source, cypher, subs=attributes]
 ----
+PROFILE
 LOAD CSV WITH HEADERS FROM {directors_url} as row
 
 MATCH (movie:Movie {id:toInt(row.movieId)})
 MATCH (person:Person {id: toInt(row.personId)})
-MERGE (person)-[:DIRECTED]->(movie);
+MERGE (person)-[:DIRECTED]->(movie)
+ON CREATE SET person:Director;
 ----
+
+
+== Exercise: Import Actors
+
+* Import `ACTED_IN(roles)` relationship
+* From {actors_url}
+* Determine rows and structure of first 5 entries
+* Only create one ACTED_IN relationship per Person->Movie
+* Set `roles` to a list of roles
+* Set `:Actor` label
+
+== Exercise: Import Actors
+
+Solution on next page. Wait here.
+
+== Solution: Import Actors
 
 [source,cypher,subs=attributes]
 ----
@@ -258,42 +304,49 @@ FIELDTERMINATOR ','
 MATCH  (movie:Movie  {id: toInt(row.movieId) }) 
 MATCH  (person:Person {id: toInt(row.personId) }) 
 MERGE  (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
+ON CREATE SET person:Actor;
 ----
 
-=== Pro
+Discuss:
 
-* Simple statement
+* FIELDTERMINATOR 
+* PERIODIC COMMIT
+* Eagerness
+
+== Pro
+
+* Simple statements
 * Single merge for movies and actors
 * Single Pass
 
-=== Con
+== Con
 
 * Additional index lookups
-* Deadlocks for rels if parallelized
+* Deadlocks for relationships if parallelized
 
-=== Denormalized Data (1)
+== Denormalized Data (1)
 
 * Single CSV file
-* Multi-Pass
+* *Multi-Pass*
 * Create nodes individually, one per label
 * Create relationships, one per type
 
 Same as before, just run multiple passes over the same file.
 
-=== Pro
+== Pro
 
-* Simple statement
+* Simple statement, easy to understand
 
-=== Con
+== Con
 
 * Unnecessary merges for duplicate movies and actors
 * Additional index lookups
 * Multi Pass
 * Deadlocks for rels if parallelized
 
-=== Denormalized Data (2)
+== Denormalized Data (2)
 
-* Single CSV file
+* Single denormalized CSV file
 * Single-Pass
 * Create sub-graph per row, e.g. Movie and Person and Relationship
 
@@ -310,22 +363,22 @@ MERGE (p:Person {id: toInt(row.personId)})
    ON CREATE SET p.name = row.name, p.born = toInt(row.birthYear), 
       p.died = toInt(row.deathYear)
 
-CREATE (p)-[:ACTED_IN {roles: split(row.characters,':')}]->(m);
+CREATE (p)-[:ACTED_IN {roles: split(row.characters,':')}]->(m)
+ON CREATE SET p:Actor;
 ----
 
-=== Pro
+== Pro
 
 * Saves index lookups
 * Single Pass
 * Works well with cost based planner
 
-=== Con
+== Con
 
 * More complex statement
 * Unnecessary merges for duplicate movies and actors
 * Deadlocks if parallelized
-
---------------
+* Potential Eagerness problem
 
 == Reduce Index lookups
 
@@ -347,18 +400,33 @@ MERGE (m:Movie {movieId:movieId)
 
 ----
 
-== Recovering if you messed up
+== Recovering if you messed up (with Periodic Commit)
 
-* Mark newly created data with label (rels with property) in (ON) CREATE
+* Mark newly created data with label (relationships with property) in (ON) CREATE
 * Remove nodes with that label / rels with that property
 
-* Neo4j-Shell / Cypher-Shell use begin/rollback transactions
-
+* In Neo4j-Shell / Cypher-Shell use begin/rollback transactions
 
 == Aggregate sub-structure
 
 * Reduce Index-Lookup for Movie
-* (disables periodic commit)
+* Turns statement to be (artificially) eager
+* Effectively disables periodic commit
+
+[source,cypher,subs=attributes]
+----
+PROFILEs
+LOAD CSV WITH HEADERS FROM  
+     {movies_roles_url} AS row
+
+WITH row.movieId as movieId, row.title as title, row.genres as genres,
+toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
+
+collect({id: row.personId, name:row.name, born: toInt(row.birthYear), died:toInt(row.deathYear), 
+         roles: split(coalesce(row.characters,""),':')}) as people
+
+RETURN * LIMIT 10;
+----
 
 [source,cypher,subs=attributes]
 ----
@@ -398,8 +466,8 @@ CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m);
 - more sensible matches for long patterns or varlength
 - so it enables more complex create patterns again
 - eager is also better
-////
 
 == Next step
 
 pass:a[<a play-topic={guides}/03_aggregates.html'>Aggregate Queries</a>]
+////
