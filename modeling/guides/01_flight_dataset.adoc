@@ -235,7 +235,7 @@ LIMIT 10
 
 [source, cypher]
 ----
-MATCH (origin:Airport {code: "LAX"})-[connection:CONNECTED_TO]->(destination:Airport {code: "LAS"})
+MATCH (origin:Airport {code: "LAS"})-[connection:CONNECTED_TO]->(destination:Airport {code: "LAX"})
 RETURN origin, destination, connection
 LIMIT 10
 ----
