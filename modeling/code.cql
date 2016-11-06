@@ -453,8 +453,19 @@ MATCH (airport {code:  "LAX"})
 MATCH (airportDay:AirportDay {id: "LAX_2008-2-1"})
 MATCH (airport)-[general:HAS_DAY]->(airportDay)
 MATCH (airport)-[specific:`2008-2-1`]->(airportDay)
-DELETE general, specific
+DELETE general, specific;
 
+MATCH (m:Movie)
+RETURN m;
+
+MATCH (p:Person)-[r:ACTED_IN]->(m:Movie)
+RETURN p, r, m;
+
+MATCH p = (:Person)-[:ACTED_IN]->(:Movie)
+RETURN p;
+
+MATCH (m:Movie)
+RETURN m.title AS title
 
 
 

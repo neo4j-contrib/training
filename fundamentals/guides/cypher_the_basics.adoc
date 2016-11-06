@@ -1,0 +1,422 @@
+= Cypher: The Basics
+
+== Cypher: The Basics
+
+In this guide we'll introduce the main keywords in the Cypher query language and write some queries to get familiar with them.
+
+Let's get started!
+
+== The `WHERE` clause
+
+The `WHERE` clause is used to filter results.
+e.g. we could use it to look up `Tom Hanks` in our dataset:
+
+[source, cypher]
+----
+MATCH (p:Person)
+WHERE p.name = 'Tom Hanks'
+RETURN p
+----
+
+This query:
+
+* scans through all nodes which have the label `Person`
+* filters those which have the value `Tom Hanks` for the `name` property
+* returns any matching nodes
+
+Try the names of some other actors to see if they're in our dataset.
+
+== Exercise: `WHERE` syntactic sugar
+
+Can you work out the syntactic sugar for looking up a person without using a `WHERE` clause?
+
+_Hint_ The link:https://neo4j.com/docs/developer-manual/current/cypher/#query-match[Cypher query language section] of the developer manual may come in handy.
+
+== Answer: `WHERE` syntactic sugar
+
+The following query is equivalent:
+
+[source, cypher]
+----
+MATCH (person:Person {name: "Tom Hanks"})
+RETURN person
+----
+
+== Exercise: Find the people who acted in Top Gun
+
+Can you write a query to find all the people who acted in the movie `Top Gun`?
+You can use the syntactic sugar or long hand version of `WHERE`, whichever you prefer!
+
+== Answer: Find the people who acted in Top Gun
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE m.title = 'Top Gun'
+RETURN p.name
+----
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie {title: 'Top Gun'})
+RETURN p.name
+----
+
+== More on `WHERE`
+
+As well as matching on string equality Cypher also supports `STARTS WITH`, `ENDS WITH`, and `CONTAINS` operators.
+e.g. if we want to find all the actors whose first name is `Tom` we could write the following query:
+
+[source, cypher]
+----
+MATCH (p:Person)
+WHERE p.name STARTS WITH 'Tom'
+RETURN p
+----
+
+== Exercise: Find people whose names start with 'Kevin' and any movies they’ve acted in.
+
+Try and write a query to find people whose names start with `Kevin` and any movies they’ve acted in.
+
+Once you've done that write some queries using `ENDS WITH` and `CONTAINS`.
+
+_Hint_ Don't forget to look at the link:https://neo4j.com/docs/developer-manual/current/cypher/#query-where-string[String matching] section of the developer manual.
+
+== Answer: Find people whose names start with 'Kevin' and any movies they’ve acted in.
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE p.name STARTS WITH 'Kevin'
+RETURN p, m
+----
+
+== Aliasing in the `RETURN` clause
+
+We can alias the names of the values returned in `RETURN` statements by using the `AS` keyword:
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE p.name = 'Tom Hanks'
+RETURN m.title AS title
+----
+
+== Aggregates
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+RETURN p.name, count(*) AS movies
+----
+
+== `ORDER BY` and `LIMIT` clauses
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+RETURN p.name, count(*) AS movies
+ORDER BY movies DESC
+LIMIT 5
+----
+
+== Exercise: Find the top five movies with the most actors.
+
+== Answer: Find the top five movies with the most actors.
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+RETURN m.title, count(*) AS actors
+ORDER BY actors DESC
+LIMIT 5
+----
+
+== Duplicates
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie),
+      (other:Person)-[:ACTED_IN]->(m)
+WHERE p.name = 'Meg Ryan'
+RETURN other.name
+----
+
+== Duplicates
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie),
+      (other:Person)-[:ACTED_IN]->(m)
+WHERE p.name = 'Meg Ryan'
+RETURN other.name, m.title
+ORDER BY other.name
+----
+
+== The `DISTINCT` keyword
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie),
+      (other:Person)-[:ACTED_IN]->(m)
+WHERE p.name = 'Meg Ryan'
+RETURN DISTINCT other.name
+----
+
+== More `MATCH` clause
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie),
+      (other:Person)-[:ACTED_IN]->(m),
+      (director:Person)-[:DIRECTED]->(m)
+WHERE p.name = 'Meg Ryan'
+RETURN m.title AS movie,
+       director.name AS director,
+       other.name AS coActor
+----
+
+== Patterns in the `WHERE` clause
+
+[source, cypher]
+----
+MATCH (p:Person)-[:WROTE]->(m:Movie)
+WHERE (p)-[:PRODUCED]->(m)
+RETURN p.name, m.title
+----
+
+== (Negative) Patterns in the `WHERE` clause
+
+[source, cypher]
+----
+MATCH (p:Person)-[:WROTE]->(m:Movie)
+WHERE NOT (p)-[:PRODUCED]->(m)
+RETURN p.name, m.title
+----
+
+== OR with relationship types
+
+[source, cypher]
+----
+MATCH (p:Person)-[r:ACTED_IN|:DIRECTED]->(m:Movie)
+WHERE p.name = 'Danny DeVito'
+RETURN p.name, type(r), m.title
+----
+
+== Exercise: Find people who have not acted in or directed a movie.
+
+== Answer: Find people who have not acted in or directed a movie.
+
+[source, cypher]
+----
+MATCH (p:Person)
+WHERE NOT (p)-[:ACTED_IN|:DIRECTED]->(:Movie)
+RETURN p
+----
+
+== The `OPTIONAL MATCH` clause
+
+[source, cypher]
+----
+MATCH (p:Person)-[:DIRECTED]->(m:Movie)
+WHERE p.name STARTS WITH 'Tom'
+RETURN p.name, m.title
+----
+
+== The `OPTIONAL MATCH` clause
+
+[source, cypher]
+----
+MATCH (p:Person)
+WHERE p.name STARTS WITH 'Tom'
+OPTIONAL MATCH (p)-[:DIRECTED]->(m:Movie)
+RETURN p.name, m.title
+----
+
+== The `COLLECT` function
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE m.title STARTS WITH 'The Matrix'
+RETURN m.title, collect(p.name) AS actors
+----
+
+== The `WITH` clause
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WITH p, collect(m.title) AS movies
+WHERE size(movies) > 5
+RETURN p.name, movies
+----
+
+== The `WITH` clause
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WITH p, m
+ORDER BY m.title
+WITH p, collect(m.title) AS movies
+WHERE size(movies) > 5
+RETURN p.name, movies
+----
+
+== The `WITH` clause
+
+[source, cypher]
+----
+MATCH (actor:Person)
+
+WITH actor
+ORDER BY actor.born
+LIMIT 2 
+MATCH (actor)-[:ACTED_IN]->(movie:Movie)
+
+WITH actor, movie 
+ORDER BY movie.released DESC
+RETURN actor.name,
+       2016 - actor.born AS age,
+       COLLECT(movie.title)[..3] AS movies
+----
+
+== The `SIZE()` function
+
+[source, cypher]
+----
+MATCH (p:Person)
+RETURN p.name,
+       SIZE((p)-[:PRODUCED]->(:Movie)) AS prod
+ORDER BY prod DESC
+LIMIT 5
+----
+
+== The `SIZE()` function
+
+[source, cypher]
+----
+MATCH (p:Person)
+WHERE size((p)-[:PRODUCED]->(:Movie)) > 5
+RETURN p.name
+----
+
+== Exercise: Find the top five actors by how many movies they’ve acted in and movies they’ve directed, if any.
+
+
+== Answer: Find the top five actors by how many movies they’ve acted in and movies they’ve directed, if any.
+
+[source, cypher]
+----
+MATCH (p:Person)
+
+WITH p, size((p)-[:ACTED_IN]->(:Movie)) AS movies
+ORDER BY movies DESC
+LIMIT 5
+
+OPTIONAL MATCH (p)-[:DIRECTED]->(m:Movie)
+RETURN p.name, m.title
+----
+
+== The `UNWIND` clause
+
+[source, cypher]
+----
+WITH [1, 2, 3] AS list
+RETURN list
+----
+
+[source, cypher]
+----
+WITH [1, 2, 3] AS list
+UNWIND list AS row
+RETURN row
+----
+
+== The `UNWIND` clause
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+
+WITH p, m
+ORDER BY m.released
+
+WITH p, collect(m)[..3] AS topThree
+UNWIND topThree AS m
+MATCH (dir:Person)-[:DIRECTED]->(m)
+RETURN p.name, m.title, dir.name
+----
+
+== Variable length paths
+
+[source, cypher]
+----
+MATCH p = (p1:Person)-[:ACTED_IN*..4]-(p2:Person)
+WHERE p1.name = 'Tom Cruise' AND
+      p2.name = 'Kevin Bacon'
+RETURN p
+----
+
+== Variable length paths
+
+[source, cypher]
+----
+MATCH p = (p1:Person)-[:ACTED_IN*4..6]-(p2:Person)
+WHERE p1.name = 'Tom Cruise' AND
+      p2.name = 'Kevin Bacon'
+RETURN p
+----
+
+== Variable length paths
+
+[source, cypher]
+----
+MATCH p = (p1:Person)-[:ACTED_IN*4..6]-(p2:Person)
+WHERE p1.name = 'Tom Cruise' AND
+      p2.name = 'Kevin Bacon'
+RETURN [x IN nodes(p) |
+  CASE WHEN x:Person THEN x.name
+       WHEN x:Movie  THEN x.title
+  ELSE '' END
+] AS path
+----
+
+== Shortest path
+
+[source, cypher]
+----
+MATCH p = shortestPath((p1:Person)-[*]-(p2:Person))
+WHERE p1.name = 'Tom Cruise' AND
+      p2.name = 'Kevin Bacon'
+RETURN p
+----
+
+== Exercise: Find the shortest path between Top Gun and The Matrix through any relationship type.
+
+== Answer: Find the shortest path between Top Gun and The Matrix through any relationship type.
+
+[source, cypher]
+----
+MATCH p = shortestPath((m1:Movie)-[*]-(m2:Movie))
+WHERE m1.title = 'Top Gun' AND
+      m2.title = 'The Matrix'
+RETURN p
+----
+
+== Exercise: Recommend 3 actors that Keanu Reeves should work with, but hasn’t.
+
+== Answer: Recommend 3 actors that Keanu Reeves should work with, but hasn’t.
+
+[source, cypher]
+----
+MATCH (p:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(c),
+(c)-[:ACTED_IN]->()<-[:ACTED_IN]-(coc)
+WHERE p.name = 'Keanu Reeves'
+	AND coc <> p
+ 	AND NOT (p)-[:ACTED_IN]->()<-[:ACTED_IN]-(coc)
+RETURN coc.name as colleagueOfColleague, count(coc) as weight
+ORDER BY weight DESC
+LIMIT 3
+----

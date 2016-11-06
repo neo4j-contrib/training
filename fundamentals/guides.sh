@@ -15,9 +15,10 @@ function create_guide {
    cd -
 }
 
-create_guide guides basics.adoc basics.html 
+create_guide guides basics.adoc basics.html
 create_guide guides advanced.adoc advanced.html
 create_guide guides updates.adoc updates.html
 create_guide guides import.adoc import.html
 create_guide guides movies.adoc movies.html
+create_guide guides cypher_the_basics.adoc cypher_the_basics.html
 create_guide "guides" guides.adoc index.html "img/*.png img/*.jpg"

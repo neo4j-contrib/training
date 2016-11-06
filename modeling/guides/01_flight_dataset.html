@@ -81,7 +81,7 @@ So that I can find the busiest ones</pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling-airports/img/initial.png" alt="initial" width="100%">
+<img src="http://guides.neo4j.com/modeling_airports/img/initial.png" alt="initial" width="100%">
 </div>
 </div>
 	</div>
@@ -167,7 +167,7 @@ To avoid this we can use Cypher&#8217;s <code>MERGE</code> keyword instead of <c
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling-airports/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -245,7 +245,7 @@ RETURN connection<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/modeling-airports/img/slides.jpg" alt="slides">
+<img src="http://guides.neo4j.com/modeling_airports/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -491,7 +491,7 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAX"})-[connection:CONNECTED_TO]-&gt;(destination:Airport {code: "LAS"})
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (origin:Airport {code: "LAS"})-[connection:CONNECTED_TO]-&gt;(destination:Airport {code: "LAX"})
 RETURN origin, destination, connection
 LIMIT 10<!--/code--></pre>
 </div>
@@ -559,7 +559,7 @@ RETURN origin.code, destination.code, connection.date, connection.departure, con
 We&#8217;ll then refactor the model to introduce <code>Flight</code> as a first class concept.</p>
 </div>
 <div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/modeling-airports/02_flight.html'>Flight as a first class citizen</a></p>
+<p><a play-topic='http://guides.neo4j.com/modeling_airports/02_flight.html'>Flight as a first class citizen</a></p>
 </div>
 	</div>
   </div>
