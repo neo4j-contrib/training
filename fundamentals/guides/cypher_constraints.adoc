@@ -1,0 +1,35 @@
+= Cypher: Constraints and Indexes
+
+== Cypher: Constraints and Indexes
+
+In this guide we're going to apply constraints and indexes to our movies dataset.
+
+== Property existence constraint
+
+Let's make sure people have names and movies have titles:
+
+[source, cypher]
+----
+CREATE CONSTRAINT ON (p:Person)
+ASSERT exists(p.name)
+----
+
+[source, cypher]
+----
+CREATE CONSTRAINT ON (m:Movie)
+ASSERT exists(m.title)
+----
+
+== Indexes
+
+We'll also add some indexes to allow quick lookup of nodes:
+
+[source, cypher]
+----
+CREATE INDEX ON :Person(born)
+----
+
+[source, cypher]
+----
+CREATE INDEX ON :Movie(released);
+----

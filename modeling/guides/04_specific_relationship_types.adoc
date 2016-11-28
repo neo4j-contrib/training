@@ -63,7 +63,7 @@ CALL apoc.help(procedureName)  YIELD name, text
 RETURN name, text
 ----
 
-To delete the `HAS_DAY` relationship and replace it with a date based relationship we could use `apoc.refactor.setType` but for now we'll add the new relationship `HAS_DAY` so we can compare the execution plans of both queries.
+If we wanted to delete the `HAS_DAY` relationship and replace it with a date based relationship we could use `apoc.refactor.setType` but for the time being we'll add the new data based relationship and keep the existing `HAS_DAY` relationship so we can compare the execution plans of both queries.
 We can always delete `HAS_DAY` afterwards if necessary.
 
 == Exercise: Refactoring to specific relationship type

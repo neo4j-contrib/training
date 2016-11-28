@@ -104,6 +104,14 @@ RETURN m.title AS title
 
 == Aggregates
 
+Next we're going to write some queries that make use of aggregates, but first a quick explanation.
+
+image::{img}/slides.jpg[]
+
+== Aggregates
+
+Run the following query to find the number of movies that each person acted in:
+
 [source, cypher]
 ----
 MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
@@ -111,6 +119,9 @@ RETURN p.name, count(*) AS movies
 ----
 
 == `ORDER BY` and `LIMIT` clauses
+
+A more interesting query would be to find the people who acted in the most movies.
+We can use the `ORDER BY` and `LIMIT` clauses to find the top 5 busiest people:
 
 [source, cypher]
 ----
@@ -122,7 +133,11 @@ LIMIT 5
 
 == Exercise: Find the top five movies with the most actors.
 
+Can you write a query that finds the movies with the most actors rather than the actors with the most movies?
+
 == Answer: Find the top five movies with the most actors.
+
+We only need to change the previous query slightly to do this:
 
 [source, cypher]
 ----
@@ -134,6 +149,8 @@ LIMIT 5
 
 == Duplicates
 
+The following query finds the people that have co-acted with Meg Ryan:
+
 [source, cypher]
 ----
 MATCH (p:Person)-[:ACTED_IN]->(m:Movie),
@@ -142,7 +159,12 @@ WHERE p.name = 'Meg Ryan'
 RETURN other.name
 ----
 
+Why do some people show up multiple times?
+
 == Duplicates
+
+Meg Ryan has worked with some people in more than one movie, that's why!
+We can run the following query to include the movie that they appeared in together:
 
 [source, cypher]
 ----
@@ -154,6 +176,8 @@ ORDER BY other.name
 ----
 
 == The `DISTINCT` keyword
+
+If we really are only interested in a list of co-actors then we can use the `DISTINCT` keyword to remove any duplicates.
 
 [source, cypher]
 ----

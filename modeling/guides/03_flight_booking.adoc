@@ -63,7 +63,7 @@ What do you notice?
 == Profiling the finding flights to book query
 
 The query starts by using an index to find `MDW` but then has to traverse all incoming `DESTINATION` relationships and check the `date` property on the `:Flight` nodes on the other side.
-The more flights an airport has the more we'll have to scan through, and since we're only working with 10,000 flights we should probably find a better way to model our data before importing any more rows.
+The more flights an airport has the more we'll have to scan through, and since we're only working with 50,000 flights we should probably find a better way to model our data before importing any more rows.
 
 Can you think of a way that we can change our model to avoid doing all these property lookups?
 

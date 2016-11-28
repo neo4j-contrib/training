@@ -465,7 +465,433 @@ MATCH p = (:Person)-[:ACTED_IN]->(:Movie)
 RETURN p;
 
 MATCH (m:Movie)
-RETURN m.title AS title
+RETURN m.title AS title;
+
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+RETURN p.name, count(*) AS movies;
+
+CREATE CONSTRAINT ON (label:Label)
+ASSERT EXISTS(label.name);
+
+CREATE CONSTRAINT ON ()-[rel:REL_TYPE]->()
+ASSERT EXISTS(rel.name);
+
+MATCH ...
+RETURN collect(DISTINCT n);
+
+CREATE(n:Person)
+CREATE(n:GraphDatabase)
+CREATE(n:VeryDescriptiveLabel)
+
+CREATE(n)-[:LOVES]->(m);
+CREATE(n)-[:REALLY_LOVES]->(m);
+CREATE(n)-[:IS_IN_LOVE_WITH]->(m);
+
+CREATE(n)
+SET n.name = 'Dave';
+
+CREATE(n)
+SET n.firstName = 'Dave';
+
+CREATE(n)
+SET n.firstAndLastName = 'Dave Gordon';
+
+MATCH (m:Movie {title: 'The Matrix'})
+SET m.genre = ['Action', 'Sci-Fi']
+RETURN m;
+
+MATCH (m:Movie {title: 'The Matrix'})
+SET m.genre = ['Action', 'Sci-Fi']
+RETURN m;
+
+MATCH (m:Movie {title:"The Matrix"})
+RETURN m.genre;
+
+MATCH (m:Movie {title:"The Matrix"})
+RETURN m.genre;
+
+MATCH (m1:Movie), (m2:Movie)
+WHERE any(x IN m1.genre WHERE x IN m2.genre)
+      AND m1 <> m2
+RETURN m1, m2;
+
+MATCH (m:Movie {title:"The Matrix"})
+MERGE (action:Genre {name:"Action"})
+MERGE (scifi:Genre {name:"Sci-Fi"})
+MERGE (m)-[:IN_GENRE]->(action)
+MERGE (m)-[:IN_GENRE]->(scifi);
+
+MATCH (m:Movie {title:"Mystic River"})
+MERGE (action:Genre {name:"Action"})
+MERGE (mystery:Genre {name:"Mystery"})
+MERGE (m)-[:IN_GENRE]->(action)
+MERGE (m)-[:IN_GENRE]->(mystery);
+
+MATCH (m1:Movie)-[:IN_GENRE]->(g:Genre),
+      (m2:Movie)-[:IN_GENRE]->(g)
+RETURN m1, m2, g;
+
+MATCH (m:Movie {title:"The Matrix"}),
+      (m)-[:IN_GENRE]->(g:Genre)
+RETURN g.name;
+
+CALL apoc.create.uuid() YIELD uuid
+CALL apoc.data.formatDefault(timestamp(), "ms") YIELD value AS date
+CREATE (:Document {id: uuid, created:date});
+
+CREATE (:Document {id: apoc.create.uuid(), date: apoc.data.formatDefault(timestamp(), "ms")});
+
+PROFILE
+WITH ['Action','Drama','Mystery'] AS genreNames
+UNWIND genreNames AS name
+MATCH (g:Genre {name:name})<-[:GENRE]-(m:Movie)
+WITH m, collect(g) AS genres, genreNames
+WHERE size(genres) = size(genreNames)
+RETURN m;
+
+PROFILE
+WITH ['Action','Drama','Mystery'] AS genreNames
+UNWIND genreNames AS name
+MATCH (g:Genre {name:name})
+WITH g ORDER BY size( (g)<-[:GENRE]-() ) ASC
+WITH collect(g) AS genres
+WITH head(genres) AS first, tail(genres) AS rest
+MATCH (first)<-[:GENRE]-(m:Movie)
+WHERE all(g IN rest WHERE (m)-[:GENRE]->(g))
+RETURN m;
+
+PROFILE
+WITH ['Action','Drama','Mystery'] AS genreNames
+UNWIND genreNames AS name
+MATCH (g:Genre {name:name})
+WITH g ORDER BY size( (g)<-[:GENRE]-() ) ASC
+WITH collect(g) AS genres
+WITH head(genres) AS first, tail(genres) AS rest
+MATCH (first)<-[:GENRE]-(m:Movie)-[:GENRE]->(other)
+WITH m, collect(other) AS movieGenres, rest
+WHERE all(g IN rest WHERE g IN movieGenres)
+RETURN m;
+
+CREATE (p:Person)// create labeled node
+SET p:Person     // set label on node
+REMOVE p:Person  // remove label
+
+MATCH (p:Person) // match nodes with label
+WHERE p:Person   // label predicate
+RETURN labels(p) // get label collection
+
+… // a simple pattern, with RELTYPE
+MATCH (n)-[:LINK]-(m)
+
+
+… // match a complex pattern
+MATCH (n)-->(m)<--(o), (p)-->(m)
+
+… // match a variable-length path
+MATCH p=(n)-[:LINKED*]-()
+
+… // use a specialized matcher
+MATCH p=shortestPath((n)-[*]-(o));
+
+… // filter on a property value
+WHERE n.name = "Andrés"
+
+… // filter with predicate patterns
+WHERE NOT (n)<--(m)
+
+… // filter on path/collection length
+WHERE length(p) > 3
+
+… // filter on multiple predicates
+WHERE n.born < 1980 AND n.name =~ "A.*";
+
+… // p aliased to person
+RETURN p AS person
+
+
+… // implicit group by n, count(*)
+RETURN n, count(*) AS count
+
+… // collect things into a collection
+RETURN n, collect(r);
+
+… // descending sort, limit 5
+RETURN n, count(*) AS count
+ORDER BY count DESC
+LIMIT 5
+
+… // get the next 5
+RETURN n, count(*) as count
+ORDER BY count DESC
+SKIP 5
+LIMIT 5;
+
+... // intermediate projection, ordering, pagination
+WITH a.name as name, a.born as born
+ORDER BY born DESC
+LIMIT 5
+...
+
+... // aggregation + filter
+WITH m, count(*) as cast, collect(a.name) as actors
+WHERE cast > 5
+RETURN m.title, actors;
+
+CREATE (m:Movie {title:"The Matrix", released:1999})
+UNWIND ["Lilly Wachowski","Lana Wachowski"] AS name
+MATCH  (d:Director {name:name})
+CREATE (d)-[:DIRECTED]->(m);
+
+UNWIND {data} AS pair
+MERGE (m:Movie {id:pair.movieId})
+  ON CREATE SET m += pair.movieData
+  ON MATCH  SET m.updated = timestamp()
+MERGE (p:Person {id:pair.personId})
+  ON CREATE SET p += pair.personData
+MERGE (p)-[r:ACTED_IN]->(m)
+  ON CREATE SET r.roles = split(pair.roles,";");
+
+  MATCH (a:Person)
+  WHERE (a)-[:ACTED_IN]->()
+  SET a:Actor
+
+
+  MATCH (m:Movie) WHERE exists(m.movieId)
+  SET m.id = m.movieId
+  REMOVE m.movieId;
+
+  // will delete Tom Hanks and all his
+  // relationships
+  MATCH (p:Person {name: "Tom Hanks"})
+  DETACH DELETE p
+
+  // will delete everything in db
+  MATCH (n)
+  DETACH DELETE n;
+
+
+
+// note that aliases are the same
+MATCH (a:Actor)
+RETURN a.name as name
+UNION
+MATCH (d:Director)
+RETURN d.name as name;
+
+
+… // group by age-range
+RETURN CASE
+  WHEN p.age < 20 THEN 'under 20'
+  WHEN p.age < 30 THEN 'twenties'
+  …
+  END AS age_group;
+
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  WHERE a.name STARTS WITH "T"
+  WITH a, count(m) AS cnt,
+       collect(m.title) AS movies
+  WHERE cnt > 5
+  RETURN {name: a.name, movies: movies} as data
+  ORDER BY length(data["movies"]) DESC
+  LIMIT 10;
+
+  // sum of items in [1,2,3,4]
+  RETURN reduce(acc=0, x in [1,2,3,4] | acc + x)
+  // first element in [1,2,3,4]
+  RETURN [1,2,3,4][0]
+  // last element in [1,2,3,4]
+  RETURN [1,2,3,4][-1]
+  // get the elements that are above 2
+  RETURN [x in [1,2,3,4] WHERE x > 2];
+
+
+  // we'll create some nodes
+  // from properties in a collection
+  WITH ["Drama","Action",...] AS genres
+  FOREACH(name in genres|
+    CREATE (:Genre {name:name})
+  );
+
+
+
+MATCH (m:Movie)<-[:ACTED_IN]-(p)
+WITH collect(p) AS actors,
+     count(p) AS actorCount, m
+UNWIND actors AS actor
+RETURN m, actorCount, actor;
+
+MATCH (a:Actor)
+RETURN a.name AS name
+UNION
+MATCH (d:Director)
+RETURN d.name AS name
+// no means for sort / limit
+
+
+MATCH (a:Actor)
+WITH collect(a.name) AS actors
+MATCH (d:Director)
+WITH actors, collect(d.name) AS directors
+UNWIND (actors + directors) AS name
+RETURN DISTINCT name
+ORDER BY name ASC LIMIT 10;
+
+// create and drop an index
+CREATE INDEX ON :Director(name);
+DROP INDEX ON :Director(name);
+
+// use an index for a lookup
+MATCH (p:Person)
+WHERE p.name="Clint Eastwood"
+RETURN p;
+
+MATCH (p:Person)
+WHERE p.born > 1980 RETURN p;
+
+
+MATCH (m:Movie)
+WHERE 2000 <= m.released < 2010 RETURN m;
+
+
+MATCH (p:Person)
+WHERE p.name >= "John"
+RETURN p;
+
+
+MATCH (p:Person)
+WHERE p.name STARTS WITH "John" RETURN p;
+
+
+MATCH (p:Person)
+WHERE p.name CONTAINS "Wachowski" RETURN p;
+
+
+MATCH (m:Movie)
+WHERE m.title CONTAINS "Matrix" RETURN m;
+
+MATCH (a:Actor)-->(m:Movie:Comedy)
+RETURN count(distinct a);
+
+vs
+
+MATCH (a:Actor)-->(m:Movie:Comedy)
+USING SCAN m:Comedy
+RETURN count(distinct a);
+
+CREATE CONSTRAINT ON (p:Person)
+ASSERT p.id IS UNIQUE;
+
+
+CREATE CONSTRAINT ON (p:Person)
+ASSERT p.id IS UNIQUE
+CREATE CONSTRAINT ON (p:Person)
+ASSERT exists(p.name)
+CREATE CONSTRAINT ON (:Person)-[r:ACTED_IN]->(:Movie)
+ASSERT exists(r.roles)
+
+
+MATCH (m:Movie)
+RETURN m { .title, .genres } AS movie
+
+
+MATCH (m:Movie)<-[:ACTED_IN]-(p:Person)
+WITH collect(p) AS people
+RETURN m { .title, .genres,  cast: [p in people | p.name] } AS movie;
+
+
+MATCH (m:Movie)
+RETURN m.title, [ (m)<-[:ACTED_IN]-(p:Person) | p.name ] AS cast
+
+
+MATCH (m:Movie)
+RETURN m { .title, .genres,
+   cast: [ (m)<-[r:ACTED_IN]-(p:Person) | {name: p.name, roles: r.roles} ] }
+AS movie;
+
+WITH range(1,9) AS list
+WHERE all(x IN list WHERE x < 10)
+   AND any(x in [1,3,5] WHERE x IN list)
+WITH [x IN list WHERE x % 2 = 0 | x*x ] as squares
+UNWIND squares AS s
+RETURN s;
+
+MATCH (movie:Movie)
+UNWIND keys(movie) as key
+WITH movie, key
+WHERE key ENDS WITH "_score"
+RETURN avg(movie[key])
+
+MATCH (g:Genre)
+WITH collect([g.name, g]) AS pairs
+CALL apoc.map.fromPairs(pairs) YIELD value AS genres
+MATCH (m) WHERE not exists (m)-[:GENRE]->()
+WITH genres, m LIMIT 10000
+UNWIND m.genres as genre
+WITH genres[genre] as g, m
+CREATE (m)-[:GENRE]->(g)
+RETURN count(*);
+
+CREATE INDEX ON :Movie(title);
+CREATE INDEX ON :Movie(releaseYear);
+
+MATCH (m:Movie) WHERE m.title CONTAINS "The"
+MATCH (n:Movie) WHERE 1990 < n.releaseYear < 2000 AND n = m
+RETURN m;
+
+MATCH (a:User {name:"A"})
+       -[:KNOWS]->(b)-[:KNOWS]->(c)
+WHERE a <> c
+AND NOT (a)-[:KNOWS]->(c)
+RETURN c;
+
+MATCH (m:Movie), (p:Person)
+RETURN count(distinct m), count(distinct p);
+
+MATCH (m:Movie) WITH count(*) AS movies
+MATCH (p:Person) RETURN movies, count(*) AS people;
+
+MATCH (m:Movie) RETURN {movies: count(*)} AS c UNION ALL
+MATCH (p:Person) RETURN {people: count(*)} AS c
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
