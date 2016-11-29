@@ -108,7 +108,7 @@ WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGo
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
 
-RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2) - days AS score
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2.0) - days AS score
 ORDER BY score DESC<!--/code--></pre>
 </div>
 </div>
@@ -153,7 +153,7 @@ WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGo
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
 
-RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, friends[..5], days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2) - days AS score
+RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, friends[..5], days, distance, eventsAtVenue, myGroupScore + commonTopics + eventsAtVenue + (friendsGoing / 2.0) - days AS score
 ORDER BY score DESC<!--/code--></pre>
 </div>
 </div>

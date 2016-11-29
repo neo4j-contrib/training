@@ -54,11 +54,6 @@
 Each of these makes a contribution but perhaps not all equally.
 e.g. perhaps we should give more weight to venues closer to our workplace and less weight to very popular events.</p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
-</div>
-</div>
 	</div>
   </div>
 </slide>
@@ -67,11 +62,11 @@ e.g. perhaps we should give more weight to venues closer to our workplace and le
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>The pareto function</h3>
+    <h3>The Pareto function</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>The pareto function in <code>apoc</code> allows us to apply a log function to a score.
+<p>The Pareto function in <code>apoc</code> allows us to apply a log function to a score.
 We want to dampen the weight of really high scores so they don&#8217;t completely dominate the recommendation.</p>
 </div>
 <div class="paragraph">
@@ -117,7 +112,7 @@ RETURN signature<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>The pareto function</h3>
+    <h3>The Pareto function</h3>
     <br/>
     <div>
       <div class="paragraph">
@@ -125,7 +120,9 @@ RETURN signature<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.scoring.pareto(1,10,20,12)<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->UNWIND range(0,21) as value
+CALL apoc.scoring.pareto(1,10,20,value) YIELD value as score
+RETURN value, score<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -304,11 +301,11 @@ LIMIT 10<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Friendship based recommendations</h3>
+    <h3>Friendship-based recommendations</h3>
     <br/>
     <div>
       <div class="paragraph">
-<p>Let&#8217;s get away from the mega event recommendation query we&#8217;ve built up over the day and do some recommendations based purely on our best meetup friendships.</p>
+<p>Let&#8217;s get away from the mega event recommendation query we&#8217;ve built up over the day and do some recommendations based purely on our best Meetup friendships.</p>
 </div>
 <div class="paragraph">
 <p>In the following query we&#8217;ll find the events that our best 10 friends are planning to attend:</p>
@@ -343,7 +340,7 @@ ORDER BY friendsGoing DESC<!--/code--></pre>
     <div>
       <div class="paragraph">
 <p>Dice similarity is just one of the similarity metrics that we could have used.
-There&#8217;s also jaccard, cosine and overlap to name just a few</p>
+There&#8217;s also Jaccard, cosine and overlap to name just a few</p>
 </div>
 <div class="paragraph">
 <p>Pick one of these and write a query that calculates it.

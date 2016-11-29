@@ -187,7 +187,7 @@ RETURN name, text<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>To delete the <code>HAS_DAY</code> relationship and replace it with a date based relationship we could use <code>apoc.refactor.setType</code> but for now we&#8217;ll add the new relationship <code>HAS_DAY</code> so we can compare the execution plans of both queries.
+<p>If we wanted to delete the <code>HAS_DAY</code> relationship and replace it with a date based relationship we could use <code>apoc.refactor.setType</code> but for the time being we&#8217;ll add the new data based relationship and keep the existing <code>HAS_DAY</code> relationship so we can compare the execution plans of both queries.
 We can always delete <code>HAS_DAY</code> afterwards if necessary.</p>
 </div>
 	</div>

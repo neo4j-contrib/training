@@ -122,8 +122,8 @@ LIMIT 1<!--/code--></pre>
       <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (g:Group)
-WHERE (g.created - timestamp()) / 1000 / 3600 / 24 / 365 > 0
-RETURN g<!--/code--></pre>
+WHERE (timestamp() - g.created) / 1000 / 3600 / 24 / 365 >= 4
+RETURN count(g)<!--/code--></pre>
 </div>
 </div>
 	</div>

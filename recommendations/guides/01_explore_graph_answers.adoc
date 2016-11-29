@@ -36,8 +36,8 @@ LIMIT 1
 [source,cypher,subs=attributes]
 ----
 MATCH (g:Group)
-WHERE g.created < timestamp() / (4 * 365 * 24 * 3600 * 1000)
-RETURN g
+WHERE (timestamp() - g.created) / 1000 / 3600 / 24 / 365 >= 4
+RETURN count(g)
 ----
 
 == Find groups with 'Neo4j' or 'Data' in their name.

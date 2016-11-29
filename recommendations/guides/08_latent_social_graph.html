@@ -69,7 +69,7 @@ RSVPs give us a reasonable idea of which people may know each other based on com
     <br/>
     <div>
       <div class="paragraph">
-<p>We can write the following query to see which people on the meetup scene that I may know:</p>
+<p>We can write the following query to see which people on the Meetup scene that I may know:</p>
 </div>
 <input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
 <div class="listingblock">
@@ -146,7 +146,7 @@ Run the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m1:Process) WITH m1 LIMIT 500
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m1:Member:Process) WITH m1 LIMIT 500
 REMOVE m1:Process
 WITH m1
 MATCH (m1)-[:RSVPD]-&gt;(event)&lt;-[:RSVPD]-(m2)
@@ -182,7 +182,7 @@ Run the following query but be patient, it&#8217;s got a lot of friendships to m
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->call apoc.periodic.commit("
-  MATCH (m1:Process) WITH m1 LIMIT {limit} REMOVE m1:Process
+  MATCH (m1:Member:Process) WITH m1 LIMIT {limit} REMOVE m1:Process
   WITH m1 MATCH (m1)-[:RSVPD]-&gt;(event)&lt;-[:RSVPD]-(m2)
   WITH m1, m2, COUNT(*) AS times WHERE times &gt;= 5
   MERGE (m1)-[:FRIENDS]-(m2) RETURN count(*)
@@ -253,9 +253,6 @@ Run the following query but be patient, it&#8217;s got a lot of friendships to m
     <div>
       <div class="paragraph">
 <p>In our next section we&#8217;re going to apply some more sophisticated scoring functions to the recommendation queries that we&#8217;ve built so far.</p>
-</div>
-<div class="paragraph">
-<p><a play-topic='http://guides.neo4j.com/reco/file/09_scoring.html'>Scoring</a></p>
 </div>
 	</div>
   </div>

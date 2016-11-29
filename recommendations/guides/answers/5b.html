@@ -121,7 +121,7 @@ WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
 WHERE commonTopics >= 3
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH  futureEvent, group, venue,commonTopics, myGroup, distance(point(venue), point({training-location})) AS distance
+WITH  futureEvent, group, venue,commonTopics, myGroup, distance(point(venue), point({latitude: 55.6729893, longitude: 12.585799})) AS distance
 WHERE distance < 1000
 
 WITH futureEvent, group, venue, commonTopics, myGroup, distance, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
