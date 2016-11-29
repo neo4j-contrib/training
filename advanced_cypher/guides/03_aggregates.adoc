@@ -25,12 +25,6 @@ You can kill it by pressing the `X` button on the right hand side of the results
 
 To figure out why our query didn't return we'll need to profile it.
 
-== Profiling queries
-
-Before we start profiling our query, a quick explanation:
-
-image::{img}/slides.jpg[]
-
 == Profiling our counting query
 
 Since the query isn't returning we'll prefix it with the `EXPLAIN` keyword to see what's going on.

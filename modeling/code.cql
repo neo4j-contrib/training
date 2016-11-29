@@ -851,7 +851,18 @@ MATCH (m:Movie) WITH count(*) AS movies
 MATCH (p:Person) RETURN movies, count(*) AS people;
 
 MATCH (m:Movie) RETURN {movies: count(*)} AS c UNION ALL
-MATCH (p:Person) RETURN {people: count(*)} AS c
+MATCH (p:Person) RETURN {people: count(*)} AS c;
+
+FOREACH(ignoreMe IN CASE WHEN EXISTS(person.country) THEN [1] ELSE [] END |
+ MERGE (country:Country {name: person.country})
+ MERGE (person)-[:LIVES_IN]->(country)
+);
+
+
+CREATE(:Director {_id: ["id1", "id2", "id3"] });
+CREATE INDEX ON :Director(_id);
+
+
 
 
 

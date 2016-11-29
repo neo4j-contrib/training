@@ -39,7 +39,8 @@ If you replace `file:///` with `http://data.neo4j.com.s3.amazonaws.com/advanced/
 [source,cypher,subs=attributes]
 ----
 LOAD CSV FROM {movies_url} AS row
-RETURN * LIMIT 5;
+RETURN *
+LIMIT 5
 ----
 
 == LOAD CSV - WITH HEADERS
@@ -49,7 +50,8 @@ RETURN * LIMIT 5;
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM {movies_url} AS row
-RETURN row, keys(row) LIMIT 5;
+RETURN row, keys(row)
+LIMIT 5
 ----
 
 == Data Conversion
@@ -268,8 +270,7 @@ Same as before, just run multiple passes over the same file.
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM
-     {movies_roles_url} AS row
+LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
 MERGE (m:Movie {id:toInt(row.movieId)})
    ON CREATE SET m.title=row.title, m.avgVote=toFloat(row.avgVote),
@@ -304,8 +305,7 @@ ON CREATE SET p:Actor;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM
-     {movies_roles_url} AS row
+LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
 WITH DISTINCT row.movieId as movieId, row.title as title, row.genres as genres,
 toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
@@ -332,8 +332,7 @@ MERGE (m:Movie {id:movieId)
 [source,cypher,subs=attributes]
 ----
 PROFILEs
-LOAD CSV WITH HEADERS FROM
-     {movies_roles_url} AS row
+LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -346,8 +345,7 @@ RETURN * LIMIT 10;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM
-     {movies_roles_url} AS row
+LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
