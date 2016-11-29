@@ -47,7 +47,7 @@ Now it's time to write a query to find available flights between two airports on
 
 == Finding flights to book
 
-Let's find all the flights going from Los Angeles (`LAS`) to Chicago Midway International (`MDW`) on the 30th January.
+Let's find all the flights going from Los Angeles (`LAS`) to Chicago Midway International (`MDW`) on the 3rd January.
 Run the following query:
 
 [source, cypher]
