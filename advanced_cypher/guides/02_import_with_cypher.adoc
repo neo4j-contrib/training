@@ -141,10 +141,10 @@ CREATE INDEX ON :Movie(title)
 ----
 LOAD CSV WITH HEADERS FROM {movies_url} AS row
 CREATE (:Movie {
-          id:toInt(row.movieId),
+          id:toInteger(row.movieId),
           title:row.title,
           avgVote:toFloat(row.avgVote),
-          releaseYear:toInt(row.releaseYear),
+          releaseYear:toInteger(row.releaseYear),
           genres: split(row.genres,":"))
 ----
 
@@ -177,8 +177,8 @@ LOAD CSV WITH HEADERS FROM {people_url} as row
 
 MERGE(person:Person {id: toInt(row.personId)})
 ON CREATE SET person.name = row.name,
-              person.born = toInt(row.birthYear),
-              person.died = toInt(row.deathYear)
+              person.born = toInteger(row.birthYear),
+              person.died = toInteger(row.deathYear)
 ----
 
 NOTE: `deathYear` can be missing. `toInt()` returns null, property not set.
@@ -189,8 +189,8 @@ NOTE: `deathYear` can be missing. `toInt()` returns null, property not set.
 ----
 LOAD CSV WITH HEADERS FROM {directors_url} as row
 
-MATCH (movie:Movie {id:toInt(row.movieId)})
-MATCH (person:Person {id: toInt(row.personId)})
+MATCH (movie:Movie {id:toInteger(row.movieId)})
+MATCH (person:Person {id: toInteger(row.personId)})
 MERGE (person)-[:DIRECTED]->(movie)
 ON CREATE SET person:Director
 ----
@@ -217,8 +217,8 @@ USING PERIODIC COMMIT 50000
 LOAD CSV WITH HEADERS FROM {actors_url} AS row
 FIELDTERMINATOR ','
 
-MATCH  (movie:Movie  {id: toInt(row.movieId) })
-MATCH  (person:Person {id: toInt(row.personId) })
+MATCH  (movie:Movie  {id: toInteger(row.movieId) })
+MATCH  (person:Person {id: toInteger(row.personId) })
 MERGE  (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
 ON CREATE SET person:Actor
 ----

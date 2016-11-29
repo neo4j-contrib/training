@@ -97,7 +97,7 @@ RETURN count(*);<!--/code--></pre>
 </div>
 <div class="paragraph">
 <p>If you haven&#8217;t been able to get the CSV files working locally, don&#8217;t worry!
-If you replace <code><a href="file:///`" class="bare">file:///`</a></code> with <code><a href="http://data.neo4j.com.s3.amazonaws.com/advanced/movies/" class="bare">http://data.neo4j.com.s3.amazonaws.com/advanced/movies/</a></code> you can process the CSV files from our S3 bucket.</p>
+If you replace <code><a href="file:///" class="bare">file:///</a></code> with <code><a href="http://data.neo4j.com.s3.amazonaws.com/advanced/movies/" class="bare">http://data.neo4j.com.s3.amazonaws.com/advanced/movies/</a></code> you can process the CSV files from our S3 bucket.</p>
 </div>
 	</div>
   </div>
@@ -341,10 +341,10 @@ ASSERT p.id IS UNIQUE<!--/code--></pre>
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:////new_movies.csv' AS row
 CREATE (:Movie {
-          id:toInt(row.movieId),
+          id:toInteger(row.movieId),
           title:row.title,
           avgVote:toFloat(row.avgVote),
-          releaseYear:toInt(row.releaseYear),
+          releaseYear:toInteger(row.releaseYear),
           genres: split(row.genres,":"))<!--/code--></pre>
 </div>
 </div>
@@ -431,8 +431,8 @@ CREATE (:Movie {
 
 MERGE(person:Person {id: toInt(row.personId)})
 ON CREATE SET person.name = row.name,
-              person.born = toInt(row.birthYear),
-              person.died = toInt(row.deathYear)<!--/code--></pre>
+              person.born = toInteger(row.birthYear),
+              person.died = toInteger(row.deathYear)<!--/code--></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -462,8 +462,8 @@ ON CREATE SET person.name = row.name,
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:////directors.csv' as row
 
-MATCH (movie:Movie {id:toInt(row.movieId)})
-MATCH (person:Person {id: toInt(row.personId)})
+MATCH (movie:Movie {id:toInteger(row.movieId)})
+MATCH (person:Person {id: toInteger(row.personId)})
 MERGE (person)-[:DIRECTED]->(movie)
 ON CREATE SET person:Director<!--/code--></pre>
 </div>
@@ -532,8 +532,8 @@ ON CREATE SET person:Director<!--/code--></pre>
 LOAD CSV WITH HEADERS FROM 'file:////actors.csv' AS row
 FIELDTERMINATOR ','
 
-MATCH  (movie:Movie  {id: toInt(row.movieId) })
-MATCH  (person:Person {id: toInt(row.personId) })
+MATCH  (movie:Movie  {id: toInteger(row.movieId) })
+MATCH  (person:Person {id: toInteger(row.personId) })
 MERGE  (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
 ON CREATE SET person:Actor<!--/code--></pre>
 </div>
