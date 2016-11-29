@@ -1,6 +1,6 @@
 = Importing data with Cypher
 :csv_url: file:///
-:csv_url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
+// :csv_url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
 :movies_roles_url: '{csv_url}/movies.csv'
 :movies_url: '{csv_url}/new_movies.csv'
 :people_url: '{csv_url}/people.csv'
@@ -9,30 +9,36 @@
 
 == LOAD CSV - Data Inspection
 
-We have a movies CSV file somewhere remote or local, and can have a look at them.
+Now that we've got an overview of the CSV files it's time to take a closer look at them.
+We're going to use the `LOAD CSV` command to do exploration.
 
-CSV Data Problems:
+The following are some issues we've seen with CSV files:
 
 - incorrect header vs. data
 - wrong quotes, unquoted newlines, stray quotes
 - UTF-8 prefix
 - trailing spaces, typos, binary zeros
 
-So we want to see them how Cypher sees them, with Cypher.
+Even if everything looks fine using our command line tools it's still good to see how Cypher sees those same files.
 
 == Row Count
 
+We'll start with a simple count of the number of lines:
+
 [source,cypher,subs=attributes]
 ----
-LOAD CSV FROM {movies-url} AS row
+LOAD CSV FROM {movies_url} AS row
 RETURN count(*);
 ----
+
+If you haven't been able to get the CSV files working locally, don't worry!
+If you replace `file:///` with `http://data.neo4j.com.s3.amazonaws.com/advanced/movies/` you can process the CSV files from our S3 bucket.
 
 == Row as List Data
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV FROM {movies-url} AS row
+LOAD CSV FROM {movies_url} AS row
 RETURN * LIMIT 5;
 ----
 

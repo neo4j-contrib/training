@@ -1,0 +1,896 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Importing data with Cypher</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>LOAD CSV - Data Inspection</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now that we&#8217;ve got an overview of the CSV files it&#8217;s time to take a closer look at them.
+We&#8217;re going to use the <code>LOAD CSV</code> command to do exploration.</p>
+</div>
+<div class="paragraph">
+<p>The following are some issues we&#8217;ve seen with CSV files:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>incorrect header vs. data</p>
+</li>
+<li>
+<p>wrong quotes, unquoted newlines, stray quotes</p>
+</li>
+<li>
+<p>UTF-8 prefix</p>
+</li>
+<li>
+<p>trailing spaces, typos, binary zeros</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Even if everything looks fine using our command line tools it&#8217;s still good to see how Cypher sees those same files.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Row Count</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;ll start with a simple count of the number of lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV FROM 'file:////new_movies.csv' AS row
+RETURN count(*);<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you haven&#8217;t been able to get the CSV files working locally, don&#8217;t worry!
+If you replace <code><a href="file:///`" class="bare">file:///`</a></code> with <code><a href="http://data.neo4j.com.s3.amazonaws.com/advanced/movies/" class="bare">http://data.neo4j.com.s3.amazonaws.com/advanced/movies/</a></code> you can process the CSV files from our S3 bucket.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Row as List Data</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV FROM 'file:////new_movies.csv' AS row
+RETURN * LIMIT 5;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>LOAD CSV - WITH HEADERS</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Row as Map Data</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:////new_movies.csv' AS row
+RETURN row, keys(row) LIMIT 5;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Data Conversion</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>By default data is imported as strings but we can coerce the data using the <code>toInteger</code> and <code>toFloat</code> functions.
+The <code>split</code> function is useful for processing</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:////new_movies.csv' AS row
+RETURN toFloat(row.avgVote) as avgVote, toInteger(row.releaseYear) as releaseYear, split(row.genres,":") as genres, row
+LIMIT 5;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Creating Data (10')</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Find your favourite actor and a movie they acted in from the CSV files and manually <code>CREATE</code> the <code>Movie</code> and <code>MERGE</code> the `Person.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Look at the CSV structure for property-names and types.
+</td>
+</tr>
+</table>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution on next page</h3>
+    <br/>
+    <div>
+      
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Creating Data</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE (:Movie {
+          id:5574,
+          title:"Forrest Gump",
+          tagline: "",
+          avgVote:7.7,
+          releaseYear:1994,
+          genres: ["Comedy","Drama","Romance"])<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MERGE (p:Person {id: 31})
+ON CREATE SET p.name = "Tom Hanks", p.birthYear = 1956<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (p:Person {id:31}), (m:Movie {id:5574})
+CREATE (p)-[:ACTED_IN {roles:['Forrest Gump']}]-&gt;(m)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>LOAD CSV - Prep</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Create indexes &amp; constraints esp. for relationship creation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (m:Movie)
+ASSERT m.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (p:Person)
+ASSERT p.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :Person(name)<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :Movie(title)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>LOAD CSV - Import Approaches</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>normalized data</p>
+</li>
+<li>
+<p>denormalized data - multi-pass</p>
+</li>
+<li>
+<p>denormalized data - single-pass</p>
+</li>
+<li>
+<p>optimizations</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Normalized Data</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Separate CSV files</p>
+</li>
+<li>
+<p>Create nodes individually, one per label</p>
+</li>
+<li>
+<p>Create relationships, one per type</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Import Movies</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:////new_movies.csv' AS row
+CREATE (:Movie {
+          id:toInt(row.movieId),
+          title:row.title,
+          avgVote:toFloat(row.avgVote),
+          releaseYear:toInt(row.releaseYear),
+          genres: split(row.genres,":"))<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Data Transformation from string</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>to integer for releaseYear</p>
+</li>
+<li>
+<p>to floating point for avgVote</p>
+</li>
+<li>
+<p>to a list for genres</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Import People (10')</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Import the people from 'file:////people.csv'</p>
+</li>
+<li>
+<p>Determine the number of rows</p>
+</li>
+<li>
+<p>Determine structure of first 5 rows</p>
+</li>
+<li>
+<p>Goal: <code>:Person(id,name,born,died)</code></p>
+</li>
+<li>
+<p>Import people with <code>CREATE</code></p>
+</li>
+<li>
+<p>Re-run with <code>MERGE</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Make sure to transform the time</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Import People</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Solution on next slide, don&#8217;t peek.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Import People</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:////people.csv' as row
+
+MERGE(person:Person {id: toInt(row.personId)})
+ON CREATE SET person.name = row.name,
+              person.born = toInt(row.birthYear),
+              person.died = toInt(row.deathYear)<!--/code--></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>deathYear</code> can be missing. <code>toInt()</code> returns null, property not set.
+</td>
+</tr>
+</table>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Import Directors</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:////directors.csv' as row
+
+MATCH (movie:Movie {id:toInt(row.movieId)})
+MATCH (person:Person {id: toInt(row.personId)})
+MERGE (person)-[:DIRECTED]->(movie)
+ON CREATE SET person:Director<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Import Actors</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Import <code>ACTED_IN(roles)</code> relationship</p>
+</li>
+<li>
+<p>From 'file:////actors.csv'</p>
+</li>
+<li>
+<p>Determine rows and structure of first 5 entries</p>
+</li>
+<li>
+<p>Only create one ACTED_IN relationship per Person&#8594;Movie</p>
+</li>
+<li>
+<p>Set <code>roles</code> to a list of roles</p>
+</li>
+<li>
+<p>Set <code>:Actor</code> label</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Import Actors</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Solution on next page. Wait here.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Solution: Import Actors</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 50000
+LOAD CSV WITH HEADERS FROM 'file:////actors.csv' AS row
+FIELDTERMINATOR ','
+
+MATCH  (movie:Movie  {id: toInt(row.movieId) })
+MATCH  (person:Person {id: toInt(row.personId) })
+MERGE  (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
+ON CREATE SET person:Actor<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Discuss:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>FIELDTERMINATOR</p>
+</li>
+<li>
+<p>PERIODIC COMMIT</p>
+</li>
+<li>
+<p>Eagerness</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Pro</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Simple statements</p>
+</li>
+<li>
+<p>Single merge for movies and actors</p>
+</li>
+<li>
+<p>Single Pass</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Con</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Additional index lookups</p>
+</li>
+<li>
+<p>Deadlocks for relationships if parallelized</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Denormalized Data (1)</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Single CSV file</p>
+</li>
+<li>
+<p><strong>Multi-Pass</strong></p>
+</li>
+<li>
+<p>Create nodes individually, one per label</p>
+</li>
+<li>
+<p>Create relationships, one per type</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Same as before, just run multiple passes over the same file.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Pro</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Simple statement, easy to understand</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Con</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Unnecessary merges for duplicate movies and actors</p>
+</li>
+<li>
+<p>Additional index lookups</p>
+</li>
+<li>
+<p>Multi Pass</p>
+</li>
+<li>
+<p>Deadlocks for rels if parallelized</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Denormalized Data (2)</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Single denormalized CSV file</p>
+</li>
+<li>
+<p>Single-Pass</p>
+</li>
+<li>
+<p>Create sub-graph per row, e.g. Movie and Person and Relationship</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
+     'file:////movies.csv' AS row
+
+MERGE (m:Movie {id:toInt(row.movieId)})
+   ON CREATE SET m.title=row.title, m.avgVote=toFloat(row.avgVote),
+      m.releaseYear=toInt(row.releaseYear), m.genres=split(row.genres,":")
+
+MERGE (p:Person {id: toInt(row.personId)})
+   ON CREATE SET p.name = row.name, p.born = toInt(row.birthYear),
+      p.died = toInt(row.deathYear)
+
+CREATE (p)-[:ACTED_IN {roles: split(row.characters,':')}]->(m)
+ON CREATE SET p:Actor;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Pro</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Saves index lookups</p>
+</li>
+<li>
+<p>Single Pass</p>
+</li>
+<li>
+<p>Works well with cost based planner</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Con</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>More complex statement</p>
+</li>
+<li>
+<p>Unnecessary merges for duplicate movies and actors</p>
+</li>
+<li>
+<p>Deadlocks if parallelized</p>
+</li>
+<li>
+<p>Potential Eagerness problem</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Reduce Index lookups</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Small datasets (&lt;1M) also work <strong>without</strong> PERIODIC COMMIT. Test it.</p>
+</li>
+<li>
+<p>Use distinct with input data, can use CREATE instead of MERGE</p>
+</li>
+<li>
+<p>MERGE has fewer lookups</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
+     'file:////movies.csv' AS row
+
+WITH DISTINCT row.movieId as movieId, row.title as title, row.genres as genres,
+toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
+
+MERGE (m:Movie {id:movieId)
+   ON CREATE SET m.title=title, m.avgVote=avgVote,
+      m.releaseYear=toInt(row.releaseYear), m.genres=split(genres,":")<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Recovering if you messed up (with Periodic Commit)</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Mark newly created data with label (relationships with property) in (ON) CREATE</p>
+</li>
+<li>
+<p>Remove nodes with that label / rels with that property</p>
+</li>
+<li>
+<p>In Neo4j-Shell / Cypher-Shell use begin/rollback transactions</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Aggregate sub-structure</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
+<li>
+<p>Reduce Index-Lookup for Movie</p>
+</li>
+<li>
+<p>Turns statement to be (artificially) eager</p>
+</li>
+<li>
+<p>Effectively disables periodic commit</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILEs
+LOAD CSV WITH HEADERS FROM
+     'file:////movies.csv' AS row
+
+WITH row.movieId as movieId, row.title as title, row.genres as genres,
+toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
+
+collect({id: row.personId, name:row.name, born: toInt(row.birthYear), died:toInt(row.deathYear),
+         roles: split(coalesce(row.characters,""),':')}) as people
+
+RETURN * LIMIT 10;<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
+     'file:////movies.csv' AS row
+
+WITH row.movieId as movieId, row.title as title, row.genres as genres,
+toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
+
+collect({id: row.personId, name:row.name, born: toInt(row.birthYear), died:toInt(row.deathYear),
+         roles: split(coalesce(row.characters,""),':')}) as people
+
+MERGE (m:Movie {id:movieId)
+   ON CREATE SET m.title=title, m.avgVote=avgVote,
+      m.releaseYear=toInt(row.releaseYear), m.genres=split(genres,":")
+
+UNWIND people as person
+
+MERGE (p:Person {id: person.id})
+   ON CREATE SET p.name = person.name, p.born = person.born, p.died = person.died
+
+CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m);<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>
