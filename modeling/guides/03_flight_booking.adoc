@@ -37,8 +37,8 @@ MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year
 ON CREATE SET newFlight.date = toInteger(row.Year) + "-" + toInteger(row.Month) + "-" + toInteger(row.DayofMonth),
               newFlight.airline = row.UniqueCarrier,
               newFlight.number = row.FlightNum,
-              newFlight.departure = row.Dest,
-              newFlight.arrival = row.UniqueCarrier
+              newFlight.departure = toInteger(row.CRSDepTime),
+              newFlight.arrival = toInteger(row.CRSArrTime)
 MERGE (newFlight)-[:ORIGIN]->(origin)
 MERGE (newFlight)-[:DESTINATION]->(destination)
 ----
