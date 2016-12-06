@@ -189,6 +189,8 @@ RETURN DISTINCT other.name
 
 == More `MATCH` clause
 
+We can write a more complex `MATCH` statement that finds the directors that Meg Ryan's has worked with:
+
 [source, cypher]
 ----
 MATCH (p:Person)-[:ACTED_IN]->(m:Movie),
@@ -202,6 +204,9 @@ RETURN m.title AS movie,
 
 == Patterns in the `WHERE` clause
 
+As well as filtering on properties we can also filter based on patterns.
+e.g. Let's find the people who wrote and produced a movie:
+
 [source, cypher]
 ----
 MATCH (p:Person)-[:WROTE]->(m:Movie)
@@ -210,6 +215,10 @@ RETURN p.name, m.title
 ----
 
 == (Negative) Patterns in the `WHERE` clause
+
+Negative patterns are allowed as well.
+e.g. Let's find the people who wrote a movie but didn't produce it:
+
 
 [source, cypher]
 ----
@@ -220,6 +229,9 @@ WHERE NOT (p)-[:PRODUCED]->(m)
 
 == OR with relationship types
 
+Sometimes we'll want to find one relationship or another.
+We can combine relationship types together using the `|` symbol to do this:
+
 [source, cypher]
 ----
 MATCH (p:Person)-[r:ACTED_IN|:DIRECTED]->(m:Movie)
@@ -228,6 +240,10 @@ RETURN p.name, type(r), m.title
 ----
 
 == Exercise: Find people who have not acted in or directed a movie.
+
+Now it's your turn!
+
+If you finish early the answer is on the next page.
 
 == Answer: Find people who have not acted in or directed a movie.
 
@@ -240,6 +256,8 @@ RETURN p
 
 == The `OPTIONAL MATCH` clause
 
+The following query finds all the Toms that have directed a movie:
+
 [source, cypher]
 ----
 MATCH (p:Person)-[:DIRECTED]->(m:Movie)
@@ -247,7 +265,13 @@ WHERE p.name STARTS WITH 'Tom'
 RETURN p.name, m.title
 ----
 
+But what if we want to find all the Toms in the database even if they haven't directed a movie?
+
 == The `OPTIONAL MATCH` clause
+
+`OPTIONAL MATCH` matches patterns against your graph database, just like `MATCH` does.
+The difference is that if no matches are found, `OPTIONAL MATCH` will use NULLs for missing parts of the pattern.
+`OPTIONAL MATCH` could be considered the Cypher equivalent of the outer join in SQL.
 
 [source, cypher]
 ----
@@ -259,6 +283,9 @@ OPTIONAL MATCH (p)-[:DIRECTED]->(m:Movie)
 
 == The `COLLECT` function
 
+`COLLECT` collects all the values into a list, grouped by all the other non-aggregate fields in the statement.
+e.g. we could write the following query to find actors grouped by movie title.
+
 [source, cypher]
 ----
 MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
@@ -267,6 +294,9 @@ RETURN m.title, collect(p.name) AS actors
 ----
 
 == The `WITH` clause
+
+The `WITH` clause allows query parts to be chained together, piping the results from one to be used as starting points or criteria in the next.
+e.g. if we want to find people who have acted in more than 5 movies we could write the following query:
 
 [source, cypher]
 ----
@@ -277,6 +307,8 @@ RETURN p.name, movies
 ----
 
 == The `WITH` clause
+
+We can tweak that query slightly to get the movies sorted alphabetically.
 
 [source, cypher]
 ----
@@ -289,6 +321,8 @@ RETURN p.name, movies
 ----
 
 == The `WITH` clause
+
+If we want to find the movies that the two oldest actors appeared in we could write the following query:
 
 [source, cypher]
 ----
@@ -308,6 +342,9 @@ ORDER BY movie.released DESC
 
 == The `SIZE()` function
 
+If we to find the size of a list we can use the `SIZE` function.
+We can also pass in a pattern expression and it will calculate the size of the result of evaluating that expression:
+
 [source, cypher]
 ----
 MATCH (p:Person)
@@ -319,6 +356,8 @@ LIMIT 5
 
 == The `SIZE()` function
 
+The following query finds people who have produced more than 5 movies:
+
 [source, cypher]
 ----
 MATCH (p:Person)
@@ -328,6 +367,7 @@ RETURN p.name
 
 == Exercise: Find the top five actors by how many movies they’ve acted in and movies they’ve directed, if any.
 
+Your turn again!
 
 == Answer: Find the top five actors by how many movies they’ve acted in and movies they’ve directed, if any.
 
@@ -345,6 +385,9 @@ RETURN p.name, m.title
 
 == The `UNWIND` clause
 
+The `UNWIND` clause is the opposite of `COLLECT`.
+It explodes a list of values so that we have one row per value.
+
 [source, cypher]
 ----
 WITH [1, 2, 3] AS list
@@ -358,7 +401,7 @@ UNWIND list AS row
 RETURN row
 ----
 
-== The `UNWIND` clause
+== Using the `UNWIND` clause
 
 [source, cypher]
 ----
@@ -374,6 +417,11 @@ RETURN p.name, m.title, dir.name
 ----
 
 == Variable length paths
+
+In all the queries we've done so far we've specified every part of the pattern that we're looking for.
+Cypher also allows us to define variable length paths where we specify the number of hops to look for.
+
+e.g. we can write the following query to find how `Tom Cruise` and `Kevin Bacon` are connected by up to 4 `ACTED_IN` relationships.
 
 [source, cypher]
 ----
@@ -409,6 +457,8 @@ RETURN [x IN nodes(p) |
 
 == Shortest path
 
+Cypher also has a `shortestPath` function which will look for the quickest way to go between two nodes.
+
 [source, cypher]
 ----
 MATCH p = shortestPath((p1:Person)-[*]-(p2:Person))
@@ -418,6 +468,8 @@ RETURN p
 ----
 
 == Exercise: Find the shortest path between Top Gun and The Matrix through any relationship type.
+
+Your turn.
 
 == Answer: Find the shortest path between Top Gun and The Matrix through any relationship type.
 
@@ -430,6 +482,8 @@ RETURN p
 ----
 
 == Exercise: Recommend 3 actors that Keanu Reeves should work with, but hasn’t.
+
+And again.
 
 == Answer: Recommend 3 actors that Keanu Reeves should work with, but hasn’t.
 
