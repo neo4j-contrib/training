@@ -152,8 +152,8 @@ MERGE (destination:Airport {code: row.Dest})
 MERGE (origin)-[connection:CONNECTED_TO {
   airline: row.UniqueCarrier,
   flightNumber: row.FlightNum,
-  date: TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth)}]->(destination)
-ON CREATE SET connection.departure = TOINT(row.CRSDepTime), connection.arrival = TOINT(row.CRSArrTime)
+  date: toInteger(row.Year) + "-" + toInteger(row.Month) + "-" + toInteger(row.DayofMonth)}]->(destination)
+ON CREATE SET connection.departure = toInteger(row.CRSDepTime), connection.arrival = toInteger(row.CRSArrTime)
 ----
 
 This query:
@@ -163,7 +163,7 @@ This query:
 * creates a `connection` relationship between origin and destination airports for each row in the file
 
 By default properties will be stored as strings.
-We know that `year`, `month`, and `day` are actually numeric values so we'll coerce them using the link:/docs[`TOINT`] function.
+We know that `year`, `month`, and `day` are actually numeric values so we'll coerce them using the link:/docs[`toInteger`] function.
 
 Now we're ready to start querying the data.
 
