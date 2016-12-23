@@ -198,7 +198,7 @@ MATCH p=(a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
 RETURN p
 ----
 
-== Nodes of a Paths
+== Nodes of a Path
 
 image::{img}/a_acted_in_m_directed_d.png[]
 
@@ -218,3 +218,9 @@ MATCH
   p1=(a)-[:ACTED_IN]->(m), p2=(d)-[:DIRECTED]->(m)
 RETURN p1, p2
 ----
+
+== Next Step
+
+In the next section we're going to learn some more advanced Cypher functions.
+
+pass:a[<a play-topic='{guides}/advanced.html'>Advanced Queries</a>]

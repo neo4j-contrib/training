@@ -269,7 +269,7 @@ Constraints guarantee
 
 == Labels on pattern "anchors"
 
-image::big_graph_k_t_m.png[float=right]
+image::{img}/big_graph_k_t_m.png[float=right]
 
 .Movies featuring both Tom Hanks and Kevin Bacon
 [source,cypher,options={options}]
@@ -283,7 +283,7 @@ RETURN movie.title
 
 == Conditions
 
-image::big_graph_m_released.png[float=right]
+image::{img}/big_graph_m_released.png[float=right]
 
 .Movies in which Tom Hanks acted, that were released before 1992
 [source,cypher,options={options}]
@@ -475,7 +475,7 @@ MERGE (a)-[:KNOWS]-(b)
 
 == Variable length paths
 
-image::variable_length_path.png[]
+image::{img}/variable_length_path.png[]
 
 [role=big]
 ----
@@ -536,3 +536,10 @@ WHERE charlize.name="Charlize Theron" AND
       bacon.name="Kevin Bacon"
 RETURN [n in nodes(p) | n.name] AS names;
 ----
+
+== Next Step
+
+In the next section we're going to learn about importing data.
+
+pass:a[<a play-topic='{guides}/import.html'>Data Import</a>]
+
