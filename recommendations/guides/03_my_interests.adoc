@@ -45,7 +45,7 @@ Run the following query to create an `INTERESTED_IN` relationship between member
 
 [source,cypher,subs=attributes]
 ----
-USING PERIODIC COMMIT 1000
+USING PERIODIC COMMIT 50000
 LOAD CSV WITH HEADERS FROM "{csv-url}members.csv" AS row
 
 WITH split(row.topics, ";") AS topics, row.id AS memberId
@@ -88,127 +88,6 @@ In this query we
 
 This is quite a crude scoring mechanism which favours generally popular topics.
 We'll have a look at how to address that later on.
-
-== What if I don't specify any interests?
-
-Let's find someone who didn't specify any interests but is member of a few groups.
-
-[source,cypher]
-----
-MATCH (member:Member) WHERE NOT (member)-[:INTERESTED_IN]->()
-MATCH (member)-[:MEMBER_OF]->()
-RETURN member.name, count(*) as groups
-ORDER BY count(*) DESC
-LIMIT 50
-----
-
-Let's take someone from that list who didn't specify any interests when they signed up for meetup.com:
-
-include::form.adoc[tags=name]
-
-[source,cypher,subs="attributes,none"]
-----
-MATCH (member:Member {name: {name}})-[:INTERESTED_IN]->(topic), (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
-WITH member, topic, COUNT(*) AS score
-MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
-WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
-RETURN otherGroup.name, COLLECT(topic.name), SUM(score) as score
-ORDER BY score DESC
-----
-
-So we can't make any recommendations to them.
-Sad times!
-
-However, if they are a member of some groups we can infer their interests.
-
-== What am I actually interested in?
-
-image::{img}/slides.jpg[]
-
-////
-
-== What am I actually interested in?
-
-The `INTERESTED_IN` relationships that we created are based on interests that a user declared when they signed up for meetup.com.
-People typically don't change those as their interests change but they do join new groups frequently which allows us to know their interests better than they do!
-
-We can do this by inferring `INTERESTED_IN` relationships based on these groups.
-
-image::{img}/group_has_topic_member_of.png[]
-
-
-ifdef::env-training[]
-
-== Exercise: Inferring interests
-
-* Find topics that I'm interested in via the groups I'm a member of that I don't have an `INTERESTED_IN` relationship to.
-* Which topic shows up most frequently?
-
-== The answers are waiting...
-
-image::{img}/slides.jpg[]
-
-endif::env-training[]
-
-////
-
-== Persisting inferred interests
-
-We can write the following query to add inferred `INTERESTED_IN` relationships to each member:
-
-[source,cypher]
-----
-MATCH (m:Member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->(topic)
-WHERE NOT (m)-[:INTERESTED_IN]->(topic)
-
-WITH m, topic, COUNT(*) AS times
-WHERE times >= 3
-
-MERGE (m)-[interestedIn:INTERESTED_IN]->(topic)
-SET interestedIn.inferred = true
-----
-
-The query:
-
-* goes over each member
-* finds the groups they're a member of and which topics those groups advertise
-* counts how many times each topic has showed up
-* removes any topics that show up less than 3 times
-* creates an `INTERESTED_IN` relationship between the member and the remaining topics
-
-On this dataset we have a sufficiently small number of members that we can process them all in one go.
-With a production sized dataset we'd need to process members in batches.
-
-== Find my similar groups (even if I don't know it yet)
-
-So we're still answering the same fundamental question as before:
-
-[verse]
-____
-As a member of several Meetup groups
-I want to find other similar Meetup groups that I’m not already a member of
-So that I can join those groups
-____
-
-But now we've added in some extra relationships which allow us to make recommendations even to people who haven't specified any interests.
-
-Run the following query:
-
-include::form.adoc[tags=name]
-
-[source,cypher,subs="attributes,none"]
-----
-MATCH (member:Member)-[:INTERESTED_IN]->(topic),
-      (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
-WHERE member.name CONTAINS {name}
-WITH member, topic, COUNT(*) AS score
-MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
-WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
-RETURN otherGroup.name, COLLECT(topic.name), SUM(score) as score
-ORDER BY score DESC
-----
-
-Hopefully you can now see some results where previously there weren't any.
 
 == Next Step
 

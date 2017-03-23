@@ -15,10 +15,10 @@ Update the recommendations query to:
 [source,cypher,subs=attributes]
 ----
 MATCH (member:Member) WHERE member.name CONTAINS {name}
-MATCH (futureEvent:Event) WHERE futureEvent.time > timestamp()
+MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
+WHERE futureEvent.time > timestamp()
 
 WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
-OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
 
 WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
 WHERE commonTopics >= 3
@@ -34,11 +34,10 @@ ORDER BY futureEvent.time
 [source,cypher,subs=attributes]
 ----
 MATCH (member:Member) WHERE member.name CONTAINS {name}
-MATCH (futureEvent:Event)
+MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
 WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
 
 WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
-OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
 
 WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
 WHERE commonTopics >= 3

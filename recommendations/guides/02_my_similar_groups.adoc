@@ -84,7 +84,7 @@ Run the following query to create a `MEMBER_OF` relationship between members and
 
 [source,cypher,subs=attributes]
 ----
-USING PERIODIC COMMIT 10000
+USING PERIODIC COMMIT 50000
 LOAD CSV WITH HEADERS
 FROM "{csv-url}members.csv" AS row
 WITH row WHERE NOT row.joined is null

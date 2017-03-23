@@ -1,14 +1,15 @@
-:name: pass:['<span  value-key="name">Mark Needham</span>']
-:name2: pass:['<span  value-key="name2">Mark Needham</span>']
-:name3: pass:['<span  value-key="name3">Mark Needham</span>']
+:name: pass:['<span  value-key="name">Will Lyon</span>']
+:name2: pass:['<span  value-key="name2">Will Lyon</span>']
+:name3: pass:['<span  value-key="name3">Will Lyon</span>']
+:name4: pass:['<span  value-key="name4">Jim Webber</span>']
 :group: pass:['<span  value-key="group">Group</span>']
 :topic: pass:['<span  value-key="topic">Topic</span>']
 :event: pass:['<span  value-key="event">An Event</span>']
-:trainingLocation: {latitude: 55.6729893, longitude: 12.585799}
+:trainingLocation: {latitude: 40.7577898, longitude: -73.9853772}
 :neo4j-group-name: 'Graph Database'
 :neo4j-group-name-alt: 'Neo4j'
-:neo4j-meetup-id: Neo4j-Oresund
-:csv-url: https://raw.githubusercontent.com/neo4j-meetups/modeling-worked-example/master/data/
+:neo4j-meetup-id: NYCNeo4j
+:csv-url: http://guides.neo4j.com/reco-nyc/data/
 :icons: font
 :experimental:
 :refcard: http://neo4j.com/docs/cypher-refcard/current/
