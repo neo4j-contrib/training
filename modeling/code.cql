@@ -862,6 +862,582 @@ FOREACH(ignoreMe IN CASE WHEN EXISTS(person.country) THEN [1] ELSE [] END |
 CREATE(:Director {_id: ["id1", "id2", "id3"] });
 CREATE INDEX ON :Director(_id);
 
+MATCH p=(:Character)-[:INTERACTS]-(:Character)
+RETURN p;
+
+LOAD CSV WITH HEADERS FROM "https://www.macalester.edu/~abeverid/data/stormofswords.csv" AS row
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
+MERGE (src)-[r:INTERACTS]->(tgt)
+ON CREATE SET r.weight = toInt(row.Weight);
+
+CREATE CONSTRAINT ON (c:Character) ASSERT c.name IS UNIQUE;
+
+
+
+
+
+
+// find starting points
+MATCH (:Person {name:'Andreas'})
+// then traverse the relationships
+       -[:ACTED_IN]->(movie:Movie)
+      <-[:ACTED_IN]- (other:Person)
+// and return results
+RETURN other;
+
+MATCH (boss)-[:MANAGES*0..3]->(mgr)
+
+WHERE boss.name = "John Doe" AND
+      (mgr)-[:MANAGES]->()
+RETURN mgr.name AS Manager,
+  size((mgr)-[:MANAGES*1..3]->()) AS Total;
+
+
+  MATCH (m:Movie {title:row.movie}), (p:Person {name:row.person})
+  CREATE (p)-[:ACTED_IN {roles:split(r.roles)} ]->(m);
+
+
+
+
+
+
+
+
+CREATE (:Person {name:row.name, born: toInt(row.born)});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LOAD CSV WITH HEADERS FROM "file:///groups.csv" AS row
+MERGE (group:Group { id:row.id })
+ON CREATE SET group.name = row.name,
+              group.urlname = row.urlname,
+              group.rating = toint(row.rating),
+              group.created = toint(row.created)
+
+CREATE CONSTRAINT ON (g:Group)
+ASSERT g.id IS UNIQUE;
+
+CREATE CONSTRAINT ON (t:Topic)
+ASSERT t.id IS UNIQUE;
+
+LOAD CSV WITH HEADERS FROM "file:///groups_topics.csv"
+AS row
+MERGE (topic:Topic {id: row.id})
+ON CREATE SET topic.name = row.name,
+              topic.urlkey = row.urlkey;
+
+              LOAD CSV WITH HEADERS FROM "file:///groups_topics.csv"
+              AS row
+              MATCH (topic:Topic {id: row.id})
+              MATCH (group:Group {id: row.groupId})
+              MERGE (group)-[:HAS_TOPIC]->(topic)
+;
+
+MATCH (group:Group {name: "Neo4j - London User Group"})
+      -[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
+RETURN otherGroup.name,
+       COUNT(topic) AS topicsInCommon,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC, otherGroup.name
+LIMIT 10;
+
+LOAD CSV WITH HEADERS FROM "file:///path/to/members.csv" AS row
+WITH DISTINCT row.id AS id, row.name AS name
+MERGE (member:Member {id: id})
+ON CREATE SET member.name = name;
+
+LOAD CSV WITH HEADERS FROM "file:///members.csv" AS row
+MATCH (member:Member {id: row.id})
+MATCH (group:Group {id: row.groupId})
+MERGE (member)-[m:MEMBER_OF]->(group)
+SET m.joined = toint(row.joined);
+
+MATCH (member:Member {name: "Mark Needham"})
+MATCH (group:Group {name: "Neo4j - London User Group"})
+       -[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+RETURN otherGroup.name,
+       COUNT(topic) AS topicsInCommon,
+       EXISTS((member)-[:MEMBER_OF]->(otherGroup))
+       AS alreadyMember,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC
+LIMIT 10;
+
+MATCH (group:Group {name: "Neo4j - London User Group"})
+       -[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE NOT( (:Member {name: "Mark Needham"})
+            -[:MEMBER_OF]->(otherGroup) )
+RETURN otherGroup.name,
+       COUNT(topic) AS topicsInCommon,
+       COLLECT(topic.name) AS topics
+ORDER BY topicsInCommon DESC
+LIMIT 10;
+
+MATCH (member:Member {name: "Mark Needham"})
+      -[:INTERESTED_IN]->(topic),
+      (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+
+WITH member, topic, COUNT(*) AS score
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
+WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
+RETURN otherGroup.name,
+       COLLECT(topic.name),
+       SUM(score) as score
+ORDER BY score DESC;
+
+MATCH (m:Member {name: "Jonny Cheetham"})
+MATCH (m)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+
+WITH m, topic, COUNT(*) AS times
+WHERE times > 3
+
+MERGE (m)-[:INTERESTED_IN]->(topic);
+
+WITH 24.0*60*60*1000 AS oneDay
+MATCH (member:Member {name: "Mark Needham"}),
+      (member)-[:MEMBER_OF]->(group),
+      (group)-[:HOSTED_EVENT]->(futureEvent)
+WHERE futureEvent.time >= timestamp()
+RETURN group.name, futureEvent.name,
+       round((futureEvent.time - timestamp()) / oneDay) AS days
+ORDER BY days
+LIMIT 10;
+
+WITH 24.0*60*60*1000 AS oneDay
+
+MATCH (member:Member {name: "Mark Needham"})
+MATCH (futureEvent:Event) WHERE timestamp() < futureEvent.time < (timestamp() + 7 * oneDay)
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+RETURN group.name,
+       futureEvent.name,
+       EXISTS((group)<-[:MEMBER_OF]-(member)) AS isMember,
+       round((futureEvent.time - timestamp()) / oneDay) AS days
+ORDER BY isMember DESC, days;
+
+
+WITH 24.0*60*60*1000 AS oneDay
+MATCH (member:Member {name: "Mark Needham"})
+MATCH (futureEvent:Event) WHERE timestamp() < futureEvent.time < (timestamp() + 7 * oneDay)
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH oneDay, group, futureEvent, member, EXISTS((group)<-[:MEMBER_OF]-(member)) AS isMember
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(pastEvent)<-[:HOSTED_EVENT]-(group)
+WHERE pastEvent.time < timestamp()
+
+RETURN group.name,
+       futureEvent.name,
+       isMember,
+       COUNT(rsvp) AS previousEvents,
+       round((futureEvent.time - timestamp()) / oneDay) AS days
+ORDER BY days, previousEvents DESC;
+
+WITH 24.0*60*60*1000 AS oneDay
+MATCH (member:Member {name: "Mark Needham"})
+MATCH (futureEvent:Event) WHERE timestamp() < futureEvent.time < (timestamp() + 7 * oneDay)
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH oneDay, group, futureEvent, member, EXISTS((group)<-[:MEMBER_OF]-(member)) AS isMember
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(pastEvent)<-[:HOSTED_EVENT]-(group)
+WHERE pastEvent.time < timestamp()
+
+WITH oneDay, group, futureEvent, member, isMember, COUNT(rsvp) AS previousEvents
+OPTIONAL MATCH (futureEvent)<-[:HOSTED_EVENT]-()-[:HAS_TOPIC]->(topic)<-[:INTERESTED_IN]-(member)
+
+RETURN group.name, futureEvent.name, isMember, previousEvents,
+       COUNT(topic) AS topics, round((futureEvent.time - timestamp()) / oneDay) AS days
+ORDER BY days,previousEvents DESC, topics DESC;
+
+MATCH (me:Member)-[:RSVPD]->()<-[:RSVPD]-(otherPerson)
+WHERE me.name = 'Mark Needham'
+WITH otherPerson, COUNT(*) AS commonEvents
+ORDER BY commonEvents DESC
+LIMIT 10
+RETURN otherPerson.name, commonEvents;
+
+CALL apoc.periodic.iterate(
+  "MATCH (m:Member) WHERE size( (m)-[:RSVPD]->() ) >= 3 RETURN m",
+  "WITH {m} as m
+   MATCH (m)-[:RSVPD]->(event)<-[:RSVPD]-(m2)
+   WITH m, m2, COUNT(*) AS times
+   WHERE times >= 3
+   MERGE (m)-[:FRIENDS]-(m2)",
+  {batchSize:10000, parallel:true})
+
+
+
+WITH 24.0*60*60*1000 AS oneDay
+MATCH (member:Member {name: "Mark Needham"})
+MATCH (futureEvent:Event) WHERE timestamp() < futureEvent.time < (timestamp() + 7 * oneDay)
+MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+WITH oneDay, group, futureEvent, member, EXISTS((group)<-[:MEMBER_OF]-(member)) AS isMember
+OPTIONAL MATCH (member)-[rsvp:RSVPD]->(pastEvent)<-[:HOSTED_EVENT]-(group)
+WHERE pastEvent.time < timestamp()
+
+WITH oneDay, group, futureEvent, member, isMember, COUNT(rsvp) AS previousEvents
+OPTIONAL MATCH (futureEvent)<-[:HOSTED_EVENT]-()-[:HAS_TOPIC]->(topic)<-[:INTERESTED_IN]-(member)
+
+WITH oneDay, group, futureEvent, member, isMember, previousEvents, COUNT(topic) AS topics
+OPTIONAL MATCH (member)-[:FRIENDS]-(:Member)-[rsvpYes:RSVPD]->(futureEvent)
+
+RETURN group.name, futureEvent.name, isMember, round((futureEvent.time - timestamp()) / oneDay) AS days,
+       previousEvents, topics, COUNT(rsvpYes) AS friendsGoing
+ORDER BY days, friendsGoing DESC, previousEvents DESC
+LIMIT 15;
+
+
+MATCH (m1:Member) WHERE m1.name = 'Mark Needham'
+MATCH (m1)-[friendship:FRIENDS]-(m2:Member)
+WITH m1, m2, friendship
+MATCH (m1)-[:RSVPD]->(commonEvent)<-[:RSVPD]-(m2)
+WITH m1, m2, COUNT(commonEvent) AS commonEvents
+WITH m1, m2, commonEvents, SIZE((m1)-[:RSVPD]->()) AS m1Rsvps, SIZE((m2)-[:RSVPD]->()) AS m2Rsvps
+RETURN m1.name, m2.name, commonEvents, m1Rsvps, m2Rsvps,
+       (2 * 1.0 * commonEvents) / (m1Rsvps + m2Rsvps) AS diceSimilarity
+ORDER BY diceSimilarity DESC
+LIMIT 10;
+
+CALL apoc.periodic.iterate(
+ "MATCH (m:Member) WHERE size( (m)-[:RSVPD]->() ) >= 3 RETURN m",
+ "WITH {m} as m
+  MATCH (m)-[friendship:FRIENDS]-(m2:Member)
+  WITH m, m2, friendship
+  MATCH (m1)-[:RSVPD]->(commonEvent)<-[:RSVPD]-(m2)
+  WITH m1, m2, friendship, COUNT(commonEvent) AS commonEvents
+  WITH m1, m2, friendship, commonEvents, SIZE((m1)-[:RSVPD]->()) AS m1Rsvps,
+       SIZE((m2)-[:RSVPD]->()) AS m2Rsvps
+  WITH m1, m2, friendship, commonEvents, m1Rsvps, m2Rsvps,
+       (2 * 1.0 * commonEvents) / (m1Rsvps + m2Rsvps) AS diceSimilarity
+  SET friendship.score = diceSimilarity",
+  {batchSize:10000, parallel:true});
+
+
+  WITH 24.0*60*60*1000 AS oneDay
+  MATCH (member:Member {name: "Mark Needham"})
+  MATCH (futureEvent:Event) WHERE timestamp() < futureEvent.time < (timestamp() + 7 * oneDay)
+  MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+  WITH oneDay, group, futureEvent, member, EXISTS((group)<-[:MEMBER_OF]-(member)) AS isMember
+  OPTIONAL MATCH (member)-[rsvp:RSVPD]->(pastEvent)<-[:HOSTED_EVENT]-(group)
+  WHERE pastEvent.time < timestamp()
+
+  WITH oneDay, group, futureEvent, member, isMember, COUNT(rsvp) AS previousEvents
+  OPTIONAL MATCH (futureEvent)<-[:HOSTED_EVENT]-()-[:HAS_TOPIC]->(topic)<-[:INTERESTED_IN]-(member)
+
+  WITH oneDay, group, futureEvent, member, isMember, previousEvents, COUNT(topic) AS topics
+  OPTIONAL MATCH (member)-[f:FRIENDS]-(:Member)-[rsvpYes:RSVPD]->(futureEvent) WHERE f.score > 0.2
+
+  RETURN group.name, futureEvent.name, isMember, round((futureEvent.time - timestamp()) / oneDay) AS days,
+         previousEvents, topics, COUNT(rsvpYes) AS friendsGoing
+  ORDER BY days, friendsGoing DESC, previousEvents DESC
+  LIMIT 15;
+
+  CALL apoc.scoring.pareto(1, 5, 10, 8)
+  value
+  9.238538424513647;
+
+  CALL apoc.scoring.existence(5, false)
+  value
+  0;
+
+  WITH 24.0*60*60*1000 AS oneDay
+  MATCH (member:Member {name: "Mark Needham"})
+  MATCH (futureEvent:Event) WHERE timestamp() < futureEvent.time < (timestamp() + 7 * oneDay)
+  MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
+
+  WITH oneDay, group, futureEvent, member, EXISTS((group)<-[:MEMBER_OF]-(member)) AS isMember
+  OPTIONAL MATCH (member)-[rsvp:RSVPD]->(pastEvent)<-[:HOSTED_EVENT]-(group)
+  WHERE pastEvent.time < timestamp()
+
+  WITH oneDay, group, futureEvent, member, isMember, COUNT(rsvp) AS previousEvents
+  OPTIONAL MATCH (futureEvent)<-[:HOSTED_EVENT]-()-[:HAS_TOPIC]->(topic)<-[:INTERESTED_IN]-(member)
+
+  WITH oneDay, group, futureEvent, member, isMember, previousEvents, COUNT(topic) AS topics
+  OPTIONAL MATCH (member)-[:FRIENDS]-(:Member)-[rsvpYes:RSVPD]->(futureEvent)
+
+  WITH oneDay, group, futureEvent, member, isMember, previousEvents, topics, COUNT(rsvpYes) AS friendsGoing
+
+  CALL apoc.scoring.pareto(1, 5, 10, topics) YIELD value AS topicScore
+  CALL apoc.scoring.pareto(1, 3, 10, previousEvents) YIELD value AS previousEventsScore
+  CALL apoc.scoring.pareto(1, 5, 20, friendsGoing) YIELD value AS friendsGoingScore
+  CALL apoc.scoring.existence(5, isMember) YIELD value AS membershipScore
+
+  RETURN group.name, futureEvent.name, isMember, round((futureEvent.time - timestamp()) / oneDay) AS days,
+         previousEvents, topics, friendsGoing, topicScore + previousEventsScore + friendsGoingScore + membershipScore AS score
+  ORDER BY score DESC
+  LIMIT 15;
+
+  LOAD CSV WITH HEADERS FROM "(file|http)://" AS row
+
+  MATCH  (:Label {property: row.header})
+  CREATE (:Label {property: row.header})
+  MERGE  (:Label {property: row.header});
+
+  LOAD CSV WITH HEADERS
+  FROM "file:///transfers.csv"
+  AS row
+  RETURN COUNT(*)
+;
+
+LOAD CSV WITH HEADERS
+FROM "file:///transfers.csv"
+AS row
+RETURN row
+LIMIT 1;
+
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///transfers.csv" AS row
+CREATE (player:Player {
+    id: row.playerUri,
+    name: row.playerName,
+    position: row.playerPosition
+})
+;
+
+CREATE CONSTRAINT ON (player:Player)
+ASSERT player.id IS UNIQUE;
+
+
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///transfers.csv" AS row
+MERGE (player:Player {id: row.playerUri})
+ON CREATE SET player.name =  row.playerName,
+              player.position = row.playerPosition;
+
+
+              USING PERIODIC COMMIT
+              LOAD CSV WITH HEADERS FROM "file:///transfers.csv" AS row
+              MERGE (club:Club {id: row.sellerClubUri})
+              ON CREATE SET club.name = row.sellerClubName,
+                            club.country = row.sellerClubCountry;
+
+                            USING PERIODIC COMMIT
+                            LOAD CSV WITH HEADERS FROM "file:///transfers.csv" AS row
+                            MERGE (club:Club {id: row.buyerClubUri})
+                            ON CREATE SET club.name = row.buyerClubName,
+                                          club.country = row.buyerClubCountry;
+
+LOAD CSV WITH HEADERS FROM "file:///transfers.csv" AS row
+MATCH (player:Player {id: row.playerUri})
+MATCH (source:Club {id: row.sellerClubUri})
+MATCH (destination:Club {id: row.buyerClubUri})
+MERGE (t:Transfer {id: row.transferUri})
+ON CREATE SET t.season = row.season, t.rank = row.transferRank,
+              t.fee = row.transferFee
+MERGE (t)-[:OF_PLAYER { age: row.playerAge }]->(player)
+MERGE (t)-[:FROM_CLUB]->(source)
+MERGE (t)-[:TO_CLUB]->(destination);
+
+CREATE CONSTRAINT ON (club:Club)
+ASSERT EXISTS(club.name);
+
+CREATE CONSTRAINT ON ()-[player:OF_PLAYER]-() ASSERT exists(player.age);
+
+MATCH (player:Player { name: "Cristiano Ronaldo" })
+RETURN player;
+
+
+MATCH (from:Club)<-[:FROM_CLUB]-(transfer:Transfer)-[:TO_CLUB]->(to:Club),
+      (transfer)-[:OF_PLAYER]->(player)
+WHERE from.name = "Tottenham Hotspur" AND to.name = "Manchester United"
+RETURN player.name, transfer.numericFee, transfer.season;
+
+
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///transfers.csv" AS row
+MATCH (player:Player {id: row.playerUri})
+SET player.nationality = row.playerNationality;
+
+MATCH (to:Club)<-[:TO_CLUB]-(t:Transfer)-[:FROM_CLUB]-(from:Club),
+      (t)-[:OF_PLAYER]->(player:Player)
+WHERE to.country = "England" AND from.country = "England"
+AND player.nationality = "England"
+RETURN player.name, from.name, to.name, t.numericFee, t.season
+ORDER BY t.numericFee DESC
+LIMIT 10;
+
+LOAD CSV WITH HEADERS
+FROM "file:///confederations.csv" AS row
+MERGE (c:Confederation {id: row.urlName})
+ON CREATE
+SET c.shortName = row.shortName,
+    c.region = row.region,
+    c.name = row.name;
+
+    LOAD CSV WITH HEADERS FROM "file:///countries.csv"
+    AS row
+    MATCH (conf:Confederation {id: row.confederation })
+    MERGE (country:Country {id: row.countryCode})
+    ON CREATE SET country.name = row.country
+    MERGE (country)-[:PART_OF]->(conf);
+
+    MATCH (club:Club)
+    MATCH (country:Country {name: club.country})
+    MERGE (club)-[:PART_OF]->(country)
+    REMOVE club.country;
+
+    MATCH (player:Player)
+    MATCH (country:Country {name: player.nationality})
+    MERGE (player)-[:PLAYS_FOR]->(country)
+    REMOVE player.nationality;
+
+    MATCH (to:Club)<-[:TO_CLUB]-(t:Transfer)-[:FROM_CLUB]-(from:Club),
+          (t)-[:OF_PLAYER]->(player:Player)-[:PLAYS_FOR]->(country:Country),
+          (to)-[:PART_OF]->(country)<-[:PART_OF]-(from)
+    WHERE country.name = "England"
+    RETURN player.name, from.name, to.name, t.numericFee, t.season
+    ORDER BY t.numericFee DESC
+    LIMIT 10;
+
+
+    MATCH (to:Club)<-[:TO_CLUB]-(t:Transfer)-[:FROM_CLUB]-(from:Club),
+          (t)-[:OF_PLAYER]->(player:Player),
+          (from)-[:PART_OF*2]->(:Confederation {id: "afc"}),
+          (to)-[:PART_OF*2]->(:Confederation {id: "uefa"})
+    RETURN player.name, from.name, to.name, t.numericFee, t.season
+    ORDER BY t.numericFee DESC
+    LIMIT 10;
+
+MATCH (:Topic {name: "Neo4j"})-[:NARROWER_THAN]->(parent)<-[:NARROWER_THAN]-(similar)
+RETURN similar.name, COUNT(*) AS times, COLLECT(parent.name) AS parents
+ORDER BY times DESC
+
+
+
+
+
+
+
+
+
+;
+
+MATCH (topic:Topic {name: "Neo4j"})
+MATCH (topic)-[:NARROWER_THAN]->({name: "NoSQL"})<-[:NARROWER_THAN]-(similar)
+RETURN similar.name
+ORDER BY similar.name
+LIMIT 10;
+
+
+MATCH (topic:Topic)
+WITH topic, size((topic)<-[:HAS_TOPIC]-()) as ct
+MATCH (topic)<-[:HAS_TOPIC]-(group)-[:HAS_TOPIC]->(relatedTopic)
+WITH topic, relatedTopic, tofloat(count(group))/ct AS cooccurenceIndex
+CREATE (topic)-[:CO_OCCURS {index: cooccurenceIndex }]->(relatedTopic);
+
+// step2 : infer same-as
+MATCH (topic1)-[co1:CO_OCCURS {index : 1}]->(topic2)-[co2:CO_OCCURS { index: 1}]->(topic1)
+WHERE ID(topic1) > ID(topic2)
+MERGE (topic1)-[:SAME_AS]->(topic2);
+
+// step3: infer narrower-than
+MATCH (topic1)-[co1:CO_OCCURS]->(topic2), (topic2)-[co2:CO_OCCURS]->(topic1)
+WHERE ID(topic1) > ID(topic2) AND co1.index = 1 and co2.index < 1
+MERGE (topic1)-[:NARROWER_THAN]->(topic2);
+
+// step4: reduce narrower-than taxonomy to delete indirect relationships
+MATCH (topic1)-[:NARROWER_THAN]->(topic2)-[:NARROWER_THAN]->(topic3), (topic1)-[d:NARROWER_THAN]->(topic3)
+DELETE d;
+
+
+// find the taxonomy around Neo4j
+MATCH path = (n:Topic)-[:NARROWER_THAN*]-()
+WHERE n.name contains "Neo4j"
+RETURN path;
+
+CREATE (m:Movie {title:'Mystic River', released:2003})
+RETURN m;
+
+MATCH (m:Movie {title: 'Mystic River'})
+SET m.tagline = 'We bury our sins here, Dave. We wash them clean.' RETURN m;
+
+
+MATCH (m:Movie {title: 'Mystic River'})
+MATCH (p:Person {name: 'Kevin Bacon'})
+CREATE (p)-[r:ACTED_IN {roles: ['Sean']}]->(m)
+RETURN p, r, m;
+
+MERGE (p:Person {name: 'Tom Hanks'})
+RETURN p;
+
+MERGE (p:Person {name: 'Tom Hanks', oscar: true})
+RETURN p;
+
+MERGE (p:Person {name: 'Tom Hanks'})
+SET p.oscar = true
+RETURN p;
+
+MERGE (p:Person {name: 'Tom Hanks'})-[:ACTED_IN]->(m:Movie {title: 'The Terminal'})
+RETURN p, m;
+
+MERGE (p:Person {name: 'Tom Hanks'})
+MERGE (m:Movie {title: 'The Terminal'})
+MERGE (p)-[r:ACTED_IN]->(m)
+RETURN p, r, m;
+
+MERGE (p:Person {name: 'Your Name'})
+  ON CREATE SET p.created = timestamp(),
+                p.updated = 0
+  ON MATCH SET p.updated = p.updated + 1
+RETURN p.created, p.updated;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

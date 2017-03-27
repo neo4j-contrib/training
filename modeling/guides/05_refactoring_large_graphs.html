@@ -139,11 +139,11 @@ LOAD CSV WITH HEADERS FROM "file:///flights_500k.csv" AS row
 MATCH (origin:Airport {code: row.Origin})
 MATCH (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
-ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
+ON CREATE SET newFlight.date = toInteger(row.Year) + "-" + toInteger(row.Month) + "-" + toInteger(row.DayofMonth),
               newFlight.airline = row.UniqueCarrier,
               newFlight.number = row.FlightNum,
-              newFlight.departure = TOINT(row.CRSDepTime),
-              newFlight.arrival = TOINT(row.CRSArrTime)
+              newFlight.departure = toInteger(row.CRSDepTime),
+              newFlight.arrival = toInteger(row.CRSArrTime)
 MERGE (origin)<-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]->(destination)<!--/code--></pre>
 </div>

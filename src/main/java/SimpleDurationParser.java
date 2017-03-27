@@ -1,12 +1,5 @@
 public class SimpleDurationParser
 {
-
-
-
-
-
-
-
     public static double parseTextToMillis( String duration )
     {
         String[] fields = duration.split( "[^-+\\d\\.]" );

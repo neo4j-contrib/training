@@ -123,8 +123,7 @@ WITH *
 UNWIND [[hasDayOrigin, originAirportDay], [hasDayDestination, destinationAirportDay]] AS pair
 
 WITH DISTINCT pair
-CALL apoc.convert.toRelationship(pair[0]) YIELD rel
-WITH rel AS hasDay, pair[1] AS day
+WITH apoc.convert.toRelationship(pair[0]) AS hasDay, pair[1] AS day
 
 CALL apoc.create.relationship(startNode(hasDay), day.date, {}, endNode(hasDay) )
 YIELD rel

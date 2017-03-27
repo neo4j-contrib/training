@@ -314,8 +314,8 @@ MERGE (destination:Airport {code: row.Dest})
 MERGE (origin)-[connection:CONNECTED_TO {
   airline: row.UniqueCarrier,
   flightNumber: row.FlightNum,
-  date: TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth)}]->(destination)
-ON CREATE SET connection.departure = TOINT(row.CRSDepTime), connection.arrival = TOINT(row.CRSArrTime)<!--/code--></pre>
+  date: toInteger(row.Year) + "-" + toInteger(row.Month) + "-" + toInteger(row.DayofMonth)}]->(destination)
+ON CREATE SET connection.departure = toInteger(row.CRSDepTime), connection.arrival = toInteger(row.CRSArrTime)<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -336,7 +336,7 @@ ON CREATE SET connection.departure = TOINT(row.CRSDepTime), connection.arrival =
 </div>
 <div class="paragraph">
 <p>By default properties will be stored as strings.
-We know that <code>year</code>, <code>month</code>, and <code>day</code> are actually numeric values so we&#8217;ll coerce them using the <a href="/docs"><code>TOINT</code></a> function.</p>
+We know that <code>year</code>, <code>month</code>, and <code>day</code> are actually numeric values so we&#8217;ll coerce them using the <a href="/docs"><code>toInteger</code></a> function.</p>
 </div>
 <div class="paragraph">
 <p>Now we&#8217;re ready to start querying the data.</p>

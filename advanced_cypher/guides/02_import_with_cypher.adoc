@@ -1,5 +1,5 @@
 = Importing data with Cypher
-:csv_url: file:///
+:csv_url: file://
 // :csv_url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
 :movies_roles_url: '{csv_url}/movies.csv'
 :movies_url: '{csv_url}/new_movies.csv'
@@ -45,6 +45,9 @@ LIMIT 5
 
 == LOAD CSV - WITH HEADERS
 
+If we include `WITH HEADERS` along with the `LOAD CSV` command we'll get back a map per row.
+Let's try that out.
+
 == Row as Map Data
 
 [source,cypher,subs=attributes]
@@ -84,7 +87,7 @@ CREATE (:Movie {
           tagline: "",
           avgVote:7.7,
           releaseYear:1994,
-          genres: ["Comedy","Drama","Romance"])
+          genres: ["Comedy","Drama","Romance"] })
 ----
 
 [source,cypher]
@@ -147,7 +150,7 @@ CREATE (:Movie {
           title:row.title,
           avgVote:toFloat(row.avgVote),
           releaseYear:toInteger(row.releaseYear),
-          genres: split(row.genres,":"))
+          genres: split(row.genres,":") })
 ----
 
 Data Transformation from string
@@ -177,13 +180,13 @@ Solution on next slide, don't peek.
 ----
 LOAD CSV WITH HEADERS FROM {people_url} as row
 
-MERGE(person:Person {id: toInt(row.personId)})
+MERGE(person:Person {id: toInteger(row.personId)})
 ON CREATE SET person.name = row.name,
               person.born = toInteger(row.birthYear),
               person.died = toInteger(row.deathYear)
 ----
 
-NOTE: `deathYear` can be missing. `toInt()` returns null, property not set.
+NOTE: `deathYear` can be missing. `toInteger()` returns null, property not set.
 
 == Import Directors
 
@@ -221,7 +224,7 @@ FIELDTERMINATOR ','
 
 MATCH  (movie:Movie  {id: toInteger(row.movieId) })
 MATCH  (person:Person {id: toInteger(row.personId) })
-MERGE  (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":");
+MERGE  (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(coalesce(row.characters,""), ":")
 ON CREATE SET person:Actor
 ----
 
@@ -272,15 +275,15 @@ Same as before, just run multiple passes over the same file.
 ----
 LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
-MERGE (m:Movie {id:toInt(row.movieId)})
+MERGE (m:Movie {id:toInteger(row.movieId)})
    ON CREATE SET m.title=row.title, m.avgVote=toFloat(row.avgVote),
-      m.releaseYear=toInt(row.releaseYear), m.genres=split(row.genres,":")
+      m.releaseYear=toInteger(row.releaseYear), m.genres=split(row.genres,":")
 
-MERGE (p:Person {id: toInt(row.personId)})
-   ON CREATE SET p.name = row.name, p.born = toInt(row.birthYear),
-      p.died = toInt(row.deathYear)
+MERGE (p:Person {id: toInteger(row.personId)})
+   ON CREATE SET p.name = row.name, p.born = toInteger(row.birthYear),
+      p.died = toInteger(row.deathYear)
 
-CREATE (p)-[:ACTED_IN {roles: split(row.characters,':')}]->(m)
+MERGE (p)-[:ACTED_IN {roles: split(row.characters,':')}]->(m)
 ON CREATE SET p:Actor;
 ----
 
@@ -307,12 +310,12 @@ ON CREATE SET p:Actor;
 ----
 LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
-WITH DISTINCT row.movieId as movieId, row.title as title, row.genres as genres,
-toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
+WITH DISTINCT toInteger(row.movieId) as movieId, row.title as title, row.genres as genres,
+toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
 
 MERGE (m:Movie {id:movieId)
    ON CREATE SET m.title=title, m.avgVote=avgVote,
-      m.releaseYear=toInt(row.releaseYear), m.genres=split(genres,":")
+      m.releaseYear=toInteger(row.releaseYear), m.genres=split(genres,":")
 
 ----
 
@@ -335,9 +338,9 @@ PROFILEs
 LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
-toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
+toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
 
-collect({id: row.personId, name:row.name, born: toInt(row.birthYear), died:toInt(row.deathYear),
+collect({id: row.personId, name:row.name, born: toInteger(row.birthYear), died:toInteger(row.deathYear),
          roles: split(coalesce(row.characters,""),':')}) as people
 
 RETURN * LIMIT 10;
@@ -348,14 +351,14 @@ RETURN * LIMIT 10;
 LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
-toInt(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
+toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
 
-collect({id: row.personId, name:row.name, born: toInt(row.birthYear), died:toInt(row.deathYear),
+collect({id: row.personId, name:row.name, born: toInteger(row.birthYear), died:toInteger(row.deathYear),
          roles: split(coalesce(row.characters,""),':')}) as people
 
 MERGE (m:Movie {id:movieId)
    ON CREATE SET m.title=title, m.avgVote=avgVote,
-      m.releaseYear=toInt(row.releaseYear), m.genres=split(genres,":")
+      m.releaseYear=toInteger(row.releaseYear), m.genres=split(genres,":")
 
 UNWIND people as person
 

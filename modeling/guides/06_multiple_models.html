@@ -207,11 +207,11 @@ MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
-ON CREATE SET newFlight.date = TOINT(row.Year) + "-" + TOINT(row.Month) + "-" + TOINT(row.DayofMonth),
+ON CREATE SET newFlight.date = toInteger(row.Year) + "-" + toInteger(row.Month) + "-" + toInteger(row.DayofMonth),
               newFlight.airline = row.UniqueCarrier,
               newFlight.number = row.FlightNum,
-              newFlight.departure = TOINT(row.CRSDepTime),
-              newFlight.arrival = TOINT(row.CRSArrTime)
+              newFlight.departure = toInteger(row.CRSDepTime),
+              newFlight.arrival = toInteger(row.CRSArrTime)
 MERGE (origin)<-[:ORIGIN]-(newFlight)
 MERGE (newFlight)-[:DESTINATION]->(destination)
 
@@ -231,8 +231,7 @@ WITH *
 UNWIND [[hasDayOrigin, originAirportDay], [hasDayDestination, destinationAirportDay]] AS pair
 
 WITH DISTINCT pair
-CALL apoc.convert.toRelationship(pair[0]) YIELD rel
-WITH rel AS hasDay, pair[1] AS day
+WITH apoc.convert.toRelationship(pair[0]) AS hasDay, pair[1] AS day
 
 CALL apoc.create.relationship(startNode(hasDay), day.date, {}, endNode(hasDay) )
 YIELD rel
