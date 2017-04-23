@@ -84,7 +84,7 @@ NOTE: Look at the CSV structure for property-names and types.
 CREATE (:Movie {
           id:5574,
           title:"Forrest Gump",
-          tagline: "",
+          tagline: "Life was like a box of chocolates, you never know what you're gonna get",
           avgVote:7.7,
           releaseYear:1994,
           genres: ["Comedy","Drama","Romance"] })
@@ -144,13 +144,14 @@ CREATE INDEX ON :Movie(title)
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM {movies_url} AS row
+LOAD CSV WITH HEADERS FROM  
+     {movies_url} AS row
 CREATE (:Movie {
           id:toInteger(row.movieId),
           title:row.title,
           avgVote:toFloat(row.avgVote),
           releaseYear:toInteger(row.releaseYear),
-          genres: split(row.genres,":") })
+          genres: split(row.genres,":") });
 ----
 
 Data Transformation from string
@@ -163,12 +164,14 @@ Data Transformation from string
 
 * Import the people from {people_url}
 * Determine the number of rows
-* Determine structure of first 5 rows
+* Determine structure of first 5 rows, watch out for spelling of headers!
 * Goal: `:Person(id,name,born,died)`
 * Import people with `CREATE`
 * Re-run with `MERGE`
 
-Make sure to transform the time
+Make sure to transform the years.
+NOTE: `deathYear` can be missing. Then `toInt()` returns null, which results in the property being skipped.
+
 
 == Exercise: Import People
 
@@ -206,7 +209,7 @@ ON CREATE SET person:Director
 * Import `ACTED_IN(roles)` relationship
 * From {actors_url}
 * Determine rows and structure of first 5 entries
-* Only create one ACTED_IN relationship per Person->Movie
+* Only create one `ACTED_IN` relationship per Person, Movie pair
 * Set `roles` to a list of roles
 * Set `:Actor` label
 
@@ -268,6 +271,23 @@ Same as before, just run multiple passes over the same file.
 == Denormalized Data (2)
 
 * Single denormalized CSV file
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     {movies_roles_url} AS row
+RETURN count(*)
+----
+
+[source,cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM  
+     {movies_roles_url} AS row
+RETURN row LIMIT 10
+----
+
+== Denormalized Data (2)
+
 * Single-Pass
 * Create sub-graph per row, e.g. Movie and Person and Relationship
 
@@ -308,15 +328,15 @@ ON CREATE SET p:Actor;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
+LOAD CSV WITH HEADERS FROM 
+    {movies_roles_url} AS row
 
 WITH DISTINCT toInteger(row.movieId) as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
 
 MERGE (m:Movie {id:movieId)
    ON CREATE SET m.title=title, m.avgVote=avgVote,
-      m.releaseYear=toInteger(row.releaseYear), m.genres=split(genres,":")
-
+      m.releaseYear=releaseYear, m.genres=split(genres,":")
 ----
 
 == Recovering if you messed up (with Periodic Commit)
@@ -334,8 +354,9 @@ MERGE (m:Movie {id:movieId)
 
 [source,cypher,subs=attributes]
 ----
-PROFILEs
-LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
+PROFILE
+LOAD CSV WITH HEADERS FROM 
+     {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -348,7 +369,9 @@ RETURN * LIMIT 10;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM {movies_roles_url} AS row
+PROFILE
+LOAD CSV WITH HEADERS FROM 
+     {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -358,14 +381,31 @@ collect({id: row.personId, name:row.name, born: toInteger(row.birthYear), died:t
 
 MERGE (m:Movie {id:movieId)
    ON CREATE SET m.title=title, m.avgVote=avgVote,
-      m.releaseYear=toInteger(row.releaseYear), m.genres=split(genres,":")
+      m.releaseYear=releaseYear, m.genres=split(genres,":")
 
+WITH *
 UNWIND people as person
 
 MERGE (p:Person {id: person.id})
    ON CREATE SET p.name = person.name, p.born = person.born, p.died = person.died
 
-CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m);
+CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m)
+----
+
+== Extract Genre as Node
+
+[source,cypher]
+----
+CREATE CONSTRAINT ON (g:Genre) ASSERT g.name IS UNIQUE
+----
+
+
+[source,cypher]
+----
+MATCH (m:Movie)
+UNWIND m.genres as name
+WITH distinct name
+CREATE (:Genre {name:name})
 ----
 
 ////
