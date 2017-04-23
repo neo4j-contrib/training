@@ -1,0 +1,131 @@
+== Aggregation
+
+ifdef::env-graphgist[]
+
+//hide
+//setup
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+endif::[]
+
+// Video: aggregates
+
+Cypher provides support for a number of aggregate functions
+
+`count(x)` Count the number of occurrences
+
+`min(x)` Get the lowest value
+
+`max(x)` Get the highest value
+
+`avg(x)` Get the average of a numeric value
+
+`sum(x)` Sum up values
+
+`collect(x)` Collect all the values into an collection
+
+More on aggregate functions can be found in the {manual-cypher}/clauses/aggregation[Neo4j Manual].
+
+=== Aggregation: Collect
+
+Let's say we wanted to display all movie titles that an actor participated in.
+We could use the following query:
+
+[source,cypher]
+----
+MATCH (person:Person)-[:ACTED_IN]->(movie:Movie)
+RETURN person.name, collect(movie.title);
+----
+//table
+
+For every `Person` who has acted in at least one movie, the query will `RETURN` their name and an array of strings containing the movie titles.
+
+Let's look closer at the graph and at Tom Hanks' movies.
+
+// Video: actors and directors
+
+=== Exercise: Return the names of all the directors each actor has worked with
+
+image::{image}/0116_Matching_Paths_actors_directors.svg[]
+
+=== Solution: Return the names of all the directors each actor has worked with
+
+[source,cypher, role=solution]
+----
+MATCH (person:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN person.name, collect(director.name);
+----
+//table
+
+But if the actor worked several times with the same director, they would appear repeatedly.
+We can use `DISTINCT` here to collect only the distinct set of director names.
+
+[source,cypher]
+----
+MATCH (person:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN person.name, collect(DISTINCT director.name) as directors;
+----
+//table
+
+=== Exercise: Return the count of movies in which each actor has acted
+
+image::{image}/ACTED_IN.svg[]
+
+=== Solution: Return the count of movies in which each actor has acted
+
+[source,cypher, role=solution]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie)
+RETURN actor.name, count(movie);
+----
+//table
+
+=== Exercise: Return the count of movies in which an actor and director have jointly worked
+
+image::{image}/ACTED_IN_and_DIRECTED.svg[]
+
+=== Solution: Return the count of movies in which an actor and director have jointly worked
+
+[source,cypher, role=solution]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN actor.name, director.name, count(movie);
+----
+//table
+
+=== Aggregation: Top n
+
+If you're interested in the top n results, use a `count` aggregation.
+If we were interested in the top ten actors who acted in the most movies, the query would look like this:
+
+image::{image}/popular_actors_top_10.svg[]
+
+[source,cypher]
+----
+MATCH (person:Person)-[:ACTED_IN]->(movie:Movie)
+RETURN person.name, count(movie)
+ORDER BY count(movie) DESC
+LIMIT 10;
+----
+//table
+
+=== Aggregation: Resources
+
+* {manual-cypher}/functions/aggregating/[Aggregation^]
+* {manual-cypher}/syntax/operators[Boolean and Mathematical Operators^]
+* {manual-cypher}/clauses/create[Create^]
+* {manual}/get-started/cypher/getting-the-results-you-want/[Getting Correct Results^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]
+* {manual-cypher}/clauses/where[Where^]

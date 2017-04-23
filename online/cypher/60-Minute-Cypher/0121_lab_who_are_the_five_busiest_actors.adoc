@@ -1,0 +1,47 @@
+== Lab: Who are the five busiest actors?
+
+ifdef::env-graphgist[]
+//setup
+//hide
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+endif::[]
+
+Try to come up with a query that will display the five busiest actors, i.e. the ones who have been in the most movies.
+
+*Hint*
+
+Use aggregation and ordering
+
+image::{image}/popular_actors.svg[]
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="fiveBusiestActors"></div>
+++++
+endif::env-graphgist[]
+
+=== Solution: Who are the five busiest actors?
+
+[source,cypher, role=solution]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie)
+RETURN actor.name, count(movie)
+ORDER BY count(movie) DESC
+LIMIT 5;
+----

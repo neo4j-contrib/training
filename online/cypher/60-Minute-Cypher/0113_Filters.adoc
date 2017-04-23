@@ -1,0 +1,151 @@
+== Predicates and Conditions
+
+ifdef::env-graphgist[]
+
+//lesson1 graph
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+
+endif::[]
+
+=== Using WHERE
+
+Cypher provides a number of mechanisms for reducing the number of matching patterns returned in a result set.
+
+Let's start with a simple query:
+
+[source, cypher]
+----
+MATCH (person:Person)
+WHERE person.name = "Tom Hanks"
+RETURN person
+----
+//graph_result
+
+This will look through all the nodes in the graph with a label of `Person`, and if one has the `name` "Tom Hanks", it will `RETURN` that node.
+
+There is a shorter version of this query, which adds the Properties to filter by the `MATCH` clause.
+
+[source, cypher]
+----
+MATCH (person:Person {name:"Tom Hanks"})
+RETURN person
+----
+//graph_result
+
+=== Filtering using Comparisons
+
+We can also filter by comparing properties of different nodes.
+For example, we could `RETURN` all of the actors who acted with `Tom Hanks` and are older than him:
+
+[source, cypher]
+----
+MATCH (tom:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(actor:Person)
+WHERE tom.name="Tom Hanks"
+AND actor.born < tom.born
+RETURN actor.name AS Name
+----
+//table
+
+image::{image}/0113_Filters_acted_with_TH_and_older.svg[caption="People who acted with Tom Hanks and are older than him"]
+
+Note that we didn't bother to put `(movie)` in the middle-just `()`, as we don't need to know anything about the movie in which they worked together.
+
+We can even add a little math to the `RETURN` clause along with the _alias_ `AS diff` to show us the difference in ages:
+
+[source, cypher]
+----
+MATCH (tom:Person {name:"Tom Hanks"})-[:ACTED_IN]->(movie:Movie),
+(movie)<-[:ACTED_IN]-(actor:Person) // note how the line break doesn't break the query
+WHERE actor.born < tom.born
+RETURN DISTINCT actor.name AS Name, (tom.born - actor.born) AS diff
+----
+//table
+
+Math or more general expressions can be used almost everywhere in Cypher.
+
+// Video
+// We can also write the query like this:
+
+// MATCH (tom:Person)-[:ACTED_IN*2]-(actor:Person)
+// WHERE tom.name="Tom Hanks"
+// AND actor.born < tom.born
+// RETURN actor.name AS Name
+
+// see that the result is the same, though in the reverse order
+
+=== Filtering using Patterns: A Few Examples
+
+How would we find all the actors who worked with `Gene Hackman`?
+
+image::{image}/0113_Filters_worked_with_gene_hackman.svg["People who acted with Gene Hackman"]
+
+=== Solution: Find all the actors who worked with Gene Hackman
+
+[source, cypher]
+----
+MATCH (gene:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(other:Person)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT other
+----
+//graph_result
+
+How do we filter those actors to only actor-directors?
+
+image::{image}/0113_Filters_worked_with_gene_hackman_actor_director.svg[]
+
+So far, we used paths as part of a `MATCH` clause, but it is also possible to use paths as filter expressions in the `WHERE` clause.
+Here we check their existence with the `exists` function
+
+=== Solution: Filter to only actor-directors
+
+[source, cypher]
+----
+MATCH (gene:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(other:Person)
+WHERE gene.name="Gene Hackman"
+AND exists( (other)-[:DIRECTED]->() )
+RETURN DISTINCT other
+----
+//graph_result
+
+=== Example: Gene Hackman and not Robin Williams
+
+Find actors who worked with `Gene Hackman`, but not when he was also working with `Robin Williams` in the same movie.
+
+image::{image}/0113_Filters_worked_with_gene_hackman_not_rw.svg[]
+
+=== Solution: Gene Hackman and not Robin Williams
+
+[source, cypher]
+----
+MATCH (gene:Person {name:"Gene Hackman"})-[:ACTED_IN]->(movie:Movie),
+      (other:Person)-[:ACTED_IN]->(movie),
+      (robin:Person {name:"Robin Williams"})
+WHERE NOT exists( (robin)-[:ACTED_IN]->(movie) )
+RETURN DISTINCT other
+----
+//graph_result
+
+// Potential Video: The query above throws a warning about a catesian product, and is sorta slow
+// Click the yellow warning triangle to demonstrate how to view the warning
+
+=== Filters: Resources
+
+* {manual-cypher}/syntax/operators[Boolean and Mathematical Operators^]
+* {manual-cypher}/clauses/create[Create^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]
+* {manual-cypher}/clauses/where[Where^]

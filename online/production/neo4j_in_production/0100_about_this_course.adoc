@@ -1,0 +1,34 @@
+== About this Course
+
+Neo4j is in use in thousands of deployments around the world.
+
+Through this course we will provide you the knowledge necessary to successfully deploy and manage a Neo4j production setup.
+
+=== The Lessons
+
+// todo: link these to their respective lessons?
+
+Lesson 1:	Neo4j Production Deployment Options
+
+Lesson 2:	Neo4j Server Basics
+
+Lesson 3:	Enterprise Edition and Clustering
+
+Lesson 4:	Production Administration
+
+Lesson 5:	Guidance and Best Practices
+
+=== Feedback
+
+We created an online version of our classroom production training to satisfy the requests we got for self-paced learning.
+
+Please give us mailto:training@neotechnology.com[feedback] on how we can improve it.
+
+You can also join the http://neo4j.com/slack[neo4j-users Slack] and give or get feedback in the `#online-training` channel.
+
+=== Neo4j Certification
+
+If you sucessfully completed the course and built and deployed a Neo4j installation into production, please also take the http://neo4j.com/graphacademy/neo4j-certification[Neo4j Certification] to demonstrate your expertise.
+The certification is free of charge and consists of an hour-long exam with 80 questions across the different aspects of Neo4j usage and deployment.
+
+// == Graph Survey

@@ -1,0 +1,123 @@
+=== (L1) -- (Neo4j Editions)
+
+Neo4j Editions: Community and Enterprise
+
+==== Your First Decision
+
+As you get started with Neo4j, you'll immediately find there are two versions of Neo4j to choose from: Community Edition and Enterprise Edition.
+The version you use will depend on the features you require, the nature of the solution using Neo4j, and the level of professional support you would like to receive from Neo Technology.
+
+==== Community Edition
+
+The Community Edition is a full functioning version of Neo4j suitable for single instance deployments.
+It has full support for key Neo4j features, such as ACID compliance, Cypher and access via the binary protocol and HTTP APIs.
+It is ideal for smaller internal or do-it-yourself projects that do not require high levels of scaling or professional services and support.
+
+==== Enterprise Edition
+
+The Enterprise Edition extends the functionality of the Community Edition to include key features for performance and scalability such as a clustering architecture for High Availability and online backup functionality.
+It is the right choice for production systems with availability requirements or needs for scaling up or out.
+
+.Features
+[cols="<,^,^",frame="topbot",options="header,footer"]
+|===
+|Edition |Enterprise |Community
+
+|Property Graph Model
+|X
+|X
+
+|Native Graph Processing & Storage
+|X
+|X
+
+|ACID
+|X
+|X
+
+|Cypher - Graph Query Language
+|X
+|X
+
+|Binary Protocol
+|X
+|X
+
+|Official Language Drivers
+|X
+|X
+
+|User Defined Procedures
+|X
+|X
+
+|High-Performance Native API
+|X
+|X
+
+|HTTP/HTTPS API
+|X
+|X
+|===
+
+.Performance & Scalability
+[cols="<,^,^",frame="topbot",options="header,footer"]
+|===
+|Edition |Enterprise |Community
+
+|Enterprise Lock Manager
+|X
+|-
+
+|Clustering
+|X
+|-
+
+|Live Backups
+|X
+|-
+
+
+|Advanced Monitoring
+|X
+|-
+|===
+
+==== Production Deployable Versions
+// this section needs references
+
+When you visit the http://neo4j.com/download[download page] or look on our source code repository, you'll find different versions and candidates identified by 
+
+* Milestone (M##), 
+* Release Candidate (RC#) or
+* General Availability releases (GA or often only indicated by the version number such as 3.0.3)
+
+===== Milestone
+
+Milestone indicates a build of Neo4j that includes new features and functionalities to be included in a future GA release.
+
+===== Release Candidate
+
+Release Candidate indicates a build that has combined all milestone feature updates and fixes into a single build that could potentially be complete, but needs further testing.
+
+===== General Availability
+
+General Availability releases are our certified releases.
+They include all features and functionalities intended for that version and supported for production deployments.
+
+[NOTE]
+Production Deployments Should Only Use General Availability Releases
+
+As the Neo Technology team builds new features and functionalities for the next releases of Neo4j, we will make those features available in Milestone or Release Candidate versions.
+We do so to give the community an opportunity to test new features before they become a part of our General Availability versions.
+
+__Milestone or Release Candidate versions should never be used for your production deployment.__
+
+[WARNING]
+Also, data migration between non GA versions is unsupported.
+
+However, Milestone and Release Candidate versions offer a great opportunity for Neo4j administrators to test new versions with their applications.
+This allows administrators to understand any improvements or effects a coming feature change will have on them.
+
+As feasible, we recommend administrators that they download and test the Milestone releases *only* in their test environments.
+But we strongly request waiting for the General Availability version before using Neo4j in a production environment.

@@ -1,0 +1,94 @@
+== Lab: All Characters in the Matrix
+
+ifdef::env-graphgist[]
+
+//lesson1 graph
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+
+endif::[]
+
+
+Using the syntax we've covered so far, `RETURN` a list of all the characters in the movie `The Matrix`.
+
+image::{image}/0110_Lab_All_Characters_in_the_Matrix_image.svg[width=150, height=150]
+
+**Hint**
+
+* Movies have the label `Movie` and a `title` property you want to compare to.
+* We're looking for the characters--the `roles` which are a property of the `ACTED_IN` relationships--not the names of the actors.
+
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="allCharactersMatrix"></div>
+++++
+endif::env-graphgist[]
+
+ifdef::env-graphgist[]
+
+=== Solution: All Characters in the Matrix
+
+[source, cypher, role=solution]
+----
+MATCH (actor:Person)-[r:ACTED_IN]->(movie:Movie)
+WHERE movie.title = "The Matrix"
+RETURN actor.name AS Actor, r.roles AS Roles
+----
+
+
+[format="csv", options="header"]
+|===
+Actor,Roles
+Hugo Weaving,[Agent Smith]
+Laurence Fishburne,[Morpheus]
+Carrie-Anne Moss,[Trinity]
+Keanu Reeves,[Neo]
+|===
+
+endif::env-graphgist[]
+
+If you see all the usual suspects, you're good.
+
+// Video (completed)
+// Actors in The Matrix have but one role in the film.
+// What does it look like when actors have multiple roles in a movie?
+// Let's look at Cloud Atlas
+//
+// MATCH (actor:Person)-[r:ACTED_IN]->(movie:Movie)
+// WHERE movie.title = "Cloud Atlas"
+// RETURN actor.name AS Actor, r.roles AS Roles
+
+// ╒═════════════╤══════════════════════════════╕
+// │Actor        │Roles                         │
+// ╞═════════════╪══════════════════════════════╡
+// │Jim Broadbent│[Vyvyan Ayrs, Captain Molyneux│
+// │             │, Timothy Cavendish]          │
+// ├─────────────┼──────────────────────────────┤
+// │Hugo Weaving │[Bill Smoke, Haskell Moore, Ta│
+// │             │deusz Kesselring, Nurse Noakes│
+// │             │, Boardman Mephi, Old Georgie]│
+// ├─────────────┼──────────────────────────────┤
+// │Halle Berry  │[Luisa Rey, Jocasta Ayrs, Ovid│
+// │             │, Meronym]                    │
+// ├─────────────┼──────────────────────────────┤
+// │Tom Hanks    │[Zachry, Dr. Henry Goose, Isaa│
+// │             │c Sachs, Dermot Hoggins]      │
+// └─────────────┴──────────────────────────────┘

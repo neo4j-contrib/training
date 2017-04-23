@@ -1,0 +1,140 @@
+=== (L4) -- (Monitoring Neo4j)
+
+Neo4j provides access to internal data through a number of means, giving you the ability to directly access and monitor the state of a single instance or a cluster of multiple instances.
+This data can provide details on the state of an instance, the volume and measurements of data, the number of operations, memory management and much more.
+In this section we'll describe the various data points you can retrieve from Neo4j's internal monitoring options.
+
+
+==== Metrics Extension
+
+Starting in Neo4j 2.3 Enterprise Edition a https://neo4j.com/docs/operations-manual/current/#metrics-extension[monitoring extension] was added, that reports a large number of metrics from Neo4j, for example:
+
+* Detailed transaciton metrics
+* Cluster status and events
+* Network metrics
+* Log rotation events and timing
+* Page-Cache and Checkpointing events
+* Record-Id usage
+* JVM memory
+* Bolt & Cypher processing information
+
+The metrics extension can be configured to report to Graphite and log to CSV files.
+
+A full list can be found in the http://neo4j.com/docs/operations-manual/current/#available-metrics[operations manual].
+
+You can enable all metrics or certain aspects:
+
+.Configuration Settings
+[options="header"]
+|===
+| Setting | Comment
+| metrics.enabled=true | enabling all metrics
+| metrics.neo4j.enabled=true | enabling all Neo4j specific metrics
+| metrics.neo4j.tx.enabled=true | metrics about transactions; number of transactions started, committed, etc.
+| metrics.neo4j.pagecache.enabled=true |  page cache: page faults, evictions, flushes and exceptions, etc.
+| metrics.neo4j.counts.enabled=true | entities are in the database; nodes, relationships, properties, etc.
+| metrics.neo4j.network.enabled=true |  network usage of the HA cluster component
+|===
+
+
+.Metrics Output Configuration Settings
+[options="header"]
+|===
+| Setting | Comment
+| metrics.graphite.enabled=true | default is 'false'
+| metrics.graphite.server=<ip>:2003
+| metrics.graphite.interval=5s | how often to send data, defaults to 3s
+| metrics.prefix=neo1 | Neo4j instance name, e.g. wwwneo1
+| 
+| metrics.csv.enabled=true | default is 'false'
+| metrics.csv.path=file or directory path | defaults to "metrics/" in the store directory
+| metrics.csv.interval=5s | how often to store data, defaults to 3s
+|===
+
+===== Exercise: Enable Metrics
+
+. Enable all metrics in your Neo4j cluster
+. Configure the metrics extension to log to CSV files
+. Restart slaves and master
+. Run a number of read and write queries from the northwind guide `:play northwind graph`
+. Watch the configured metrics log-file (e.g. with `tail -f $NEO4J_HOME/metrics/*.csv`)
+
+
+==== Java Managment Extension (JMX)
+
+Neo4j has been supporting JMX for a long, time.
+
+You can use established tools such as JConsole or other application monitoring solutions to view this data and proactively respond to issues.
+
+++++
+<iframe src="https://player.vimeo.com/video/122285722" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+++++
+
+Sincle Neo4j 3.0 there is also a `dbms.queryJMX()` procedure that allows you to query 
+==== JMX Monitoring on `localhost`
+
+With the Neo4j database running, you should already be able to connect your monitoring tool to the process which is running Neo4j.
+
+Depending on the Neo4j edition you are using, the name of the process (e.g. shown in JConsole) is: `org.neo4j.server.enterprise.EnterpriseEntryPoint` or `org.neo4j.server.CommunityEntryPoint`.
+
+When using JConsole, just pick the Neo4j process which should be shown in the `Local Process` list and click connect.
+You may need to confirm using an insecure connection in order to proceed.
+For this test setup on a local host should be fine.
+
+===== Exercise: JMX
+
+. Open JConsole and connect to Neo4j
+. Run a number of read and write queries from the northwind guide `:play northwind graph`
+. Introspect the different MBean attribute values and charts provided by the JVM and Neo4j
+. Interact with the JVM by triggering a Garbage Collection in the `java.lang -> Memory` MBean
+. Interact with Neo4j by triggering a `dumpAll` in the `org.neo4j -> kernel#0 -> Diagnostics` MBean
+
+==== Remote JMX Monitoring
+
+By default, the Neo4j Enterprise Server edition does not allow remote JMX connections, since the relevant parameters in the `conf/neo4j-wrapper.conf` configuration file are commented out.
+To enable this feature, you have to remove the `#` characters from the various `com.sun.management.jmxremote` parameters there.
+
+When commented in, the default values are set up to allow remote JMX connections with certain roles.
+Refer to the `conf/jmx.password`, `conf/jmx.access` and `conf/neo4j-wrapper.conf` files for details.
+
+A simple configuration for `conf/jmx.access` could be:
+
+```
+# Define a role called 'monitor' with readonly access:
+monitor readonly
+```
+
+And in `conf/jmx.password` one could define:
+
+```
+# Define the password for the 'monitor' role to be 'Neo4j', please change this:
+monitor Neo4j
+```
+
+Make sure that the file `conf/jmx.password` has the correct file permissions on the file system level.
+The owner of the file has to be the user that will run the service and the permissions should be read only for that user.
+On Unix systems, this is 0600.
+
+On Windows, follow the http://docs.oracle.com/javase/8/docs/technotes/guides/management/security-windows.html[tutorial] to set the correct permissions.
+If you are running the service under the Local System Account, the user that owns the file and has access to it should be `SYSTEM`.
+
+_Note_: you may want to update the permissions and/or ownership of the `conf/jmx.password` and `conf/jmx.access` files.
+Refer to the relevant section in `conf/neo4j-wrapper.conf` for details.
+
+With this setup, you should be able to connect to the JMX monitoring of the Neo4j server using `<IP-OF-SERVER>:3637`, with the username `monitor` and the password `Neo4j`.
+
+
+==== What to monitor
+
+// This should be moved somewhere
+// We recommend referring to the documentation section describing the JMX MBeans to understand all metrics available.
+// There are detailed sections describing bean and values returned.
+
+One example is to monitor the state of data replicated between two instances in a cluster.
+The difference between the `LastCommittedTxId` attribute on each instance will give you an idea of how much lag there is between your master instance and any of your slave instances.
+Of course, if you are using a Enterprise Application Monitoring tool, you can define a threshold of lag as an alarm condition.
+
+==== References
+
+* https://neo4j.com/docs/operations-manual/current/#metrics-extension[Metrics Reporting]
+* https://neo4j.com/docs/operations-manual/current/#monitoring[JMX Monitoring]

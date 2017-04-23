@@ -1,0 +1,14 @@
+=== (L3) -- (Cluster: Disaster Recovery)
+
+Disaster recovery, in general terms, defines your ability to recover from major outages of your services.
+The most common example is an outage of a whole datacenter, which results in many services being disrupted.
+In these cases, a disaster recovery strategy can define a failover datacenter along with a strategy for bringing services back online.
+
+Neo4j Clustering can accommodate disaster recovery strategies that require very short windows of downtime or low tolerances for data loss in disaster scenarios.
+By deploying a cluster instance to an alternate location, you have an active copy of your database up and available in your designated disaster recovery location that is consistently keeping up with the transactions against your database.
+
+==== Why would you choose Clustering in support of Disaster Recovery?
+
+. *Minimize Downtime*: Your application availability demands are very high and you cannot sustain significant periods of downtime
+. *Require Real-Time*: You already employ a disaster recovery strategy for other application or service components that are near real-time
+. *Minimize Data Loss*: You have a large database that changes frequently and has low tolerance for data loss in a disaster scenario

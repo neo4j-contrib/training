@@ -1,0 +1,134 @@
+== Matching Paths
+
+ifdef::env-graphgist[]
+//lesson1 graph
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+endif::[]
+
+=== What is a Path?
+
+A **path** is a series of connected nodes and relationships.
+Paths can be matched by a pattern.
+
+=== What can we do with Paths?
+
+// video here
+
+//////////////////////////
+image::{image}/0116_Matching_Paths_actors_directors.svg[role=right]
+
+Let's say we wanted to display all the directors that every actor has worked with, along with the names of the movie on which they worked together:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie),
+(movie)<-[:DIRECTED]-(director:Person)
+RETURN actor.name AS Actor, movie.title AS Movie, director.name AS Director
+----
+//table
+
+Our query will need to look for a `Person` that has an `ACTED_IN` relationship to a `Movie` and at the same time, a `Person` who `DIRECTED` that same `Movie`.
+It'll return a result for every combination of actor and director in each movie.
+If there were 10 actors and one director in one movie, that'd be 10 results.
+If the movie had two directors, there would be 20 results-each actor with the first director and each actor with the second director.
+
+//////////////////////////
+
+
+=== Alternative Notations
+
+There are a number of different ways we could write the query we just examined:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN actor.name, movie.title, director.name;
+----
+//table
+
+That's nice, but especially for long paths the `MATCH` might not fit into a single path expression, so we can break it down into two separate segments using a comma:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie),
+      (movie)<-[:DIRECTED]-(director:Person)
+RETURN actor.name, movie.title, director.name;
+----
+//table
+
+In this form, we're "taking a breath" with the comma, but we still want to return all the actors who acted in a movie together with the directors of those movies.
+
+**This expresses the same query and will return the same record set.**
+
+[NOTE] 
+We have repeated the variable `movie` in both segments of the `MATCH` clause.
+This is critical.
+If we didn't do this we'd get a very different record set as it is that shared variable that connects the two segments of the match clause.
+
+There is yet another way we could express the same query:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie),(director:Person)-[:DIRECTED]->(movie)
+RETURN actor.name, movie.title, director.name;
+----
+//table
+
+Notice that the `director` element of the match clause is the other way round.
+However, the directionality (shown by the arrow) is still the same.
+So the following two snippets are identical as far as Cypher (and common sense) are concerned.
+
+Identical Cypher snippets:
+
+[source, cypher]
+----
+(movie)<-[:DIRECTED]-(director)
+----
+
+[source, cypher]
+----
+(director)-[:DIRECTED]->(movie)
+----
+
+=== Variable Length Paths
+
+In Cypher, we can describe variable length paths using a star: `*`
+
+[source, cypher]
+----
+MATCH (node1)-[*]-(node2)
+----
+
+[WARNING]
+This unbounded path will potentially match many million or billion paths in medium size graphs. 
+It also is important to use relationship-types and directions if possible.
+Always use paths with an upper limit or between two anchored nodes.
+
+
+* Relationships that traverse any depth are: `+(a)-[*]->(b)+`
+* Specific depth of relationships are represented like `+(a)-[*depth]->(b)+` to find all paths exactly `depth` steps long.
+* Relationships from one to four levels deep are represented like so: `+(a)-[*1..4]->(b)+`
+* Relationships of type `KNOWS` at 3 levels distance: `+(a)-[:KNOWS*3]->(b)+`
+* Relationships of type `KNOWS` or `LIKES` from 2 levels distance: `+(a)-[:KNOWS|:LIKES*2..]->(b)+`
+
+
+=== Matching Paths: Resources
+
+* {manual-cypher}/syntax/operators[Boolean and Mathematical Operators^]
+* {manual-cypher}/syntax/variables[Pattern Variables^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]

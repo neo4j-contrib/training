@@ -1,0 +1,177 @@
+== Patterns of Nodes and Relationships
+
+video::77867853[vimeo,width=750,height=421]
+
+=== Nodes
+
+Cypher uses a pair of parentheses (usually containing a text string) like `()`, `(foo)` to represent a node, i.e. an entity of your domain.
+This is reminiscent of a circle or a rectangle with rounded corners.
+Here are some ASCII-art representations of nodes, providing varying types and amounts of detail:
+
+----
+()
+(matrix)
+(:Movie)
+(matrix:Movie)
+(matrix:Movie {title: "The Matrix"})
+(matrix:Movie {title: "The Matrix", released: 1999})
+(matrix:Movie:Promoted)
+----
+
+The simplest form, `()`, represents an anonymous, uncharacterized node.
+
+If we want to refer to the node elsewhere, we can add an variable: `(matrix)`.
+Variables are restricted (ie, scoped) to a single statement; a variable may have different (or no) meaning in another statement.
+
+The `Movie` *label* (prefixed in use with a colon) declares the node's type or role.
+Note that nodes can have multiple labels.
+Labels are used to restrict search patterns, keeping them from matching structures without the labels in the query.
+
+Neo4j's indexes also use labels.
+Each index is specific to the combination of a label and a property.
+
+The node's properties (`title`, `released`, et cetera) are represented as a list of key/value pairs, enclosed within a pair of braces:
+
+|===
+m|{`title`:"A Title", `released`:2000, ...}
+|===
+
+*Properties* can be used to store information and/or restrict patterns.
+For example, we could `MATCH` and `RETURN` nodes whose `title` is "The Matrix".
+
+image::{image}/0105_Getting_Started_matrix_node.svg[caption="Lonely The Matrix Node"]
+
+These attributes look similar to JSON structures:
+
+[source,cypher]
+----
+MATCH (movie:Movie {title:"The Matrix"})
+RETURN movie
+----
+
+|===
+h|movie
+
+m|{"tagline":"Welcome to the Real World","title":"The Matrix","released":"1999"}
+|===
+
+=== Labels
+
+Labels allow us to group our nodes.
+For example, we might want to distinguish movies from people or animals, both of whom act in films.
+By matching for `+(actor:Person)-[:ACTED_IN]->(movie)+`, Neo4j will return `"Clint Eastwood"`, but not `"Clyde"`-his pet orangutan in _Every Which Way but Loose_.
+
+Labels are usually used like this:
+
+[source,cypher]
+----
+MATCH (node:Label) RETURN node
+----
+
+[source,cypher]
+----
+MATCH (node1:Label1)-[:REL_TYPE]->(node2:Label2)
+RETURN node1, node2
+----
+
+Although they are not required, Cypher uses labels to make better decisions on how to optimize your query, making them vital to success in Neo4j and Cypher.
+
+// ToDo: Video
+// Take a look at the difference between matching nodes with and without labels
+// EXPLAIN MATCH (n {title:"The Matrix"}) RETURN n
+// Show how there are so many nodes to search through
+// vs
+// EXPLAIN MATCH (n:Movie {title:"The Matrix"}) RETURN n
+// Show how there are so many less nodes to search through
+
+=== Relationships
+
+The missing piece of the Cypher snippets in the previous section is that they didn't say anything about the relationship between the nodes, which add all the contextual information to our data.
+We want to be able to view a person in his or her relationship to `Movie` as an "Actor", "Director" and/or "Producer".
+In short, we need to be able to describe the types of relationships in our Cypher queries.
+
+First and foremost, relationships are arrows pointing from one node to another, much like `+-->+` or `+<--+`.
+But we can add detail about them as needed within a pair of square brackets.
+
+If we wanted to retrieve everyone who had acted in a movie, we would describe the pattern `+(actor:Person)-[:ACTED_IN]->(movie:Movie)+` to retrieve only nodes that had a relationship type `ACTED_IN` with other nodes.
+
+Or generally:
+
+[source,cypher]
+----
+MATCH (node1)-[:REL_TYPE]->(node2)
+----
+
+Sometimes we need access to information about a relationship (e.g. its type or properties).
+For example, we might want to output the `roles` that an actor played in a movie.
+
+As with nodes, we can use variables for relationships (in front of the `:TYPE`).
+If we tried to match `+(actor)-[rel:ACTED_IN]->(movie)+` we would be able to output the `rel.roles` for each of the actors in all of the movies that they acted in.
+
+[source,cypher]
+----
+MATCH (actor:Person)-[rel:ACTED_IN]->(movie:Movie)
+RETURN rel.roles
+----
+
+Or generally:
+[source,cypher]
+----
+MATCH (node1)-[rel:TYPE]->(node2)
+RETURN rel.property
+----
+
+ifndef::env-graphgist[]
+++++
+<div id="outputRoles"></div>
+++++
+endif::env-graphgist[]
+
+=== Patterns
+
+Combining the syntax for nodes and relationships, we can express patterns.
+The following is a simple pattern (or fact) in this domain:
+
+[source,cypher]
+----
+MATCH (matrix:Movie {title:"The Matrix"} )<-[role:ACTED_IN {roles:["Neo"]}]-(keanu:Person {name:"Keanu Reeves"})
+RETURN matrix, role, keanu
+----
+
+image::{image}/0105_Getting_Started_keanu_matrix.svg[caption="Keanu's role in The Matrix"]
+
+[cols="3*", options="header"]
+|===
+|matrix
+|role
+|keanu
+
+m|{"tagline":"Welcome to the Real World","title":"The Matrix","released":1999}
+m|{"roles":["Neo"]}
+m|{"born":1964,"name":"Keanu Reeves"}
+|===
+
+Like with node labels, the relationship type `ACTED_IN` is added as a symbol, prefixed with a colon.
+For example: `:ACTED_IN`.
+Variables (e.g., `role`) can be used elsewhere in the statement to refer to the relationship.
+Node and relationship properties use the same notation.
+In this case, we used an array property for the roles, allowing multiple roles to be specified.
+
+To increase modularity and reduce repetition, Cypher allows patterns to be assigned to variables.
+This allows the matching paths to be inspected, used in other expressions, and more.
+
+In the example below, the `cast` variable contains two nodes and the connecting relationship for each path that was found or created.
+There are a number of functions to access details of a path, including `nodes(path)`, `rels(path)` (same as `relationships(path)`), and `length(path)`.
+
+[source,cypher]
+----
+MATCH cast = (:Person)-[:ACTED_IN]->(:Movie)
+RETURN cast
+----
+
+image::{image}/0105_Getting_Started_acted_in_graph.svg[caption="The ACTED_IN Graph", width="300", height="200"]
+
+=== Resources
+
+* {manual}/current/get-started/cypher/[Graphs, Patterns, and Cypher^]
+* {manual}/get-started/cypher/patterns-in-practice/[Patterns in Practice^]

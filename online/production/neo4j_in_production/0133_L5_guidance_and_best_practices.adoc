@@ -1,0 +1,6 @@
+== L5: Guidance and Best Practices
+
+++++
+<iframe src="https://player.vimeo.com/video/122279737" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+++++
+

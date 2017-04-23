@@ -1,0 +1,33 @@
+== What is Cypher
+
+Cypher is a declarative query language that allows for expressive and efficient querying and updating of graph data.
+Cypher is a relatively simple and very powerful language.
+Complex database queries can easily be expressed through Cypher, allowing you to focus on your domain instead of getting lost in database access.
+
+Cypher is designed to be a human-friendly query language, suitable for both developers and any other professionals.
+Our guiding goal is to make the simple things easy, and the complex things possible.
+Optimized for being read by humans, Cypher's construct uses English prose and iconography to make queries more self-explanatory.
+
+Being a declarative language, Cypher focuses on the clarity of expressing *what* to retrieve from a graph, not on *how* to retrieve it.
+This is in contrast to imperative, programmatic APIs for database access.
+This approach makes query optimization an implementation detail instead of a burden on the user, removing the requirement to update all traversals just because the physical database structure has changed.
+
+Cypher is inspired by a number of different approaches and builds upon established practices for expressive querying.
+Many of the keywords like `WHERE` and `ORDER BY` are inspired by SQL.
+Pattern matching borrows expression approaches from SPARQL.
+Some of the collection semantics have been borrowed from languages such as Haskell and Python.
+
+The Cypher language has been made available to anyone to implement and use as openCypher, allowing any database vendor, researcher or other interested party to reap the benefits of our years of effort and experience in developing a first class graph query language.
+
+=== What is Cypher: Additional Resources
+
+This course gives you a basic understanding of Cypher.
+It's a broad language with many cool features.
+When in doubt, please use the resources below to find out more:
+
+* http://neo4j.com/docs/cypher-refcard/current/[Cypher Reference card^]
+* http://neo4j.com/developer/cypher[Cypher Documentation^]
+* {manual-cypher}[Cypher Reference Manual^]
+* http://neo4j.com/graphgists[Graph Gists: Interactive Graph Models^]
+* http://neo4j.com/developer/resources/[More Learning Resources^]
+* http://openCypher.org[The openCypher Project^]

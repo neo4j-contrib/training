@@ -1,0 +1,68 @@
+=== (L4) -- (Additional Administration Tips)
+
+Late night phone calls on a Friday to notify you of a service failure rarely kick off an exciting weekend.
+The following are some additional administration practices that provide sage advice for production stability.
+
+==== JVM Memory Management
+
+When using the JVM, one needs to think about the garbage collection process that comes with the JVM.
+Garbage collection can have various unpredictable impacts on your production system, especially when Neo4j is deployed in a cluster and the GC pauses are indistinguishable from an application failure.
+Here are tips for you to minimize the impact JVM Memory Management can have on your application.
+
+. If possible, configure the amount of memory allocated to the JVM to be slightly larger than the size of your database.
+JVM memory settings are configured in the `neo4j-wrapper.conf` configuration file.
+. Depending on your workload, you may find more predictable memory management using an alternate garbage collector.
+The G1 garbage collector is configured by default.
+However, alternatives may prove better for your workload.
+This is also configured in the `neo4j-wrapper.conf` configuration file.
+. Benchmark and test real production workloads against your test environment.
+Under-configuration of memory settings will quickly overwhelm an untested production environment.
+*Do not skip this step and do not test in production.*
+
+[[gc-logging]]
+==== Garbage Collection Logging
+
+For debug and problem resolution purposes, you should consider enabling Garbage Collector (GC) logging.
+In the file `neo4j.conf` you may want to uncomment the following lines to enable garbage collection logging:
+
+```
+dbms.logs.gc.enabled=true
+dbms.logs.gc.options=-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+PrintTenuringDistribution
+```
+
+Once you have GC logging enabled, additional files will be created in your `logs/` directory.
+The gc log files follow the naming pattern `gc.log.x.current` where `x` is increasing.
+There you can find details about the GC happening on your system regarding the JVM process which runs the Neo4j server.
+
+Under regular workload you'll get an idea of the impact GC is having.
+The most significant impact you are looking for is "full" garbage collections.
+A full GC is a stop-the-world event and will cause Neo4j to be unresponsive to requests.
+You can search the log specifically looking for the keyword "Full" to determine whether this is happening to your system.
+If so, you should consider further tuning your memory configurations to minimize the number of full GC's.
+
+==== Logical Transaction Log Files
+
+You rarely need to touch or manage the log files with Neo4j.
+That being said, let's discuss a few things to consider regarding log files.
+
+First, you should use the configuration settings in Neo4j to instruct the server how long to retain log files.
+This is configured in the `neo4j.conf` file by setting the `dbms.tx_log.rotation.retention_policy` parameter.
+
+The value on the right side is a string which must be true/false or of format '<number><optional unit> <type>'. For example, `100M size` for limiting logical log space on disk to 100Mb, or `200k txs` for limiting the number of transactions to keep to 200 000.
+It defaults to `7 days`.
+
+You should never set this to `true` as it will keep all logs indefinitely and you will eventually run out of disk space.
+
+If your system has ample disk space available and moderate transaction volumes, you may want to consider setting a time-based policy coupled with a backup procedure that ensures you are taking incremental backups in that window.
+If your system will have limited disk space and/or high transaction volumes, you should consider a volume-based setting and a backup procedure taking frequent incremental backups to an alternate directory.
+
+==== References
+
+* http://neo4j.com/docs/2.3.5/configuration-io-examples.html[v2.3.5 Memory Mapped IO Settings]
+* http://neo4j.com/docs/operations-manual/current/#page-cache-sizing[v3.0.0 Page cache sizing]
+* http://neo4j.com/docs/2.3.5/jmx-mxbeans.html[v2.3.5 Reference of supported JMX Mbeans]
+* http://neo4j.com/docs/operations-manual/current/#jmx-list[MBeans exposed by Neo4j]
+* http://neo4j.com/docs/2.3.5/performance-guide.html#_configuring_heap_size_and_garbage_collection[v2.3.5 Configuring heap size and garbage collection]
+* http://neo4j.com/docs/operations-manual/current/#performance-tuning[v3.0.0 Performance tuning]
+* http://neo4j.com/docs/2.3.5/configuration-logical-logs.html[v2.3.5 Logical logs]
+* http://neo4j.com/docs/operations-manual/current/#transaction-logs[v3.0.0 Transaction logs]

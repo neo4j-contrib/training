@@ -1,0 +1,105 @@
+=== (L4) -- (Backup and Restore)
+
+For Neo4j Enterprise customers, Neo4j provides a backup utility that can produce full and incremental backups of your current working database.
+Neo4j backups are fully functioning copies of the Neo4j data store, which makes restoring data as easy as copying your backup files to the correct directory in your Neo4j instance.
+This also makes creating a backup with the Community edition easy as you only need to take a full copy of your current database store files when Neo4j is not running.
+In this section we'll discuss these options in more detail.
+
+==== Backing up Neo4j
+
+As described earlier, the `graph.db` folder is where the Neo4j database files reside.
+These files are completely portable between instances of Neo4j without requiring any specific conversion or format tools.
+This also makes backing up Neo4j a very trivial task for administrators.
+
+===== Community Edition
+
+Backing up the Community Edition requires simply making a copy of the `graph.db` folder as it exists in the state you'd like to back up.
+The Neo4j Community Edition does not provide any tools or capabilities to back up a running instance of the Neo4j Community Edition.
+
+The following is a simple process for backing up the Community Edition:
+
+. Pause or stop all application level and end-user database interactions
+. Stop the Neo4j instance
+. Copy the `graph.db` folder to a location you identify as your backup directory
+. Start the Neo4j instance
+. Resume all services that have been paused or stopped in step 1
+
+We recommend identifying a strategy for labeling and retaining only necessary backup copies of your database
+We also suggest automating a routine to take regular backups.
+
+===== Enterprise Edition
+
+The Enterprise Edition of Neo4j provides backup capabilities that allow for an online backup of your database, meaning you do not need to pause your application and shut down your Neo4j instance(s) to create a backup.
+The utility `neo4j-backup` is shipped with the Enterprise Edition and provides an interface for performing backups.
+
+When backing up, the utility will automatically determine whether to take a full or incremental backup of your database.
+A full backup is exactly what it sounds like, a complete copy of the database.
+Of course, the duration needed to create a full copy depends on the amount of data you have in your database.
+
+In contrast, an incremental backup will copy and apply the transactions from the last backup only.
+I.e. the duration for backing up depends on the amount of data that has been changed between the last backup and now.
+Incremental backups can be taken by Neo4j if two things are true:
+
+. An existing backup directory is specified where an existing backup exists.
+. All transactions in the Neo4j logs are still present in the Neo4j instance (i.e. the logs have not rolled over).
+
+==== Configuring an instance for backup
+
+Backups are enabled by default.
+If you do not change the corresponding configuration parameters, you should already be able to trigger backups from your local machine where the Neo4j server is running.
+
+However, you may want to change the backup configuration in the `conf/neo4j.conf` file.
+
+To enable or disable the backup functionality, use the parameter `dbms.backup.enabled`. Set it to `true` or `false`.
+
+The interface and port the backup service listens on is configured via the parameter `dbms.backup.address` and defaults to the loopback interface and port `6362`.
+It is typical to reconfigure this to listen on an external interface by setting `dbms.backup.address=:6362`.
+It can also be configured to listen on all interfaces by setting `dbms.backup.address=0.0.0.0:6362`.
+This can be useful when remote backups shall be performed.
+
+_Note_: make sure you do not violate any security rules already in place for your setup by allowing remote backups.
+
+==== Taking a backup:
+
+From a Neo4j instance, run the `neo4j-backup` tool from the `bin` directory specifying the Neo4j instance configured to run backups and the target directory for your backup.
+Example:
+
+```
+./bin/neo4j-backup -host localhost -to /mnt/backup/neo4j-backup
+```
+
+The backup tool will automatically determine if an incremental backup can be performed.
+If yes, it will do so.
+Otherwise a full backup is started.
+
+Remember that the ability to perform an incremental backup is dependent upon the availability of the transactions in the logs since your last backup.
+You can tweak this time by changing the `dbms.tx_log.rotation.retention_policy` parameter in the `conf/neo4j.conf` file.
+
+==== Backup Strategies
+
+With the Enterprise Edition, you have the ability to define a backup strategy that is efficient and robust.
+We have some basic guidelines for ensuring an efficient backup process:
+
+. Your backup strategy should reflect your tolerance for data loss.
+Should a catastrophic system failure happen days after your last backup, the potential loss of 5 days of transaction data shouldn't be a concern.
+If it is, you need a backup strategy that is significantly more frequent.
+. Your target directory, or copies of your backup, should be archived to a location or system off of your primary Neo4j instances.
+. If you have even a moderate transaction volume application, it is recommended to take frequent incremental backups (perhaps hourly) throughout the day and employ a strategy of taking a full backup on a longer interval.
+
+==== Restoring Neo4j
+
+Restoring Neo4j couldn't be simpler.
+As mentioned previously, backups of the database are fully functional copies that can be redeployed simply by moving the copies to the target Neo4j instance.
+
+Should you need to recover with a Neo4j backup, we recommend the following steps:
+
+. Stop the currently running Neo4j instance.
+If recovering for a cluster, stop all instances in the cluster.
+. Assure any issues, errors, or misconfigurations with the server are resolved.
+. Move the backup copy from the backup directory to the graph.db folder on the target Neo4j instance.
+. Restart Neo4j and if working in a cluster, restart the additional cluster instances after the instance you started with the backup becomes operational.
+
+==== References
+
+* https://neo4j.com/docs/operations-manual/current/#backup[v3.0.0 Backup]
+* http://neo4j.com/docs/2.3.5/operations-backup.html[v2.3.5 Backup]

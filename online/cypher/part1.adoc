@@ -1,0 +1,39 @@
+= Getting Started with Graph Databases using Neo4j - Part 1 Introduction
+:neo4j-version: 3.1.0
+:currentyear: 2017
+:doctype: book
+:toc: left
+:toclevels: 2
+:experimental:
+:linkattrs:
+:image: img
+:manual: http://neo4j.com/docs/developer-manual/current
+:manual-cypher: {manual}/cypher
+
+include::scripts.txt[]
+
+// old title: 60 Minute Cypher Introduction
+// make sure to compile the versal gadget before proceeding
+// the versal gadget is a git submodule of this repository, which should reside in /cypher/cypher-gadget`
+// initialize the submodule (git submodule init && git submodule update)
+// to compile the cypher gadget:
+// ../cypher/cypher-gadget
+// coffee -c .
+
+include::60-Minute-Cypher/0100_About_this_course.adoc[]
+
+ifdef::env-training[]
+include::60-Minute-Cypher/0102_Student_survey.adoc[]
+endif::[]
+
+include::../intro/L1_Why_use_a_Graph_Database_and_Neo4j/0100_Why_use_Neo4j.adoc[]
+
+include::60-Minute-Cypher/0103_What_is_Cypher.adoc[]
+
+include::60-Minute-Cypher/0104_Movie_Database.adoc[]
+
+include::60-Minute-Cypher/0105_Getting_Started.adoc[]
+
+include::60-Minute-Cypher/0105_Quiz1.adoc[]
+
+link:/graphacademy/online-training/getting-started-graph-databases-neo4j-part-2/[Continue to Part 2: Creating and Querying,role="next-section medium button"]

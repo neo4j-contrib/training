@@ -1,0 +1,130 @@
+=== (L2) -- (Basic Neo4j Configuration)
+
+The default configuration of Neo4j will likely not be completely sufficient for your application's workload.
+Neo4j will do a considerable amount of self management, such as adjusting the amount of memory used, but it should still be reviewed and adjusted for application requirements.
+There are two important configuration files in which you may want to adjust some parameters.
+These files are discussed in the following section.
+
+==== Neo4j Configuration Files
+
+.Configuration Files
+[cols="s,m",frame="topbot",options="header,footer"]
+|===
+|Purpose |File
+
+|Neo4j (services and kernel) Configuration
+|conf/neo4j.conf
+
+|JVM Configuration
+|conf/neo4j-wrapper.conf
+
+|===
+
+==== Database Configuration
+
+File: `conf/neo4j.conf`
+
+Neo4j has a range of configuration and performance tuning options that are available.
+
+You will want to familiarize yourself with the values set in this configuration file.
+Although the defaults are sensible, administrators might choose to make changes (especially to the port settings).
+
+The following is a list of configuration parameters you should consider tuning for your initial deployment.
+
+
+.Configuration Parameters for Inital Deployment
+[cols="1m,2",frame="topbot",options="header,footer"]
+|===
+|Parameter |Comments
+
+|dbms.allow_format_migration
+|If you are upgrading a current Neo4j database, you will want to uncomment this parameter (set it to true) so that the underlying database files are upgraded to the version of the database you are deploying.
+Please consult the release notes, the documentation or the Neo4j support team for confirmation of supported upgrade paths.
+
+|dbms.tx_log.rotation.retention_policy
+|Defines how long logical transaction logs will be maintained on the server.
+The more days or volume of logs kept, the more disk space will be utilized by this feature.
+Later in the training, we will discuss the impact this configuration has on backup strategies.
+
+|dbms.shell.enabled,
+dbms.shell.host,
+dbms.shell.port
+|Neo4j can be enabled to allow access from a remote terminal client for operations on the database.
+If this is needed/desirable for production data validation, consider enabling remote shell access with these configurations.
+However, note that this does pose a security risk to your database if not properly controlled.
+
+|dbms.memory.pagecache.size
+|The maximum amount of memory to use for the page cache, either in bytes, or greater byte-like units, such as 100m for 100 mega-bytes, or 4g for 4 giga-bytes.
+
+|dbms.directories.data
+|Path of the data directory.
+You must not configure more than one Neo4j installation to use the same data directory.
+
+|dbms.active_database
+|Name of the database to load.
+A directory with that name will be created under the path specified by `dbms.directories.data`.
+
+|dbms.security.auth_enabled
+|Whether basic authentication is enabled or not.
+
+|dbms.connector.*
+|These are the configurations that allow you to define webservices port and SSL settings.
+
+|===
+
+For Enterprise Edition users, it is also possible to configure online backup and clustering (HA) settings, which will be discussed later in this training.
+
+==== JVM Configuration
+
+File: `conf/neo4j-wrapper.conf`
+
+When running Neo4j as a server, it will start an instance of the Java Virtual Machine to run.
+
+In the file `neo4j-wrapper.conf`, JVM and heap memory related parameters that are passed to the JVM when starting are configured.
+For your initial deployment, consider reviewing the following parameters.
+
+.JVM Configuration Parameters for Inital Deployment
+[cols="1m,2",frame="topbot",options="header,footer"]
+|===
+|Parameter |Comments
+
+|dbms.memory.heap.initial_size=16000 +
+dbms.memory.heap.max_size=16000
+|Set the heap memory in megabytes used by Neo4j is allocating for internal processing.
+It's recommended to set both options to the same value.
+Note that the memory used by the page cache is not part of JVM heap.
+
+|dbms.jvm.additional=-XX:+UseG1GC
+|Use the G1 Garbage Collector. For most applications, this setting will be sufficient. +
+Sometimes you'll need to use other Garbage Collector options, which can be set here as well.
+
+|===
+
+For Enterprise customers, it is also possible to enable detailed JVM metrics and remote JMX monitoring for remote inspection.
+We will discuss this in a later section.
+
+////
+
+==== Logging Configuration
+
+// TODO update me!
+
+Application events within the Neo4j server are processed with `java.util.logging` and configured in the file `conf/logging.properties`.
+
+By default, it is set up to print `INFO` level messages both on screen and in a rolling file in `data/log`.
+If you want to completely silence the console output, set:
+
+`java.util.logging.ConsoleHandler.level=OFF`
+
+By default, log files are rotated at approximately 10Mb and named consecutively `neo4j.<id>.<rotation sequence #>.log`.
+To change the naming scheme, rotation frequency and backlog size modify the following respectively to your needs:
+
+```
+java.util.logging.FileHandler.pattern
+java.util.logging.FileHandler.limit
+java.util.logging.FileHandler.count
+```
+
+Details are available at the http://neo4j.com/docs/stable/javadocs/[JavaDocs (Neo4j API)] for `java.util.logging.FileHandler`.
+
+////

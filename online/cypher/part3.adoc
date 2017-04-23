@@ -1,0 +1,31 @@
+= Getting Started with Graph Databases using Neo4j - Part 3 Filters and Paths
+:neo4j-version: 3.1.0
+:currentyear: 2017
+:doctype: book
+:toc: left
+:toclevels: 2
+:experimental:
+:linkattrs:
+:image: img
+:manual: http://neo4j.com/docs/developer-manual/current
+:manual-cypher: {manual}/cypher
+
+include::scripts.txt[]
+
+include::60-Minute-Cypher/0113_Filters.adoc[]
+
+include::60-Minute-Cypher/0114_Lab_Exploring_the_Movie_database.adoc[]
+
+// HELP - How to do this in the browser guide?
+//include::60-Minute-Cypher/0115_Lab_Friend_of_Friends.adoc[]
+
+include::60-Minute-Cypher/0116_Matching_Paths.adoc[]
+
+include::60-Minute-Cypher/0117_Returning_Paths.adoc[]
+
+// HELP - How to do this in the browser guide?
+//include::60-Minute-Cypher/0118_Lab_finding_a_Bacon_Number.adoc[]
+
+include::60-Minute-Cypher/0118_Quiz3.adoc[]
+
+link:/graphacademy/online-training/getting-started-graph-databases-neo4j-part-4/["Continue to Part 4: Indexing, Recommendations, Import", role="next-section medium button"]

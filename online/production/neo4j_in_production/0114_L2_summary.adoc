@@ -1,0 +1,10 @@
+=== (L2) -- (Summary)
+
+You've now made it to the point where we are ready to begin discussing more advanced production deployment configurations and how to manage and troubleshoot the system once it is in production.
+Before moving on, let's recap what we now know:
+
+* All the fundamentals about Neo4j editions, when you would choose which and the general deployment options
+* The component architecture of Neo4j
+* How Neo4j operates and the use of memory
+* Where the appropriate configuration files exist and the set of parameters that should absolutely be reviewed before going into production
+* How to run a copy of Neo4j in your environment

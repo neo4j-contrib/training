@@ -1,0 +1,29 @@
+== End of Part 2:  Quiz
+
+=== What are Clauses that *update* the Graph ?
+
+[%interactive]
+- [ ] CREATE
+- [ ] SET
+- [ ] MATCH
+- [ ] MERGE
+- [ ] DELETE
+
+
+=== What are Semantics of the SET Clause ?
+
+[%interactive]
+- [ ] Will add property if it doesn't exist
+- [ ] Will fail on existing property
+- [ ] Will override existing properties
+- [ ] Can set a full properties map 
+- [ ] Can also add labels
+
+=== When deleting nodes ?
+
+[%interactive]
+- [ ] Relationships will point to nowhere
+- [ ] Relationships have to be deleted first
+- [ ] Node and relationships can be deleted in one go
+- [ ] Nodes cannot be deleted
+

@@ -1,0 +1,14 @@
+=== (L3) -- (Why Cluster?)
+
+When designing your solution, some of your first considerations will concern your functional requirements and the type of technology choices you make to meet them.
+Some of those functional requirements likely will include a need to scale to many concurrent users, maintain consistent uptime, or be able to recover from a system failure and maintain availability.
+These important production-related questions should drive your technical decisions.
+This may result in choosing to cluster Neo4j.
+
+This section introduces:
+
+* Clustering
+* Read Scalability
+* High Availability
+* Disaster Recovery
+* Analytics

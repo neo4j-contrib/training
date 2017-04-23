@@ -1,0 +1,6 @@
+=== (L3) -- (Graph LAB: Cluster in Action)
+
+// video of cluster in action
+++++
+<iframe src="https://player.vimeo.com/video/122285725" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+++++

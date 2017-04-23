@@ -1,0 +1,118 @@
+== Indexing and Labels
+
+// potential video: Indexing
+
+ifdef::env-graphgist[]
+//hide
+//setup
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+endif::[]
+
+// video introducing indices
+
+Unlike other databases, Neo4j doesn't use indexes to speed up `JOIN` operations.
+However, they are useful for finding your starting points by value, textual prefix or range.
+You'll create a *label specific index* as indexes are bound to a concrete label-property combination.
+
+So if you want to be able to search efficiently for `Movies` based on their `title`, you might run the following Cypher command:
+
+[source, cypher]
+----
+CREATE INDEX ON :Movie(title)
+----
+
+To remove the index, use the following Cypher command:
+
+[source, cypher]
+----
+DROP INDEX ON :Movie(title)
+----
+
+=== Exercise: How would you create an index for searching people by name?
+
+=== Solution: How would you create an index for searching people by name?
+
+[source, cypher]
+----
+CREATE INDEX ON :Person(name);
+----
+
+You don't need to do anything to your queries to use these indexes.
+Run the commands above, followed by:
+
+[source, cypher]
+----
+MATCH (gene:Person)-[:ACTED_IN]->(movie),(other:Person)-[:ACTED_IN]->(movie)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT other;
+----
+
+The lookup of Gene Hackman will now be much faster, although with a small test data set the difference may not be noticeable.
+
+=== Exercise: Using Indexes
+
+Try to use the query below once with and once without an index.
+
+[source, cypher]
+----
+MATCH (gene:Person)-[:ACTED_IN]->(movie),(other:Person)-[:ACTED_IN]->(movie)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT other;
+----
+
+=== Indexing and Labels: Create a Label-Specific Index
+
+Create an index on nodes labeled `Person`, indexing by the property `name`:
+
+[source,cypher]
+----
+CREATE INDEX ON :Person(name);
+----
+
+Create an index on nodes labeled `Movie`, indexing by the property `title`:
+
+[source, cypher]
+----
+CREATE INDEX ON :Movie(title);
+----
+
+=== Indexing and Labels: Anchor Pattern Nodes in the Graph
+
+Return movies featuring both Tom Hanks and Kevin Bacon
+
+[source,cypher]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie:Movie),(kevin:Person)-[:ACTED_IN]->(movie)
+WHERE tom.name="Tom Hanks" AND kevin.name="Kevin Bacon"
+RETURN DISTINCT movie;
+----
+
+You can anchor one or more nodes of your pattern in the graph, by constraining their properties to a single fitting node.
+Then the pattern matching works much faster as Cypher doesn't have to scan the whole graph to apply the patterns.
+If there is an index, Cypher will automatically use it.
+
+// Potential video demonstrating where you can see indexing and anchoring in action using PROFILE and EXPLAIN
+
+//console
+
+=== Indexing and Labels: Resources
+
+* {manual-cypher}/clauses/create[Create^]
+// * {manual}/get-started/cypher/labels-constraints-and-indexes/[Labels, Constraints, and Indexes^]
+* {manual-cypher}/clauses/constraints[Constraints^]
+* {manual-cypher}/schema/index/[Indexes^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]
+* {manual-cypher}/clauses/where[Where^]

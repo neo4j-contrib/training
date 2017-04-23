@@ -1,0 +1,16 @@
+=== (L1) -- (Summary)
+
+So we've made it through the first part of this course.
+Here's what you now know about your Neo4j production deployment:
+
+* You understand the basic architecture of applications deployed with Neo4j
+* You know whether you are going to use Community or Enterprise edition
+* You know to never use a Milestone or Release Candidate in production
+* But you also know you can test Milestone and Release Candidates in a test environment to see how all the new features and functionalities work with your existing solution
+* You understand the architectural deployment options
+
+Now we'll turn to Neo4j itself and give you the knowledge you need to understand the server and its functions.
+
+As mentioned previously, much of the following content will detail tools and utilities that are available to administrators of Neo4j instances running in Server mode.
+
+We recommend reviewing the Neo4j documentation for specific details on configuring embedded deployments.

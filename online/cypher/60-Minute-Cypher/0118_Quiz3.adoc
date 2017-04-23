@@ -1,0 +1,29 @@
+== End of Part 3:  Quiz
+
+=== Which Predicates are allowed in WHERE Clauses ?
+
+[%interactive]
+- [ ] (In-)Equality
+- [ ] String comparisons & regular expressions
+- [ ] [.false-answer]#Node existence#
+- [ ] Pattern existence
+- [ ] Collection predicates
+
+=== Where can I declare new variables ?
+
+[%interactive]
+- [ ] MATCH
+- [ ] [.false-answer]#WHERE predicates#
+- [ ] WITH
+- [ ] Pattern comprehensions
+- [ ] CREATE & MERGE
+
+
+=== What characterizes a Path ?
+
+[%interactive]
+- [ ] A collection of nodes and relationships
+- [ ] [.false-answer]#A subgraph#
+- [ ] Relationships are ordered by traversal
+- [ ] [.false-answer]#Contains at least one relationship#
+- [ ] Contains at least one node

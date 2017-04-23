@@ -1,0 +1,58 @@
+=== (L1) -- (Which edition to use?)
+
+Which Neo4j edition is Right for your Deployment?
+
+==== Community Edition
+
+The *Neo4j Community Edition* is a great choice for many basic implementations of Neo4j.
+Indeed, you'll likely begin your initial exploration of Neo4j with the Community Edition.
+
+Some scenarios where the Community Edition is the right choice:
+
+* You are learning Neo4j and just getting started
+* Your solution is built for an internal team that isn't expecting it to always be available
+* Your application is available to external users, but you do not provide any guarantees on uptime or availability
+* Your solution doesn't have high demands for scalability or concurrent access
+
+==== Enterprise Edition
+
+The *Neo4j Enterprise Edition* is built for mission-critical applications that require:
+
+* The ability to scale up or scale out your solution with the clustering architecture
+* A High Availability deployment that provides strong guarantees on uptime
+* Ability to support disaster recovery architectures
+* 24x7 availability capabilities
+* Professional support from Neo Technology
+
+Enterprise is also the choice if:
+
+* You are using more than four cores (Enterprise lock manager scales beyond four cores)
+* You are performing early stage load testing: Enterprise will show better results than Community.
+* Workload separation e.g. offloading backups, reporting etc.
+
+The Neo4j Enterprise Edition is designed to meet the demands of mission-critical applications.
+It provides the features and tools necessary to help you ensure your services are continuously available.
+The Enterprise Edition is a great choice in these types of scenarios:
+
+* You are deploying Neo4j for your *recommendation Engine* on your 24x7 e-commerce site
+* Neo4j is your database for your internal *IT network impact analysis system*
+* Neo4j is enabling your *fraud detection* services for your financial transaction network
+* Your application needs to *scale to 100s of concurrent users* or support *high volumes of read activity*
+
+Our rules of thumb are simple:
+
+* Both editions offer the same great core graph database capabilities
+* Go with Enterprise Edition if you are working on a commercial solution, a business critical solution or if you anticipate needing scalability, redundancy or high availability
+
+==== Startup Program
+
+For companies in the start-up stage we offer a dedicated program which makes *free and heavily discounted Enterprise Edition licenses* available to you.
+
+Please check for the https://neo4j.com/startup-program/[current terms of the startup program].
+
+==== References
+
+* https://neo4j.com/product/[Neo4j Product Overview]
+* https://neo4j.com/use-cases/[Neo4j Use-Cases]
+* http://neo4j.com/docs/operations-manual/current/#_neo4j_editions[Operations Manual: Neo4j Editions]
+* https://neo4j.com/startup-program/[Startup Program]

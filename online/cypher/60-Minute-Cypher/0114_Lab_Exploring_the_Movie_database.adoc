@@ -1,0 +1,128 @@
+== Review: Exploring the Movie Database
+
+ifdef::env-graphgist[]
+//full
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (m:Movie {title:row.title}) ON CREATE SET m.tagline = row.tagline,m.released=row.released
+MERGE (p:Person {name:row.name}) ON CREATE SET p.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (p)-[r:ACTED_IN]->(m) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (p)-[:DIRECTED]->(m))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (p)-[:PRODUCED]->(m))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (p)-[:WROTE]->(m))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (p)-[:REVIEWED]->(m))
+----
+endif::[]
+
+=== Exercise: Tom Hank's Filmography
+
+If you wanted to *Find all of the movies that _Tom Hanks_ acted in*, how might you do that?
+
+image::{image}/0114_Lab_Exploring_the_Movie_database.svg[]
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="allMoviesTomHanksActedIn"></div>
+++++
+endif::env-graphgist[]
+
+ifdef::env-graphgist[]
+
+==== Solution: Tom Hank's Filmography
+
+[source, cypher, role=solution]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie)
+WHERE tom.name="Tom Hanks"
+RETURN movie.title AS `Movie Title`
+----
+//table
+
+endif::env-graphgist[]
+
+=== Tom Hank's Filmography after 2000
+
+What if you wanted to limit that to movies which were released after _2000_?
+Note that there is a `released` property on `Movie`.
+
+image::{image}/0114_Lab_Exploring_the_Movie_database_post_2000.svg[]
+
+==== Solution: Tom Hank's Filmography after 2000
+
+[source, cypher, role=solution]
+----
+MATCH (tom:Person)-[:ACTED_IN]->(movie)
+WHERE tom.name="Tom Hanks"
+AND movie.released > 2000
+RETURN movie.title AS `Movie Title`
+----
+//table
+
+=== Exercise: Find all movies Keanu Reeves has acted in
+
+image::{image}/0114_Lab_Exploring_the_Movie_database_keanu.svg[]
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="allMoviesKeanuReevesActedIn"></div>
+++++
+endif::env-graphgist[]
+
+ifdef::env-graphgist[]
+
+==== Solution: Find all movies Keanu Reeves has acted in
+
+[source, cypher, role=solution]
+----
+MATCH (keanu:Person)-[:ACTED_IN]->(movie)
+WHERE keanu.name = "Keanu Reeves"
+RETURN movie.title
+----
+//table
+
+endif::env-graphgist[]
+
+=== Exercise: Find all movies in which Keanu Reeves played the role Neo
+
+image::{image}/0114_Lab_Exploring_the_Movie_database_keanu_neo.svg[role=right]
+
+==== Hints:
+
+* You need an variable for the relationship.
+* The `ACTED_IN` relationship has a `roles` property (which is an array).
+* The syntax for seeing whether an element is in an array is `{element} IN r.roles`.
+* Generally check for the existence of the value of `{expression}` IN `{collection}`
+
+==== Solution: Find all movies in which Keanu Reeves played the role Neo
+
+[source, cypher, role=solution]
+----
+MATCH (keanu:Person)-[r:ACTED_IN]->(movie)
+WHERE keanu.name="Keanu Reeves"
+AND "Neo" IN r.roles
+RETURN movie.title
+----
+
+//table
+
+=== Lab Resources: Exploring the Movie Database
+
+* {manual-cypher}/syntax/operators[Boolean and Mathematical Operators^]
+* {manual-cypher}/clauses/functions-collection[Collection functions^]
+* {manual-cypher}/clauses/create[Create^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]
+* {manual-cypher}/clauses/where[Where^]

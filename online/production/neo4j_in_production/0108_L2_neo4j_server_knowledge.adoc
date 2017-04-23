@@ -1,0 +1,11 @@
+== L2:  Neo4j Server Basics
+
+Next we turn to a discussion on the fundamentals and internals of Neo4j.
+These are important topics to fully understand the overall Neo4j framework, how it runs and what is required for Neo4j to be managed.
+
+This section covers:
+
+* Specific knowledge of the Neo4j server including how to manage memory and data
+* Basic steps for deploying Neo4j
+* Common configuration tasks and knowledge
+* How to get an instance running

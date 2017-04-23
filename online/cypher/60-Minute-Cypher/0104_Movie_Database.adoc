@@ -1,0 +1,23 @@
+== The Movie Database
+
+The data model in this tutorial includes nodes with three different labels (each with their own properties), and six different types of relationships (one of which has its own property).
+The underlying structure of the database is visualized in the image below.
+
+In brief, the graph is made up of `Person`, `Movie`, and `Genre` nodes that are related to each other in various ways.
+
+// TODO only show this in trainings with widget
+
+This tutorial will use the Cypher widget pre-populated with parts of the movie database.
+We use the model below to introduce and explain the Cypher concepts you need to know to build graph powered applications.
+
+// TODO ADD IMAGE HERE from Neo4j Movies training describing the model, TODO add meta-graph
+
+=== A note on style
+
+Throughout this training, we will refer to nodes and property key/value pairs using `monospace` and real-life instances of the nodes using italics. 
+
+For example,
+
+====
+We set the `title` property of the `Movie` ​_The Matrix_​ to `"The Matrix"`
+====

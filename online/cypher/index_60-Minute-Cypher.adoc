@@ -1,0 +1,113 @@
+= Getting Started with Graph Databases using Neo4j
+:presenter: Neo Technology
+:twitter: neo4j
+:email: info@neotechnology.com
+:neo4j-version: 3.0.0
+:currentyear: 2016
+:doctype: book
+:toc: left
+:toclevels: 1
+:experimental:
+:image: img
+:manual: http://neo4j.com/docs/developer-manual/current
+:manual-cypher: {manual}/cypher
+
+++++
+	<script type='text/javascript'>
+	var loc = window.location;
+	if (loc.hostname == "neo4j.com" && loc.search.indexOf("aliId=") == -1 ) {
+	 loc.pathname = "/graphacademy/online-training/cypher-graph-databases/"	
+	}
+	document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script>Munchkin.init('773-GON-065');</script>
+++++
+
+++++
+<style>
+    @import "../cypher-gadget/libs/jquery.modal.min.css" screen;
+    .modal {
+        width: 775px;
+        height: 775px;
+        padding: 10px;
+        margin: 0;
+    }
+    .blocker {
+        height: initial;
+        background-color: transparent;
+    }
+</style>
+<script src="../cypher-gadget/libs/underscore.js"></script>
+<script src="../cypher-gadget/libs/jquery.js"></script>
+<script src="../cypher-gadget/libs/jquery-ui.min.js"></script>
+<script src="../cypher-gadget/libs/jquery.modal.min.js"></script>
+<script src="gadgetUtils.js"></script>
+<script src="tasks.js"></script>
+<script type="text/javascript">
+</script>
+++++
+
+// old title: 60 Minute Cypher Introduction
+// make sure to compile the versal gadget before proceeding
+// the versal gadget is a git submodule of this repository, which should reside in /cypher/cypher-gadget`
+// initialize the submodule (git submodule init && git submodule update)
+// to compile the cypher gadget:
+// ../cypher/cypher-gadget
+// coffee -c .
+
+include::60-Minute-Cypher/0100_About_this_course.adoc[]
+
+ifdef::env-training[]
+include::60-Minute-Cypher/0102_Student_survey.adoc[]
+endif::[]
+
+include::../intro/L1_Why_use_a_Graph_Database_and_Neo4j/0100_Why_use_Neo4j.adoc[]
+
+include::60-Minute-Cypher/0103_What_is_Cypher.adoc[]
+
+include::60-Minute-Cypher/0104_Movie_Database.adoc[]
+
+include::60-Minute-Cypher/0105_Getting_Started.adoc[]
+
+include::60-Minute-Cypher/0106_Nodes_and_Properties.adoc[]
+
+include::60-Minute-Cypher/0107_Relationships.adoc[]
+
+include::60-Minute-Cypher/0108_Deleting_Nodes_and_Relationships.adoc[]
+
+include::60-Minute-Cypher/0110_Lab_All_Characters_in_the_Matrix.adoc[]
+
+include::60-Minute-Cypher/0111_Order_Limit_and_Skip.adoc[]
+
+// the :play movies graph only has Movie and Person labels
+//include::60-Minute-Cypher/0112_Lab_exploring_an_unknown_graph.adoc[]
+
+include::60-Minute-Cypher/0113_Filters.adoc[]
+
+include::60-Minute-Cypher/0114_Lab_Exploring_the_Movie_database.adoc[]
+
+// HELP - How to do this in the browser guide?
+//include::60-Minute-Cypher/0115_Lab_Friend_of_Friends.adoc[]
+
+include::60-Minute-Cypher/0116_Matching_Paths.adoc[]
+
+include::60-Minute-Cypher/0117_Returning_Paths.adoc[]
+
+// HELP - How to do this in the browser guide?
+//include::60-Minute-Cypher/0118_Lab_finding_a_Bacon_Number.adoc[]
+
+include::60-Minute-Cypher/0119_indexing_and_labels.adoc[]
+
+include::60-Minute-Cypher/0120_aggregation.adoc[]
+
+include::60-Minute-Cypher/0121_lab_who_are_the_five_busiest_actors.adoc[]
+
+include::60-Minute-Cypher/0122_lab_recommendation_engine.adoc[]
+
+include::60-Minute-Cypher/0123_importing_data.adoc[]
+
+include::60-Minute-Cypher/0124_community_resources_and_next_steps.adoc[]
+
+ifdef::env-training[]
+include::60-Minute-Cypher/0125_end_of_course_survey.adoc[]
+endif::[]

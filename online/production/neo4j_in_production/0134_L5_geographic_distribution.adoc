@@ -1,0 +1,22 @@
+=== (L5) -- (Geographic Distribution)
+
+There are generally a few reasons you may want to choose to geographically distribute a Neo4j implementation.
+
+. You'd like to bring the Neo4j data closer to the end user, especially if you have a global user population and end-user application response time is critical
+. Geographic deployments can be used to provide disaster recovery capabilities
+. Different regions require different access patterns or security practices
+
+The Neo4j Enterprise Edition with a clustered deployment can seamlessly support a geographically distributed cluster meeting your requirements.
+
+.Neo4j Enterprise Edition with a clustered deployment
+image:{img}/geographic_distribution.png[]
+
+Within the cluster, the master instance will still service all writes for the entire global cluster.
+Each region has a slave instance(s) that can support localized reads.
+Important!
+In these configurations, the slave instances should be configured to pull its replication data from the master on a longer interval (assuring efficient use of bandwidth and message bundling) and set as `ha.slave_only` in the cluster so it can never be elected master.
+Otherwise, a geographically distributed slave instance could unintentionally be elected master and be too far from the intended application updates.
+
+In this setup, you may still want to distribute writes to the master, even if the request is coming from a location within Europe.
+An alternative would be to send writes to a slave within Europe, which in turn would need to communicate with the master in the US region.
+Both the bandwidth and the cluster configuration (push/pull strategy) should be taken into consideration for both paths in order to decide on the best solution for your setup.

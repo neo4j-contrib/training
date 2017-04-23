@@ -1,0 +1,30 @@
+== End of Part 4:  Quiz
+
+=== Where are indexes used ?
+
+[%interactive]
+- [ ] Speed up Constraint Checking
+- [ ] [.false-answer]#Improving `JOIN` performance#
+- [ ] Support looking up nodes by property
+- [ ] String comparisons
+- [ ] Numeric Ranges
+- [ ] [.false-answer]#Pattern shortcuts#
+
+=== What is special about Cypher's aggregation ?
+
+[%interactive]
+- [ ] No need to declare a `GROUP BY` clause
+- [ ] Automatic grouping by non-aggregated columns
+- [ ] Aggregations are supported in WITH and RETURN
+- [ ] A collect grouping function
+- [ ] Aggregation considers non-null values
+
+
+=== Useful `LOAD CSV` features
+
+[%interactive]
+- [ ] Can read from URLs
+- [ ] [.false-answer]#Supports multiple files at once#
+- [ ] Can use column headers
+- [ ] Turns empty cells into `NULL`
+- [ ] Supports transaction batching with `PERIODIC COMMIT`

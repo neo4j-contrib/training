@@ -1,0 +1,46 @@
+=== (L2) -- (Installing and Running Neo4j)
+
+==== Before You Get Started
+
+You will find the Neo4j installation files location at `https://neo4j.com/download/other-releases/`.
+Make sure your target system meets the current minimum requirements, including a JVM with the correct version.
+
+Getting Neo4j installed and started can be done in less than a minute.
+The video below will walk you through doing so in a Mac environment.
+Please consult the documentation for https://neo4j.com/docs/operations-manual/current/#windows-installation[installing in a Windows environment].
+
+++++
+<iframe src="https://player.vimeo.com/video/122285609" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+++++
+
+==== Installing Neo4j 3
+
+Download the version of Neo4j you want to run from: https://neo4j.com/download/other-releases/
+
+For the Enterprise Edition, always install *Oracle JDK 8* or *OpenJDK 8* first and then register, download and unzip the enterprise version.
+
+For *Windows* and *MacOS X* Community Edition, Desktop installers which come with a bundled version of the Java Runtime Environment are available.
+
+The zipped download is also available for the Community Edition for all operating systems.
+There is also a http://debian.neo4j.org[debian package] available for Debian and Ubuntu Linux distribution.
+
+An easy way to use Neo4j is via the official http://neo4j.com/developer/docker[Docker image], both for Enterprise and Community.
+The Docker image comes with many configuration options detailed in the documentation and can also run in a clustered setup.
+
+Start Neo4j via the Desktop application or `bin/neo4j start`.
+
+After the database has started, you can access the Neo4j Browser database web interface at the listed URL (in most cases `http://localhost:7474`).
+
+For detailed installation instructions, please refer to https://neo4j.com/docs/operations-manual/current/#single-instance-install[the documentation].
+
+==== Server commands
+
+[options="headers",cols="m,a"]
+|===
+| Command | Comment
+| start | Start Neo4j server in the background, it may take a bit until the endpoints become available
+|stop | Stop Neo4j server
+|restart | Restart Neo4j server
+|status | Display Neo4j status
+|console | Start Neo4j in the foreground, write messages to stdout
+|===

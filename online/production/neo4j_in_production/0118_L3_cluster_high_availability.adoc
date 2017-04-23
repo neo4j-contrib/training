@@ -1,0 +1,19 @@
+=== (L3) -- (Cluster: High Availability)
+
+==== How do you know if you need Neo4j's clustering for High Availability reasons?
+
+Disaster recovery features are required for enterprise environments.
+If your enterprise has the following features, your enterprise is a good candidate for clustering:
+
+. Neo4j serves data for a *critical business or consumer facing solution* or component that would impact the ability of the company to conduct business if the component were down
+. Data is *dependent on various global end-users with limited predictability* of when they'll be accessing the system
+
+.High Availability Cluster
+image:{img}/cluster_high_availability.png[]
+
+A significant and fundamental requirement for most production services or applications is overall availability.
+Very often this is determined by the demands of the users, the times they would be interacting with the solution, the impact downtime would have on the business or users of the system to complete their roles or the financial impact of a system failure.
+These aren't always customer-facing solutions and can be critical internal systems.
+
+Availability can often be addressed with various strategies for recovery or mirroring.
+However, Neo4j's clustering architecture is an automated solution to ensure Neo4j is consistently available for your application and end-users.

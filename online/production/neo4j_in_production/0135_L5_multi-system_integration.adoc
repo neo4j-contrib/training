@@ -1,0 +1,37 @@
+=== (L5) -- (Multi-System Integration)
+
+Multiple database backend systems are a common setup in today's modern Enterprise architectures.
+In general, there are two common practices we recommend taking into consideration while designing your application architecture:
+
+* distributing the transactions in front of the databases or
+* replicating data directly between systems
+
+Both approaches will be discussed in this section.
+
+
+==== Distributing transactions in front of the database
+
+.Distributing transactions in front of the database
+image:{img}/distributing_in_front.png[]
+
+As the diagram illustrates, this architecture utilizes a service (such as a message queue) between the application layer and the database services tier.
+The queue in this example stages data updates for each database system and may also be used by other services or business processes.
+A secondary service then processes each update on each target system, possibly with a two-phase commit-like approach, to assure the data is updated in each location.
+
+This approach is flexible in data processing and transformation for each database and provides for significant flexibility in growing the architecture and communicating with services.
+However, it does require more logic between the database tier and the services to ensure updates are processed in all target systems.
+And you'll want to ensure you have a routine for random data validation between systems to assure data is not diverging.
+
+==== Replicating data between systems
+
+A familiar choice for many administrators, this architecture involves an ETL-like process for moving data from one system to another target system.
+
+.An ETL-like process
+image:{img}/etl_like_process.png[]
+
+When Neo4j is the target system, we recommend taking two possible approaches:
+
+. Use a utility or system tool to extract data from the system of record into a CSV format.
+You can then use the import utilities in Neo4j to transform and load the data directly into the database.
+. Using a utility or service, pull the data from the system of record into a format that can then be transformed into transactions that are sent to Neo4j like regular database transactions.
+In these cases, it is common to see data extracted in a format that can then be transformed into JSON documents and sent in transactions to Neo4j's REST endpoints.

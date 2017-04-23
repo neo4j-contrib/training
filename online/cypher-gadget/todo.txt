@@ -1,0 +1,4 @@
+* userstate should be an object that has get and set options and probably
+
+* add all tasks to data/tasks.coffee
+

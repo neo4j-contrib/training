@@ -1,0 +1,35 @@
+== What is Neo4j
+
+* Neo4j is a **Database** - use it to reliably *store information* and *find it later*
+* Neo4j's data model is a **Graph**, in particular a **Property Graph**
+* **Cypher** is Neo4j's graph query language (**SQL for graphs!**)
+* Cypher is a declarative query language: it describes *what* you are interested in, not *how* it is acquired.
+* Cypher is meant to be very *readable* and *expressive*
+
+// Video Property Graph
+
+=== The Property Graph
+
+//image::../../images/domain_model.png[]
+
+* A **Property-Graph** consists of **labeled nodes** and **relationships** each with **properties**.
+* **Nodes are just data records**, usually used for an entity (label).
+Besides properties, they also contain their relationships to other nodes. 
+* **Relationships connect two nodes**.
+They are also an explicit data record in the graph database.
+Think of them as containing shared information *between* two entities (direction, type, properties) and representing the connection to both nodes.
+
+**Properties** are *key:value* pairs that allow you to store information in Neo4j.
+Properties can be attached to both nodes and relationships and are referred to by `node.property` or `relationship.property`.
+There is no schema, just structure.
+
+So for example, an `Person` node might have a `name` property which could be set and retrieved using `actor.name` dot notation.
+An actor might have played a character in a movie, so we have a relationship with the type `ACTED_IN`.
+If we assigned an identifier `acting` to that relationship, we could get his or her `roles` using a `acting.roles` property.
+
+Properties can be *boolean*, *numeric*, or *strings*.
+They can also be *arrays* of any of these simple types.
+For more information, see the http://neo4j.com/docs/developer-manual/current/#graphdb-neo4j-properties[Neo4j documentation].
+
+
+Now that we understand the basic elements of a Neo4j graph, let's get started with Cypher for accessing our graph.

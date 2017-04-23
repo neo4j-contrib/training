@@ -1,0 +1,52 @@
+== Neo4j Online Trainings
+
+Currently there are 2 Online Training classes:
+
+* Getting Started with Neo4j (Cypher in 60 Minutes)
+* Neo4j in Production
+
+They are generated from AsciiDoc sources
+
+=== Getting Started with Neo4j
+
+The Getting Started class is a self-study intro class that uses the movie databases as a cross-cultural, cross-gender and cross-age dataset for easy understanding.
+
+It progressively explains the aspects of the property graph model, the syntax and clauses of Cypher and means to create, query and import data.
+
+For interactivity it uses a Widget that runs against an in-memory Neo4j database and allows for tasks with query and result checking.
+
+=== Cypher Widget
+
+The widget database (currently version 3.0.x) at `https://neo4j-training-backend.herokuapp.com`, this can be overriden in the `host` query parameter.
+
+See more details in link:cypher-gadget/README.md[the readme file].
+
+=== Parts
+
+The "Intro to Graph Databases with Neo4j" training is also available in parts.
+
+Currently they are hosted at: https://neo4j.com/graphacademy/online-training/getting-started-graph-databases-neo4j-part-1/ etc.
+
+The `part1.adoc` to `part4.adoc` cover about 20-30 minutes worth of content each.
+
+They end with a quizz (see below) and finish with a link to the next section that has a class of `next-section` for enabling / disabling.
+
+=== Quizzes
+
+Each quizz has about 3 questions with 3 to 5 answers each, some of which are wrong.
+
+The wrong answers have a CSS-class off `false-answer` that can be used for checking / enabling.
+
+
+=== Neo4j in Production
+
+Neo4j in Production currently covers HA Clusters and pre 3.1 security
+
+It has to be updated to cover:
+
+- Causal Clusters
+- 3.1+ Security
+- More Constraints
+- More Monitoring
+- `neo4j-admin` script
+- ...

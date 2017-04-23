@@ -1,0 +1,38 @@
+== Lab: Exploring an Unknown Graph
+
+In this video, we'll learn how you can use Cypher to easily explore and understand the structure of an unknown graph.
+
+In general, labels often give good insight about the types of nodes in a graph.
+Using Labels, you can return sample datasets to learn about properties and relationships usually attached to these nodes.
+
+=== Learn about "People" in our Graph
+
+Let's find out a little more about the people in the system by querying the various relationships of the nodes with a Person label attached to them.
+
+////
+=== Try to run and vary these queries
+
+ifdef::env-graphgist[]
+
+//lesson1 graph
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+
+endif::[]
+
+//console
+
+////

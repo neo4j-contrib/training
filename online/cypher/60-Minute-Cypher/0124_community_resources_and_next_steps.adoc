@@ -1,0 +1,30 @@
+== Community Resources and Next Steps
+
+=== In-Person Training
+
+If you enjoyed the online version of our training and want to continue to learn about Cypher, check out our https://neo4j.com/events/#/events?area=Local&type=Training
+[in-person, hands-on training classes]. They are taught around the world by experienced instructors.
+
+=== Online Groups and Resources
+
+If you'd like to learn more about using Neo4j, start by going to http://neo4j.com/developer[the Neo4j developer page].
+It provides a range of topics for learning more about Neo4j.
+
+If you have specific questions or problems, please ask on http://stackoverflow.com/questions/tagged/neo4j[Stack Overflow], where the most knowledgable people can help you quickly.
+Come to the http://groups.google.com/group/neo4j[Neo4j Google Group] if you want to discuss graph modeling questions, the Neo4j ecosystem or product features.
+You can also join our http://neo4j.com/slack[public Slack channel] to get quick answers.
+
+If you'd like to learn more about the company behind Cypher, the product and the enterprise features and support packages that are provided, you should check out http://neo4j.com/product[neo4j.com].
+There you can also find more information about use cases and solutions.
+
+Follow Neo4j on Twitter http://twitter.com/neo4j[@Neo4j] and find local http://neo4j.meetup.com[Neo4j meetups] to connect with other developers interested in graph databases.
+
+=== Links
+
+- http://neo4j.com/sandbox/[Start a Neo4j Sandbox^] and explore datasets
+- http://neo4j.com/download/[Download Neo4j^] and develop your first Neo4j project
+- Ask questions on http://stackoverflow.com/questions/tagged/neo4j[Stack Overflow^]
+- Discuss ideas on http://groups.google.com/group/neo4j[Neo4j's Google Group^]
+- Discuss ideas on http://neo4j.com/slack[Neo4j's Slack^]
+- Read the http://neo4j.com/docs/developer-manual/current/[Neo4j Documentation^]
+- Use the http://neo4j.com/docs/cypher-refcard/current[Neo4j Cypher Reference Card^]

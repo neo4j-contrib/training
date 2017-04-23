@@ -1,0 +1,195 @@
+== Nodes and their Properties
+:experimental:
+
+Let's start by following along with the video and adding a node to the graph.
+
+++++
+<iframe src="https://player.vimeo.com/video/84106705" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+++++
+
+ifdef::env-graphgist[]
+
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+
+endif::[]
+
+Run the following query, replacing *My Name* with your name in quotes. (If you happen to have the same name as a famous actor, you might want to change what name you put in):
+
+[source,cypher]
+----
+CREATE (me:Person {name: "My Name"})
+RETURN me
+----
+//graph_result
+
+You will see the new node returned and also as part of the visualization. 
+You can also easily check for its existence with the following query.
+
+[source,cypher]
+----
+MATCH (me:Person)
+WHERE me.name="My Name"
+RETURN me.name
+----
+
+or in a short-hand syntax:
+
+[source,cypher]
+----
+MATCH (me:Person {name:"My Name"})
+RETURN me.name
+----
+
+=== The All Nodes Query
+
+If we wanted to return *all nodes* in the graph, we can use the following query:
+
+[source,cypher]
+----
+MATCH (n)
+RETURN n
+----
+
+image::{image}/0106_Nodes_and_Properties_all_nodes.svg[caption="The entire graph" width=300, height=300, role=right]
+
+WARNING: In a larger graph this will return A LOT of data, usually you add a `LIMIT 100` or such.
+
+The query is doing a full graph search.
+It visits every single node to see whether it matches the pattern of `(n)`.
+In this concrete case, the pattern is simply a node that may or may not have a label or relationships, so it will match every single node in the graph.
+The `RETURN` clause then returns all of the information about each of those nodes, including all of their properties.
+
+// Video
+// Note the semicolon after the `RETURN` clause.
+// It is used to tell the **Neo4j-Shell** that you're finished writing your query.
+// In this course the semicolon is not needed and silently ignored.
+// --> show how this query works in the Neo4j shell
+
+=== Adding Properties
+
+To get set up, let's add the movie `Mystic River`.
+
+[source,cypher]
+----
+CREATE (movie:Movie {title: "Mystic River", released:1993})
+----
+
+Now, find the actor `Kevin Bacon` and the movie `Mystic River` and add the relationship between the movie and the actor to the dataset.
+
+ifndef::env-graphgist[]
+
+[source,cypher]
+----
+MATCH (kevin:Person) WHERE kevin.name = "Kevin Bacon"
+MATCH (mystic:Movie) WHERE mystic.title = "Mystic River"
+CREATE (kevin)-[r:ACTED_IN {roles:["Sean"]}]->(mystic)
+RETURN mystic,r, kevin
+----
+
+//graph_result
+
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="addRelationshipKevinMystic"></div>
+++++
+endif::env-graphgist[]
+
+
+Let's say we wanted to add a `tagline` to the `Mystic River` `:Movie` node we've just added.
+First, we have to locate the single movie again by its `title`, then `SET` the `tagline` property.
+The query:
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+WHERE movie.title = "Mystic River"
+SET movie.tagline = "We bury our sins here, Dave. We wash them clean."
+RETURN movie.title AS title, movie.tagline AS tagline
+----
+//graph_result
+
+[format="csv", options="header"]
+|===
+title,tagline
+Mystic River,"We bury our sins here, Dave. We wash them clean."
+|===
+
+Because Neo4j is schema-free, you can add any property you want to any node or relationship.
+
+What if you want to update a property?
+`Mystic River` was actually released in `2003`, not `1993`.
+
+We can fix that with the following query:
+
+[source,cypher]
+----
+MATCH (movie:Movie)
+WHERE movie.title = "Mystic River"
+SET movie.released = 2003
+RETURN movie.title AS title, movie.released AS released
+----
+//graph_result
+
+[format="csv", options="header"]
+|===
+title,released
+Mystic River,2003
+|===
+
+The syntax is the same for updating or adding a property.
+You `SET` a property.
+If the property exists, `SET` will update it.
+If the property doesn't exist, `SET` will add it.
+
+=== Exercise: Updating a relationship property
+
+Let's change the role of *Kevin Bacon* in *Mystic River* from `["Sean"]` to `["Sean Devine"]`.
+
+We should find the `ACTED_IN` relationship between the `Person` and `Movie` using `MATCH` and then use `SET` to update the relationship property as we learned when creating the `:Movie` node.
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="updateRelationshipProperty"></div>
+++++
+endif::env-graphgist[]
+
+ifdef::env-graphgist[]
+
+=== Solution: Updating a relationship property
+
+[source,cypher, role=solution]
+----
+MATCH (kevin:Person)-[r:ACTED_IN]->(mystic:Movie)
+WHERE kevin.name="Kevin Bacon" AND mystic.title="Mystic River"
+SET r.roles = ["Sean Devine"]
+RETURN r.roles
+----
+//graph_result
+
+endif::env-graphgist[]
+
+==== Nodes and Properties: Resources
+
+* {manual-cypher}/clauses/create[Create^]
+* {manual-cypher}/syntax/parameters/[Parameters^]
+* {manual-cypher}/clauses/set/#set-set-all-properties-using-a-parameter[Setting all properties on a node^]

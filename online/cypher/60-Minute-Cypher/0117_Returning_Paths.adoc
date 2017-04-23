@@ -1,0 +1,117 @@
+== Returning Paths
+
+ifdef::env-graphgist[]
+//lesson1 graph
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+endif::[]
+
+In addition to being able to `MATCH` paths, we can name paths and `RETURN` them as part of the result:
+
+[source, cypher]
+----
+MATCH p=(actor:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN p;
+----
+//graph_result
+
+This will `RETURN` all of the nodes and relationships for each path, including all of their properties.
+That's interesting, but can be too much data.
+We might use the `nodes()` function just to `RETURN` the nodes in the path:
+
+[source, cypher]
+----
+MATCH p=(actor:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN nodes(p);
+----
+//graph_result
+
+There is a similar function for relationships:
+
+[source, cypher]
+----
+MATCH p=(actor:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN rels(p);
+----
+//table
+
+Note that only connected patterns can be used to create named paths.
+If you have two patterns in your `MATCH` clause with a comma between them, you'd have to `RETURN` the results as two distinct named paths:
+
+[source, cypher]
+----
+MATCH p1=(actor:Person)-[:ACTED_IN]->(movie:Movie), p2=(director:Person)-[:DIRECTED]->(movie)
+RETURN p1, p2;
+----
+//graph_result
+
+=== Exercise: Directors acting in their movies
+
+image::{image}/0116_Matching_Paths_actors_directors.svg[]
+
+We've already seen how to `RETURN` all of the actors and directors in all of the movies:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]-(director:Person)
+RETURN actor.name, movie.title, director.name;
+----
+//table
+
+How would you change this query to `RETURN` only the directors who acted in their own movies?
+Return people who both acted and directed in the same movie and display their name.
+
+image::{image}/0117_Returning_Paths_actor_director.svg[]
+
+*Hint*
+
+If you're having trouble, what would happen if you replaced the `(d)` and `d.name` with an `(a)` and `a.name`?
+Does that work?
+Why?
+How could you simplify that query?
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="directorsThatActedInTheirMovies"></div>
+++++
+endif::env-graphgist[]
+
+ifdef::env-graphgist[]
+
+=== Solution: Directors acting in their movies
+
+[source, cypher, role=solution]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie)<-[:DIRECTED]->(actor)
+RETURN actor.name;
+----
+//table
+
+//console
+
+endif::env-graphgist[]
+
+=== Returning Paths: Resources
+
+* {manual-cypher}/syntax/operators/[Boolean and Mathematical Operators^]
+* {manual-cypher}/syntax/patterns/[Finding Patterns^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]
+* {manual-cypher}/clauses/where[Where^]

@@ -1,0 +1,18 @@
+=== (L3) -- (Summary)
+
+Clustering is a very important topic for many enterprise deployments.
+Throughout this section, we've discussed the various reasons for Clustering Neo4j and how you'd go about it.
+At this point, you are ready to discuss some final administration topics, including how to maintain your system once it is in production.
+
+Let's recap what we've learned up to this point:
+
+* The groundwork for Neo4j, components, editions, and configurations
+* Your deployment options
+* How to scale your Neo4j deployment to meet Enterprise demands
+* Clustering a Neo4j instance
+
+==== References
+
+* https://neo4j.com/docs/operations-manual/current/#ha-setup-tutorial[Set up a Neo4j cluster]
+* https://neo4j.com/docs/operations-manual/current/#tutorial-local-cluster[Set up a local cluster]
+* https://neo4j.com/docs/operations-manual/current/#design-considerations[Design considerations]

@@ -1,0 +1,42 @@
+=== (L5) -- (Multi-tenant Requirements)
+
+If you are considering a deployment where multiple different users will be accessing Neo4j, we have some general guidance for enabling a functional multi-tenant architecture.
+Currently, Neo4j does not support an in-database functionality that provides data privacy requirements for multi-tenant architectures.
+However, the following approaches may be applicable for your setup.
+
+==== Instance per customer
+
+As a JVM-based database, it is possible to run multiple single instances of Neo4j (no cluster) for each system in your architecture.
+This approach provides the best guarantees for data isolation; it allows you to tune each instance according to the access patterns of that customer(s) and to administer each instance with different SLA's or policies.
+However, if you have high availability or similar requirements that imply clustering, the effort to fulfill that within this scenario is higher compared to other setups.
+
+Deployments like this will most likely incorporate a load-balancer or proxy in front of Neo4j that distributes the application requests to the appropriate Neo4j instance based on the end-user of the application.
+
+==== Sub-groups per instance
+
+You may also want to divide your graph from a modeling perspective.
+In that case, you would have only one graph version holding all your data.
+Clustering is easily possible in this setup.
+
+In order to implement this scenario, one could leverage Neo4j Labels to group data within the database or use a separate node per data partition.
+There are many factors that can be used to divide your graph: user IDs, user groups/teams, geographically/regional parameters or companies, and more.
+
+However, there may be some implications that come with this setup.
+If you need assistance, you're welcome to contact us.
+
+==== Sub-instances per tenant
+
+If the tenants might share a global set of graph data while also having a subset of their own graph data, two general approaches can be taken:
+
+===== Maintain a global Neo4j instance for global data and deploy tenant-specific instances for tenant data
+
+This approach implies the need for maintaining data access patterns between the global instance and the tenant-specific instances.
+It may also require more complex application logic to join data at the application tier, as Neo4j does not currently provide tools for distributed queries.
+
+===== Take a similar approach of a single instance per tenant and incorporate a process for replicating data from the global database to the tenant-specific database
+
+In this case you would not be using Neo4j Clustering.
+Instead, you would extract data from the global instance, then use the loading tools to load data into the tenant instances.
+An advantage of this approach is that you can easily maintain your global data in a single place while providing tenant-specific deployments at the same time.
+The data copied from the global instance can also be a subset of content based on unique tenant variables.
+This approach also does not require any coordination logic to merge query data from two instances.

@@ -1,0 +1,84 @@
+=== (L1) -- (General Deployment Options)
+
+Early in the development of a solution, a decision will be made whether to deploy Neo4j as a standalone server or embedded within the solution.
+
+Today the standard deployment of Neo4j is a typical client-server model, the most common approach among production deployments of Neo4j.
+
+For other reasons the choice to embed Neo4j directly into the application may have been made.
+This is more common in OEM setups, where Neo4j runs integrated as part of a third party product.
+
+////
+==== Embedded Deployments
+
+When Neo4j is embedded directly into your application, you get all the functionality of the database directly accessible through the Java APIs right from your application code.
+This makes it very easy to directly work with the database and get lightning fast performance.
+
+.Embedded Neo4j
+image:{img}/embedded_neo4j.png[]
+
+===== Key Advantages of Embedded Mode
+
+*Low latency*: Since Neo4j is in the application, there will be no network overhead.
+
+*Choice of APIs*: Access to a diversity of APIs for creating and querying data via the Neo4j core API, traversal framework and Cypher query language.
+
+====== For the Administrator
+
+Your hands-on administration work with Neo4j is very minimal.
+Most of the core admin tasks--such as initiating backups, monitoring, and configuration--should be built into the application that is embedding Neo4j.
+
+////
+
+==== Server Mode Deployments
+
+In this architecture, Neo4j runs as a database server and can be accessed through binary and http APIs for data querying and updating.
+It is a very familiar option similar to many server-based solutions.
+
+.Server Mode Deployment
+image:{img}/server_mode_deployment.png[]
+
+==== Key Advantages of Server Mode
+
+* *Binary "Bolt" Protocol* or HTTP APIs allowing clients to send requests and receive responses over the wire
+* *Platform Independence* for the client/application accessing the server APIs due to dedicated language drivers
+* Server and Query language extensions via user defined procedures
+* Independent management of the database from the application
+* Easy configuration and provisioning of Neo4j instances
+
+==== For the Administrator
+
+When deployed as a server, the administrator should expect to perform many common admin, configuration, and troubleshooting tasks as they would for any database deployment.
+Neo4j provides utilities and tools for enabling these capabilities, which we will detail further in this course.
+We will also detail the configuration and setup guidance that will aid the admin in ensuring a robust and stable deployment.
+
+This course will primarily emphasize the production decisions and administrative tasks associated with a server-mode deployment.
+
+==== Mixed Mode: Server and Embedded
+// needs references
+
+Mixed mode is exactly as it sounds: a combination of both embedded and server-based deployments of Neo4j in your architecture.
+Two conditions must be fulfilled for this to be applicable:
+
+. The mixed-mode instances are clustered with each other.
+If they are not clustered together, you simply have two different deployment architectures for two different databases.
+. You are using Enterprise Edition for both; it is not possible to cluster with Community Edition
+
+.Mixed Mode Deployment
+image:{img}/mixed_mode_deployment.png[]
+
+===== Examples of reasons for mixed deployments
+
+* In a cluster of embedded Neo4j instances, deploying a Neo4j instance in server mode for reporting purposes
+* In a cluster of server mode Neo4j instances, deploying an embedded instance in a custom built departmental application that leverages the global graph data
+
+There are no unique administrative approaches or requirements when you have a mixed-mode deployment.
+We highlight it here simply to identify the possibility and note the reasons why this architecture may be chosen.
+
+==== References
+
+// If `stable` redirected to v3.0.0, pasted the v3 link, else kept the legacy link
+
+* http://neo4j.com/docs/java-reference/current/#tutorials-java-embedded[v3.x Embedded Deployment]
+* http://neo4j.com/docs/2.3.5/tutorials-java-embedded.html[v2.3.5 Embedded Setup]
+* http://neo4j.com/docs/operations-manual/current/#configuration-settings[v3.x Server Configuration]
+* http://neo4j.com/docs/2.3.5/server-configuration.html[v2.3.5 Server Configuration]

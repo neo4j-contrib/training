@@ -1,0 +1,26 @@
+== Course Highlights and Welcome
+
+=== Welcome to Neo4j in Production
+
+++++
+<iframe src="https://player.vimeo.com/video/122279729" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+++++
+
+=== Congratulations!
+
+We're excited to hear you are ready to join the thousands of other Neo4j users who have successfully deployed Neo4j to production.
+Like the others before you, you likely have questions about best practices, how to administer the server, what to configure, or even the basic deployment architecture.
+In addition, it is likely you are an admin who has been tasked with deploying Neo4j for the first time.
+
+Not to worry.
+We've helped many Neo4j users and admins take their applications to production.
+This course will jump into many of the details you'll need to know to deploy Neo4j in production, namely focusing on:
+
+// todo: link these to their sections
+
+* Making Architectural Choices
+* Planning for Robustness and Resiliency
+* Monitoring and Management
+* Best Practices for a Successful Launch
+
+At the end of this course, you will have the necessary knowledge to help your team decide on an appropriate edition of Neo4j, make a wise choice on deployment architectures and be prepared for production launch.

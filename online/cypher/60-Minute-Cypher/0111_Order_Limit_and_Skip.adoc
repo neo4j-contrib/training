@@ -1,0 +1,123 @@
+== Order By, Limit, and Skip
+
+ifdef::env-graphgist[]
+//lesson1 graph
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+
+endif::[]
+
+=== ORDER BY
+
+In Cypher it's easy to order results using an `ORDER BY` command.
+Let's say we wanted to display the oldest people in our database.
+We could use the following query:
+
+[source, cypher]
+----
+MATCH (person:Person)
+RETURN person.name, person.born
+ORDER BY person.born
+----
+//table
+
+The query returns every actor ordered by their year of birth, so it will display the oldest (smallest `a.born`) first.
+
+=== LIMIT and SKIP
+
+Cypher supports easy pagination of record sets.
+It uses `LIMIT` and `SKIP` statements to reduce the number of records returned and to allow for paging through the results.
+
+If we wanted to display the *second page* of 10 actors and movies they played in, we might use the following query:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie)
+RETURN actor.name AS Actor, movie.title AS Movie
+SKIP 10 LIMIT 10;
+----
+//table
+
+We could also just use `LIMIT` if we only want the top-n elements within the result.
+
+=== Exercise: Return the five oldest people in the database
+
+image::{image}/0111_Order_Limit_and_Skip_oldest_people.svg[]
+
+=== Solution: Return the five oldest people in the database
+
+[source, cypher]
+----
+MATCH (person:Person)
+RETURN person
+ORDER BY person.born
+LIMIT 5;
+----
+//table
+
+=== Using DISTINCT
+
+Often you find yourself wanting to return only distinct results for a query.
+For example, let's look at the list of the oldest actors.
+Initially, we might try the following:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->()
+RETURN actor
+ORDER BY actor.born
+LIMIT 5
+----
+//graph_result
+
+But if any of the five oldest actors were in more than one movie, we'll get them multiple times.
+So the query we really want to run is:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->()
+RETURN DISTINCT actor
+ORDER BY actor.born
+LIMIT 5
+----
+//table
+
+// Potential Video: This content was in Versal, a video might explain the motivations behind changing the query to the below
+
+// [source, cypher]
+// ----
+// MATCH (actor:Person)
+// WHERE (actor)-[:ACTED_IN]->()
+// RETURN actor
+// ORDER BY actor.born
+// LIMIT 5
+// ----
+// //table
+
+ifndef::env-graphgist[]
+++++
+<div id="oldestActors"></div>
+++++
+endif::env-graphgist[]
+
+=== ORDER BY, LIMIT, and SKIP: Resources
+
+* {manual-cypher}/clauses/order[Order by^]
+* {manual-cypher}/clauses/limit[Limit^]
+* {manual-cypher}/clauses/skip[Skip^]
+* {manual-cypher}/syntax/operators/#syntax-using-the-distinct-operator[Distinct^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]

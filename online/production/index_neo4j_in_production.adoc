@@ -1,0 +1,103 @@
+= Neo4j in Production
+:presenter: Neo Technology
+:twitter: neo4j
+:email: info@neotechnology.com
+:neo4j-version: 2.3.0
+:currentyear: 2016
+:doctype: book
+:toc: left
+:toclevels: 1
+:img: neo4j_in_production/img
+
+++++
+<script type='text/javascript'>
+  var loc = window.location;
+  if (loc.hostname == "neo4j.com" && loc.search.indexOf("aliId=") == -1 ) {
+     loc.pathname = "/graphacademy/online-training/neo4j-production/"	
+  }
+  document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script>Munchkin.init('773-GON-065');</script>
+++++
+
+
+include::neo4j_in_production/0100_about_this_course.adoc[]
+
+include::neo4j_in_production/0101_course_highlights_and_welcome.adoc[]
+
+include::neo4j_in_production/0102_L1_neo4j_production_deployment_options.adoc[]
+
+include::neo4j_in_production/0103_L1_neo4j_application_architecture.adoc[]
+
+include::neo4j_in_production/0104_L1_neo4j_editions.adoc[]
+
+include::neo4j_in_production/0105_L1_which_version_to_use.adoc[]
+
+include::neo4j_in_production/0106_L1_general_deployment_options.adoc[]
+
+include::neo4j_in_production/0107_L1_summary.adoc[]
+
+include::neo4j_in_production/0108_L2_neo4j_server_knowledge.adoc[]
+
+// needs update
+include::neo4j_in_production/0109_L2_neo4j_component_architecture.adoc[]
+
+// needs update
+include::neo4j_in_production/0110_L2_cache.adoc[]
+
+include::neo4j_in_production/0111_L2_server_deployment.adoc[]
+
+// needs update
+include::neo4j_in_production/0112_L2_basic_neo4j_configuration.adoc[]
+
+// needs update
+include::neo4j_in_production/0113_L2_installing_and_running_neo4j.adoc[]
+
+include::neo4j_in_production/0114_L2_summary.adoc[]
+
+include::neo4j_in_production/0115_L3_enterprise_edition_and_clustering.adoc[]
+
+include::neo4j_in_production/0116_L3_why_cluster.adoc[]
+
+include::neo4j_in_production/0117_L3_cluster_read_scalability.adoc[]
+
+include::neo4j_in_production/0118_L3_cluster_high_availability.adoc[]
+
+include::neo4j_in_production/0119_L3_cluster_disaster_recovery.adoc[]
+
+include::neo4j_in_production/0120_L3_cluster_analytics.adoc[]
+
+include::neo4j_in_production/0121_L3_cluster_saving_your_bacon.adoc[]
+
+include::neo4j_in_production/0122_L3_neo4j_cluster_basics.adoc[]
+
+include::neo4j_in_production/0123_L3_setting_up_a_cluster.adoc[]
+
+include::neo4j_in_production/0124_L3_graph_lab_cluster_in_action.adoc[]
+
+include::neo4j_in_production/0125_L3_summary.adoc[]
+
+include::neo4j_in_production/0126_L4_production_administration.adoc[]
+
+include::neo4j_in_production/0128_L4_monitoring_in_neo4j.adoc[]
+
+include::neo4j_in_production/0129_L4_authentication_and_basic_security.adoc[]
+
+include::neo4j_in_production/0130_L4_backup_and_restore.adoc[]
+
+include::neo4j_in_production/0131_L4_additional_administration_tips.adoc[]
+
+include::neo4j_in_production/0132_L4_summary.adoc[]
+
+include::neo4j_in_production/0133_L5_guidance_and_best_practices.adoc[]
+
+include::neo4j_in_production/0134_L5_geographic_distribution.adoc[]
+
+include::neo4j_in_production/0135_L5_multi-system_integration.adoc[]
+
+include::neo4j_in_production/0136_L5_multi-tenant_requirements.adoc[]
+
+include::neo4j_in_production/0137_L5_test_test_test.adoc[]
+
+include::neo4j_in_production/0138_conclusion.adoc[]
+

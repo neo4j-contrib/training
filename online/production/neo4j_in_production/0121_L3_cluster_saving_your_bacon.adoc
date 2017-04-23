@@ -1,0 +1,20 @@
+=== (L3) -- (Cluster to save yourself)
+
+We've looked at some logically sound reasons to cluster Neo4j:
+
+. Read scalability
+. High availability
+. Disaster Recovery
+. Analytics
+
+But there is another sound reason not listed: saving your bacon.
+
+Clustering offers many advantages for your deployments:
+
+. It's an automatic, real-time backup of your database
+. It can help assure additional data durability in the cluster
+. You have an automatic failover solution without the need to invest in backup, redeploy and restart scripts and tools
+. You can support the _ad hoc_ data requests without service impacts
+
+Clustering Neo4j will support many of the functional application requirements that demand application uptime and consistency.
+Now let's turn to a discussion on Neo4j's clustering basics and how to deploy it.

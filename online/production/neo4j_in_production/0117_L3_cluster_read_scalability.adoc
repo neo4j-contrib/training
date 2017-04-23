@@ -1,0 +1,32 @@
+=== (L3) -- (Cluster: Read Scalability)
+
+As the title suggests, clustering Neo4j allows you to distribute read workload across a number of Neo4j instances.
+You can take two approaches while scaling your reads with Neo4j: (a) distribute and load balance reads to any slave instance in the cluster, or (b) distribute direct reads to specific instances in the cluster.
+
+==== Distribute and load balance reads to any slave instance in the cluster
+
+Neo4j's clustering architecture replicates the entire database to each instance in your cluster.
+As a result, you are able to direct any read from your application to any slave instance without much concern for data locality.
+
+===== When would you choose this method?
+
+. You need to scale up the number of concurrent read requests
+. Your data has no natural or obvious way of partitioning reads
+. A significant portion of the data that needs to be read can reasonably be expected to already be in memory on any instance in the cluster
+
+.Replicate the entire database to each instance in your cluster
+image:{img}/cluster_read_scalability.png[]
+
+==== Distribute direct reads to specific instances in the cluster
+
+// please review, this section is a bit confusing
+Distributing direct reads to specific instances in the cluster is sometimes referred to as "cache-based partitioning".
+The strategy simply allows you to take advantage of natural partitions in your data to direct reads to particular instances where the system will already have those datasets in memory.
+This approach is particularly useful when your total active dataset is much larger than can fit in memory in any particular instance.
+
+===== When would you choose this method?
+
+. Your total active data set is larger than can reasonably be expected to fit in memory in any single instance in your cluster
+. A natural or obvious partition can be identified in your dataset
+. You have the application and operations ability to direct which instances are read from
+

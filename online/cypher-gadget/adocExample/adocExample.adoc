@@ -1,0 +1,48 @@
+++++
+<script src="../libs/underscore.js"></script>
+<script src="../libs/jquery.js"></script>
+<script src="../libs/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="../libs/jquery.modal.min.css" type="text/css" media="screen" />
+<script src="./gadgetUtils.js"></script>
+<script src="./tasks.js"></script>
+<style>
+    .modal {
+        width: 770px;
+        padding: 10px;
+        margin: 0;
+    }
+    .blocker {
+        height: initial;
+    }
+</style>
+<script type="text/javascript">
+</script>
+++++
+
+== The Cypher Query Widget Example
+
+If you haven't installed Neo4j on your machine, the Cypher Query widget is there for you to interactively explore, learn and get comfortable with Cypher in a safe environment.
+You can't break anything, and if so, just reset the temporary database to its original state.
+
+=== Example Gadget Number One!
+
+++++
+<div id="ex1"></div>
+++++
+
+The different widgets use different datasets, depending on the task, but save your changes across sessions.
+For most lab exercises we added helpful checks and messages to guide you along.
+
+The query results are shown in a tabular view, and if you return nodes or relationships, those will be highlighted in the graph visualization of the dataset.
+Complex elements are folded in the table and can be expanded with a click.
+
+Your history is available across sessions. And we provide some pre-canned queries to get you started quickly.
+
+Please try to work with the tasks on your own and not just copy & paste queries.
+Thinking about them and writing & executing them incrementally helps you much more in understanding the concepts.
+
+=== Example Gadget Number Two!
+
+++++
+<div id="ex2"></div>
+++++

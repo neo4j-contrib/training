@@ -1,0 +1,18 @@
+=== (L3) -- (Cluster: Analytics)
+
+// ToDo: Image of analytics instance in cluster; has BI tool attached to it
+
+Your application needs to access data for its purposes.
+It reads data, writes data, and generally keeps your application service or end-users happy.
+Then comes the analytics team that wants to collect and aggregate data for their reports.
+Next thing you know, you have a set of long-running compute queries running against your production databases and disrupting your service or end-users' happiness.
+
+You can't avoid servicing the needs of the analytics requests, but you can limit the impact their queries have on your service.
+Neo4j Clustering can be used to include separate instances entirely in support of query analytics, either from end users or from BI tools.
+Clustering means the data is always up to date for analytics queries as well.
+
+==== When would you decide to use Clustering to support analytics needs?
+
+. You have regular BI users that consistently need to run analytics against the most recent versions of the data
+. Your analytics includes queries that aggregate over large or entire sets of data
+. Your analytics processes include complex compute algorithms for predictive or modeling purposes

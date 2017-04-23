@@ -1,0 +1,44 @@
+== Lab: Recommendation Engine
+
+// video recommendation engine with ABK?
+
+ifdef::env-graphgist[]
+
+//setup
+//hide
+[source,cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+endif::[]
+
+=== Exercise: Recommend three actors that Keanu Reeves should work with (but hasn't).
+
+image::{image}/keanu_fof.svg[]
+
+This is kind of a *friends-of-a-friend* query, with `ACTS_IN` acting as a proxy for `FRIEND`.
+There are different approaches for the recommendation.
+This is just one of them.
+
+=== Solution: Recommendation Engine
+
+[source,cypher, role=solution]
+----
+MATCH (keanu:Person {name:"Keanu Reeves"})-[:ACTED_IN]->()<-[:ACTED_IN]-(coworker:Person),
+      (coworker)-[:ACTED_IN]->()<-[:ACTED_IN]-(coworkerOfCoworker)
+WHERE coworkerOfCoworker <> keanu  AND NOT((keanu)-[:ACTED_IN]->()<-[:ACTED_IN]-(coworkerOfCoworker))
+RETURN coworkerOfCoworker.name, count(coworkerOfCoworker)
+ORDER BY count(coworkerOfCoworker) DESC
+LIMIT 3;
+----
+
+//console

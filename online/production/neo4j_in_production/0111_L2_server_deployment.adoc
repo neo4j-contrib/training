@@ -1,0 +1,55 @@
+=== (L2) -- (Server Deployment Options)
+
+Now that we understand the basic components that comprise Neo4j, let's turn to our discussion to deployment and configuration.
+
+==== Where to Deploy?
+
+You can deploy Neo4j in your own data center, in the Amazon cloud or using Rackspace, just to name a few possibilities.
+There are various other ways to deploy your services.
+Often the decision to choose the right deployment model is made by you and your organization together with other involved companies or IT partners.
+Subjects often discussed during decision-making include cost, data privacy, availability constraints and response times.
+
+For Neo4j, the decision is purely based on your own requirements.
+Neo4j can be deployed in your data center, in a hosted service or a combination of both (if using Clustering with Enterprise Edition).
+
+==== Hardware Considerations
+
+The most common-sense minimum requirement is that your hardware choices should reflect the demands of your application.
+
+For highly concurrent or low-latency read requirements:
+
+* Try to acquire hardware with more physical memory to increase the amount of the database that can be cached, and the ratio of cache hits when data is queried.
+* Consider hardware with higher core counts so more threads can execute on data in parallel.
+
+This will reduce the time the database spends accessing data from disk.
+
+For high-volume write transaction requirements:
+
+* Hardware with better disk speeds (or SSD) will provide higher overall throughput
+* Minimize the amount of system services contention by considering dedicated hardware for Neo4j
+
+Of course, if your application has a combination of both requirements, you should consider a mix of the suggestions above.
+Overall, the saying "bigger is better" applies here.
+
+==== Virtualization, Containers, other?
+
+The popularity of virtualization solutions such as VMWare and container solutions such as Docker are commonly discussed when considering production deployment.
+While we won't discuss all possible scenarios and options here, we can confirm that Neo4j can be deployed in these solutions with the following considerations:
+
+* Neo4j heavily utilizes both memory and disk while running, so you'll want to ensure your deployment has an adequate number of system services dedicated to it to achieve the performance you require.
+* Contention for services and swapping on a system can cause worse performance than on an undersized system.
+Avoid oversubscribing the systems where Neo4j will be deployed.
+* Neo4j deployments are capable of starting and running with minimal configuration.
+However, you'll likely still need to touch each system where Neo4j will be deployed for final configurations.
+
+==== Minimum Requirements
+
+Lastly, Neo4j does have a basic set of minimum requirements that must be present:
+
+* Java: Oracle or OpenJDK
+** Neo4j 2.3.0 or higher: JDK 8
+** Neo4j 2.2.x or lower: JDK 7
+* ext4 or similarly formatted filesystem
+* Minimum 10GB SATA disk (with recommendation for higher performance disks)
+* 2GB Memory
+* Intel Core i3 CPU

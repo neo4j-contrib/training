@@ -1,0 +1,142 @@
+== Relationships
+
+ifdef::env-graphgist[]
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+
+endif::[]
+
+Adding a relationship is similar to adding a node, but we `CREATE` the relationship with the _relationship_ syntax `+(n)-[:REL_TYPE {prop: value}]->(m)+`:
+
+Let's create ourselves first in this new database:
+
+[source, cypher]
+----
+CREATE (me:Person {name:"My Name"})
+RETURN me.name
+----
+//table
+
+And then let's rate the movie Mystic River (or any other movie that you want to rate).
+
+[source, cypher]
+----
+MATCH (me:Person), (movie:Movie)
+WHERE me.name="My Name" AND movie.title="Mystic River"
+CREATE (me)-[r:REVIEWED {rating:80, summary:"tragic character movie"}]->(movie)
+RETURN me, r, movie
+----
+//graph_result
+
+or
+
+[source, cypher]
+----
+MATCH (me:Person {name:"My Name"}),(movie:Movie {title:"Mystic River"})
+CREATE (me)-[r:REVIEWED {rating:80, summary:"tragic character movie"}]->(movie)
+RETURN me, r, movie
+----
+//graph_result
+
+ifndef::env-graphgist[]
+++++
+<div id="reviewMovie"></div>
+++++
+endif::env-graphgist[]
+
+=== Exercise: Two Nodes, One Relationship
+
+Let's say we wanted to return all of the nodes that have relationships to another node.
+This is still going to return every single node that has a relationship to another node, along with the other node.
+But it's moving us in an important direction, so stay with us for a little longer.
+
+To describe this query, we'd write:
+
+----
+MATCH (n)-->(m)
+RETURN n, m;
+----
+
+This will return every pair of nodes with a relationship going from `n` to `m`.
+
+=== Exercise: Add Clint Eastwood as the director of Mystic River
+
+image::{image}/0107_Relationships_clint_the_director.svg[role=right]
+Can you add a director for the movie `Mystic River`?
+`Clint Eastwood` `DIRECTED` this movie.
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="createClintDirector"></div>
+++++
+endif::env-graphgist[]
+
+ifdef::env-graphgist[]
+==== Solution: Add Clint Eastwood as the director of Mystic River
+
+[source,cypher,role=solution]
+----
+MATCH (clint:Person),(mystic:Movie)
+WHERE clint.name="Clint Eastwood" AND mystic.title="Mystic River"
+CREATE (clint)-[r:DIRECTED]->(mystic)
+RETURN clint,r,mystic
+----
+endif::env-graphgist[]
+
+
+If you want to make sure that only **one** relationship is created, no matter how often you run this statement, use `MERGE` instead. `MERGE` has *get-or-create* semantics.
+It tries to find the patterns you specify.
+If it finds them, it will return the data.
+Otherwise it creates the structure in the graph.
+
+ifdef::env-graphgist[]
+[source,cypher,role=solution]
+----
+MATCH (clint:Person),(mystic:Movie)
+WHERE clint.name="Clint Eastwood" AND mystic.title="Mystic River"
+MERGE (clint)-[:DIRECTED]->(mystic)
+RETURN clint, mystic;
+----
+
+//console
+
+endif::env-graphgist[]
+
+// Video
+// By this time, you might have already created a handful of DIRECTED relationships between Mystic River and Clint Eastwood.
+// You can delete the unwanted relationships using a query similar to the one used to create them.
+// --> Demo matching the DIRECTED relationship and deleting it
+
+
+
+ifndef::env-graphgist[]
+++++
+<div id="mergeClintDirector"></div>
+++++
+endif::env-graphgist[]
+
+=== Relationships: Resources
+
+* {manual-cypher}/syntax/operators/[Operators^]
+* {manual-cypher}/clauses/create[Create^]
+* {manual-cypher}/clauses/merge[Merge^]
+* {manual-cypher}/clauses/return[Return^]
+* {manual-cypher}/clauses/set[Set^]
+* {manual-cypher}/clauses/where[Where^]

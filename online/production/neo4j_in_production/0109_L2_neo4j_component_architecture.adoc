@@ -1,0 +1,118 @@
+=== (L2) -- (Neo4j Component Architecture)
+
+Before we deploy, let's dive into the components that make up a complete Neo4j instance.
+The internal components that make up a Neo4j instance are helpful to know so you better understand how implementation and configuration details affect the overall system.
+
+.Neo4j Component Architecture
+image:{img}/neo4j_architecture.png[]
+
+Neo4j is comprised of a very familiar component architecture.
+It includes the files on disk that represent the database and logs for transactions, a cache for storing and working on data in memory, a transaction manager and an interface layer (query or API) for interacting with the database.
+Let's look at each level separately.
+
+==== Data on Disk - Neo4j Database Files
+
+Neo4j database files are persisted to storage for long-term durability.
+All the data related database files are persisted in the directory specified by the configuration parameters `dbms.directories.data` and `dbms.active_database` in the file `conf/neo4j.conf`.
+If you leave the parameter's defaults in place, the database at the location `data/databases/graph.db` will be used.
+The below table will give you an idea of the type of files you'll find, prefaced with `neostore.*` and what data they are storing.
+
+[cols="<,<",frame="topbot",options="header,footer"]
+|===
+|Files |Description
+
+|`neostore.nodestore.*`
+|Stores node related data from your graph
+
+|`neostore.relationship*`
+|Stores data related to the relationships created and defined in your graph
+
+|`neostore.propertystore.*`
+|Stores the key/value properties from your database
+
+|`neostore.labeltokenstore*`
+|Stores index related label data from your graph
+|===
+
+Each of the files in this directory will make up your database.
+Since Neo4j is a schema-less database, we use fixed record lengths to persist data and follow offsets in these files to know how to fetch data to answer queries.
+The following table illustrates the fixed sizes Neo4j uses for the type of Java objects being stored.
+Those fixed sizes may differ with regards to the record format (standard format vs. high limit format, see the configuration parameter `dbms.record_format`).
+
+[options="header"]
+|===
+| Store File | Record size - standard | Record size - high limit | Contents
+| neostore.nodestore.db | 15B | 16B | Nodes
+| neostore.relationshipstore.db | 34B | 32B | Relationships
+| neostore.propertystore.db | 41 B | 48 B | Properties for nodes and relationships (up to 4 per record)
+| neostore.propertystore.db.strings | 128 B | 128 B | Long String properties (configurable record size)
+| neostore.propertystore.db.arrays | 128 B | 128 B | Large array properties (configurable record size)
+|===
+
+You can approximate the size of your database on disk by multiplying the number of nodes, relationships, and properties by the record sizes used for each.
+This will only be an approximation but can be very helpful when it comes to the hardware sizing.
+Also, this will have an impact on the size of the page cache, which you should configure properly.
+The cache and its configuration are discussed in more detail in the next section (L2).
+
+==== Logging in Neo4j
+
+Relevant database information and errors are logged to `$NEO4J_HOME/logs/neo4j.log`.
+
+More detailed diagnostics, error messages and forensics are logged to `$NEO4J_HOME/logs/debug.log`.
+
+Both files are rotated after reaching a certain, http://neo4j.com/docs/operations-manual/current/#configuration-settings[configurable size and time].
+
+To get more detailed information about the memory allocation behavior you can enable Garbage Collection Logging, which is explained in a <<gc-logging>>.
+
+For diagnostics on query performance it is possible to log Cypher queries that are slower that a http://neo4j.com/docs/operations-manual/current/#config_dbms.logs.query.enabled[configurable time] to a `$NEO4J_HOME/logs/query.log` file.
+If necessary parameters for those queries can be configured to be logged as well.
+Please note that for large amounts and sizes of parameters that can cause the log file to grow quickly.
+
+The same is possible for http requests, which can be http://neo4j.com/docs/operations-manual/current/#config_dbms.logs.http.enabled[configured to be logged] to `$NEO4J_HOME/logs/http.log`
+
+
+* Logging in the http://neo4j.com/docs/operations-manual/current/#_log_files[Neo4j Operations Manual]
+* http://neo4j.com/docs/operations-manual/current/#configuration-settings[Logging Settings]
+
+
+==== Transaction Management in Neo4j
+
+In order to fully maintain data integrity and ensure good transactional behavior, Neo4j supports the ACID properties:
+
+* *Atomicity*: If any part of a transaction fails, the database state is left unchanged.
+* *Consistency*: Any transaction will leave the database in a consistent state.
+* *Isolation*: During a transaction, modified data cannot be accessed by other operations.
+* *Durability*: The DBMS can always recover the results of a committed transaction.
+
+Specifically:
+
+* All database operations that access the graph, indexes, or the schema must be performed in a transaction.
+* The default isolation level is `read committed`.
+* Data retrieved by traversals is not protected from modification by other transactions.
+* Non-repeatable reads may occur (i.e., only write locks are acquired and held until the end of the transaction).
+* You can manually acquire write locks on nodes and relationships to achieve higher levels of isolation (SERIALIZABLE).
+* Locks are acquired at the Node and Relationship level.
+* Deadlock detection is built into the core transaction management.
+
+For production deployment purposes, much of the transaction management is outside the scope of this training.
+
+==== Query and API Interfaces
+
+Neo4j provides a query language called Cypher and a set of APIs for CRUD operations with the database.
+
+Cypher is a declarative graph query language that allows for expressive and efficient querying and updating of the graph store.
+Cypher is a relatively simple but powerful language.
+Very complicated database queries can easily be expressed through Cypher.
+Although outside the scope of this training, it is recommended that everyone working with Neo4j learns the basic Cypher syntax.
+It is highly efficient in regard to querying the database for data validation and other checks.
+
+Neo4j also provides Java APIs for database operations, which will most frequently be used when the database is embedded or if authoring Neo4j unmanaged extensions.
+The documentation provides a complete overview of the APIs, but further details are outside the scope of this training.
+
+==== References
+
+// TODO link to a page covering `Data on Disk - Neo4j Database Files`
+// TODO link to a page covering `Transaction Management in Neo4j`
+
+* https://neo4j.com/developer/cypher-query-language/[Introduction to Cypher]
+* https://neo4j.com/docs/rest-docs/current/[REST Api]

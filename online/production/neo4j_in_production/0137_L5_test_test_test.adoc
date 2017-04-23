@@ -1,0 +1,27 @@
+=== (L5) -- (Test, test, test!)
+
+Major robustness and performance testing often goes uncompleted before systems go into production.
+For our last tip, we'll emphasize what should be an obvious step: Test, test, test!
+
+==== Functional Tests
+
+Functional tests should be conducted to ensure the application is performing to spec and the returned data matches expectations.
+
+==== Data Validation Tests
+
+Data validation tests should be conducted if data is replicated between two systems.
+Random data sampling and comparisons can provide a high degree of confidence in data validity and can be as easy as comparing checksums.
+
+==== Performance Tests
+
+Test the performance of the system and ensure it is meeting the scale and throughput requirements expected.
+We recommend testing to at least 10% above what you expect your peak workload to be.
+
+==== Failover Test
+
+Test failover and fallback scenarios to ensure you know how the system will perform if there are issues.
+
+==== References
+
+* http://neo4j.com/docs/developer-manual/current/#_writing_integration_tests[Writing integration tests]
+* http://neo4j.com/docs/2.3.5/tutorials-java-unit-testing.html[v2.3.5 Basic unit testing]

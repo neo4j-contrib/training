@@ -1,0 +1,92 @@
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Gadget Test</title>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <style type="text/css" media="screen">
+        @import url("styles/codemirror.css");
+        @import url("styles/cm-cypher.css");
+        @import url("styles/base.css");
+        @import url("gadget.css");
+    </style>
+
+</head>
+
+<body>
+<script src="libs/jquery.js"></script>
+<script src="libs/d3.min.js"></script>
+<script src="libs/underscore.js"></script>
+<script src="libs/backbone-min.js"></script>
+<script src="libs/require.js"></script>
+<script type="text/javascript">
+    function generateQuickGuid() {
+        return Math.random().toString(36).substring(2, 15) +
+                Math.random().toString(36).substring(2, 15);
+    }
+    // todo marketo lead id?
+    var uuid = generateQuickGuid();
+    require(["gadget", "utils/queryUtils"], function (Gadget, QueryUtils) {
+        var gadgetId = _.uniqueId("gadget");
+        $('body').prepend('<div id=\"' + gadgetId + '" />');
+
+        console.log(uuid, Gadget, typeof(Gadget));
+        try {
+            var storage = {
+                // data : {},
+                set: function (prop, value) {
+                    console.log("storing", prop, value, storage.data);
+                    localStorage.setItem(prop, JSON.stringify(value));
+                    // storage.data[prop]=value;
+                },
+                get: function (prop) {
+                    var value = JSON.parse(localStorage.getItem(prop));
+                    // var value = storage.data[prop] || null;
+                    console.log("retrieving", prop, value);
+                    return value;
+                }
+            };
+
+            var urlConfig = QueryUtils.getQueryParameters(document.location.search);
+            urlConfig.cypherSetup = urlConfig.cypherSetup || 'lesson1';
+            urlConfig.host = urlConfig.host || "https://neo4j-training-backend.herokuapp.com";
+            var configGetFunction = function (prop) {
+                return urlConfig[prop] || null;
+            };
+            var getFunction = function (prop) {
+                return null;
+            };
+
+            var userState = {
+                gadget: {get: getFunction},
+                get: storage.get,
+                set: storage.set,
+                save: storage.set
+            };
+            if (userState.get("uuid") == null) {
+               userState.set("uuid",uuid);
+            }
+            var g = new Gadget({
+                "$el": $("#" + gadgetId),
+                config: {get: configGetFunction},
+                userState: userState
+            });
+
+            g.render();
+        } catch (e) {
+            console.log(e);
+        }
+    });
+</script>
+</body>
+</html>
+
+<!--
+users-graph
+foo
+mystic-river-sean
+lesson1-knows
+lesson1
+_lab_paths
+mystic-river
+full
+-->

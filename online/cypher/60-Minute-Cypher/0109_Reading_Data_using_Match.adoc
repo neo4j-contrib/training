@@ -1,0 +1,86 @@
+== Reading Data using MATCH
+
+ifdef::env-graphgist[]
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (movie:Movie {title:row.title}) ON CREATE SET movie.tagline = row.tagline,movie.released=row.released
+MERGE (person:Person {name:row.name}) ON CREATE SET person.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (person)-[r:ACTED_IN]->(movie) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (person)-[:DIRECTED]->(movie))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (person)-[:PRODUCED]->(movie))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (person)-[:WROTE]->(movie))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (person)-[:REVIEWED]->(movie))
+----
+
+endif::[]
+
+=== Referring to a Relationship
+
+There are two data integrity constraints in Neo4j:
+
+1. A relationship must have a start node and an end node (yes, they can be the same node): there are no dangling relationships or broken links
+2. Every relationship has a type
+
+By convention, relationship types are written all upper case using underscores between words, so results in a movie graph might be `DIRECTED`, `ACTED_IN`, and `PRODUCED`.
+You can access the type of a relationship with the `type()` function.
+
+=== Matching a Relationship
+
+So far, most of the queries we've written would return far too many results.
+Usually, we don't want to return all nodes or all nodes with a relationship.
+We might want to return all of the `People` who have `ACTED_IN` some `Movie`, displaying the `name` of the actor and the `title` of the `Movie` they acted in.
+We can do that with the following query:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[:ACTED_IN]->(movie:Movie)
+RETURN actor.name, movie.title
+----
+//table
+
+Note the `:` before the type of relationship we want to match.
+If you forget the colon, the variable is not treated as a relationship-type but as a variable name, and your relationship will match *all* types.
+
+The colon allows us to still add an variable before it to (for example) access its *roles*:
+
+[source, cypher]
+----
+MATCH (actor:Person)-[r:ACTED_IN]->(movie:Movie)
+RETURN actor.name, r.roles, movie.title
+----
+//table
+
+The query above will display the actor's name, the role(s) they played and the movie they were in for every combination of actor and movie.
+
+Generally, you would write:
+
+[source, cypher]
+----
+MATCH (node1:LabelA)-[rel:TYPE]->(node2:LabelB)
+RETURN node1.propertyA, rel.property, node2.propertyB;
+----
+
+Usually, you'll restrict your starting points with either a label which represents a set of nodes, or a label and property.
+Labels, together with an index or constraint, allow the database to efficiently find those nodes in the graph and then expand outwards.
+
+ifdef::env-graphgist[]
+//console
+endif::env-graphgist[]
+
+ifndef::env-graphgist[]
+++++
+<div id="tryLabels"></div>
+++++
+endif::env-graphgist[]
+
+=== Resources
+
+* {manual-cypher}/clauses/create[Create^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/return[Return^]
+* {manual-cypher}/clauses/where[Where^]

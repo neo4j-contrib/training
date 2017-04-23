@@ -1,0 +1,106 @@
+=== (L3) -- (Setting up a Cluster)
+
+The video below will walk you through a simple setup of a local cluster.
+Setting up a cluster involves the basic following steps:
+
+. Installing each cluster instance
+. Configuring Neo4j for clustering on each instance
+. Starting up each cluster instance
+
+// video of someone setting up a cluster
+++++
+<iframe src="https://player.vimeo.com/video/122285724" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+++++
+
+==== Creating Local Cluster on a single server
+
+Let's set up a cluster with all instances of Neo4j on the same machine.
+This type of configuration is useful in development and testing environments.
+
+https://neo4j.com/download/[Download] and install Neo4j Enterprise into three different directories:
+
+```
+~/neo4j-01
+~/neo4j-02
+~/neo4j-03
+```
+
+===== Configure HA related setting for each instance.
+
+*Instance 1*
+
+*`conf/neo4j.conf`*:
+
+```
+dbms.backup.enabled=true
+dbms.backup.address=127.0.0.1:6362
+
+dbms.connector.bolt.address=127.0.0.1:7687
+dbms.connector.http.address=127.0.0.1:7474
+dbms.connector.https.address=127.0.0.1:7473
+
+dbms.mode=HA
+ha.server_id=1
+ha.initial_hosts=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
+ha.host.coordination=127.0.0.1:5001
+ha.host.data=127.0.0.1:6001
+```
+
+*Instance 2*
+
+*`conf/neo4j.conf`*:
+
+```
+dbms.backup.enabled=true
+dbms.backup.address=127.0.0.1:6363
+
+dbms.connector.bolt.address=127.0.0.1:7688
+dbms.connector.http.address=127.0.0.1:7475
+dbms.connector.https.address=127.0.0.1:7573
+
+dbms.mode=HA
+ha.server_id=2
+ha.initial_hosts=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
+ha.host.coordination=127.0.0.1:5002
+ha.host.data=127.0.0.1:6002
+```
+
+*Instance 3*
+
+*`conf/neo4j.conf`*:
+
+```
+dbms.backup.enabled=true
+dbms.backup.address=127.0.0.1:6364
+
+dbms.connector.bolt.address=127.0.0.1:7689
+dbms.connector.http.address=127.0.0.1:7476
+dbms.connector.https.address=127.0.0.1:7673
+
+dbms.mode=HA
+ha.server_id=3
+ha.initial_hosts=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
+ha.host.coordination=127.0.0.1:5003
+ha.host.data=127.0.0.1:6003
+```
+
+Make sure no other instance of Neo4j or other programs that may use the ports configured above are running on your machine.
+Then, start all Neo4j instances in the cluster:
+
+```
+localhost:~/neo4j-01$ ./bin/neo4j start
+localhost:~/neo4j-02$ ./bin/neo4j start
+localhost:~/neo4j-03$ ./bin/neo4j start
+```
+
+You may now access your three instances in your web browser via:
+
+* HTTP
+** `http://127.0.0.1:7474[http://127.0.0.1:7474] (instance one, HTTP)`
+** `http://127.0.0.1:7475[http://127.0.0.1:7475] (instance two, HTTP)`
+** `http://127.0.0.1:7475[http://127.0.0.1:7475] (instance three, HTTP)`
+
+* HTTPS
+** `https://127.0.0.1:7473[https://127.0.0.1:7473] (instance one, HTTPS)`
+** `https://127.0.0.1:7573[https://127.0.0.1:7573] (instance two, HTTPS)`
+** `https://127.0.0.1:7673[https://127.0.0.1:7673] (instance three, HTTPS)`

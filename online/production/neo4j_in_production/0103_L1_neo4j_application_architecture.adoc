@@ -1,0 +1,26 @@
+=== (L1) -- (Neo4j Application Architecture)
+
+As a database, Neo4j has a very familiar place in all application architectures.
+It is used as a transactional, real-time store for highly connected data.
+
+You connect to Neo4j from your application via the binary "Bolt" protocol, which is supported by the official language drivers.
+Currently the drivers for .Net, Java, JavaScript, and Python are officially supported with other languages (e.g. PHP, Go, C/C++) being covered by community drivers.
+
+image::{img}/bolt-diagram.png[]
+
+To interact with the database, you use the open Cypher graph query language.
+By sending one or more statements across the wire within each transaction you can read, create and update graph data and access additional features.
+
+Built-in and user defined procedures provide support for additional functionality.
+
+For production deployments, Neo4j can be run in clustered mode to support high availability and disaster recovery scenarios.
+Then it also support live-backups and advanced monitoring.
+
+You can run Neo4j in a variety of different setups, here some examples:
+
+* Single application using Neo4j as primary database
+* Graph heavy end user application backed by a Neo4j cluster as first database
+* Existing application augmented with new functionality with Neo4j integrated and synced with other DBMS
+* Neo4j as backing storage of cloud-hosted MicroServices, e.g. for recommendation or fraud detection
+* Standalone Neo4j for graph-analytics in business intelligence
+* Integration of Neo4j with graph compute solutions like Apache Spark, Apache Flink or Giraph

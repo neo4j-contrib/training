@@ -1,0 +1,67 @@
+== About this Course
+
+=== Motivations
+
+This training class is an introduction to graph databases. 
+You will learn how to get started with Neo4j using Cypher, the graph query language.
+Please give us mailto:training@neotechnology.com[feedback] on how we can improve it.
+
+ifdef::env-guide[]
+
+=== Running the Course with Neo4j Browser
+
+NOTE: You should pin this frame with the little pin icon on the top right.
+
+You can run this course also with an http://neo4j.com/download[installed and running Neo4j] instance.
+
+After starting the database, open the Neo4j Browser on `http://localhost:7474/`.
+Log in.
+
+The browser interface has a command line on top in which you enter Cypher statements or Browser commands (starting with a colon `:`).
+
+You can run this course any time with this command pass:a[<a play-topic='http://guides.neo4j.com/cypher'>:play http://guides.neo4j.com/cypher</a>]
+
+Import the movie dataset by running pass:a[<a play-topic='movies'>:play movies</a>] and clicking on the big `CREATE` statement and then the triangular run button right of the command line.
+
+You can also use kbd:[Ctrl+Enter] to run any command, with kbd:[Shift+Enter] you go into multi-line mode and kbd:[/] puts the cursor focus into the command line.
+
+endif::[]
+ifndef::env-guide[]
+
+=== Running the Course with Neo4j Browser
+
+You can run this course also with an http://neo4j.com/download[installed and running Neo4j] instance.
+
+After starting the database, open the Neo4j Browser on `http://localhost:7474/` (if you're running it locally).
+Log in.
+Then run the `:play movie graph` guide from the command line on top to insert the data and work along with the queries presented in this training.
+
+=== The Cypher Query Widget
+
+If you haven't installed Neo4j on your machine, the Cypher Query Widget is here for you to interactively explore. You can get comfortable with Cypher and learn how to query graph databases in a safe environment.
+You can't break anything, and even if anything happens, just reset the temporary database to its original state.
+
+If you click the "Try it out: ..." buttons, the widget will open in an overlay.
+
+==== Example Widget
+
+image::{image}/cypher-widget.png[width=700]
+
+ifndef::env-graphgist[]
+++++
+<div id="ex1"></div>
+++++
+endif::env-graphgist[]
+
+The different widgets use different datasets depending on the task, but save your changes across sessions.
+For most lab exercises we added helpful checks and messages to guide you along.
+
+The query results are shown in a tabular view, and if you return nodes or relationships, those will be highlighted in the graph visualization of the dataset.
+Complex elements are folded in the result table and can be expanded with a click.
+
+Your history is available across sessions. And we provide some pre-canned queries to get you started quickly.
+
+Please try to work with the tasks on your own and not just copy and paste queries.
+Thinking about them and writing & executing them incrementally helps you much more in understanding the concepts.
+
+endif::[]

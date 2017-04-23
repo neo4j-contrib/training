@@ -1,0 +1,4 @@
+== Conclusion
+
+Congratulations!
+You are now ready to take your Neo4j application into production!

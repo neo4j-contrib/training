@@ -1,0 +1,35 @@
+++++
+	<script type='text/javascript'>
+	var loc = window.location;
+	if (loc.hostname == "neo4j.com" && loc.search.indexOf("aliId=") == -1 ) {
+//	 loc.pathname = "/online_training/graphdatabases/"	
+	}
+	document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script>Munchkin.init('773-GON-065');</script>
+++++
+
+++++
+<style>
+    @import "/online_training/cypher-gadget/libs/jquery.modal.min.css" screen;
+    .modal {
+        width: 775px;
+        height: 775px;
+        padding: 10px;
+        margin: 0;
+    }
+    .blocker {
+        height: initial;
+        background-color: transparent;
+    }
+</style>
+<script src="/online_training/cypher-gadget/libs/underscore.js"></script>
+<script src="/online_training/cypher-gadget/libs/jquery.js"></script>
+<script src="/online_training/cypher-gadget/libs/jquery-ui.min.js"></script>
+<script src="/online_training/cypher-gadget/libs/jquery.modal.min.js"></script>
+<!--script src="/online_training/gadgetUtils.js"></script-->
+<script src="/online_training/tasks.js"></script>
+<script type="text/javascript">
+include::gadgetUtils.js[]
+</script>
+++++

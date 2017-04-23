@@ -1,0 +1,37 @@
+= Short tests with asciidoc
+:presenter: Neo Technology
+:twitter: neo4j
+:email: info@neotechnology.com
+:currentyear: 2015
+:backend: deckjs
+:deckjs_theme: neotech
+:deckjs_transition: horizontal-slide
+:icons: font
+:source-highlighter: codemirror
+:navigation:
+:status:
+:arrows:
+:gist-source: https://raw.github.com/neo4j-contrib/gists/master/
+:footer: © All Rights Reserved {currentyear} | Neo Technology, Inc.
+:logo: img/Neo_Technology.jpg
+:allow-uri-read:
+
+Presenter: {presenter}
+
+Twitter:   http://twitter.com/{twitter}[@{twitter}]
+
+Email:     {email}
+
+include::sections/intro/1.adoc[]
+
+include::sections/intro/2.adoc[]
+
+include::sections/intro/3.adoc[]
+
+include::sections/intro/4.adoc[]
+
+include::sections/intro/5.adoc[]
+
+include::sections/intro/6.adoc[]
+
+include::sections/intro/7.adoc[]

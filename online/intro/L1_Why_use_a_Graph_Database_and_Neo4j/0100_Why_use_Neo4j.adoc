@@ -1,0 +1,46 @@
+== Why use a Graph Database? 
+
+Today's business and user requirements demand applications that connect more and more of the world's data, yet still expect high levels of performance and data reliability.
+
+Many applications of the future will be built using graph databases like Neo4j.
+This course was written to help you through every step of the learning process.
+We will use the widely adopted property graph model and the Cypher query language in our explanations, both of which are supported by Neo4j.
+
+=== What is a Graph?
+
+A graph is composed of two elements: a node and a relationship.
+
+Each node represents an entity (a person, place, thing, category or other piece of data), and each relationship represents how two nodes are associated.
+For example, the two nodes _cake_ and _dessert_ would have the relationship _is a type of_ pointing from _cake_ to _dessert_.
+
+This general-purpose structure allows you to model all kinds of scenarios: from a system of roads, to a network of devices, to a population's medical history or anything else defined by relationships.
+
+=== What Is a Graph Database?
+
+A graph database is an online database management system with Create, Read, Update and Delete (CRUD) operations working on a graph data model.
+Graph databases are generally built for use with On line transaction processing (OLTP) systems.
+Accordingly, they are normally optimized for transactional performance, and engineered with transactional integrity and operational availability in mind.
+
+Unlike other databases, relationships take first priority in graph databases.
+This means your application doesn't have to infer data connections using foreign keys or out-of-band processing, such as MapReduce.
+
+By assembling the simple abstractions of nodes and relationships into connected structures, graph databases enable us to build sophisticated models that map closely to our problem domain.
+
+=== The Case for Graph Databases
+
+The biggest value that graphs bring to the development stack is their ability to store relationships and connections as first-class entities.
+
+For instance, the early adopters of graph technology reimagined their businesses around the value of data relationships.
+These companies have now become industry leaders: LinkedIn, Google, Facebook and PayPal.
+
+As pioneers in graph technology, each of these enterprises had to build their own graph database from scratch.
+Fortunately for today's developers, that's no longer the case, as graph database technology is now available off the shelf.
+
+=== What is Neo4j
+
+* Neo4j is a **Database** - use it to reliably *store information* and *find it later*
+* Neo4j's data model is a **Graph**, in particular a **Property Graph**
+* **Cypher** is Neo4j's graph query language (**SQL for graphs!**)
+* Cypher is a declarative query language: it describes *what* you are interested in, not *how* it is acquired.
+* Cypher is meant to be very *readable* and *expressive*
+

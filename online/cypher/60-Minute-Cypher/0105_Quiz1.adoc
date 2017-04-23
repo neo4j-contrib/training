@@ -1,0 +1,27 @@
+== End of Part 1:  Quiz
+
+=== What are elements of the property graph model ?
+
+[%interactive]
+- [ ] [.false-answer]#tuples#
+- [ ] nodes
+- [ ] relationships
+- [ ] [.false-answer]#documents#
+
+=== Check all true statements about Cypher
+
+[%interactive]
+- [ ] [.false-answer]#Cypher is a programming language#
+- [ ] Cypher is a graph query language
+- [ ] [.false-answer]#Cypher is imperative#
+- [ ] Cypher is centered around graph patterns
+- [ ] Cypher borrows syntax from other languages
+
+=== What are correct Node Patterns? 
+
+[%interactive]
+- [ ] [.false-answer]#`+-[:ACTED_IN]->+`#
+- [ ] `(m:Movie)`
+- [ ] `(matrix:Movie {title: "The Matrix"})`
+- [ ] `(:Person:Director:Actor {name:"Clint Eastwood"})`
+

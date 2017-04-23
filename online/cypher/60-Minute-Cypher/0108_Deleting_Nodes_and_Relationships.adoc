@@ -1,0 +1,131 @@
+== Deleting Nodes
+
+ifdef::env-graphgist[]
+
+//hide
+//setup
+[source, cypher]
+----
+LOAD CSV WITH HEADERS FROM "https://dl.dropboxusercontent.com/u/14493611/movies_setup.csv" AS row
+MERGE (m:Movie {title:row.title}) ON CREATE SET m.tagline = row.tagline,m.released=row.released
+MERGE (p:Person {name:row.name}) ON CREATE SET p.born = row.born
+FOREACH (_ in CASE row.type WHEN "ACTED_IN" then [1] else [] end |
+   MERGE (p)-[r:ACTED_IN]->(m) ON CREATE SET r.roles = split(row.roles,";")[0..-1]
+)
+FOREACH (_ in CASE row.type WHEN "DIRECTED" then [1] else [] end | MERGE (p)-[:DIRECTED]->(m))
+FOREACH (_ in CASE row.type WHEN "PRODUCED" then [1] else [] end | MERGE (p)-[:PRODUCED]->(m))
+FOREACH (_ in CASE row.type WHEN "WROTE" then [1] else [] end |    MERGE (p)-[:WROTE]->(m))
+FOREACH (_ in CASE row.type WHEN "REVIEWED" then [1] else [] end |    MERGE (p)-[:REVIEWED]->(m))
+----
+
+endif::env-graphgist[]
+
+Previously, we added ourselves to the graph.
+If you didn't do that, add yourself now using the following query (replacing "My Name" with your name):
+
+[source, cypher]
+----
+CREATE (me:Person {name:"My Name"});
+----
+//graph_result
+
+Let's then run the following query to make sure you have been added successfully to the graph.
+
+[source, cypher]
+----
+MATCH (p:Person {name:"My Name"})
+RETURN p.name
+----
+//graph_result
+
+To remove both yourself and any relationships you may or may not have, you need to run:
+
+[source,cypher]
+----
+MATCH (me:Person {name:"My Name"})
+OPTIONAL MATCH (me)-[r]-()
+DELETE me,r
+----
+
+It turns out there is another node in the graph that also needs to be deleted.
+Run the following query:
+
+[source,cypher]
+----
+MATCH (matrix:Movie {title:"The Matrix"})<-[r:ACTED_IN]-(actor)
+RETURN actor.name, r.roles
+----
+
+ifndef::env-graphgist[]
+++++
+<div id="actorsInTheMatrix"></div>
+++++
+endif::env-graphgist[]
+
+It's looking for and returning actors who played in the Matrix.
+
+But wait, take a look at the results!
+Who is Emil?
+There is nobody (character or actor) named Emil in the Matrix.
+We need to delete this person.
+
+Go ahead and delete Emil.
+
+ifndef::env-graphgist[]
+++++
+<div id="deleteEmilFail"></div>
+++++
+endif::env-graphgist[]
+
+Did it work?
+No?
+Check out the next section.
+
+=== Deleting Nodes and Relationships
+
+This query statement will delete both the relationship and the node, even though there may be no relationships.
+
+[source,cypher]
+----
+MATCH (emil:Person {name:"Emil Eifrem"})
+OPTIONAL MATCH (emil)-[r]-()
+DELETE emil,r
+----
+
+The first `MATCH` is obvious, it finds the node we're looking for.
+The `WHERE` statement belongs to the first `MATCH`.
+
+The second is an `OPTIONAL MATCH`.
+It tries to find nodes matching the pattern, if it doesn't find anything it returns a single row with null values.
+But it will always return at least one row.
+You can also filter the optional match with a `WHERE` statement.
+
+As this is a frequent task, `DETACH DELETE` was added to Cypher, which deletes a node with all its relationships.
+
+ifndef::env-graphgist[]
+++++
+<div id="deleteEmil"></div>
+++++
+endif::env-graphgist[]
+
+ifdef::env-graphgist[]
+
+=== Solution: Delete Emil
+
+[source,cypher]
+----
+MATCH (emil:Person {name:"Emil Eifrem"})
+DETACH DELETE emil
+----
+
+//console
+endif::env-graphgist[]
+
+
+=== Deleting: Resources
+
+* {manual-cypher}/clauses/create[Create^]
+* {manual-cypher}/clauses/delete[Delete^]
+* {manual-cypher}/clauses/match[Match^]
+* {manual-cypher}/clauses/optional-match[Optional Match^]
+* {manual-cypher}/clauses/return[Return^]

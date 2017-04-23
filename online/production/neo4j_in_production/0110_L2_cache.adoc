@@ -1,0 +1,61 @@
+=== (L2) -- (Cache)
+
+Neo4j provides a built in cache called page cache.
+This is a file buffer cache and caches the storage file data in the same format as it is stored on the durable storage media.
+It is also sometimes referred to by the name file buffer cache.
+
+==== Page Cache
+
+The page cache is designed to be off heap and holds the Neo4j data (or parts of it) in the same format as it is represented on the durable storage media.
+The purpose of this cache layer is to improve both read and write performance.
+
+The file buffer cache improves write performance by writing to the cache and deferring durable writes.
+This behavior is safe since all transactions are always durably written to the transaction log, which can be used to recover the store files in the event of a crash.
+It also improves write performance by batching up many small writes into fewer page-sized writes.
+
+Since the file buffer cache is caching the contents of the store files, you can calculate the appropriate size for it by summing up the space usage of all the store files.
+For instance, on a posix system you can estimate the total size by running the following command in a terminal:
+
+----
+$ du -hc *store.db*
+----
+
+Run this command in the directory where your store files are located (see above for configuring this).
+It will output the summed up size of the store files relevant for the page cache.
+Add an appropriate value for growth (e.g. 20%).
+
+If you configure the file buffer cache to have less memory than the size of the store, the cache will automatically swap pages in and out on demand, trying to keep the most frequently used data in memory.
+
+==== Configuration
+
+.Configuration
+[cols="<,<,<",frame="topbot",options="header,footer"]
+|===
+|Parameter |Possible Values |Effect
+
+|`dbms.memory.pagecache.size`
+|The maximum amount of memory to use for the page cache, either in bytes, or greater byte-like units, such as 100m for 100 mega-bytes, or 4g for 4 giga-bytes.
+|The amount of memory to use for mapping the store files, in a unit of bytes.
+This will automatically be rounded down to the nearest whole page.
+This value cannot be zero.
+For extremely small and memory constrained deployments, it is recommended to still reserve at least a couple megabytes for the page cache.
+
+|`unsupported.dbms.report_configuration`
+|`true` or `false`
+|If set to `true` the current page cache configuration settings will be written to the default system output, mostly the console or the logfiles (e.g. debug.log).
+|===
+
+Note: the prefix `unsupported` means that the config parameter is not part of the official product surface and therefore not officially supported.
+
+When configuring the amount of memory allowed to use for the page cache and the JVM heap, make sure to leave room for the operating system's page cache and other programs and services the system might want to run.
+It is important to configure the memory usage so that the Neo4j JVM process won't need to use any swap memory, as this will cause significant performance degradation.
+
+When reading the configuration parameters on startup, Neo4j will automatically configure the parameters that are not specified.
+The default cache size will be configured based on the available memory on the computer, with the assumption that the machine is dedicated to running Neo4j.
+Specifically, Neo4j will look at how much available memory the machine has, subtract the JVM max heap allocation from that, and then use 50% of what is left for the page cache.
+This is considered the default configuration.
+
+==== A Note about Memory Management
+
+In future releases of Neo4j, the product may see changes in allocation and use of memory which will improve the overall experience.
+Please refer to the documentation and release notes for releases you are planning to use to confirm changes in memory management.

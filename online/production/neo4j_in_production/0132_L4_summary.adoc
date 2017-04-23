@@ -1,0 +1,13 @@
+=== (L4) -- (Summary)
+
+You now have the production knowledge to successfully administer and monitor your deployment of Neo4j.
+With the conclusion of this section, you have the beginning-to-end steps now.
+Let's quickly recap what we learned:
+
+* The basics of Neo4j editions and server components
+* How Neo4j runs and how to configure it
+* How to deploy Neo4j and scale the server for Enterprise or Demanding workloads
+* How you will manage the deployment once it is live
+
+Throughout the training we've touched on a number of best practices related to potential application characteristics or environment requirements.
+In the next section we'll finish our training by providing a complete picture through solution architecture guidance and best practices.

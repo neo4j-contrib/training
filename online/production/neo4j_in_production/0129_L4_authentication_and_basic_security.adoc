@@ -1,0 +1,41 @@
+=== (L4) -- (Authentication and Basic Security)
+
+==== Authentication
+
+Neo4j has built-in authentication capabilities.
+By default, authentication is turned on so that users and client programs need to provide the correct credentials in order to gain access to the database.
+This is true for accessing the database via the Neo4j browser, the REST endpoints (both the built in endpoints and your own extensions) or any Neo4j client and connector.
+
+The default credentials are `neo4j:neo4j`. The password needs to be changed at first access.
+Do that by opening the Neo4j browser; you will be asked to change the password.
+
+_Note_: access to the database will only be granted if the default password has been changed.
+
+The authentication data, which includes the username and the encrypted password, is stored in the file `dbms/auth` which is located in your `data` directory.
+The default is `data/dbms/auth`.
+You will find one line in that file per user.
+
+If necessary, this file can be copied to other Neo4j instances to ensure they share the same username/password combinations.
+
+Authentication can be disabled.
+Doing so will allow any client to access the database without supplying authentication credentials.
+If you have other security measures in place and want to disable it, set the following parameter to `false` in the file `conf/neo4j.conf`:
+
+```
+# disable authentication
+dbms.security.auth_enabled=false
+```
+
+_Note_: the authentication is implemented within the Neo4j server and does not affect the file system layer.
+I.e., the store files are accessible without providing the above-mentioned credentials no matter if authentication is turned on or off.
+
+==== General Security: Locking down Neo4j
+
+For production deployments we recommend disabling any unused entry points to minimize risk for unauthorized access.
+
+==== References
+
+* https://neo4j.com/docs/developer-manual/current/#http-api-security[v3.0.0 Authentication and Authorization]
+* https://neo4j.com/docs/operations-manual/current/#security-server[v3.0.0 Securing Neo4j server]
+* http://neo4j.com/docs/2.3.5/security-server.html[v2.3.5 Securing Neo4j Server]
+* http://neo4j.com/docs/2.3.5/rest-api-security.html[v2.3.4 REST API Authentication and Authorization]
