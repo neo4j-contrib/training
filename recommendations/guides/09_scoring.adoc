@@ -36,9 +36,8 @@ Let's give it a try on some fake data to get the hang of it:
 
 [source,cypher]
 ----
-UNWIND range(0,21) as value
-CALL apoc.scoring.pareto(1,10,20,value) YIELD value as score
-RETURN value, score
+UNWIND range(0,21) AS value
+RETURN value, apoc.scoring.pareto(1,10,20,value) AS score
 ----
 
 We start with a score of `12` that we want to transform.
@@ -55,7 +54,7 @@ include::form.adoc[tags=name]
 
 [source, cypher, subs=attributes]
 ----
-MATCH (member:Member) WHERE member.name CONTAINS {name}
+MATCH (member:Member) WHERE member.name CONTAINS 'Mark Needham'
 MATCH (futureEvent:Event)
 WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
 
@@ -74,7 +73,7 @@ WITH member, futureEvent, commonTopics, myGroup, previousEvents, COUNT(rsvpFrien
 
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance(point(venue), point({training-location})) AS distance
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance(point(venue), point({traininglocation})) AS distance
 OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
 WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
 
@@ -82,11 +81,12 @@ WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGo
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, toint(round((futureEvent.time - timestamp()) / (24.0*60*60*1000))) AS days
 
-CALL apoc.scoring.existence(5, myGroup) YIELD value AS myGroupScore
-CALL apoc.scoring.pareto(1, 3, 10, days) YIELD value AS daysScore
-CALL apoc.scoring.pareto(1, 5, 10, commonTopics) YIELD value AS topicsScore
-CALL apoc.scoring.pareto(1, 7, 20, eventsAtVenue) YIELD value AS eventsAtVenueScore
-CALL apoc.scoring.pareto(1, 5, 20, friendsGoing) YIELD value AS friendsGoingScore
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue, days,
+apoc.scoring.existence(5, myGroup) AS myGroupScore,
+apoc.scoring.pareto(1, 3, 10, days) AS daysScore,
+apoc.scoring.pareto(1, 5, 10, commonTopics) AS topicsScore,
+apoc.scoring.pareto(1, 7, 20, eventsAtVenue) AS eventsAtVenueScore,
+apoc.scoring.pareto(1, 5, 20, friendsGoing)  AS friendsGoingScore
 
 RETURN futureEvent.name, futureEvent.time, group.name, venue.name, commonTopics, myGroup, previousEvents, friendsGoing, friends[..5], days, distance, eventsAtVenue, myGroupScore + topicsScore + eventsAtVenueScore + friendsGoingScore - daysScore AS score
 ORDER BY score DESC

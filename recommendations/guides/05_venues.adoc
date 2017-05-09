@@ -91,7 +91,7 @@ We'll start with a simple query to find venues near here:
 
 [source,cypher,subs=attributes,none]
 ----
-WITH point({trainingLocation}) AS trainingVenue
+WITH point({traininglocation}) AS trainingVenue
 MATCH (venue:Venue)
 
 WITH venue, distance(point(venue), trainingVenue) AS distance
