@@ -54,7 +54,7 @@ include::form.adoc[tags=name]
 
 [source, cypher, subs=attributes]
 ----
-MATCH (member:Member) WHERE member.name CONTAINS 'Mark Needham'
+MATCH (member:Member) WHERE member.name CONTAINS {name}
 MATCH (futureEvent:Event)
 WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
 
