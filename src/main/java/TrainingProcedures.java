@@ -36,7 +36,7 @@ public class TrainingProcedures
     public TerminationGuard terminationGuard;
 
     @Description("Find movies by an actor")
-    @Procedure(name = "training.moviesOnly", allowed = "movies_only", mode = READ)
+    @Procedure(name = "training.moviesOnly", mode = READ)
     public Stream<Movie> moviesOnly( @Name("name") String name )
             throws InvalidArgumentsException, IOException
     {
@@ -47,14 +47,14 @@ public class TrainingProcedures
     }
 
 
-    @Procedure(name = "training.writeProcedure", mode = WRITE, allowed = "allowed_role")
+    @Procedure(name = "training.writeProcedure", mode = WRITE)
     public Stream<StringResult> writeProcedure()
     {
         return db.execute( "CREATE (p:ProcCreated) RETURN labels(p) AS labels" ).stream().map(
                 map -> new StringResult( ":" + ((List<?>) map.get( "labels" )).get( 0 ).toString() ) );
     }
 
-    @Procedure(name = "training.waitFor", mode = READ, allowed = "allowed_role")
+    @Procedure(name = "training.waitFor", mode = READ)
     public void waitFor(
             @Name(value = "duration", defaultValue = "1000ms") String durationText,
             @Name(value = "step", defaultValue = "500ms") String stepText )
@@ -64,7 +64,7 @@ public class TrainingProcedures
                 SimpleDurationParser.parseTextToMillis( stepText ) );
     }
 
-    @UserFunction(name = "training.waitFor", allowed = "allowed_role")
+    @UserFunction(name = "training.waitFor")
     public long waitForFunction(
             @Name(value = "duration", defaultValue = "1000ms") String durationText,
             @Name(value = "step", defaultValue = "500ms") String stepText )

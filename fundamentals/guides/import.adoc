@@ -60,7 +60,7 @@ NOTE: If you use file URLs, access is limited to within `$NEO4J_HOME/import`.
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV FROM  
+LOAD CSV FROM
  '{movies-url}' AS row
 RETURN count(*);
 ----
@@ -69,7 +69,7 @@ RETURN count(*);
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV FROM  
+LOAD CSV FROM
  '{movies-url}' AS row
 RETURN * LIMIT 5;
 ----
@@ -80,7 +80,7 @@ RETURN * LIMIT 5;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM  
+LOAD CSV WITH HEADERS FROM
  '{movies-url}' AS row
 RETURN row, keys(row) LIMIT 5;
 ----
@@ -89,7 +89,7 @@ RETURN row, keys(row) LIMIT 5;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM  
+LOAD CSV WITH HEADERS FROM
      '{movies-url}' AS row
 RETURN row.title as title, toInt(row.released) as released, row.tagline as tagline
 ORDER BY released DESC LIMIT 10;
@@ -124,7 +124,7 @@ CREATE (p)-[:ACTED_IN {roles:['Neo']}]->(m);
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM  
+LOAD CSV WITH HEADERS FROM
      '{movies-url}' AS row
 CREATE (m:Movie {title: row.title, released: toInt(row.released), tagline: row.tagline})
 RETURN m;
@@ -134,8 +134,8 @@ RETURN m;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM  
-     '{people-url}' AS row 
+LOAD CSV WITH HEADERS FROM
+     '{people-url}' AS row
 MERGE (p:Person {name: row.name}) ON CREATE SET p.born = toInt(row.born)
 RETURN p;
 ----
@@ -144,17 +144,18 @@ RETURN p;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM 
+LOAD CSV WITH HEADERS FROM
      '{actors-url}' AS row
 FIELDTERMINATOR ','
-MATCH  (p:Person {name: row.person }) 
-MATCH  (m:Movie  {title: row.movie}) 
-CREATE (p)-[:ACTED_IN {roles: split(row.roles,';')}]->(o)
+MATCH  (p:Person {name: row.person })
+MATCH  (m:Movie  {title: row.movie})
+MERGE (p)-[actedIn:ACTED_IN]->(m)
+ON CREATE SET actedIn.roles = split(row.roles,';')
 RETURN *;
 ----
 
 ////
-== Meet the LOAD CSV Wizard 
+== Meet the LOAD CSV Wizard
 
 *Optional Trainer Demo and Excercise*
 ////
