@@ -334,7 +334,7 @@ LOAD CSV WITH HEADERS FROM
 WITH DISTINCT toInteger(row.movieId) as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
 
-MERGE (m:Movie {id:movieId)
+MERGE (m:Movie {id:movieId})
    ON CREATE SET m.title=title, m.avgVote=avgVote,
       m.releaseYear=releaseYear, m.genres=split(genres,":")
 ----
