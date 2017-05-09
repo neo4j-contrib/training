@@ -84,8 +84,7 @@ WHERE event.time < timestamp()
 WITH event, venue, group
 ORDER BY event.time DESC
 LIMIT 5
-CALL apoc.date.formatDefault(event.time, 'ms') YIELD value as dateTime
-RETURN event.name, group.name, venue.name, dateTime
+RETURN event.name, group.name, venue.name, apoc.date.format(event.time) AS datetime
 ----
 
 This procedure returns only one column: `value`.

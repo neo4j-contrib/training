@@ -85,7 +85,7 @@ Run the following query to check that worked as expected:
 [source,cypher,subs=attributes,none]
 ----
 MATCH (group:Group)-[hosted:HOSTED_EVENT]->(event)
-WHERE group.name STARTS WITH {neo4j-group-name} AND event.time < timestamp()
+WHERE group.name STARTS WITH "NYC Neo4j" AND event.time < timestamp()
 RETURN event, group, hosted
 ORDER BY event.time DESC
 LIMIT 10
@@ -125,10 +125,9 @@ include::form.adoc[tags=name]
 [source,cypher,subs=attributes]
 ----
 MATCH (member:Member) WHERE member.name CONTAINS {name}
-MATCH (futureEvent:Event) WHERE futureEvent.time > timestamp()
+MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent) WHERE futureEvent.time > timestamp()
 
 WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
-OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
 
 WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
 MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)
@@ -173,12 +172,10 @@ include::form.adoc[tags=name2]
 [source,cypher,subs=attributes]
 ----
 MATCH (member:Member) WHERE member.name CONTAINS {name2}
-MATCH (futureEvent:Event)
+MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
 WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
 
 WITH member, futureEvent, EXISTS((member)-[:MEMBER_OF]->()-[:HOSTED_EVENT]->(futureEvent)) AS myGroup
-OPTIONAL MATCH (member)-[:INTERESTED_IN]->()<-[:HAS_TOPIC]-()-[:HOSTED_EVENT]->(futureEvent)
-
 WITH member, futureEvent, myGroup, COUNT(*) AS commonTopics
 WHERE commonTopics >= 3
 MATCH (futureEvent)<-[:HOSTED_EVENT]-(group)

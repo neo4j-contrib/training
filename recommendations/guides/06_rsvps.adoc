@@ -87,7 +87,7 @@ WITH futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
 
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({training-location})) AS distance
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({trainingLocation})) AS distance
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
 
