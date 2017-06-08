@@ -379,7 +379,7 @@ toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
 collect({id: row.personId, name:row.name, born: toInteger(row.birthYear), died:toInteger(row.deathYear),
          roles: split(coalesce(row.characters,""),':')}) as people
 
-MERGE (m:Movie {id:movieId)
+MERGE (m:Movie {id:movieId})
    ON CREATE SET m.title=title, m.avgVote=avgVote,
       m.releaseYear=releaseYear, m.genres=split(genres,":")
 
