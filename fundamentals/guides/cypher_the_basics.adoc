@@ -209,8 +209,8 @@ e.g. Let's find the people who wrote and produced a movie:
 
 [source, cypher]
 ----
-MATCH (p:Person)-[:WROTE]->(m:Movie)
-WHERE (p)-[:PRODUCED]->(m)
+MATCH (p:Person)-[:WROTE]->(m:Movie)
+WHERE (p)-[:PRODUCED]->(m)
 RETURN p.name, m.title
 ----
 
@@ -222,9 +222,9 @@ e.g. Let's find the people who wrote a movie but didn't produce it:
 
 [source, cypher]
 ----
-MATCH (p:Person)-[:WROTE]->(m:Movie)
+MATCH (p:Person)-[:WROTE]->(m:Movie)
 WHERE NOT (p)-[:PRODUCED]->(m)
-RETURN p.name, m.title
+RETURN p.name, m.title
 ----
 
 == OR with relationship types
@@ -260,8 +260,8 @@ The following query finds all the Toms that have directed a movie:
 
 [source, cypher]
 ----
-MATCH (p:Person)-[:DIRECTED]->(m:Movie)
-WHERE p.name STARTS WITH 'Tom'
+MATCH (p:Person)-[:DIRECTED]->(m:Movie)
+WHERE p.name STARTS WITH 'Tom'
 RETURN p.name, m.title
 ----
 
@@ -276,9 +276,9 @@ The difference is that if no matches are found, `OPTIONAL MATCH` will use NULLs 
 [source, cypher]
 ----
 MATCH (p:Person)
-WHERE p.name STARTS WITH 'Tom'
+WHERE p.name STARTS WITH 'Tom'
 OPTIONAL MATCH (p)-[:DIRECTED]->(m:Movie)
-RETURN p.name, m.title
+RETURN p.name, m.title
 ----
 
 == The `COLLECT` function
@@ -328,14 +328,14 @@ If we want to find the movies that the two oldest actors appeared in we could wr
 ----
 MATCH (actor:Person)
 
-WITH actor
-ORDER BY actor.born
-LIMIT 2 
+WITH actor
+ORDER BY actor.born
+LIMIT 2 
 MATCH (actor)-[:ACTED_IN]->(movie:Movie)
 
-WITH actor, movie 
+WITH actor, movie 
 ORDER BY movie.released DESC
-RETURN actor.name,
+RETURN actor.name,
        2016 - actor.born AS age,
        COLLECT(movie.title)[..3] AS movies
 ----
