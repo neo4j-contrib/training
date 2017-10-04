@@ -1,0 +1,337 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Intro to the dataset</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Intro to the dataset</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Welcome to the first of a set of interactive guides.
+In these guides we&#8217;ll import a dataset containing the connections between US airports in 2008.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s get started!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploring data with <code>LOAD CSV</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>While we&#8217;re getting started with our dataset it&#8217;s much easier to work with a subset of the data so that we can iterate quickly.
+A smaller dataset containing the first 10,000 connections lives in <code>flights_initial.csv</code>.</p>
+</div>
+<div class="paragraph">
+<p>We can run the following query to see what data we&#8217;ve got to work with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_initial.csv" AS row
+RETURN row
+LIMIT 5<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>loads the file <code>flights_initial.csv</code></p>
+</li>
+<li>
+<p>iterates over the file, referring to each line as the variable <code>row</code></p>
+</li>
+<li>
+<p>and returns the first 5 lines in the file</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you see an error message that mentions <code>Couldn&#8217;t load the external resource</code> the CSV files haven&#8217;t been copied to the correct location.
+Grab a trainer for help!</p>
+</div>
+<div class="paragraph">
+<p>There are lots of different fields in this CSV file.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing flights and airports</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to create nodes and relationships for the flights</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_initial.csv" AS row
+MERGE (origin:Airport {code: row.Origin})
+MERGE (destination:Airport {code: row.Dest})
+WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightIdentifier, row
+MERGE (flight:Flight { id: flightIdentifier })
+ON CREATE SET flight.date = row.Year + "-" + row.Month + "-" + row.DayofMonth,
+              flight.airline = row.UniqueCarrier, flight.number = row.FlightNum, flight.departure = row.CRSDepTime,
+              flight.arrival = row.CRSArrTime, flight.distance = row.Distance, flight.cancelled = row.Cancelled
+MERGE (flight)-[:ORIGIN]->(origin)
+MERGE (flight)-[:DESTINATION]->(destination)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>iterates through each row in the file</p>
+</li>
+<li>
+<p>creates nodes with the <code>Airport</code> label for the origin and destination airports if they don&#8217;t already exist</p>
+</li>
+<li>
+<p>creates nodes with the <code>Flight</code> label for flights if they don&#8217;t already exist. We invent our own <code>flightIdentifier</code> as there isn&#8217;t one in the dataset</p>
+</li>
+<li>
+<p>creates an <code>ORIGIN</code> relationship between the origin airport and the flight</p>
+</li>
+<li>
+<p>creates a <code>DESTINATION</code> relationship between the destination airport and the flight</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You&#8217;ll notice that this query took quite a while to run - we&#8217;ll look at how to address that in a minute, but first let&#8217;s talk about property types.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Coercing values</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>By default properties will be stored as strings.
+This will cause us some problems when we start querying the data.</p>
+</div>
+<div class="paragraph">
+<p>What if we want to find all the flights that were longer than 500km?
+We might write the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
+WHERE flight.distance &gt; 500
+RETURN flight<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>No rows!
+That&#8217;s maybe surprising since we know there are definitely some flights that meet this criteria.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Coercing values: Integers</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Cypher has functions that allow us to coerce values to other types.
+You can read more about them in the <a href="http://neo4j.com/docs/developer-manual/current/cypher/functions/#header-query-functions-scalar" target="_blank">scalar functions section</a> of the <a href="https://neo4j.com/docs/developer-manual/current/" target="_blank">developer manual</a>.</p>
+</div>
+<div class="paragraph">
+<p>We can use the <code>toInteger</code> function to convert the <code>distance</code> parameter.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
+SET flight.distance = toInteger(flight.distance)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s retry the query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
+WHERE flight.distance &gt; 500
+RETURN flight<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Coercing values: Booleans</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The <code>cancelled</code> property hasn&#8217;t been imported in an optimal way either.
+Ideally we&#8217;d like that to be a boolean value, but at the moment it&#8217;s stored as <code>0</code> or <code>1</code>.</p>
+</div>
+<div class="paragraph">
+<p>There isn&#8217;t a function to fix this but we can write some Cypher that will do the trick:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
+SET flight.cancelled = CASE WHEN flight.cancelled = "1" THEN true ELSE false END<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can write a query to find all the flights that were cancelled:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (flight:Flight)
+WHERE flight.cancelled
+RETURN flight<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Speeding up the import</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Next we&#8217;re going to import 40,000 more flights but first we need to make our import script quicker.</p>
+</div>
+<div class="paragraph">
+<p>In our initial <code>LOAD CSV</code> command we do multiple label scans on our <code>MERGE</code> clauses to create origins, destinations, and flights.</p>
+</div>
+<div class="paragraph">
+<p>We can create unique constraints to solve this problem.
+This will have the added benefit of stopping us from accidentally creating duplicate nodes!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (a:Airport)
+ASSERT a.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (f:Flight)
+ASSERT f.id IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Run the following commands to check our constraints were created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->:schema<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Import a bigger dataset</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now we&#8217;re ready to import some more flights.</p>
+</div>
+<div class="paragraph">
+<p>Run the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_50k.csv" AS row
+MERGE (origin:Airport {code: row.Origin})
+MERGE (destination:Airport {code: row.Dest})
+WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightIdentifier, row
+MERGE (flight:Flight { id: flightIdentifier })
+ON CREATE SET flight.date = row.Year + "-" + row.Month + "-" + row.DayofMonth,
+              flight.airline = row.UniqueCarrier, flight.number = row.FlightNum, flight.departure = row.CRSDepTime,
+              flight.arrival = row.CRSArrTime, flight.distance = row.Distance, flight.cancelled = row.Cancelled
+MERGE (flight)-[:ORIGIN]->(origin)
+MERGE (flight)-[:DESTINATION]->(destination)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve now got 50,000 flights in the database.</p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>
