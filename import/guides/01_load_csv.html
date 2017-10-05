@@ -279,7 +279,7 @@ This will have the added benefit of stopping us from accidentally creating dupli
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (a:Airport)
-ASSERT a.id IS UNIQUE<!--/code--></pre>
+ASSERT a.code IS UNIQUE<!--/code--></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -328,7 +328,13 @@ MERGE (flight)-[:DESTINATION]->(destination)<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;ve now got 50,000 flights in the database.</p>
+<p>We&#8217;ve now got 50,000 flights in the database, which we can check by executing the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (:Flight)
+RETURN count(*)<!--/code--></pre>
+</div>
 </div>
 	</div>
   </div>

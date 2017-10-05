@@ -1,0 +1,166 @@
+= APOC
+:icons: font
+
+== APOC: Awesome Procedures on Cypher
+
+If you haven't already, make sure to download the https://github.com/neo4j-contrib/neo4j-apoc-procedures[latest release of APOC^], place it in your `$NEO4J_HOME/plugins` folder and restart Neo4j.
+
+Once you've done that run the following query to check it's correctly installed:
+
+[source,cypher]
+----
+CALL dbms.procedures()
+YIELD name WHERE name STARTS WITH "apoc"
+RETURN count(*)
+----
+
+Ok, cool!
+Now we're ready to start using APOC.
+
+== Cleaning the database
+
+We're going to practice importing lots of different types of data and cleaning the database after each one.
+
+We can run the following query to delete everything we've imported so far:
+
+[source,cypher]
+----
+// Delete all the things
+CALL apoc.periodic.iterate(
+  'match (n) return n',
+  'detach delete n',
+  { batchSize:500 }
+)
+----
+
+This query uses the `apoc.periodic.iterate` procedure which makes it easy to batch up big queries.
+In this case we're deleting all the nodes in the database in batches of 500.
+
+We can save this query in the Neo4j browser by clicking on the star button to the right of the query pane.
+
+== Graph ML
+
+http://graphml.graphdrawing.org/[GraphML^] is an XML based file format for graphs.
+It consists of a language core to describe the structural properties of a graph and a flexible extension mechanism to add application-specific data.
+
+The http://sonetlab.fbk.eu/data/social_networks_of_wikipedia/[Social Networks of Wikipedia^] paper uses lots of different datasets in this format.
+Let's try and import one of them.
+
+Run the following command:
+
+[source,cypher]
+----
+CALL apoc.import.graphml(
+  "http://sonetlab.fbk.eu/data/social_networks_of_wikipedia/vecwiki_social_network_extraction/vecwiki-20091230-manual-coding.graphml",
+  { batchSize: 5000, readLabels: true }
+)
+----
+
+You should get a `ProcedureRegistrationFailed` exception.
+
+== Graph ML
+
+Update `neo4j.conf` to have the following entry:
+
+```
+dbms.security.procedures.unrestricted=apoc.*
+```
+
+Now retry the import command:
+
+[source,cypher]
+----
+CALL apoc.import.graphml(
+  "http://sonetlab.fbk.eu/data/social_networks_of_wikipedia/vecwiki_social_network_extraction/vecwiki-20091230-manual-coding.graphml",
+  { batchSize: 5000, readLabels: true }
+)
+----
+
+Once you've done that you'll need to restart Neo4j.
+
+== Graph ML
+
+This dataset doesn't have any labels on the nodes so let's add some:
+
+[source,cypher]
+----
+match (n)
+WHERE exists(n.username)
+SET n:Person
+----
+
+We can now write a query to find the shortest path between pairs of nodes:
+
+[source,cypher]
+----
+MATCH (p1:Person), (p2:Person) WHERE p1 <> p2
+MATCH path = shortestpath((p1)-[:RELATED*]-(p2))
+WITH path WHERE length(path) > 2
+RETURN [person in nodes(path) | person.username] AS path
+LIMIT 10
+----
+
+== JSON
+
+Next we're going to load a JSON API, but first re-run the 'delete all' query from earlier so that we have a clean slate.
+
+[source,cypher]
+----
+CALL apoc.periodic.iterate(
+  'match (n) return n',
+  'detach delete n',
+  { batchSize:500 }
+)
+----
+
+StackOverflow has a JSON API which exposes questions, answers, comments, tags, and more.
+
+We can run the following query to import the first 100 questions with the `neo4j` tag:
+
+[source,cypher]
+----
+WITH "https://api.stackexchange.com/2.2/search?page=1&pagesize=100&order=asc&sort=creation&tagged=neo4j&site=stackoverflow&filter=!5-i6Zw8Y)4W7vpy91PMYsKM-k9yzEsSC1_Uxlf" AS uri
+CALL apoc.load.json(uri)
+YIELD value AS data
+UNWIND data.items as q
+MERGE (question:Question {id:q.question_id})
+  ON CREATE SET question.title = q.title, question.url = q.share_link, question.created = q.creation_date
+SET question.favorites = q.favorite_count, question.updated = q.last_activity_date, question.views = q.view_count,
+    question.upVotes = q.up_vote_count, question.downVotes = q.down_vote_count
+FOREACH (q_owner IN [o in [q.owner] WHERE o.user_id IS NOT NULL] |
+  MERGE (owner:StackOverflowAccount {id:q.owner.user_id}) ON CREATE SET owner.name = q.owner.display_name SET owner:User, owner:StackOverflow
+  MERGE (owner)-[:POSTED]->(question)
+)
+FOREACH (tagName IN q.tags | MERGE (tag:Tag{name:tagName}) SET tag:StackOverflow MERGE (question)-[:TAGGED]->(tag))
+FOREACH (a IN q.answers |
+   MERGE (answer:Answer {id:a.answer_id})
+   SET answer.accepted = a.is_accepted, answer.upVotes = a.up_vote_count, answer.downVotes = a.down_vote_count,
+       answer:Content, answer:StackOverflow
+   MERGE (question)<-[:ANSWERED]-(answer)
+   FOREACH (a_owner IN filter(o IN [a.owner] where o.user_id is not null) |
+     MERGE (answerer:User {id:a_owner.user_id})
+     ON CREATE SET answerer.name = a_owner.display_name
+     SET answerer.reputation = a_owner.reputation, answerer.profileImage = a_owner.profile_image
+     MERGE (answer)<-[:POSTED]-(answerer)
+   )
+)
+----
+
+== JSON
+
+We can now run the following query to find the most popular StackOverflow questions:
+
+[source,cypher]
+----
+MATCH (tag)<-[:TAGGED]-(question:Question)<--(:Answer)<-[:POSTED]-(user)
+RETURN question.title, question.views, COLLECT(DISTINCT tag.name) AS tags
+ORDER BY question.views DESC
+----
+
+Try changing the query to load a different tag or a different page from the original search term.
+
+== Dynamic values
+
+Sometimes we'll have CSV files with labels, relationship types, or property names already defined.
+
+We can't do that directly in Cypher but there are several procedures in APOC which will help us out.

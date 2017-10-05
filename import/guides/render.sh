@@ -7,6 +7,7 @@ GUIDES=../../neo4j-guides
 function render {
   $GUIDES/run.sh index.adoc index.html +1 "$@"
   $GUIDES/run.sh 01_load_csv.adoc 01_load_csv.html +1 "$@"
+  $GUIDES/run.sh 02_apoc.adoc 02_apoc.html +1 "$@"
   $GUIDES/run.sh ../../shared/installing_apoc.adoc installing_apoc.html +1 "$@"
 }
 
