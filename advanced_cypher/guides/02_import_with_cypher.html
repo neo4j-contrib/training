@@ -226,7 +226,7 @@ Look at the CSV structure for property-names and types.
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE (:Movie {
           id:5574,
           title:"Forrest Gump",
-          tagline: "",
+          tagline: "Life was like a box of chocolates, you never know what you're gonna get",
           avgVote:7.7,
           releaseYear:1994,
           genres: ["Comedy","Drama","Romance"] })<!--/code--></pre>
@@ -344,13 +344,14 @@ ASSERT p.id IS UNIQUE<!--/code--></pre>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///new_movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
+     'file:///new_movies.csv' AS row
 CREATE (:Movie {
           id:toInteger(row.movieId),
           title:row.title,
           avgVote:toFloat(row.avgVote),
           releaseYear:toInteger(row.releaseYear),
-          genres: split(row.genres,":") })<!--/code--></pre>
+          genres: split(row.genres,":") });<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -389,7 +390,7 @@ CREATE (:Movie {
 <p>Determine the number of rows</p>
 </li>
 <li>
-<p>Determine structure of first 5 rows</p>
+<p>Determine structure of first 5 rows, watch out for spelling of headers!</p>
 </li>
 <li>
 <p>Goal: <code>:Person(id,name,born,died)</code></p>
@@ -403,7 +404,8 @@ CREATE (:Movie {
 </ul>
 </div>
 <div class="paragraph">
-<p>Make sure to transform the time</p>
+<p>Make sure to transform the years.
+NOTE: <code>deathYear</code> can be missing. Then <code>toInt()</code> returns null, which results in the property being skipped.</p>
 </div>
 	</div>
   </div>
@@ -496,7 +498,7 @@ ON CREATE SET person:Director<!--/code--></pre>
 <p>Determine rows and structure of first 5 entries</p>
 </li>
 <li>
-<p>Only create one ACTED_IN relationship per Person&#8594;Movie</p>
+<p>Only create one <code>ACTED_IN</code> relationship per Person, Movie pair</p>
 </li>
 <li>
 <p>Set <code>roles</code> to a list of roles</p>
@@ -695,6 +697,35 @@ ON CREATE SET person:Actor<!--/code--></pre>
 <li>
 <p>Single denormalized CSV file</p>
 </li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
+     'file:///movies.csv' AS row
+RETURN count(*)<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
+     'file:///movies.csv' AS row
+RETURN row LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Denormalized Data (2)</h3>
+    <br/>
+    <div>
+      <div class="ulist">
+<ul>
 <li>
 <p>Single-Pass</p>
 </li>
@@ -796,14 +827,15 @@ ON CREATE SET p:Actor;<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
+    'file:///movies.csv' AS row
 
 WITH DISTINCT toInteger(row.movieId) as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
 
 MERGE (m:Movie {id:movieId})
    ON CREATE SET m.title=title, m.avgVote=avgVote,
-      m.releaseYear=toInteger(row.releaseYear), m.genres=split(genres,":")<!--/code--></pre>
+      m.releaseYear=releaseYear, m.genres=split(genres,":")<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -856,8 +888,9 @@ MERGE (m:Movie {id:movieId})
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILEs
-LOAD CSV WITH HEADERS FROM 'file:///movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+LOAD CSV WITH HEADERS FROM
+     'file:///movies.csv' AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -870,7 +903,9 @@ RETURN * LIMIT 10;<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
+LOAD CSV WITH HEADERS FROM
+     'file:///movies.csv' AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -878,16 +913,41 @@ toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
 collect({id: row.personId, name:row.name, born: toInteger(row.birthYear), died:toInteger(row.deathYear),
          roles: split(coalesce(row.characters,""),':')}) as people
 
-MERGE (m:Movie {id:movieId)
+MERGE (m:Movie {id:movieId})
    ON CREATE SET m.title=title, m.avgVote=avgVote,
-      m.releaseYear=toInteger(row.releaseYear), m.genres=split(genres,":")
+      m.releaseYear=releaseYear, m.genres=split(genres,":")
 
+WITH *
 UNWIND people as person
 
 MERGE (p:Person {id: person.id})
    ON CREATE SET p.name = person.name, p.born = person.born, p.died = person.died
 
-CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m);<!--/code--></pre>
+CREATE (p)-[:ACTED_IN {roles: person.roles}]->(m)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Extract Genre as Node</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (g:Genre) ASSERT g.name IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Movie)
+UNWIND m.genres as name
+WITH distinct name
+CREATE (:Genre {name:name})<!--/code--></pre>
 </div>
 </div>
 	</div>

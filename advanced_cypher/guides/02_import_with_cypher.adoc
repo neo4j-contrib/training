@@ -144,7 +144,7 @@ CREATE INDEX ON :Movie(title)
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM  
+LOAD CSV WITH HEADERS FROM
      {movies_url} AS row
 CREATE (:Movie {
           id:toInteger(row.movieId),
@@ -274,14 +274,14 @@ Same as before, just run multiple passes over the same file.
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM  
+LOAD CSV WITH HEADERS FROM
      {movies_roles_url} AS row
 RETURN count(*)
 ----
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM  
+LOAD CSV WITH HEADERS FROM
      {movies_roles_url} AS row
 RETURN row LIMIT 10
 ----
@@ -328,7 +328,7 @@ ON CREATE SET p:Actor;
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM 
+LOAD CSV WITH HEADERS FROM
     {movies_roles_url} AS row
 
 WITH DISTINCT toInteger(row.movieId) as movieId, row.title as title, row.genres as genres,
@@ -355,7 +355,7 @@ MERGE (m:Movie {id:movieId})
 [source,cypher,subs=attributes]
 ----
 PROFILE
-LOAD CSV WITH HEADERS FROM 
+LOAD CSV WITH HEADERS FROM
      {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
@@ -370,7 +370,7 @@ RETURN * LIMIT 10;
 [source,cypher,subs=attributes]
 ----
 PROFILE
-LOAD CSV WITH HEADERS FROM 
+LOAD CSV WITH HEADERS FROM
      {movies_roles_url} AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
@@ -379,7 +379,7 @@ toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
 collect({id: row.personId, name:row.name, born: toInteger(row.birthYear), died:toInteger(row.deathYear),
          roles: split(coalesce(row.characters,""),':')}) as people
 
-MERGE (m:Movie {id:movieId})
+MERGE (m:Movie {id:movieId)
    ON CREATE SET m.title=title, m.avgVote=avgVote,
       m.releaseYear=releaseYear, m.genres=split(genres,":")
 
