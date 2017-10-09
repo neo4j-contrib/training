@@ -1,0 +1,9 @@
+= Importing data using the Neo4j Java driver
+
+This is an example showing how to use the Neo4j Java driver to import data into the graph.
+
+Run the following command:
+
+```
+mvn compile exec:java -Dexec.mainClass="com.neo4j.examples.Import" -Dexec.args="[Person1] [Person2]"
+```
