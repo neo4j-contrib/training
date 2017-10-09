@@ -11,5 +11,5 @@ npm install
 Once we've done that we can run `import.js` to import data into our graph
 
 ```
-node import.js
+node import.js [Person1] [Person2]
 ```
