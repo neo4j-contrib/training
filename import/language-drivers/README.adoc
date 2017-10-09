@@ -1,0 +1,25 @@
+= Importing data using Neo4j drivers
+
+This folder contains code snippets showing how to import data into Neo4j using the language drivers.
+
+There are examples for:
+
+
+* link:./java[Java]
+* link:./javascript[JavaScript]
+* link:./Python[Python]
+* link:./.net[.NET]
+
+ is an example showing how to use the Neo4j JavaScript driver to import data into the graph.
+
+First we need to install the Neo4j driver using npm:
+
+```
+npm install
+```
+
+Once we've done that we can run `import.js` to import data into our graph
+
+```
+node import.js
+```
