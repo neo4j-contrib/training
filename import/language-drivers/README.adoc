@@ -8,6 +8,6 @@ There are examples for:
 * link:./java[Java]
 * link:./javascript[JavaScript]
 * link:./Python[Python]
-* link:./.net[.NET]
+* link:./dotnet[.NET]
 
 Pick the language you're most familiar with and give the examples a try.
