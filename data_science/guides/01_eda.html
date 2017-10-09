@@ -1,0 +1,403 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Exploratory Data Analysis</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploratory Data Analysis</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Welcome to the first of a set of interactive guides.
+In these guides we&#8217;ll learn how to explore graph datasets using Cypher - the graph database query language.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s get started!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Our dataset</h3>
+    <br/>
+    <div>
+      <div class="imageblock" style="float: right">
+<div class="content">
+<img src="https://upload.wikimedia.org/wikipedia/en/2/24/AStormOfSwords.jpg" alt="AStormOfSwords">
+</div>
+</div>
+<div class="paragraph">
+<p>Most of this demo is based on work done by Dr. Andrew Beveridge, based on his <a href="https://networkofthrones.wordpress.com/" target="_blank">Network of Thrones</a> research.</p>
+</div>
+<div class="paragraph">
+<p>Article: <a href="https://www.macalester.edu/~abeverid/index.html" target="_blank">Beveridge, Andrew, Shan, Jie. Network of Thrones. Math Horizons Magazine, Vol. 23, No. 4 (2016) pp. 18-22.</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Graph of Character Interactions</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Build a graph where each character of the story is a node and the relationships represent character interactions.</p>
+</div>
+<div class="paragraph">
+<p>Link two characters each time their names (or nicknames) <strong>appear within 15 words of one another</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Each link corresponds to an interaction between the two characters. Note that this interaction could be direct or indirect. Here are some of the types of interactions that our method picks up.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Two characters appearing together in the same location</p>
+</li>
+<li>
+<p>Two characters in conversation</p>
+</li>
+<li>
+<p>One character talking about another character</p>
+</li>
+<li>
+<p>One character listening to a third character talk about a second character</p>
+</li>
+<li>
+<p>A third character talking about two other characters</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>How the data was extracted from the books is described in detail here: <a href="https://networkofthrones.wordpress.com/from-book-to-network/" class="bare">https://networkofthrones.wordpress.com/from-book-to-network/</a></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/got/img/char_cooccurence.png" alt="char cooccurence">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploring the data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The data containing character interactions for all 5 books is available in the <a href="https://github.com/mathbeveridge/asoiaf" target="_blank">asoiaf GitHub repository</a>.</p>
+</div>
+<div class="paragraph">
+<p>Characters are stored in files with the <code>-nodes.csv</code> suffix.
+The interactions between those characters are stored in files with the <code>-edges.csv</code> suffix.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s explore one of those files using Cypher&#8217;s <code>LOAD CSV</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book2-edges.csv" AS row
+RETURN row
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query returns the first 10 rows of data from <code>asoiaf-book2-edges.csv</code>.
+<code>row</code> contains a map of key/value pairs representing the value of a particular column for a given row.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploring the data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We could write other exploratory queries without importing anything into the database.</p>
+</div>
+
+
+
+   <h4>How many different interactions were there in the 2nd book?</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book2-edges.csv" AS row
+RETURN row
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<br />
+
+
+
+   <h4>What&#8217;s the most common number of interactions?</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book2-edges.csv" AS row
+RETURN row.weight, count(*)
+ORDER BY count(*) DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<br />
+
+
+
+   <h4>Which character had the most different interactions?</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book2-edges.csv" AS row
+UNWIND [ row.Source, row.Target ] AS character
+RETURN character, count(*)
+ORDER BY count(*) DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That last one is a bit gnarly so let&#8217;s import the data into Neo4j to make things a bit easier.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing the data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Before we import the data we&#8217;ll create a constraint on <code>:Character(name)</code> so that we don&#8217;t accidentally create duplicate characters.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (c:Character) ASSERT c.name IS UNIQUE;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Run the following queries to import the interactions for all 5 books into Neo4j:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book1-edges.csv" AS row
+MATCH (src:Character {name: row.Source})
+MATCH (tgt:Character {name: row.Target})
+// relationship for the book
+MERGE (src)-[r:INTERACTS1]->(tgt)
+ON CREATE SET r.weight = toInt(row.weight), r.book=1<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book2-edges.csv" AS row
+MATCH (src:Character {name: row.Source})
+MATCH (tgt:Character {name: row.Target})
+// relationship for the book
+MERGE (src)-[r:INTERACTS2]->(tgt)
+ON CREATE SET r.weight = toInt(row.weight), r.book=2<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book3-edges.csv" AS row
+MATCH (src:Character {name: row.Source})
+MATCH (tgt:Character {name: row.Target})
+// relationship for the book
+MERGE (src)-[r:INTERACTS3]->(tgt)
+ON CREATE SET r.weight = toInt(row.weight), r.book=3<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book45-edges.csv" AS row
+MATCH (src:Character {name: row.Source})
+MATCH (tgt:Character {name: row.Target})
+// relationship for the book
+MERGE (src)-[r:INTERACTS45]->(tgt)
+ON CREATE SET r.weight = toInt(row.weight), r.book=45<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>The data model</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to see what we&#8217;ve created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL db.schema()<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>The Graph of Thrones</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The following query will show us 50 interactions between characters in the first book:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH p=(:Character)-[:INTERACTS1]-(:Character)
+RETURN p
+LIMIT 50<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try tweaking the query to find interactions from the other books.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Analyzing the network</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can run exploratory queries on the graph as well.</p>
+</div>
+
+
+
+   <h4>Number of characters</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)
+RETURN count(c)<!--/code--></pre>
+</div>
+</div>
+<br />
+
+
+
+   <h4>Interactions per book</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[r]-&gt;()
+RETURN r.book as book, count(r) ORDER BY book<!--/code--></pre>
+</div>
+</div>
+<br />
+
+
+
+   <h4>Summary statistics</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)--&gt;()
+WITH c, count(*) AS num
+RETURN min(num) AS min, max(num) AS max, avg(num) AS avg_characters, stdev(num) AS stdev<!--/code--></pre>
+</div>
+</div>
+<br />
+
+
+
+   <h4>Across all books</h4>
+   <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)-[r]-&gt;()
+WITH r.book as book, c, count(*) AS num
+RETURN book, min(num) AS min, max(num) AS max, avg(num) AS avg_characters, stdev(num) AS stdev
+ORDER BY book<!--/code--></pre>
+</div>
+</div>
+<br />
+
+
+
+   <h4>Diameter of the network</h4>
+   <div class="paragraph">
+<p>The diameter (or geodesic) of a network is defined as the longest shortest path in the network.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->// Find maximum diameter of network
+// maximum shortest path between two nodes
+MATCH (a:Character), (b:Character) WHERE id(a) &gt; id(b)
+MATCH p=shortestPath((a)-[:INTERACTS*]-(b))
+WITH length(p) AS len, p
+ORDER BY len DESC LIMIT 4
+RETURN len, extract(x IN nodes(p) | x) AS path<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

@@ -1,0 +1,35 @@
+= Applied Graph Algorithms
+:icons: font
+
+== Applied Graph Algorithms
+
+Welcome to the first of a set of interactive guides.
+In these guides we'll learn how to use the Neo4j Graph Algorithms package.
+
+Let's get started!
+
+
+== Installing Graph Algorithms
+
+* Go to the https://github.com/neo4j-contrib/neo4j-graph-algorithms/releases[Graph Algorithms releases page^] to find the latest release and download the binary jar.
+
+* Place it in your `$NEO4J_HOME/plugins` folder.
+
+* Restart Neo4j
+
+* Run the following query to check it installed correctly:
+
+```
+CALL dbms.procedures()
+YIELD name WHERE name STARTS WITH "algo"
+RETURN count(*)
+```
+
+If we get a result of `0` it hasn't installed correctly.
+Ask one of the trainers for help!
+
+== 
+
+https://github.com/datagovsg/data-quality
+http://scikit-learn.org/stable/modules/outlier_detection.html
+http://scikit-learn.org/stable/modules/classes.html#module-sklearn.cluster
