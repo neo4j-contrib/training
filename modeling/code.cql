@@ -1411,6 +1411,52 @@ RETURN p.created, p.updated;
 
 
 
+CREATE CONSTRAINT ON (c:Club)
+ASSERT (c.name, c.country) IS NODE KEY
+
+MATCH (t:Transfer)
+RETURN t.fee, COUNT(*) AS count
+ORDER BY count DESC
+LIMIT 10
+
+MATCH (t:Transfer)
+RETURN t.fee
+ORDER BY t.fee DESC
+LIMIT 10
+
+with "8.37" as rawNumeric
+RETURN toFloat(rawNumeric) * 1000000 AS numeric
+
+with "8.37" as rawNumeric
+RETURN toFloat(apoc.number.exact.mul(rawNumeric,"1000000")) AS apocConversion;
+
+call dbms.procedures()
+YIELD name WHERE name STARTS WITH "apoc"
+RETURN count(*)
+
+MATCH (u:User)
+WITH u,size( (u)-[:POSTED]->()) as posts
+ORDER BY posts DESC
+LIMIT 10
+RETURN u.name, posts;
+
+MATCH (t:Tag)
+WITH t
+ORDER BY t.count DESC
+LIMIT 5
+RETURN t.tagId, t.count;
+
+MATCH (t:Tag {tagId:"neo4j"})<-[:HAS_TAG]-()
+       -[:PARENT_OF]->()<-[:POSTED]-(u:User)
+WITH u, count(*) as freq
+ORDER BY freq DESC
+LIMIT 10
+RETURN u.name,freq;
+
+CALL algo.<name>.stream('Label','TYPE',{conf})
+YIELD nodeId, score
+
+CALL algo.<name>('Label','TYPE',{conf});
 
 
 
@@ -1418,12 +1464,54 @@ RETURN p.created, p.updated;
 
 
 
+CALL algo.<name>(
+'MATCH ... RETURN id(n)',
+'MATCH (n)-->(m) RETURN id(n), id(m)',
+   {graph:'cypher'});
+
+
+
+CALL algo.pageRank.stream
+('Page', 'LINKS', {iterations:20, dampingFactor:0.85})
+YIELD node, score
+RETURN node,score order by score desc limit 20
+
+
+CALL algo.pageRank('Page', 'LINKS',
+{iterations:20, dampingFactor:0.85,
+write: true,writeProperty:"pagerank"})
+
+YIELD nodes, iterations, loadMillis, computeMillis, writeMillis, dampingFactor, write, writeProperty
 
 
 
 
+CALL algo.unionFind.stream('User', 'FRIEND', {})
+YIELD nodeId,setId
+RETURN setId, count(*)
+ORDER BY count(*) DESC LIMIT 100;
 
 
+
+CALL algo.unionFind('User', 'FRIEND',
+{write:true, partitionProperty:'partition'})
+YIELD nodes, setCount, loadMillis, computeMillis,
+      writeMillis;
+
+
+
+MATCH(start:Loc {name:'A'})
+CALL algo.deltaStepping.stream(start, 'cost', 3.0)
+YIELD nodeId, distance
+RETURN nodeId, distance ORDER LIMIT 20
+
+
+MATCH(start:Node {name:'A'})
+CALL algo.deltaStepping(start, 'cost', 3.0,
+{write:true, writeProperty:'ssp'})
+YIELD nodeCount, loadDuration, evalDuration,
+      writeDuration
+RETURN *
 
 
 

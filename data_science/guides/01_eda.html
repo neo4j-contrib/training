@@ -228,7 +228,8 @@ LIMIT 10<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (c:Character) ASSERT c.name IS UNIQUE;<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (c:Character)
+ASSERT c.name IS UNIQUE<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -237,8 +238,8 @@ LIMIT 10<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book1-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS1]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=1<!--/code--></pre>
@@ -247,8 +248,8 @@ ON CREATE SET r.weight = toInt(row.weight), r.book=1<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book2-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS2]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=2<!--/code--></pre>
@@ -257,8 +258,8 @@ ON CREATE SET r.weight = toInt(row.weight), r.book=2<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book3-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS3]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=3<!--/code--></pre>
@@ -267,8 +268,8 @@ ON CREATE SET r.weight = toInt(row.weight), r.book=3<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data/asoiaf-book45-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS45]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=45<!--/code--></pre>
@@ -334,7 +335,7 @@ LIMIT 50<!--/code--></pre>
 
 
 
-   <h4>Number of characters</h4>
+   <h4>How many characters do we have?</h4>
    <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)
@@ -345,31 +346,39 @@ RETURN count(c)<!--/code--></pre>
 
 
 
-   <h4>Interactions per book</h4>
+   <h4>How many interactions were there in each book?</h4>
    <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[r]-&gt;()
-RETURN r.book as book, count(r) ORDER BY book<!--/code--></pre>
+RETURN r.book as book, count(r)
+ORDER BY book<!--/code--></pre>
 </div>
 </div>
-<br />
+	</div>
+  </div>
+</slide>
 
 
 
-   <h4>Summary statistics</h4>
-   <div class="listingblock">
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Summary statistics</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can also calculate network summary statistics.</p>
+</div>
+<div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)--&gt;()
 WITH c, count(*) AS num
 RETURN min(num) AS min, max(num) AS max, avg(num) AS avg_characters, stdev(num) AS stdev<!--/code--></pre>
 </div>
 </div>
-<br />
-
-
-
-   <h4>Across all books</h4>
-   <div class="listingblock">
+<div class="paragraph">
+<p>And even do that by book:</p>
+</div>
+<div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)-[r]-&gt;()
 WITH r.book as book, c, count(*) AS num
@@ -377,24 +386,89 @@ RETURN book, min(num) AS min, max(num) AS max, avg(num) AS avg_characters, stdev
 ORDER BY book<!--/code--></pre>
 </div>
 </div>
-<br />
+	</div>
+  </div>
+</slide>
 
 
 
-   <h4>Diameter of the network</h4>
-   <div class="paragraph">
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Diameter of the network</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
 <p>The diameter (or geodesic) of a network is defined as the longest shortest path in the network.</p>
+</div>
+<div class="paragraph">
+<p>We can write the following query to find it in our graph:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->// Find maximum diameter of network
 // maximum shortest path between two nodes
 MATCH (a:Character), (b:Character) WHERE id(a) &gt; id(b)
-MATCH p=shortestPath((a)-[:INTERACTS*]-(b))
+MATCH p = shortestPath((a)-[:INTERACTS*]-(b))
+
 WITH length(p) AS len, p
-ORDER BY len DESC LIMIT 4
-RETURN len, extract(x IN nodes(p) | x) AS path<!--/code--></pre>
+ORDER BY len DESC
+LIMIT 5
+RETURN nodes(p) AS path, len<!--/code--></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>This query creates a cartesian product combining all characters so we need to be careful when running this on larger graphs or we&#8217;ll get an <code>OutOfMemoryException</code>.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Pivotal nodes</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>A node is said to be pivotal if it lies on all shortest paths between two other nodes in the network. We can find all pivotal nodes in the network.</p>
+</div>
+<div class="paragraph">
+<p>The following query will find all the pivotal nodes in the network:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Character), (b:Character) WHERE id(a) &gt; id(b)
+MATCH p = allShortestPaths((a)-[:INTERACTS*]-(b))
+
+WITH collect(p) AS paths, a, b
+UNWIND nodes(head(paths)) as c // first path
+
+WITH *
+WHERE NOT c IN [a,b]
+AND all(path IN tail(paths) WHERE c IN nodes(path))
+
+RETURN a.name, b.name, c.name AS PivotalNode, length(head(paths)) AS pathLength, length(paths) AS pathCount
+SKIP 490
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Python Data Science Tools</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Rather than doing everything in Neo4j, we can combine our queries with other data science tools.</p>
+</div>
+<div class="paragraph">
+<p>Open the <a href="https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb" target="_blank">EDA Jupyter notebook</a> to see some examples.</p>
 </div>
 	</div>
   </div>

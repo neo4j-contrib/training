@@ -117,8 +117,8 @@ Run the following queries to import the interactions for all 5 books into Neo4j:
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM "{csv-url}/asoiaf-book1-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS1]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=1
@@ -127,8 +127,8 @@ ON CREATE SET r.weight = toInt(row.weight), r.book=1
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM "{csv-url}/asoiaf-book2-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS2]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=2
@@ -137,8 +137,8 @@ ON CREATE SET r.weight = toInt(row.weight), r.book=2
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM "{csv-url}/asoiaf-book3-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS3]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=3
@@ -147,8 +147,8 @@ ON CREATE SET r.weight = toInt(row.weight), r.book=3
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS FROM "{csv-url}/asoiaf-book45-edges.csv" AS row
-MATCH (src:Character {name: row.Source})
-MATCH (tgt:Character {name: row.Target})
+MERGE (src:Character {name: row.Source})
+MERGE (tgt:Character {name: row.Target})
 // relationship for the book
 MERGE (src)-[r:INTERACTS45]->(tgt)
 ON CREATE SET r.weight = toInt(row.weight), r.book=45
@@ -265,3 +265,10 @@ RETURN a.name, b.name, c.name AS PivotalNode, length(head(paths)) AS pathLength,
 SKIP 490
 LIMIT 10
 ----
+
+
+== Python Data Science Tools
+
+Rather than doing everything in Neo4j, we can combine our queries with other data science tools.
+
+Open the https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb[EDA Jupyter notebook^] to see some examples.

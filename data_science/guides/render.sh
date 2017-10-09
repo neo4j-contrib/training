@@ -13,8 +13,8 @@ function render {
 
 # -a env-training is a flag to enable full content, if you comment it out, the guides are rendered minimally e.g. for a presentation
 if [ "$1" == "publish" ]; then
-  URL=guides.neo4j.com/import
-  render http://$URL -a csv-url=file:/// -a env-training
+  URL=guides.neo4j.com/data_science
+  render http://$URL -a env-training
   s3cmd put --recursive -P *.html img s3://${URL}/
   s3cmd put -P index.html s3://${URL}
   echo "Publication Done"
