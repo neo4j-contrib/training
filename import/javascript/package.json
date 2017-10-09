@@ -1,0 +1,24 @@
+{
+  "name": "neo4j-node-js-sample",
+  "version": "0.2.0",
+  "description": "Sample code using the Neo4j driver",
+  "main": "import.js",
+  "scripts": {
+    "start": "node import.js"
+  },
+  "dependencies": {
+    "neo4j-driver": "^1.4.1"
+  },
+  "engines": {
+    "node": "6.7.0"
+  },
+  "keywords": [
+    "node",
+    "neo4j"
+  ],
+  "author": "Neo4j",
+  "contributors": [
+    "Neo4j Dev Rel <devrel@neo4j.com>"
+  ],
+  "license": "MIT"
+}
