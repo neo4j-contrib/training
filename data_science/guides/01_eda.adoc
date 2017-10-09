@@ -108,7 +108,8 @@ Before we import the data we'll create a constraint on `:Character(name)` so tha
 
 [source,cypher]
 ----
-CREATE CONSTRAINT ON (c:Character) ASSERT c.name IS UNIQUE;
+CREATE CONSTRAINT ON (c:Character)
+ASSERT c.name IS UNIQUE
 ----
 
 Run the following queries to import the interactions for all 5 books into Neo4j:
@@ -179,7 +180,7 @@ Try tweaking the query to find interactions from the other books.
 
 We can run exploratory queries on the graph as well.
 
-How many characters do we have?
+=== How many characters do we have?
 
 [source,cypher]
 ----
@@ -187,7 +188,11 @@ MATCH (c:Character)
 RETURN count(c)
 ----
 
-How many interactions were there in each book?
+++++
+<br />
+++++
+
+=== How many interactions were there in each book?
 
 [source,cypher]
 ----
