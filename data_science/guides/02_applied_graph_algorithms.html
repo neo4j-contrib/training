@@ -107,8 +107,10 @@ Ask one of the trainers for help!</p>
     <div>
       <div class="paragraph">
 <p>Betweenness centrality identifies nodes that are strategically positioned in the network, meaning that information will often travel through that person.
-Such an intermediary position gives that person power and influence.
-Betweenness centrality is a raw count of the number of short paths that go through a given node.
+Such an intermediary position gives that person power and influence.</p>
+</div>
+<div class="paragraph">
+<p>Betweenness centrality is a raw count of the number of short paths that go through a given node.
 For example, if a node is located on a bottleneck between two large communities, then it will have high betweenness.</p>
 </div>
 <div class="imageblock">
@@ -365,6 +367,94 @@ LIMIT 10
 
 WITH c WHERE c.name IN characters
 RETURN c.name, c.book1BetweennessCentrality, c.book45BetweennessCentrality
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Page Rank</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>This is another version of weighted degree centrality with a feedback loop. This time, you only get your “fair share” of your neighbor’s importance.</p>
+</div>
+<div class="paragraph">
+<p>i.e. your neighbor’s importance is split between their neighbors, proportional to the number of interactions with that neighbor.</p>
+</div>
+<div class="paragraph">
+<p>Intuitively, PageRank captures how effectively you are taking advantage of your network contacts.
+In our context, PageRank centrality nicely captures narrative tension. Indeed, major developments occur when two important characters interact.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/PageRanks-Example.svg/758px-PageRanks-Example.svg.png" alt="758px PageRanks Example.svg">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Calculating Page Rank</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>This time lets skip straight to the version of this procedure that stores results straight into the database.</p>
+</div>
+<div class="paragraph">
+<p>Run the following queries to calculate page rank scores for each of the books:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS1", {writeProperty:'book1PageRank'})<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS2", {writeProperty:'book2PageRank'})<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS3", {writeProperty:'book3PageRank'})<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS45", {writeProperty:'book45PageRank'})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Querying Page Rank</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can now write a query to see how influential the characters are across a variety of different metrics:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)
+WITH c, [(c)-[r:INTERACTS1]-(other) | {character: other.name, weight: r.weight}] AS interactions
+RETURN c.name, c.book1PageRank, c.book1BetweennessCentrality,
+       apoc.coll.sum([i in interactions | i.weight]) AS totalInteractions,
+       [i in apoc.coll.reverse(apoc.coll.sortMaps(interactions, 'weight'))[..5] | i.character] as charactersInteractedWith
+ORDER BY c.book1PageRank DESC
 LIMIT 10<!--/code--></pre>
 </div>
 </div>

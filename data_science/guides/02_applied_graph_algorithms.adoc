@@ -231,6 +231,115 @@ ORDER BY c.book1PageRank DESC
 LIMIT 10
 ----
 
+You'll notice that there are some characters who have a high page rank but a very low betweenness centrality score.
+
+This suggests that they aren't necessarily influential in their own right, but are friends with important people.
+_Varys_ is a good example of a character that fits this profile.
+
+== Community Detection
+
+We can detect communities in our data by running an algorithm which traverses the graph structure to find highly connected subgraphs with fewer connections other other subgraphs.
+
+Run the following query to calculate the communities that exist based on interactions across all the books.
+
+[source,cypher]
+----
+CALL algo.labelPropagation(
+  'MATCH (c:Character) RETURN id(c) as id',
+  'MATCH (c:Character)--->(c2) RETURN id(c) as source, id(c2) as target, SUM(rel.weight) as weight',
+  'OUTGOING',
+  {graph:'cypher', partitionProperty: 'community'})
+----
+
+== Querying Communities
+
+We can then write a query to see what communities we have and how many members they have:
+
+[source,cypher]
+----
+MATCH (c:Character)
+WHERE exists(c.community)
+RETURN c.community, count(*) AS count
+ORDER BY count DESC
+----
+
+There seem to be 2 or 3 large clusters of people and then a lot of smaller ones.
+
+== Querying Communities
+
+It'd be good to know who are the influential people in each community.
+To do that we'll need to calculate a Page Rank score for each character across all the books:
+
+[source,cypher]
+----
+CALL algo.pageRank(
+  'MATCH (c:Character) RETURN id(c) as id',
+  'MATCH (c:Character)-[rel]->(c2) RETURN id(c) as source,id(c2) as target, SUM(rel.weight) as weight',
+  {graph:'cypher', writeProperty: 'pageRank'})
+----
+
+[source,cypher]
+----
+MATCH (c:Character)
+WHERE exists(c.community)
+WITH c ORDER BY c.pageRank DESC
+RETURN c.community as cluster, count(*) AS count, collect(c.name)[..10]
+ORDER BY count DESC
+----
+
+Most people are in a big community containing _Tyrion-Lannister_, but we also have smaller communities which contain _Daenerys-Targaryen_, and the Greyjoys who are other important characters.
+
+== Visualising Communities
+
+We can write the following community to see the interactions between people in one of the communities:
+
+[source,cypher]
+----
+MATCH (c:Character) WHERE EXISTS(c.community)
+WITH c.community AS community, COUNT(*) AS count
+ORDER BY count DESC
+SKIP 1 LIMIT 1
+MATCH path = (c:Character {community: community})--(c2:Character {community: community})
+return path
+----
+
+== Intra community Page Rank
+
+We can also calculate the Page Rank within communities.
+
+Run the following query to calculate the page rank for the 2nd largest community:
+
+[source,cypher]
+----
+MATCH (c:Character) WHERE EXISTS(c.community)
+WITH c.community AS communityId, COUNT(*) AS count
+ORDER BY count DESC
+SKIP 1 LIMIT 1
+CALL apoc.cypher.doIt(
+  "CALL algo.pageRank(
+    'MATCH (c:Character) WHERE c.community =" + communityId + " RETURN id(c) as id',
+    'MATCH (c:Character)-[rel]->(c2) WHERE c.community =" + communityId + " AND c2.community =" + communityId + " RETURN id(c) as source,id(c2) as target, sum(rel.weight) as weight',
+    {graph:'cypher', writeProperty: 'communityPageRank'}) YIELD nodes RETURN count(*)", {})
+YIELD value
+RETURN value
+----
+
+== Intra community Page Rank
+
+We can run the following query to find the most influential character within that cluster:
+
+[source,cypher]
+----
+MATCH (c:Character) WHERE EXISTS(c.community)
+WITH c.community AS communityId, COUNT(*) AS count
+ORDER BY count DESC
+SKIP 1 LIMIT 1
+MATCH (c:Character) WHERE c.community = communityId
+RETURN c.name, c.communityPageRank
+ORDER BY c.communityPageRank DESC
+LIMIT 10
+----
+
 == Other materials
 
 https://github.com/datagovsg/data-quality

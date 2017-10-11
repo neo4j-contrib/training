@@ -13,9 +13,9 @@ function importData(person1, person2) {
     const session = driver.session();
     const resultPromise = session.run(query, {person1: person1, person2: person2} );
     resultPromise.then(result => {
-      session.close();
       console.log(result.summary.counters);
 
+      session.close();
       // on application exit:
       driver.close();
     });
