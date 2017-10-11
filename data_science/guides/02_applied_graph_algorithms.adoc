@@ -28,7 +28,210 @@ RETURN count(*)
 If we get a result of `0` it hasn't installed correctly.
 Ask one of the trainers for help!
 
-== 
+== Betweenness Centrality
+
+Betweenness centrality identifies nodes that are strategically positioned in the network, meaning that information will often travel through that person.
+Such an intermediary position gives that person power and influence.
+
+Betweenness centrality is a raw count of the number of short paths that go through a given node.
+For example, if a node is located on a bottleneck between two large communities, then it will have high betweenness.
+
+image::http://guides.neo4j.com/got/img/betweenness-centrality.png[]
+
+The red nodes have a high betweenness centrality and are connectors of clusters.
+
+== Betweenness Centrality
+
+We'll start by calculating the betweenness centrality for the characters who interacted in the first book.
+We can do this by calling the `algo.betweenness.stream` procedure with the label `Character` and relationship type `INTERACTS1`.
+
+Run the following query to learn who the most influential characters are:
+
+[source,cypher]
+----
+CALL algo.betweenness.stream("Character", "INTERACTS1")
+YIELD nodeId, centrality
+MATCH (c:Character) WHERE ID(c) = nodeId
+RETURN c.name, centrality
+ORDER BY centrality DESC
+LIMIT 10
+----
+
+If you've read the books or watched the TV series hopefully the results aren't too surprising!
+
+== Betweenness Centrality vs Biggest Communicators
+
+We can add to our query and see how the betweenness scores compare to the total interactions a character had:
+
+[source,cypher]
+----
+CALL algo.betweenness.stream("Character", "INTERACTS1")
+YIELD nodeId, centrality
+MATCH (c:Character) WHERE ID(c) = nodeId
+WITH c, centrality, [(c)-[r:INTERACTS1]-(other) | {character: other.name, weight: r.weight}] AS interactions
+RETURN c.name, centrality,
+       apoc.coll.sum([i in interactions | i.weight]) AS totalInteractions,
+       [i in apoc.coll.reverse(apoc.coll.sortMaps(interactions, 'weight'))[..5] | i.character] as charactersInteractedWith
+ORDER BY centrality DESC
+LIMIT 10
+----
+
+From this query we can see that it's not necessarily the most talkative characters that have the most influence on the network.
+
+Try changing the query to order by `totalInteractions` instead of `centrality` to see this more clearly.
+
+== Storing Betweenness Centrality
+
+Although the betweenness centrality algorithm runs very quickly on this dataset we wouldn't usually be running this types of algorithms in the normal request/response flow of a web/mobile app.
+Instead of that we can store the result of the calculation as a property on the node and then refer to it in future queries.
+
+Each of the algorithms has a variant that saves its output to the database rather than returning a stream.
+Let's run the betweenness centrality algorithm and store the result as a property named `book1BetweennessCentrality`:
+
+[source,cypher]
+----
+CALL algo.betweenness("Character", "INTERACTS1", {writeProperty: "book1BetweennessCentrality"})
+----
+
+== Querying Betweenness Centrality
+
+We can write the following query to find the most influential characters:
+
+[source,cypher]
+----
+MATCH (c:Character)
+RETURN c.name, c.book1BetweennessCentrality AS centrality
+ORDER BY centrality DESC
+LIMIT 10
+----
+
+== Exercise: Betweenness Centrality for books 2-5
+
+Now we want to calculate the betweenness centrality for the other books in the series and store the results in the database.
+
+* Write queries that call `algo.betweenness` for the `INTERACTS2`, `INTERACTS3`, and `INTERACTS45` relationship types.
+
+After you've done that see if you can write queries to answer the following questions:
+
+* Which character had the biggest increase in influence from book 1 to 5?
+* Which character had the biggest decrease?
+
+Bonus question:
+
+* Which characters who were in the top 10 influencers in book 1 are also in the top 10 influencers in book 5?
+
+== Answer: Betweenness Centrality for books 2-5
+
+[source,cypher]
+----
+CALL algo.betweenness("Character", "INTERACTS2", {writeProperty: "book2BetweennessCentrality"})
+----
+
+[source,cypher]
+----
+CALL algo.betweenness("Character", "INTERACTS3", {writeProperty: "book3BetweennessCentrality"})
+----
+
+[source,cypher]
+----
+CALL algo.betweenness("Character", "INTERACTS45", {writeProperty: "book45BetweennessCentrality"})
+----
+
+== Answer: Increase in influence
+
+[source, cypher]
+----
+match (c:Character)
+return c.name, c.book1BetweennessCentrality, c.book45BetweennessCentrality, c.book45BetweennessCentrality - c.book1BetweennessCentrality AS difference
+ORDER BY difference DESC
+LIMIT 10
+----
+
+== Answer: Decrease in influence
+
+[source, cypher]
+----
+match (c:Character)
+return c.name, c.book1BetweennessCentrality, c.book45BetweennessCentrality, c.book45BetweennessCentrality - c.book1BetweennessCentrality AS difference
+ORDER BY difference
+LIMIT 10
+----
+
+== Answer: Consistent influencers
+
+[source,cypher]
+----
+MATCH (c:Character)
+
+WITH c
+ORDER BY c.book1BetweennessCentrality DESC
+LIMIT 10
+
+WITH collect(c.name) AS characters
+MATCH (c:Character)
+
+WITH c, c.book45BetweennessCentrality AS book45BetweennessCentrality, characters
+ORDER BY book45BetweennessCentrality DESC
+LIMIT 10
+
+WITH c WHERE c.name IN characters
+RETURN c.name, c.book1BetweennessCentrality, c.book45BetweennessCentrality
+LIMIT 10
+----
+
+== Page Rank
+
+This is another version of weighted degree centrality with a feedback loop. This time, you only get your “fair share” of your neighbor’s importance.
+
+i.e. your neighbor’s importance is split between their neighbors, proportional to the number of interactions with that neighbor.
+
+Intuitively, PageRank captures how effectively you are taking advantage of your network contacts.
+In our context, PageRank centrality nicely captures narrative tension. Indeed, major developments occur when two important characters interact.
+
+image::https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/PageRanks-Example.svg/758px-PageRanks-Example.svg.png[]
+
+== Calculating Page Rank
+
+This time lets skip straight to the version of this procedure that stores results straight into the database.
+
+Run the following queries to calculate page rank scores for each of the books:
+
+[source,cypher]
+----
+CALL algo.pageRank("Character", "INTERACTS1", {writeProperty:'book1PageRank'})
+----
+
+[source,cypher]
+----
+CALL algo.pageRank("Character", "INTERACTS2", {writeProperty:'book2PageRank'})
+----
+
+[source,cypher]
+----
+CALL algo.pageRank("Character", "INTERACTS3", {writeProperty:'book3PageRank'})
+----
+
+[source,cypher]
+----
+CALL algo.pageRank("Character", "INTERACTS45", {writeProperty:'book45PageRank'})
+----
+
+== Querying Page Rank
+
+We can now write a query to see how influential the characters are across a variety of different metrics:
+
+[source,cypher]
+----
+MATCH (c:Character)
+WITH c, [(c)-[r:INTERACTS1]-(other) | {character: other.name, weight: r.weight}] AS interactions
+RETURN c.name, c.book1PageRank, c.book1BetweennessCentrality,
+       apoc.coll.sum([i in interactions | i.weight]) AS totalInteractions,
+       [i in apoc.coll.reverse(apoc.coll.sortMaps(interactions, 'weight'))[..5] | i.character] as charactersInteractedWith
+ORDER BY c.book1PageRank DESC
+LIMIT 10
+----
+
+== Other materials
 
 https://github.com/datagovsg/data-quality
 http://scikit-learn.org/stable/modules/outlier_detection.html

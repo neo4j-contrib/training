@@ -94,10 +94,292 @@ RETURN count(*)<!--/code--></pre>
 <p>If we get a result of <code>0</code> it hasn&#8217;t installed correctly.
 Ask one of the trainers for help!</p>
 </div>
-<div class="paragraph">
-<p>==</p>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Betweenness Centrality</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Betweenness centrality identifies nodes that are strategically positioned in the network, meaning that information will often travel through that person.
+Such an intermediary position gives that person power and influence.
+Betweenness centrality is a raw count of the number of short paths that go through a given node.
+For example, if a node is located on a bottleneck between two large communities, then it will have high betweenness.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://guides.neo4j.com/got/img/betweenness-centrality.png" alt="betweenness centrality">
+</div>
 </div>
 <div class="paragraph">
+<p>The red nodes have a high betweenness centrality and are connectors of clusters.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Betweenness Centrality</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;ll start by calculating the betweenness centrality for the characters who interacted in the first book.
+We can do this by calling the <code>algo.betweenness.stream</code> procedure with the label <code>Character</code> and relationship type <code>INTERACTS1</code>.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query to learn who the most influential characters are:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream("Character", "INTERACTS1")
+YIELD nodeId, centrality
+MATCH (c:Character) WHERE ID(c) = nodeId
+RETURN c.name, centrality
+ORDER BY centrality DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you&#8217;ve read the books or watched the TV series hopefully the results aren&#8217;t too surprising!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Betweenness Centrality vs Biggest Communicators</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can add to our query and see how the betweenness scores compare to the total interactions a character had:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream("Character", "INTERACTS1")
+YIELD nodeId, centrality
+MATCH (c:Character) WHERE ID(c) = nodeId
+WITH c, centrality, [(c)-[r:INTERACTS1]-(other) | {character: other.name, weight: r.weight}] AS interactions
+RETURN c.name, centrality,
+       apoc.coll.sum([i in interactions | i.weight]) AS totalInteractions,
+       [i in apoc.coll.reverse(apoc.coll.sortMaps(interactions, 'weight'))[..5] | i.character] as charactersInteractedWith
+ORDER BY centrality DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>From this query we can see that it&#8217;s not necessarily the most talkative characters that have the most influence on the network.</p>
+</div>
+<div class="paragraph">
+<p>Try changing the query to order by <code>totalInteractions</code> instead of <code>centrality</code> to see this more clearly.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Storing Betweenness Centrality</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Although the betweenness centrality algorithm runs very quickly on this dataset we wouldn&#8217;t usually be running this types of algorithms in the normal request/response flow of a web/mobile app.
+Instead of that we can store the result of the calculation as a property on the node and then refer to it in future queries.</p>
+</div>
+<div class="paragraph">
+<p>Each of the algorithms has a variant that saves its output to the database rather than returning a stream.
+Let&#8217;s run the betweenness centrality algorithm and store the result as a property named <code>book1BetweennessCentrality</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS1", {writeProperty: "book1BetweennessCentrality"})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Querying Betweenness Centrality</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can write the following query to find the most influential characters:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)
+RETURN c.name, c.book1BetweennessCentrality AS centrality
+ORDER BY centrality DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Betweenness Centrality for books 2-5</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now we want to calculate the betweenness centrality for the other books in the series and store the results in the database.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Write queries that call <code>algo.betweenness</code> for the <code>INTERACTS2</code>, <code>INTERACTS3</code>, and <code>INTERACTS45</code> relationship types.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>After you&#8217;ve done that see if you can write queries to answer the following questions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Which character had the biggest increase in influence from book 1 to 5?</p>
+</li>
+<li>
+<p>Which character had the biggest decrease?</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Bonus question:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Which characters who were in the top 10 influencers in book 1 are also in the top 10 influencers in book 5?</p>
+</li>
+</ul>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Betweenness Centrality for books 2-5</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS2", {writeProperty: "book2BetweennessCentrality"})<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS3", {writeProperty: "book3BetweennessCentrality"})<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS45", {writeProperty: "book45BetweennessCentrality"})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Increase in influence</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->match (c:Character)
+return c.name, c.book1BetweennessCentrality, c.book45BetweennessCentrality, c.book45BetweennessCentrality - c.book1BetweennessCentrality AS difference
+ORDER BY difference DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Decrease in influence</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->match (c:Character)
+return c.name, c.book1BetweennessCentrality, c.book45BetweennessCentrality, c.book45BetweennessCentrality - c.book1BetweennessCentrality AS difference
+ORDER BY difference
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Consistent influencers</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)
+
+WITH c
+ORDER BY c.book1BetweennessCentrality DESC
+LIMIT 10
+
+WITH collect(c.name) AS characters
+MATCH (c:Character)
+
+WITH c, c.book45BetweennessCentrality AS book45BetweennessCentrality, characters
+ORDER BY book45BetweennessCentrality DESC
+LIMIT 10
+
+WITH c WHERE c.name IN characters
+RETURN c.name, c.book1BetweennessCentrality, c.book45BetweennessCentrality
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Other materials</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
 <p><a href="https://github.com/datagovsg/data-quality" class="bare">https://github.com/datagovsg/data-quality</a>
 <a href="http://scikit-learn.org/stable/modules/outlier_detection.html" class="bare">http://scikit-learn.org/stable/modules/outlier_detection.html</a>
 <a href="http://scikit-learn.org/stable/modules/classes.html#module-sklearn.cluster" class="bare">http://scikit-learn.org/stable/modules/classes.html#module-sklearn.cluster</a></p>
