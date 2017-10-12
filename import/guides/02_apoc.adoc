@@ -17,6 +17,10 @@ RETURN count(*)
 Ok, cool!
 Now we're ready to start using APOC.
 
+_Note_
+
+The https://neo4j-contrib.github.io/neo4j-apoc-procedures/[APOC User Guide^] will be helpful for this section so keep that open in one of your browser tabs.
+
 == Cleaning the database
 
 We're going to practice importing lots of different types of data and cleaning the database after each one.
@@ -157,10 +161,77 @@ RETURN question.title, question.views, COLLECT(DISTINCT tag.name) AS tags
 ORDER BY question.views DESC
 ----
 
+== Exercise: JSON
+
 Try changing the query to load a different tag or a different page from the original search term.
+
+If you're not a fan of StackOverflow try loading data from a different JSON API that you're familiar with.
 
 == Dynamic values
 
-Sometimes we'll have CSV files with labels, relationship types, or property names already defined.
+Sometimes we'll want to create dynamically computed node-labels and relationship-types as well as any map of properties.
+We can't do this in pure Cypher but the `apoc.create.node` and `apoc.create.relationship` procedures come in handy here.
 
-We can't do that directly in Cypher but there are several procedures in APOC which will help us out.
+== Dynamic node-labels
+
+Run the following command to create parameters that we'll use in our query:
+
+[source,cypher]
+----
+:param batch: [
+  { labels: ["Person", "Actor"], props: { name:"Alice", age:32 }},
+  { labels: ["Person", "Director"], props: { name:"Bob", age:42 }},
+  { labels: ["Person", "Writer"], props: { name:"John", age:37 }}
+]
+----
+
+Now let's create nodes representing each of the people in the batch:
+
+[source,cypher]
+----
+UNWIND {batch} AS row
+call apoc.create.node(row.labels, row.props) YIELD node
+RETURN count(*)
+----
+
+== Exercise: Dynamic relationship-types
+
+Given the following parameter:
+
+[source,cypher]
+----
+:param batch: [
+  { from: "Alice", to: "Bob", type: "FRIEND" },
+  { from: "Bob", to: "John", type: "ENEMY" },
+  { from: "Alice", to: "John", type: "FRIEND" }
+]
+----
+
+Can you write a query that creates the appropriate relationship between each person using the `apoc.create.relationship` procedure?
+
+[source, cypher]
+----
+UNWIND {batch} AS row
+
+// lookup nodes
+MATCH (from:Person {...})
+
+// create relationship
+----
+
+== Answer: Dynamic relationship-types
+
+[source, cypher]
+----
+UNWIND {batch} AS row
+MATCH (from:Person {name: row.from})
+MATCH (to:Person {name: row.to})
+CALL apoc.create.relationship(from, row.type, {}, to) yield rel
+RETURN count(*)
+----
+
+== Next step
+
+There are lots of other data integration procedures available in APOC - hopefully you can find one that works for you.
+
+In the next section we'll write our own custom import procedure.

@@ -4,6 +4,7 @@
 
 . pass:a[<a play-topic='{guides}/01_load_csv.html'>Cypher and LOAD CSV</a>]
 . pass:a[<a play-topic='{guides}/02_apoc.html'>Cypher and APOC</a>]
+. pass:a[<a play-topic='{guides}/03_procedures.html'>Procedures</a>]
 
 == Further Resources
 
