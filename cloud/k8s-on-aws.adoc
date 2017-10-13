@@ -50,12 +50,14 @@ export NAME=neo4j.k8s.local
 export KOPS_STATE_STORE=s3://${BUCKET_NAME}
 ```
 
+And then run these commands to deploy the cluster:
+
 ```
 kops create cluster     --zones us-west-2a     ${NAME}
-kops update cluster neo4j.k8s.local --yes
+kops update cluster ${NAME} --yes
 ```
 
-We can then run the following command to check the Kubernetes cluster is online:
+Next we need to run the following command to check the Kubernetes cluster is online:
 
 ```
 kubectl get nodes
@@ -66,6 +68,8 @@ It'll take a few minutes so be patient!
 Once you get a result from that command it's time to move onto the next step.
 
 == Deploying Neo4j on Kubernetes
+
+Now we're ready to install Neo4j on our Kubernetes cluster.
 
 Before we continue we need to https://docs.helm.sh/using_helm/#installing-helm[install the Helm client^]:
 
@@ -79,16 +83,23 @@ Once you've done that we're ready to install the Helm server on our Kubernetes c
 helm init && kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system
 ```
 
+Once that returns we can run the following command to deploy a Neo4j causal cluster with 3 core servers and no read replicas:
+
 ```
-helm install incubator/neo4j --wait --name neo-helm --set readReplica.numberOfServers=1
+helm install incubator/neo4j --wait --name neo-helm
 ```
+
+We can check if that worked by executing the following command:
 
 ```
 kubectl get pods
 ```
 
+If we see 3 servers named `neo-helm-neo4j-core-*` then we're good.
+We can now tail the logs of our Neo4j servers waiting for them to come online:
+
 ```
-kubectl logs neo-helm-neo4j-core-0
+kubectl logs -l "app=neo4j"
 ```
 
 We're waiting to see this message:
@@ -97,8 +108,7 @@ We're waiting to see this message:
 Remote interface available at http://neo-helm-neo4j-core-0.neo-helm-neo4j.default.svc.cluster.local:7474/
 ```
 
-
-Let's have a look at the topology of our cluster:
+Once we see that message it's time to have a look at the topology of our cluster:
 
 ```
 kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
@@ -107,7 +117,7 @@ kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
    RETURN id, addresses[0], role, groups"
 ```
 
-You should see something like this:
+We should see something like this:
 
 ```
 +---------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -116,23 +126,19 @@ You should see something like this:
 | "cef35fef-3bf1-4efd-9a32-9366eb753bcd" | "bolt://neo-helm-neo4j-core-0.neo-helm-neo4j.default.svc.cluster.local:7687" | "LEADER"       | ["oltp"] |
 | "f5c5bd5d-f185-457f-bf87-62a3a1136dc4" | "bolt://neo-helm-neo4j-core-1.neo-helm-neo4j.default.svc.cluster.local:7687" | "FOLLOWER"     | ["oltp"] |
 | "2c2ca5d3-44ee-4457-b2d0-d09f091dce6c" | "bolt://neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:7687" | "FOLLOWER"     | ["oltp"] |
-| "7966a87e-bb90-4623-9a79-19ddb95f56b1" | "bolt://neo-helm-neo4j-replica-3595620763-qhbdf:7687"                        | "READ_REPLICA" | ["olap"] |
 +---------------------------------------------------------------------------------------------------------------------------------------------------+
 
 4 rows available after 1 ms, consumed after another 2 ms
 ```
 
-```
-kubectl scale deployment neo-helm-neo4j-replica  --replicas=3
-```
-
-or
+Now let's add some read replicas into the mix.
+Run the following command:
 
 ```
-helm upgrade --set readReplica.numberOfServers=5 neo-helm incubator/neo4j
+helm upgrade --set readReplica.numberOfServers=1 neo-helm incubator/neo4j
 ```
 
-Run our topology query again to check the replicas were scaled:
+Run our topology query again to check the replicas were added:
 
 ```
 kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
@@ -143,4 +149,10 @@ kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
 
 ```
 helm upgrade --set core.numberOfServers=5 --set readReplica.numberOfServers=5 neo-helm incubator/neo4j
+```
+
+Don't forget to delete your cluster!
+
+```
+kops delete cluster --name ${NAME} --yes
 ```
