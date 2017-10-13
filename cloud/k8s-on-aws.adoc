@@ -1,0 +1,146 @@
+= Neo4j on Kubernetes on AWS
+
+== Install Kubernetes on AWS
+
+Install `kops` and `kubectl` before you do anything else.
+`kops` is a tool for orchestrating Kubernetes clusters and `kubectl` is a Kubernetes client.
+
+```
+brew install kops
+brew install kubernetes-cli
+```
+
+Once you've done that follow the instructions from the https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-your-environment[_Setup your environment_^] section of the kops documentation.
+
+```
+aws iam create-group --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name kops
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name kops
+aws iam create-user --user-name kops
+aws iam add-user-to-group --user-name kops --group-name kops
+aws iam create-access-key --user-name kops
+```
+
+The last command will output some JSON containing a `SecretAccessKey` and `AccessKeyID`.
+We'll need to use those values in the next commands
+
+```
+aws configure
+export AWS_ACCESS_KEY_ID=<AccessKeyID>
+export AWS_SECRET_ACCESS_KEY=<SecretAccessKey>
+```
+
+Now create an S3 bucket to store the cluster state:
+
+```
+export BUCKET_NAME="kubernetes.neo4j.com"
+aws s3api create-bucket     --bucket ${BUCKET_NAME}     --region us-east-1
+aws s3api put-bucket-versioning --bucket ${BUCKET_NAME}  --versioning-configuration Status=Enabled
+```
+
+We're almost there!
+Setup the following two environment variables:
+
+```
+export NAME=neo4j.k8s.local
+export KOPS_STATE_STORE=s3://${BUCKET_NAME}
+```
+
+```
+kops create cluster     --zones us-west-2a     ${NAME}
+kops update cluster neo4j.k8s.local --yes
+```
+
+We can then run the following command to check the Kubernetes cluster is online:
+
+```
+kubectl get nodes
+```
+
+It'll take a few minutes so be patient!
+
+Once you get a result from that command it's time to move onto the next step.
+
+== Deploying Neo4j on Kubernetes
+
+Before we continue we need to https://docs.helm.sh/using_helm/#installing-helm[install the Helm client^]:
+
+```
+brew install kubernetes-helm
+```
+
+Once you've done that we're ready to install the Helm server on our Kubernetes cluster:
+
+```
+helm init && kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system
+```
+
+```
+helm install incubator/neo4j --wait --name neo-helm --set readReplica.numberOfServers=1
+```
+
+```
+kubectl get pods
+```
+
+```
+kubectl logs neo-helm-neo4j-core-0
+```
+
+We're waiting to see this message:
+
+```
+Remote interface available at http://neo-helm-neo4j-core-0.neo-helm-neo4j.default.svc.cluster.local:7474/
+```
+
+
+Let's have a look at the topology of our cluster:
+
+```
+kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
+  "CALL dbms.cluster.overview() \
+   YIELD id, role, addresses, groups \
+   RETURN id, addresses[0], role, groups"
+```
+
+You should see something like this:
+
+```
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+| id                                     | addresses[0]                                                                 | role           | groups   |
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+| "cef35fef-3bf1-4efd-9a32-9366eb753bcd" | "bolt://neo-helm-neo4j-core-0.neo-helm-neo4j.default.svc.cluster.local:7687" | "LEADER"       | ["oltp"] |
+| "f5c5bd5d-f185-457f-bf87-62a3a1136dc4" | "bolt://neo-helm-neo4j-core-1.neo-helm-neo4j.default.svc.cluster.local:7687" | "FOLLOWER"     | ["oltp"] |
+| "2c2ca5d3-44ee-4457-b2d0-d09f091dce6c" | "bolt://neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:7687" | "FOLLOWER"     | ["oltp"] |
+| "7966a87e-bb90-4623-9a79-19ddb95f56b1" | "bolt://neo-helm-neo4j-replica-3595620763-qhbdf:7687"                        | "READ_REPLICA" | ["olap"] |
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+
+4 rows available after 1 ms, consumed after another 2 ms
+```
+
+```
+kubectl scale deployment neo-helm-neo4j-replica  --replicas=3
+```
+
+or
+
+```
+helm upgrade --set readReplica.numberOfServers=5 neo-helm incubator/neo4j
+```
+
+Run our topology query again to check the replicas were scaled:
+
+```
+kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
+  "CALL dbms.cluster.overview() \
+   YIELD id, role, addresses, groups \
+   RETURN id, addresses[0], role, groups"
+```
+
+```
+helm upgrade --set core.numberOfServers=5 --set readReplica.numberOfServers=5 neo-helm incubator/neo4j
+```
