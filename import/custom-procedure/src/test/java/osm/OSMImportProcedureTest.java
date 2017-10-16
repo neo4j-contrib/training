@@ -12,6 +12,7 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.harness.junit.Neo4jRule;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class OSMImportProcedureTest
 {
@@ -31,14 +32,15 @@ public class OSMImportProcedureTest
             try(Session session = driver.session())
             {
                 StatementResult result = session.run(
-                        "CALL osm.importUri('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543, 48.145]') YIELD nodesCreated RETURN nodesCreated"
+                        "CALL osm.importUri('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543, 48.145]') YIELD value RETURN value"
                 );
-
-                System.out.println(result.peek());
             }
 
-            // Change the evaluator to filter out paths once they've gone beyond the distance and aren't anywhere near the start node
-
+            try(Session session = driver.session())
+            {
+                StatementResult result = session.run( "MATCH (:Point) RETURN count(*) AS count" );
+                assertEquals(2266, result.peek().get( "count" ).asInt());
+            }
         }
     }
 

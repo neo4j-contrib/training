@@ -2,7 +2,10 @@ package osm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,13 +18,13 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
@@ -61,32 +64,31 @@ public class OSMImportProcedure
         XPathExpression nodeExpression = xpath.compile( "//node" );
         NodeList nodes = (NodeList) nodeExpression.evaluate( doc, XPathConstants.NODESET );
 
-        List<String[]> toCreate = new ArrayList<>();
+        Map<String, Node> users = new HashMap<>();
+
         for ( int i = 0; i < nodes.getLength(); i++ )
         {
-            Node node = nodes.item( i );
+            org.w3c.dom.Node node = nodes.item( i );
             NamedNodeMap nodeAttributes = node.getAttributes();
-
-            String id = nodeAttributes.getNamedItem( "id" ).getNodeValue();
-            String latitude = nodeAttributes.getNamedItem( "lat" ).getNodeValue();
-            String longitude = nodeAttributes.getNamedItem( "lon" ).getNodeValue();
             String userName = nodeAttributes.getNamedItem( "user" ).getNodeValue();
 
-            toCreate.add( new String[]{id, latitude, longitude, userName} );
-        }
-
-        try ( Transaction tx = db.beginTx() )
-        {
-            for ( String[] values : toCreate )
+            Node user = users.computeIfAbsent( userName, name ->
             {
-                org.neo4j.graphdb.Node point = mergeNode( POINT, "id", values[0] );
-                point.setProperty( "latitude", values[1] );
-                point.setProperty( "longitude", values[2] );
+                Node u = db.findNode( USER, "name", name );
+                if ( u == null )
+                {
+                    u = db.createNode( USER );
+                    u.setProperty( "name", name );
+                }
+                return u;
+            } );
 
-                org.neo4j.graphdb.Node user = mergeNode( USER, "name", values[3] );
-                mergeRelationship( point, user, EDITED );
-            }
-            tx.success();
+            String pointId = nodeAttributes.getNamedItem( "id" ).getNodeValue();
+            org.neo4j.graphdb.Node point = mergeNode( POINT, "id", pointId );
+            point.setProperty( "latitude", Double.parseDouble( nodeAttributes.getNamedItem( "lat" ).getNodeValue() ) );
+            point.setProperty( "longitude", Double.parseDouble( nodeAttributes.getNamedItem( "lon" ).getNodeValue() ) );
+
+            mergeRelationship( point, user, EDITED );
         }
 
         return Stream.of( new Summary("OSM data imported") );
