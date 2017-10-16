@@ -1,5 +1,5 @@
 = Deploying Neo4j to the cloud
 
-* link:neo4j-aws-ami.adoc[Neo4j AWS AMI]
-* link:single-instance-manual.adoc[Installing a single instance manually]
-* link:k8s-on-aws.adoc[Kubernetes on AWS]
+* link:guides/neo4j-aws-ami.adoc[Neo4j AWS AMI]
+* link:guides/single-instance-manual.adoc[Installing a single instance manually]
+* link:guides/k8s-on-aws.adoc[Kubernetes on AWS]
