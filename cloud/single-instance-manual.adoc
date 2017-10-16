@@ -72,12 +72,15 @@ PUBLIC_DNS=$(aws ec2 describe-instances \
   --query "Reservations[0].Instances[0].PublicDnsName")
 ```
 
+== Installing Neo4j
+
 Now let's SSH into our server and install Neo4j:
 
 ```
 ssh -i $KEY_NAME.pem ubuntu@$PUBLIC_DNS
 ```
 
+The first thing we need to do is add the Neo4j Debian repository:
 
 ```
 wget -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
@@ -85,11 +88,13 @@ echo 'deb https://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.lis
 sudo apt-get update
 ```
 
-Run the following command to confirm that there are now Neo4j packages available to install:
+Run the following command to confirm that there are Neo4j packages available to install:
 
 ```
 apt-cache show neo4j | head -n 50
 ```
+
+We'll install the latest version of Neo4j Enterprise Edition:
 
 ```
 sudo apt-get install neo4j-enterprise
@@ -109,8 +114,8 @@ $ sudo /etc/init.d/neo4j start
 [ ok ] Starting neo4j (via systemctl): neo4j.service.
 ```
 
-Looks good.
-We can check it's running by confirming that there's a running process:
+So far so good.
+The following command will confirm that there's a running neo4j process:
 
 ```
 $ ps uax | grep neo4j

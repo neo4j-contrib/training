@@ -1,0 +1,6 @@
+= Neo4j AWS AMI
+
+There are two ways to install Neo4j using the AWS AMI:
+
+* https://aws.amazon.com/marketplace/pp/B071P26C9D[Amazon Console^]
+* https://neo4j.com/developer/neo4j-cloud-aws-ec2-ami/[Amazon CLI]
