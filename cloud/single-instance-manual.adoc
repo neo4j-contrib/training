@@ -1,5 +1,157 @@
 = Installing Neo4j manually on AWS
 
+First we need to find an AWS AMI to act as a template for our server.
+We're going to use an Ubuntu image but if you're more comfortable using a different operating system feel free to use a different AMI.
+
+The https://cloud-images.ubuntu.com/locator/ec2/[Ubuntu EC2 AMI Locator^] is a good place to start.
+
+We're going to use `ami-bcdc16c6`.
+This AMI runs on Ubuntu 16.04 LTS and has support for EBS which we recommend for Neo4j deployments to AWS.
+
+If you haven't already http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html[installed the AWS CLI^] do that now!
+
+== Keys and security groups
+
+Before we spin up our server let's create a key pair that we'll use to SSH into the server later on.
+If we already have a key pair setup this step can be ignored.
+
 ```
-ami-65d11b1f
+export KEY_NAME="Neo4j-Ubuntu-Key"
+aws ec2 create-key-pair \
+  --key-name $KEY_NAME \
+  --query 'KeyMaterial' \
+  --output text > $KEY_NAME.pem
 ```
+
+Don't forget to tighten the permissions on this file:
+
+```
+chmod 600 $KEY_NAME.pem
+```
+
+Once we've done that we need to create a security group that gives open access to https://neo4j.com/docs/operations-manual/current/configuration/ports/[Neo4j-specific ports^].
+
+```
+export GROUP="Neo4j-Ubuntu-Security-Group"
+aws ec2 create-security-group \
+  --group-name $GROUP \
+  --description "Neo4j security group"
+```
+
+```
+for port in 22 7474 7473 7687; do
+  aws ec2 authorize-security-group-ingress --group-name $GROUP --protocol tcp --port $port --cidr 0.0.0.0/0
+done
+```
+
+== Spinning up our server
+
+Now it's time to spin up our server.
+
+We need to choose an https://aws.amazon.com/ec2/instance-types/[instance type^] for our server.
+We'll use a `m4.2xlarge` which costs $0.40/hour so feel free to use a smaller instance type (e.g. `m3.medium` which costs $0.07/hour)
+
+```
+INSTANCE_ID=$(aws ec2 run-instances \
+  --image-id ami-bcdc16c6 \
+  --output text \
+  --count 1 \
+  --instance-type m4.2xlarge \
+  --key-name $KEY_NAME \
+  --security-groups $GROUP \
+  --query "Instances[0].InstanceId")
+echo $INSTANCE_ID
+```
+
+At the moment we don't have a public DNS name for our server but we can determine it by running the following command:
+
+```
+PUBLIC_DNS=$(aws ec2 describe-instances \
+  --instance-ids $INSTANCE_ID \
+  --output text \
+  --query "Reservations[0].Instances[0].PublicDnsName")
+```
+
+Now let's SSH into our server and install Neo4j:
+
+```
+ssh -i $KEY_NAME.pem ubuntu@$PUBLIC_DNS
+```
+
+
+```
+wget -O - https://debian.neo4j.org/neotechnology.gpg.key | sudo apt-key add -
+echo 'deb https://debian.neo4j.org/repo stable/' | sudo tee /etc/apt/sources.list.d/neo4j.list
+sudo apt-get update
+```
+
+Run the following command to confirm that there are now Neo4j packages available to install:
+
+```
+apt-cache show neo4j | head -n 50
+```
+
+```
+sudo apt-get install neo4j-enterprise
+```
+
+Before we start the Neo4j server let's set our initial password.
+Run the following command:
+
+```
+sudo /usr/bin/neo4j-admin set-initial-password <our-new-password>
+```
+
+Now we can start Neo4j:
+
+```
+$ sudo /etc/init.d/neo4j start
+[ ok ] Starting neo4j (via systemctl): neo4j.service.
+```
+
+Looks good.
+We can check it's running by confirming that there's a running process:
+
+```
+$ ps uax | grep neo4j
+neo4j     5603 34.3  2.3 13978112 779320 ?     Ssl  09:48   0:13 /usr/bin/java -cp /var/lib/neo4j/plugins:/etc/neo4j:/usr/share/neo4j/lib/*:/var/lib/neo4j/plugins/* -server -XX:+UseG1GC -XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch -XX:+UnlockExperimentalVMOptions -XX:+TrustFinalNonStaticFields -XX:+DisableExplicitGC -Djdk.tls.ephemeralDHKeySize=2048 -Dunsupported.dbms.udc.source=debian -Dfile.encoding=UTF-8 org.neo4j.server.enterprise.EnterpriseEntryPoint --home-dir=/var/lib/neo4j --config-dir=/etc/neo4j
+ubuntu    5818  0.0  0.0  12944   972 pts/0    S+   09:49   0:00 grep --color=auto neo4j
+```
+
+We should see that Neo4j is running, but at the moment we can only access it from this machine.
+
+```
+$ sudo lsof -i :7474 -i :7687 -i :7473 -sTCP:LISTEN
+COMMAND  PID  USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+java    5603 neo4j  355u  IPv6  21185      0t0  TCP localhost:7687 (LISTEN)
+java    5603 neo4j  356u  IPv6  27945      0t0  TCP localhost:7474 (LISTEN)
+java    5603 neo4j  366u  IPv6  27949      0t0  TCP localhost:7473 (LISTEN)
+```
+
+We can give access to the outside world by uncommenting this config property in `/etc/neo4j/neo4j.conf`:
+
+```
+dbms.connectors.default_listen_address=0.0.0.0
+```
+
+We need to restart the server for configuration changes to take effect:
+
+```
+$ sudo /etc/init.d/neo4j restart
+[ ok ] Restarting neo4j (via systemctl): neo4j.service.
+```
+
+Re-run the `lsof` command to check that the ports are now open:
+
+```
+$ sudo lsof -i :7474 -i :7687 -i :7473 -sTCP:LISTEN
+COMMAND  PID  USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+java    6131 neo4j  355u  IPv6  21495      0t0  TCP *:7687 (LISTEN)
+java    6131 neo4j  356u  IPv6  25078      0t0  TCP *:7474 (LISTEN)
+java    6131 neo4j  366u  IPv6  25082      0t0  TCP *:7473 (LISTEN)
+```
+
+Cool!
+
+We can now go to an internet browser and browse to our Neo4j instance at `http://<PublicDnsName>:7474`
+The default user is `neo4j` and the password is the value you setup earlier.
