@@ -458,6 +458,181 @@ ORDER BY c.book1PageRank DESC
 LIMIT 10<!--/code--></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>You&#8217;ll notice that there are some characters who have a high page rank but a very low betweenness centrality score.</p>
+</div>
+<div class="paragraph">
+<p>This suggests that they aren&#8217;t necessarily influential in their own right, but are friends with important people.
+<em>Varys</em> is a good example of a character that fits this profile.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Community Detection</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can detect communities in our data by running an algorithm which traverses the graph structure to find highly connected subgraphs with fewer connections other other subgraphs.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query to calculate the communities that exist based on interactions across all the books.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.labelPropagation(
+  'MATCH (c:Character) RETURN id(c) as id',
+  'MATCH (c:Character)---&gt;(c2) RETURN id(c) as source, id(c2) as target, SUM(rel.weight) as weight',
+  'OUTGOING',
+  {graph:'cypher', partitionProperty: 'community'})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Querying Communities</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can then write a query to see what communities we have and how many members they have:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)
+WHERE exists(c.community)
+RETURN c.community, count(*) AS count
+ORDER BY count DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There seem to be 2 or 3 large clusters of people and then a lot of smaller ones.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Querying Communities</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>It&#8217;d be good to know who are the influential people in each community.
+To do that we&#8217;ll need to calculate a Page Rank score for each character across all the books:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank(
+  'MATCH (c:Character) RETURN id(c) as id',
+  'MATCH (c:Character)-[rel]-&gt;(c2) RETURN id(c) as source,id(c2) as target, SUM(rel.weight) as weight',
+  {graph:'cypher', writeProperty: 'pageRank'})<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character)
+WHERE exists(c.community)
+WITH c ORDER BY c.pageRank DESC
+RETURN c.community as cluster, count(*) AS count, collect(c.name)[..10]
+ORDER BY count DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Most people are in a big community containing <em>Tyrion-Lannister</em>, but we also have smaller communities which contain <em>Daenerys-Targaryen</em>, and the Greyjoys who are other important characters.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Visualising Communities</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can write the following community to see the interactions between people in one of the communities:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character) WHERE EXISTS(c.community)
+WITH c.community AS community, COUNT(*) AS count
+ORDER BY count DESC
+SKIP 1 LIMIT 1
+MATCH path = (c:Character {community: community})--(c2:Character {community: community})
+return path<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Intra community Page Rank</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can also calculate the Page Rank within communities.</p>
+</div>
+<div class="paragraph">
+<p>Run the following query to calculate the page rank for the 2nd largest community:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character) WHERE EXISTS(c.community)
+WITH c.community AS communityId, COUNT(*) AS count
+ORDER BY count DESC
+SKIP 1 LIMIT 1
+CALL apoc.cypher.doIt(
+  "CALL algo.pageRank(
+    'MATCH (c:Character) WHERE c.community =" + communityId + " RETURN id(c) as id',
+    'MATCH (c:Character)-[rel]-&gt;(c2) WHERE c.community =" + communityId + " AND c2.community =" + communityId + " RETURN id(c) as source,id(c2) as target, sum(rel.weight) as weight',
+    {graph:'cypher', writeProperty: 'communityPageRank'}) YIELD nodes RETURN count(*)", {})
+YIELD value
+RETURN value<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Intra community Page Rank</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can run the following query to find the most influential character within that cluster:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (c:Character) WHERE EXISTS(c.community)
+WITH c.community AS communityId, COUNT(*) AS count
+ORDER BY count DESC
+SKIP 1 LIMIT 1
+MATCH (c:Character) WHERE c.community = communityId
+RETURN c.name, c.communityPageRank
+ORDER BY c.communityPageRank DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
 	</div>
   </div>
 </slide>

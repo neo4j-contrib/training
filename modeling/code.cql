@@ -1458,6 +1458,12 @@ YIELD nodeId, score
 
 CALL algo.<name>('Label','TYPE',{conf});
 
+UNWIND range(0,100) as id
+WITH toInteger(rand() * id) AS id1, toInteger(rand() * id) AS id2
+MERGE (p1:Person {id: id1})
+MERGE (p2:Person {id: id2})
+MERGE (p1)-[:FRIENDS]->(p2)
+
 
 
 

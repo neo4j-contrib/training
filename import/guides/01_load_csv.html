@@ -69,7 +69,7 @@ In these guides we&#8217;ll import a dataset containing the connections between 
     <div>
       <div class="paragraph">
 <p>While we&#8217;re getting started with our dataset it&#8217;s much easier to work with a subset of the data so that we can iterate quickly.
-A smaller dataset containing the first 10,000 connections lives in <code>flights_initial.csv</code>.</p>
+A smaller dataset containing 10,000 connections between US airports lives in <code>flights_initial.csv</code>.</p>
 </div>
 <div class="paragraph">
 <p>We can run the following query to see what data we&#8217;ve got to work with:</p>
@@ -308,14 +308,16 @@ ASSERT f.id IS UNIQUE<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Now we&#8217;re ready to import some more flights.</p>
+<p>Now we&#8217;re ready to import some more flights.
+We&#8217;ll use the <code>USING PERIODIC COMMIT</code> clause so that we don&#8217;t build up lots of transaction state in memory - by default our query will commit every 1,000 rows.</p>
 </div>
 <div class="paragraph">
 <p>Run the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_50k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///flights_50k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightIdentifier, row
@@ -335,6 +337,23 @@ MERGE (flight)-[:DESTINATION]->(destination)<!--/code--></pre>
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (:Flight)
 RETURN count(*)<!--/code--></pre>
 </div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can get a lot of data into Neo4j using pure Cypher but if we want to import data from</p>
+</div>
+<div class="paragraph">
+<p>In the next section we&#8217;ll write our own custom import procedure.</p>
 </div>
 	</div>
   </div>

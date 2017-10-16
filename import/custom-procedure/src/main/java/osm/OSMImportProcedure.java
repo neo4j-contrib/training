@@ -61,7 +61,6 @@ public class OSMImportProcedure
         XPathExpression nodeExpression = xpath.compile( "//node" );
         NodeList nodes = (NodeList) nodeExpression.evaluate( doc, XPathConstants.NODESET );
 
-
         List<String[]> toCreate = new ArrayList<>();
         for ( int i = 0; i < nodes.getLength(); i++ )
         {
