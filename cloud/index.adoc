@@ -1,0 +1,4 @@
+= Deploying Neo4j to the cloud
+
+* link:single-instance-manual.adoc[Installing a single instance manually]
+* link:k8s-on-aws.adoc[Kubernetes on AWS]

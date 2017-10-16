@@ -1,0 +1,5 @@
+= Installing Neo4j manually on AWS
+
+```
+ami-65d11b1f
+```
