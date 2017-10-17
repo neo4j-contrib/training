@@ -1,5 +1,5 @@
 = Importing data with Cypher
-:csv_url: file://
+:csv_url: https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data
 // :csv_url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
 :movies_roles_url: '{csv_url}/movies.csv'
 :movies_url: '{csv_url}/new_movies.csv'
@@ -30,9 +30,6 @@ We'll start with a simple count of the number of lines:
 LOAD CSV FROM {movies_url} AS row
 RETURN count(*);
 ----
-
-If you haven't been able to get the CSV files working locally, don't worry!
-If you replace `file:///` with `http://data.neo4j.com.s3.amazonaws.com/advanced/movies/` you can process the CSV files from our S3 bucket.
 
 == Row as List Data
 

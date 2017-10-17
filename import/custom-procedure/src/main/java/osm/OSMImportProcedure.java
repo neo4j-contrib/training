@@ -95,8 +95,8 @@ public class OSMImportProcedure
 
     }
 
-    private void mergeRelationship( org.neo4j.graphdb.Node point, org.neo4j.graphdb.Node user, RelationshipType
-            relationshipType )
+    private void mergeRelationship( org.neo4j.graphdb.Node point, org.neo4j.graphdb.Node user,
+                                    RelationshipType relationshipType )
     {
         Relationship editedRelationship = point.getSingleRelationship( relationshipType, Direction.OUTGOING );
         if(editedRelationship == null)

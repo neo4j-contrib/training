@@ -91,13 +91,9 @@ We&#8217;re going to use the <code>LOAD CSV</code> command to do exploration.</p
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV FROM 'file:///new_movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/new_movies.csv' AS row
 RETURN count(*);<!--/code--></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>If you haven&#8217;t been able to get the CSV files working locally, don&#8217;t worry!
-If you replace <code><a href="file:///" class="bare">file:///</a></code> with <code><a href="http://data.neo4j.com.s3.amazonaws.com/advanced/movies/" class="bare">http://data.neo4j.com.s3.amazonaws.com/advanced/movies/</a></code> you can process the CSV files from our S3 bucket.</p>
 </div>
 	</div>
   </div>
@@ -112,7 +108,7 @@ If you replace <code><a href="file:///" class="bare">file:///</a></code> with <c
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV FROM 'file:///new_movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/new_movies.csv' AS row
 RETURN *
 LIMIT 5<!--/code--></pre>
 </div>
@@ -145,7 +141,7 @@ Let&#8217;s try that out.</p>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///new_movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/new_movies.csv' AS row
 RETURN row, keys(row)
 LIMIT 5<!--/code--></pre>
 </div>
@@ -167,7 +163,7 @@ The <code>split</code> function is useful for processing</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///new_movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/new_movies.csv' AS row
 RETURN toFloat(row.avgVote) as avgVote, toInteger(row.releaseYear) as releaseYear, split(row.genres,":") as genres, row
 LIMIT 5;<!--/code--></pre>
 </div>
@@ -345,7 +341,7 @@ ASSERT p.id IS UNIQUE<!--/code--></pre>
       <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
-     'file:///new_movies.csv' AS row
+     'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/new_movies.csv' AS row
 CREATE (:Movie {
           id:toInteger(row.movieId),
           title:row.title,
@@ -384,7 +380,7 @@ CREATE (:Movie {
       <div class="ulist">
 <ul>
 <li>
-<p>Import the people from 'file:///people.csv'</p>
+<p>Import the people from 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/people.csv'</p>
 </li>
 <li>
 <p>Determine the number of rows</p>
@@ -434,7 +430,7 @@ NOTE: <code>deathYear</code> can be missing. Then <code>toInt()</code> returns n
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///people.csv' as row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/people.csv' as row
 
 MERGE(person:Person {id: toInteger(row.personId)})
 ON CREATE SET person.name = row.name,
@@ -467,7 +463,7 @@ ON CREATE SET person.name = row.name,
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///directors.csv' as row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/directors.csv' as row
 
 MATCH (movie:Movie {id:toInteger(row.movieId)})
 MATCH (person:Person {id: toInteger(row.personId)})
@@ -492,7 +488,7 @@ ON CREATE SET person:Director<!--/code--></pre>
 <p>Import <code>ACTED_IN(roles)</code> relationship</p>
 </li>
 <li>
-<p>From 'file:///actors.csv'</p>
+<p>From 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/actors.csv'</p>
 </li>
 <li>
 <p>Determine rows and structure of first 5 entries</p>
@@ -536,7 +532,7 @@ ON CREATE SET person:Director<!--/code--></pre>
       <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 50000
-LOAD CSV WITH HEADERS FROM 'file:///actors.csv' AS row
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/actors.csv' AS row
 FIELDTERMINATOR ','
 
 MATCH  (movie:Movie  {id: toInteger(row.movieId) })
@@ -702,14 +698,14 @@ ON CREATE SET person:Actor<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
-     'file:///movies.csv' AS row
+     'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/movies.csv' AS row
 RETURN count(*)<!--/code--></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
-     'file:///movies.csv' AS row
+     'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/movies.csv' AS row
 RETURN row LIMIT 10<!--/code--></pre>
 </div>
 </div>
@@ -736,7 +732,7 @@ RETURN row LIMIT 10<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'file:///movies.csv' AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/movies.csv' AS row
 
 MERGE (m:Movie {id:toInteger(row.movieId)})
    ON CREATE SET m.title=row.title, m.avgVote=toFloat(row.avgVote),
@@ -828,7 +824,7 @@ ON CREATE SET p:Actor;<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM
-    'file:///movies.csv' AS row
+    'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/movies.csv' AS row
 
 WITH DISTINCT toInteger(row.movieId) as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote
@@ -890,7 +886,7 @@ MERGE (m:Movie {id:movieId})
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
 LOAD CSV WITH HEADERS FROM
-     'file:///movies.csv' AS row
+     'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/movies.csv' AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -905,7 +901,7 @@ RETURN * LIMIT 10;<!--/code--></pre>
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->PROFILE
 LOAD CSV WITH HEADERS FROM
-     'file:///movies.csv' AS row
+     'https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data/movies.csv' AS row
 
 WITH row.movieId as movieId, row.title as title, row.genres as genres,
 toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
@@ -913,7 +909,7 @@ toInteger(row.releaseYear) as releaseYear, toFloat(row.avgVote) as avgVote,
 collect({id: row.personId, name:row.name, born: toInteger(row.birthYear), died:toInteger(row.deathYear),
          roles: split(coalesce(row.characters,""),':')}) as people
 
-MERGE (m:Movie {id:movieId})
+MERGE (m:Movie {id:movieId)
    ON CREATE SET m.title=title, m.avgVote=avgVote,
       m.releaseYear=releaseYear, m.genres=split(genres,":")
 

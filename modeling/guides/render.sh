@@ -22,6 +22,12 @@ if [ "$1" == "publish" ]; then
   s3cmd put --recursive -P *.html img s3://${URL}/
   s3cmd put -P index.html s3://${URL}
   echo "Publication Done"
+
+  URL=guides.neo4j.com/modeling_sandbox
+  render http://$URL -a csv-url=https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/ -a env-training
+  s3cmd put --recursive -P *.html img s3://${URL}/
+  s3cmd put -P index.html s3://${URL}
+  echo "Publication Done"
 else
   URL=localhost:8001
 # copy the csv files to $NEO4J_HOME/import

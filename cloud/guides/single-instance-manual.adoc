@@ -160,3 +160,11 @@ Cool!
 
 We can now go to an internet browser and browse to our Neo4j instance at `http://<PublicDnsName>:7474`
 The default user is `neo4j` and the password is the value you setup earlier.
+
+== Terminating our server
+
+Don't forget to tear down the server before moving onto the next exercise:
+
+```
+aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+```
