@@ -102,6 +102,12 @@ LIMIT 10
 
 That last one is a bit gnarly so let's import the data into Neo4j to make things a bit easier.
 
+== Python Data Science Tools
+
+Rather than doing everything in Neo4j, we can combine our queries with other data science tools.
+
+The rest of this guide is mirrored in an https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb[EDA Jupyter notebook^].
+
 == Importing the data
 
 Before we import the data we'll create a constraint on `:Character(name)` so that we don't accidentally create duplicate characters.
@@ -265,10 +271,3 @@ RETURN a.name, b.name, c.name AS PivotalNode, length(head(paths)) AS pathLength,
 SKIP 490
 LIMIT 10
 ----
-
-
-== Python Data Science Tools
-
-Rather than doing everything in Neo4j, we can combine our queries with other data science tools.
-
-Open the https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb[EDA Jupyter notebook^] to see some examples.
