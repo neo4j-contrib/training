@@ -226,14 +226,14 @@ ORDER BY book
 
 The diameter (or geodesic) of a network is defined as the longest shortest path in the network.
 
-We can write the following query to find it in our graph:
+We can write the following query to find it in our graph for the 2nd book:
 
 [source,cypher]
 ----
 // Find maximum diameter of network
 // maximum shortest path between two nodes
 MATCH (a:Character), (b:Character) WHERE id(a) > id(b)
-MATCH p = shortestPath((a)-[:INTERACTS*]-(b))
+MATCH p = shortestPath((a)-[:INTERACTS2*]-(b))
 
 WITH length(p) AS len, p
 ORDER BY len DESC
@@ -247,12 +247,12 @@ This query creates a cartesian product combining all characters so we need to be
 
 A node is said to be pivotal if it lies on all shortest paths between two other nodes in the network. We can find all pivotal nodes in the network.
 
-The following query will find all the pivotal nodes in the network:
+The following query will find all the pivotal nodes in the network for the first book:
 
 [source,cypher]
 ----
 MATCH (a:Character), (b:Character) WHERE id(a) > id(b)
-MATCH p = allShortestPaths((a)-[:INTERACTS*]-(b))
+MATCH p = allShortestPaths((a)-[:INTERACTS1*]-(b))
 
 WITH collect(p) AS paths, a, b
 UNWIND nodes(head(paths)) as c // first path
