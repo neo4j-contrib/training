@@ -1,0 +1,355 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Procedures</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Procedures</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this next section we&#8217;ll get some practice writing custom procedures.
+You&#8217;ll need to have Java installed on your machine for this exercise.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>OpenStreetMap</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>OpenStreetMap provides <a href="http://wiki.openstreetmap.org/wiki/Downloading_data" target="_blank">several different to export data</a>, including the Overpass API which allows us to specify the coordinates of a bounded box that we&#8217;d like to download.</p>
+</div>
+<div class="paragraph">
+<p>e.g. <a href="http://overpass.osm.rambler.ru/cgi/xapi_meta?*">bbox=11.54,48.14,11.543,48.145</a></p>
+</div>
+<div class="paragraph">
+<p>If we open that URI we&#8217;ll see something like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"><!--code-->&lt;osm version="0.6" generator="Overpass API"&gt;
+&lt;note&gt;The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.&lt;/note&gt;
+&lt;meta osm_base="2017-10-09T14:59:02Z"/&gt;
+  &lt;node id="398692" lat="48.1452196" lon="11.5414971" version="20" timestamp="2015-10-15T10:53:28Z" changeset="34651972" uid="2290263" user="soemisch"&gt;
+    &lt;tag k="tmc" v="DE:35375"/&gt;
+  &lt;/node&gt;
+
+  &lt;way id="4098001" version="32" timestamp="2017-03-14T13:25:41Z" changeset="46841025" uid="4642374" user="x_zhao_MENTZ"&gt;
+    &lt;nd ref="3487635978"/&gt;
+    &lt;nd ref="3556567926"/&gt;
+    &lt;nd ref="302685400"/&gt;
+  &lt;/way&gt;
+&lt;/osm&gt;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exploring OpenStreetMap with <code>apoc.load.xml</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We want to create nodes based on the <code>&lt;node&gt;</code> elements, and connect them together using the <code>&lt;way&gt;</code> elements.</p>
+</div>
+<div class="paragraph">
+<p>In OSM, <a href="http://wiki.openstreetmap.org/wiki/Node" target="_blank">a node</a> represents "a single point in space defined by its latitude, longitude and node id."</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s first try using APOC&#8217;s <code>apoc.load.xml</code> procedure to do this.
+The following query finds the points in a bounded box in Munich:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+YIELD value
+UNWIND value["_children"] AS child
+
+WITH child WHERE child["_type"] = "node"
+RETURN child.id AS id, child.lat AS latitude, child.lon AS longitude, child["user"] AS userName
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing OpenStreetMap with <code>apoc.load.xml</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now let&#8217;s import those points!</p>
+</div>
+<div class="paragraph">
+<p>First we&#8217;ll create a unique constraint on <code>:Point(id)</code> so that we don&#8217;t end up with duplicate points.
+This command will also create an index which will be useful in the next section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (p:Point)
+ASSERT p.id is UNIQUE<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Run the following query to do that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+YIELD value
+UNWIND value["_children"] AS child
+
+WITH child WHERE child["_type"] = "node"
+WITH child.id AS id, child.lat AS latitude, child.lon AS longitude, child["user"] AS userName
+
+MERGE (point:Point {id: id})
+SET point.latitude = latitude, point.longitude = longitude
+MERGE (user:User {name: userName})
+MERGE (user)-[:EDITED]-&gt;(point)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can run the following query to check the points were created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (point:Point)&lt;-[:EDITED]-(user)
+RETURN point.id, point.latitude, point.longitude, user.name
+LIMIT 25<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing OpenStreetMap with <code>apoc.load.xml</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Next we want to create a relationship between adjacent points.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s first see what the data in the <code>&lt;way&gt;</code> elements look like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+YIELD value
+UNWIND value["_children"] AS child
+
+WITH child WHERE child["_type"] = "way"
+RETURN child.id AS id, [child in child["_children"] where child["_type"] = "nd"] AS children
+LIMIT 1<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We want to create a <code>CONNECTS</code> relationship between the adjacent nodes inside a given <code>way</code>.</p>
+</div>
+<div class="paragraph">
+<p>e.g. if <code>children</code> contained <code>[1,2,3]</code> we want to create <code>(1)-[:CONNECTS]&#8594;(2)</code> and <code>(2)-[:CONNECTS]&#8594;(3)</code>.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Importing OpenStreetMap with <code>apoc.load.xml</code></h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following query to add a <code>CONNECTS</code> relationship between adjacent nodes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+YIELD value
+UNWIND value["_children"] AS child
+
+WITH child WHERE child["_type"] = "way"
+WITH child.id AS id, [child in child["_children"] where child["_type"] = "nd"] AS children
+UNWIND range(0, size(children) - 2) AS idx
+WITH id, children[idx] as start, children[idx+1] AS end
+MATCH (p1:Point {id: start["ref"]})
+MATCH (p2:Point {id: end["ref"]})
+MERGE (p1)-[:CONNECTS]-&gt;(p2)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Querying OpenStreetMap</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now let&#8217;s see if we can find a path between two points:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (p1:Point {id: "3800618341"})
+MATCH (p2:Point {id: "1485915298"})
+MATCH path = shortestpath((p1)-[:CONNECTS*]-(p2))
+RETURN p1, p2, path<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Cool! All good so far.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Custom procedures</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We were able to achieve what we wanted with <code>apoc.load.xml</code> but the Cypher we have to write gets more complicated as we get deeper into the XML structure.
+We also had to run two queries to achieve our desired graph structure - it&#8217;d be nice if we could do everything in one pass.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve started on the implementation of a procedure that can do just this!
+You can find it on the Neo4j training repository - <a href="https://github.com/neo4j-contrib/training/tree/master/import/custom-procedure" class="bare">https://github.com/neo4j-contrib/training/tree/master/import/custom-procedure</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>OSM Import Procedure</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Once you&#8217;ve cloned the repository you can build the procedure by executing the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"><!--code-->mvn clean install -DskipTests<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll then have the following jar in our <code>target</code> directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"><!--code-->$ ls  target/neo4j*.jar
+target/neo4j-procedures-examples-1.0.0-SNAPSHOT.jar<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Copy that into your Neo4j <code>plugins</code> directory and restart Neo4j.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Running the OSM Import Procedure</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;ve already implemented importing nodes which you can try out by executing the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL osm.importUri('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543, 48.145]')<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Adding connections to the OSM Import Procedure</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now we need to update our procedure to import the connections as well.</p>
+</div>
+<div class="paragraph">
+<p>If you have Java installed on your system give this a try.</p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

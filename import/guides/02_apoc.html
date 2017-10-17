@@ -1,0 +1,429 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>APOC</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>APOC: Awesome Procedures on Cypher</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>If you haven&#8217;t already, make sure to download the <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures" target="_blank">latest release of APOC</a>, place it in your <code>$NEO4J_HOME/plugins</code> folder and restart Neo4j.</p>
+</div>
+<div class="paragraph">
+<p>Once you&#8217;ve done that run the following query to check it&#8217;s correctly installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures()
+YIELD name WHERE name STARTS WITH "apoc"
+RETURN count(*)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ok, cool!
+Now we&#8217;re ready to start using APOC.</p>
+</div>
+<div class="paragraph">
+<p><em>Note</em></p>
+</div>
+<div class="paragraph">
+<p>The <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/" target="_blank">APOC User Guide</a> will be helpful for this section so keep that open in one of your browser tabs.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Cleaning the database</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re going to practice importing lots of different types of data and cleaning the database after each one.</p>
+</div>
+<div class="paragraph">
+<p>We can run the following query to delete everything we&#8217;ve imported so far:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->// Delete all the things
+CALL apoc.periodic.iterate(
+  'match (n) return n',
+  'detach delete n',
+  { batchSize:500 }
+)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query uses the <code>apoc.periodic.iterate</code> procedure which makes it easy to batch up big queries.
+In this case we&#8217;re deleting all the nodes in the database in batches of 500.</p>
+</div>
+<div class="paragraph">
+<p>We can save this query in the Neo4j browser by clicking on the star button to the right of the query pane.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Graph ML</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p><a href="http://graphml.graphdrawing.org/" target="_blank">GraphML</a> is an XML based file format for graphs.
+It consists of a language core to describe the structural properties of a graph and a flexible extension mechanism to add application-specific data.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="http://sonetlab.fbk.eu/data/social_networks_of_wikipedia/" target="_blank">Social Networks of Wikipedia</a> paper uses lots of different datasets in this format.
+Let&#8217;s try and import one of them.</p>
+</div>
+<div class="paragraph">
+<p>Run the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.import.graphml(
+  "http://sonetlab.fbk.eu/data/social_networks_of_wikipedia/vecwiki_social_network_extraction/vecwiki-20091230-manual-coding.graphml",
+  { batchSize: 5000, readLabels: true }
+)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should get a <code>ProcedureRegistrationFailed</code> exception.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Graph ML</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Update <code>neo4j.conf</code> to have the following entry:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding"><!--code-->dbms.security.procedures.unrestricted=apoc.*<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now retry the import command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.import.graphml(
+  "http://sonetlab.fbk.eu/data/social_networks_of_wikipedia/vecwiki_social_network_extraction/vecwiki-20091230-manual-coding.graphml",
+  { batchSize: 5000, readLabels: true }
+)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once you&#8217;ve done that you&#8217;ll need to restart Neo4j.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Graph ML</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>This dataset doesn&#8217;t have any labels on the nodes so let&#8217;s add some:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->match (n)
+WHERE exists(n.username)
+SET n:Person<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can now write a query to find the shortest path between pairs of nodes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (p1:Person), (p2:Person) WHERE p1 &lt;&gt; p2
+MATCH path = shortestpath((p1)-[:RELATED*]-(p2))
+WITH path WHERE length(path) &gt; 2
+RETURN [person in nodes(path) | person.username] AS path
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>JSON</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Next we&#8217;re going to load a JSON API, but first re-run the 'delete all' query from earlier so that we have a clean slate.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.periodic.iterate(
+  'match (n) return n',
+  'detach delete n',
+  { batchSize:500 }
+)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>StackOverflow has a JSON API which exposes questions, answers, comments, tags, and more.</p>
+</div>
+<div class="paragraph">
+<p>We can run the following query to import the first 100 questions with the <code>neo4j</code> tag:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH "https://api.stackexchange.com/2.2/search?page=1&amp;pagesize=100&amp;order=asc&amp;sort=creation&amp;tagged=neo4j&amp;site=stackoverflow&amp;filter=!5-i6Zw8Y)4W7vpy91PMYsKM-k9yzEsSC1_Uxlf" AS uri
+CALL apoc.load.json(uri)
+YIELD value AS data
+UNWIND data.items as q
+MERGE (question:Question {id:q.question_id})
+  ON CREATE SET question.title = q.title, question.url = q.share_link, question.created = q.creation_date
+SET question.favorites = q.favorite_count, question.updated = q.last_activity_date, question.views = q.view_count,
+    question.upVotes = q.up_vote_count, question.downVotes = q.down_vote_count
+FOREACH (q_owner IN [o in [q.owner] WHERE o.user_id IS NOT NULL] |
+  MERGE (owner:StackOverflowAccount {id:q.owner.user_id}) ON CREATE SET owner.name = q.owner.display_name SET owner:User, owner:StackOverflow
+  MERGE (owner)-[:POSTED]-&gt;(question)
+)
+FOREACH (tagName IN q.tags | MERGE (tag:Tag{name:tagName}) SET tag:StackOverflow MERGE (question)-[:TAGGED]-&gt;(tag))
+FOREACH (a IN q.answers |
+   MERGE (answer:Answer {id:a.answer_id})
+   SET answer.accepted = a.is_accepted, answer.upVotes = a.up_vote_count, answer.downVotes = a.down_vote_count,
+       answer:Content, answer:StackOverflow
+   MERGE (question)&lt;-[:ANSWERED]-(answer)
+   FOREACH (a_owner IN filter(o IN [a.owner] where o.user_id is not null) |
+     MERGE (answerer:User {id:a_owner.user_id})
+     ON CREATE SET answerer.name = a_owner.display_name
+     SET answerer.reputation = a_owner.reputation, answerer.profileImage = a_owner.profile_image
+     MERGE (answer)&lt;-[:POSTED]-(answerer)
+   )
+)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>JSON</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can now run the following query to find the most popular StackOverflow questions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (tag)&lt;-[:TAGGED]-(question:Question)&lt;--(:Answer)&lt;-[:POSTED]-(user)
+RETURN question.title, question.views, COLLECT(DISTINCT tag.name) AS tags
+ORDER BY question.views DESC<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: JSON</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Try changing the query to load a different tag or a different page from the original search term.</p>
+</div>
+<div class="paragraph">
+<p>If you&#8217;re not a fan of StackOverflow try loading data from a different JSON API that you&#8217;re familiar with.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Dynamic values</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Sometimes we&#8217;ll want to create dynamically computed node-labels and relationship-types as well as any map of properties.
+We can&#8217;t do this in pure Cypher but the <code>apoc.create.node</code> and <code>apoc.create.relationship</code> procedures come in handy here.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Dynamic node-labels</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Run the following command to create parameters that we&#8217;ll use in our query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->:param batch: [
+  { labels: ["Person", "Actor"], props: { name:"Alice", age:32 }},
+  { labels: ["Person", "Director"], props: { name:"Bob", age:42 }},
+  { labels: ["Person", "Writer"], props: { name:"John", age:37 }}
+]<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s create nodes representing each of the people in the batch:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->UNWIND {batch} AS row
+call apoc.create.node(row.labels, row.props) YIELD node
+RETURN count(*)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Dynamic relationship-types</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Given the following parameter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->:param batch: [
+  { from: "Alice", to: "Bob", type: "FRIEND" },
+  { from: "Bob", to: "John", type: "ENEMY" },
+  { from: "Alice", to: "John", type: "FRIEND" }
+]<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Can you write a query that creates the appropriate relationship between each person using the <code>apoc.create.relationship</code> procedure?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->UNWIND {batch} AS row
+
+// lookup nodes
+MATCH (from:Person {...})
+
+// create relationship<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Dynamic relationship-types</h3>
+    <br/>
+    <div>
+      <div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->UNWIND {batch} AS row
+MATCH (from:Person {name: row.from})
+MATCH (to:Person {name: row.to})
+CALL apoc.create.relationship(from, row.type, {}, to) yield rel
+RETURN count(*)<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Next step</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>There are lots of other data integration procedures available in APOC - hopefully you can find one that works for you.</p>
+</div>
+<div class="paragraph">
+<p>In the next section we&#8217;ll write our own custom import procedure.</p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>
