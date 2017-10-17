@@ -220,6 +220,23 @@ LIMIT 10<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Python Data Science Tools</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Rather than doing everything in Neo4j, we can combine our queries with other data science tools.</p>
+</div>
+<div class="paragraph">
+<p>The rest of this guide is mirrored in an <a href="https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb" target="_blank">EDA Jupyter notebook</a>.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Importing the data</h3>
     <br/>
     <div>
@@ -401,14 +418,14 @@ ORDER BY book<!--/code--></pre>
 <p>The diameter (or geodesic) of a network is defined as the longest shortest path in the network.</p>
 </div>
 <div class="paragraph">
-<p>We can write the following query to find it in our graph:</p>
+<p>We can write the following query to find it in our graph for the 2nd book:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->// Find maximum diameter of network
 // maximum shortest path between two nodes
 MATCH (a:Character), (b:Character) WHERE id(a) &gt; id(b)
-MATCH p = shortestPath((a)-[:INTERACTS*]-(b))
+MATCH p = shortestPath((a)-[:INTERACTS2*]-(b))
 
 WITH length(p) AS len, p
 ORDER BY len DESC
@@ -434,12 +451,12 @@ RETURN nodes(p) AS path, len<!--/code--></pre>
 <p>A node is said to be pivotal if it lies on all shortest paths between two other nodes in the network. We can find all pivotal nodes in the network.</p>
 </div>
 <div class="paragraph">
-<p>The following query will find all the pivotal nodes in the network:</p>
+<p>The following query will find all the pivotal nodes in the network for the first book:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (a:Character), (b:Character) WHERE id(a) &gt; id(b)
-MATCH p = allShortestPaths((a)-[:INTERACTS*]-(b))
+MATCH p = allShortestPaths((a)-[:INTERACTS1*]-(b))
 
 WITH collect(p) AS paths, a, b
 UNWIND nodes(head(paths)) as c // first path
@@ -452,23 +469,6 @@ RETURN a.name, b.name, c.name AS PivotalNode, length(head(paths)) AS pathLength,
 SKIP 490
 LIMIT 10<!--/code--></pre>
 </div>
-</div>
-	</div>
-  </div>
-</slide>
-
-
-
-<slide class="row-fluid">
-  <div class="col-sm-12">
-    <h3>Python Data Science Tools</h3>
-    <br/>
-    <div>
-      <div class="paragraph">
-<p>Rather than doing everything in Neo4j, we can combine our queries with other data science tools.</p>
-</div>
-<div class="paragraph">
-<p>Open the <a href="https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb" target="_blank">EDA Jupyter notebook</a> to see some examples.</p>
 </div>
 	</div>
   </div>
