@@ -8,7 +8,6 @@ In these guides we'll learn how to use the Neo4j Graph Algorithms package.
 
 Let's get started!
 
-
 == Installing Graph Algorithms
 
 * Go to the https://github.com/neo4j-contrib/neo4j-graph-algorithms/releases[Graph Algorithms releases page^] to find the latest release and download the binary jar.
@@ -27,6 +26,10 @@ RETURN count(*)
 
 If we get a result of `0` it hasn't installed correctly.
 Ask one of the trainers for help!
+
+== Jupyter notebook
+
+The rest of this guide is mirrored in an https://github.com/neo4j-contrib/training/blob/master/data_science/AppliedGraphAlgorithms.ipynb[Applied Algorithms Jupyter notebook^].
 
 == Betweenness Centrality
 
