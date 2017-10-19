@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j-graphite
+  labels:
+    app: neo4j-graphite
+spec:
+  clusterIP: None
+  ports:
+    - port: 80
+      targetPort: 80
+      name: graphite
+    - port: 2003
+      targetPort: 2003
+      name: cc-lr
+    - port: 2004
+      targetPort: 2004
+      name: cc-pr
+    - port: 7002
+      targetPort: 7002
+      name: cc-query
+  selector:
+    app: neo4j-graphite
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: "neo4j-graphite"
+  labels:
+    app: neo4j-graphite
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: neo4j-graphite
+    spec:
+      containers:
+      - name: neo4j-graphite
+        image: nickstenning/graphite
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 80
+          name: graphite
+        - containerPort: 2003
+          name: cc-lr
+        - containerPort: 2004
+          name: cc-pr
+        - containerPort: 7002
+          name: cc-query
+        securityContext:
+          privileged: true

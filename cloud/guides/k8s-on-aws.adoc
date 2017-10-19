@@ -151,6 +151,28 @@ kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
 helm upgrade --set core.numberOfServers=5 --set readReplica.numberOfServers=5 neo-helm incubator/neo4j
 ```
 
+== Backup
+
+We can run a job to backup from one of the servers:
+
+```
+kubectl apply -f cloud/k8s/backup.yaml
+```
+
+== Monitoring
+
+
+
+```
+kubectl apply -f cloud/k8s/graphite.yaml
+```
+
+```
+kubectl port-forward $(kubectl get pods -l app=neo4j-graphite -o=custom-columns=NAME:.metadata.name | tail -n1) 8080:80
+```
+
+== Delete the cluster
+
 Don't forget to delete your cluster!
 
 ```
