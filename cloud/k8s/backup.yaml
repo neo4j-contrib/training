@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: neo4j-backup
+spec:
+  template:
+    metadata:
+      name: neo4j-backup
+    spec:
+      containers:
+      - name: neo4j-backup
+        image: neo4j:3.2.3-enterprise
+        command: ["bin/neo4j-admin",  "backup", "--backup-dir", "/tmp", "--name", "backup", "--from", "neo4j.default.svc.cluster.local:6362"]
+      restartPolicy: Never

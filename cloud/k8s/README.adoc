@@ -1,0 +1,22 @@
+= Copy an existing store to a persistent volume
+
+Create the persistent volume claims and data loading pods:
+
+```
+./k8s/pvs.sh
+```
+
+Load the data onto the persistent volumes (via the data loading pods):
+
+```
+for i in $(seq 0 2); do
+  kubectl cp graph.db.tar.gz neo4j-load-data-${i}:/data/
+  kubectl exec neo4j-load-data-${i} -- bash -c "mkdir -p /data/databases && tar -xf  /data/graph.db.tar.gz -C /data/databases"
+done
+```
+
+Delete the data loading pods:
+
+```
+kubectl delete pods -l app=neo4j-loader
+```
