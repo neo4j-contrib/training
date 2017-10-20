@@ -1,0 +1,28 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: "python-k8s-example"
+  labels:
+    app: python-k8s-example
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: python-k8s-example
+    spec:
+      containers:
+      - name: python-k8s-example
+        image: "markhneedham/python-k8s-example:v0.0.3"
+        imagePullPolicy: "Always"
+        env:
+          - name: NEO4J_HOST
+            value: neo4j.default.svc.cluster.local
+          - name: NEO4J_PASSWORD
+            value: neo
+          - name: PYTHONUNBUFFERED
+            value: "0"
+        ports:
+        - containerPort: 8080
+        securityContext:
+          privileged: true

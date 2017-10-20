@@ -71,22 +71,11 @@ Once you get a result from that command it's time to move onto the next step.
 
 Now we're ready to install Neo4j on our Kubernetes cluster.
 
-Before we continue we need to https://docs.helm.sh/using_helm/#installing-helm[install the Helm client^]:
-
-```
-brew install kubernetes-helm
-```
-
-Once you've done that we're ready to install the Helm server on our Kubernetes cluster:
-
-```
-helm init && kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system
-```
-
 Once that returns we can run the following command to deploy a Neo4j causal cluster with 3 core servers and no read replicas:
 
 ```
-helm install incubator/neo4j --wait --name neo-helm
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/cores/dns.yaml
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/cores/statefulset.yaml
 ```
 
 We can check if that worked by executing the following command:
@@ -95,7 +84,7 @@ We can check if that worked by executing the following command:
 kubectl get pods
 ```
 
-If we see 3 servers named `neo-helm-neo4j-core-*` then we're good.
+If we see 3 servers named `neo4j-core-*` then we're good.
 We can now tail the logs of our Neo4j servers waiting for them to come online:
 
 ```
@@ -105,13 +94,13 @@ kubectl logs -l "app=neo4j"
 We're waiting to see this message:
 
 ```
-Remote interface available at http://neo-helm-neo4j-core-0.neo-helm-neo4j.default.svc.cluster.local:7474/
+Remote interface available at http://neo4j-core-0.neo4j.default.svc.cluster.local:7474/
 ```
 
 Once we see that message it's time to have a look at the topology of our cluster:
 
 ```
-kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
+kubectl exec neo4j-core-0 -- bin/cypher-shell --format verbose  \
   "CALL dbms.cluster.overview() \
    YIELD id, role, addresses, groups \
    RETURN id, addresses[0], role, groups"
@@ -120,22 +109,22 @@ kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
 We should see something like this:
 
 ```
-+---------------------------------------------------------------------------------------------------------------------------------------------------+
-| id                                     | addresses[0]                                                                 | role           | groups   |
-+---------------------------------------------------------------------------------------------------------------------------------------------------+
-| "cef35fef-3bf1-4efd-9a32-9366eb753bcd" | "bolt://neo-helm-neo4j-core-0.neo-helm-neo4j.default.svc.cluster.local:7687" | "LEADER"       | ["oltp"] |
-| "f5c5bd5d-f185-457f-bf87-62a3a1136dc4" | "bolt://neo-helm-neo4j-core-1.neo-helm-neo4j.default.svc.cluster.local:7687" | "FOLLOWER"     | ["oltp"] |
-| "2c2ca5d3-44ee-4457-b2d0-d09f091dce6c" | "bolt://neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:7687" | "FOLLOWER"     | ["oltp"] |
-+---------------------------------------------------------------------------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------------------------+
+| id                                     | addresses[0]                                               | role       | groups |
++---------------------------------------------------------------------------------------------------------------------------+
+| "2da20d2a-1f07-4fff-8a2b-ddc3c1b87088" | "bolt://neo4j-core-0.neo4j.default.svc.cluster.local:7687" | "LEADER"   | []     |
+| "700f3435-12f4-4f3b-8cd0-3d3b2b8e6ba4" | "bolt://neo4j-core-1.neo4j.default.svc.cluster.local:7687" | "FOLLOWER" | []     |
+| "896e0437-a2b0-4df5-9c71-c18d0c92e72d" | "bolt://neo4j-core-2.neo4j.default.svc.cluster.local:7687" | "FOLLOWER" | []     |
++---------------------------------------------------------------------------------------------------------------------------+
 
-4 rows available after 1 ms, consumed after another 2 ms
+3 rows available after 306 ms, consumed after another 24 ms
 ```
 
 Now let's add some read replicas into the mix.
 Run the following command:
 
 ```
-helm upgrade --set readReplica.numberOfServers=1 neo-helm incubator/neo4j
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/read-replicas/deployment.yaml
 ```
 
 Run our topology query again to check the replicas were added:
@@ -147,8 +136,10 @@ kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
    RETURN id, addresses[0], role, groups"
 ```
 
+Now we can try scaling the number of replicas
+
 ```
-helm upgrade --set core.numberOfServers=5 --set readReplica.numberOfServers=5 neo-helm incubator/neo4j
+kubectl apply deployment neo4j-replica --replicas=3
 ```
 
 == Backup
@@ -156,18 +147,27 @@ helm upgrade --set core.numberOfServers=5 --set readReplica.numberOfServers=5 ne
 We can run a job to backup from one of the servers:
 
 ```
-kubectl apply -f cloud/k8s/backup.yaml
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/backup.yaml
 ```
 
 == Monitoring
 
 ```
-kubectl apply -f cloud/k8s/graphite.yaml
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/graphite.yaml
 ```
+
+Run the following command to port-forward Graphite and Grafana so we can access them from our web browser:
 
 ```
 kubectl port-forward $(kubectl get pods -l app=neo4j-graphite -o=custom-columns=NAME:.metadata.name | tail -n1) 8080:80 3000:3000
 ```
+
+Open your browser to http://localhost:3000
+
+You should see the Grafana dashboard.
+The credentials are `admin/admin`
+
+Setup the data source to point to `http://localhost:80` and name it `soak`
 
 == Delete the cluster
 
