@@ -50,3 +50,11 @@ spec:
           name: cc-query
         securityContext:
           privileged: true
+      - name: neo4j-grafana
+        image: grafana/grafana
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 3000
+          name: grafana
+        securityContext:
+          privileged: true

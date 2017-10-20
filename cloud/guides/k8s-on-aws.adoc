@@ -161,14 +161,12 @@ kubectl apply -f cloud/k8s/backup.yaml
 
 == Monitoring
 
-
-
 ```
 kubectl apply -f cloud/k8s/graphite.yaml
 ```
 
 ```
-kubectl port-forward $(kubectl get pods -l app=neo4j-graphite -o=custom-columns=NAME:.metadata.name | tail -n1) 8080:80
+kubectl port-forward $(kubectl get pods -l app=neo4j-graphite -o=custom-columns=NAME:.metadata.name | tail -n1) 8080:80 3000:3000
 ```
 
 == Delete the cluster
