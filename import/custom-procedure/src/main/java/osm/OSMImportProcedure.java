@@ -72,16 +72,7 @@ public class OSMImportProcedure
             NamedNodeMap nodeAttributes = node.getAttributes();
             String userName = nodeAttributes.getNamedItem( "user" ).getNodeValue();
 
-            Node user = users.computeIfAbsent( userName, name ->
-            {
-                Node u = db.findNode( USER, "name", name );
-                if ( u == null )
-                {
-                    u = db.createNode( USER );
-                    u.setProperty( "name", name );
-                }
-                return u;
-            } );
+            Node user = users.computeIfAbsent( userName, name -> mergeNode( USER, "name", name ) );
 
             String pointId = nodeAttributes.getNamedItem( "id" ).getNodeValue();
             org.neo4j.graphdb.Node point = mergeNode( POINT, "id", pointId );
