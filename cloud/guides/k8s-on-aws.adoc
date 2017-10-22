@@ -197,7 +197,7 @@ kubectl logs $(kubectl get pods -l app=neo4j-backup -o=custom-columns=NAME:.meta
 == Monitoring
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/graphite.yaml
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/monitoring/graphite.yaml
 ```
 
 Run the following command to port-forward Graphite and Grafana so we can access them from our web browser:
@@ -212,6 +212,21 @@ You should see the Grafana dashboard.
 The credentials are `admin/admin`
 
 Setup the data source to point to `http://localhost:80` and name it `soak`
+
+Now it's time to create our dashboard.
+Run the following command:
+
+```
+curl -H "Accept: application/json" -H "Content-type: application/json" \
+  -X POST -d  @dashboard.json  \
+  http://admin:admin@localhost:3000/api/dashboards/db
+
+```
+
+```
+http://localhost:3000/dashboard/db/neo4j-metrics
+```
+
 
 == Delete the cluster
 
