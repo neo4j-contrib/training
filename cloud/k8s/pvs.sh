@@ -37,8 +37,6 @@ spec:
       - name: datadir-neo4j-core-${i}
         mountPath: /data
       command: ["/bin/bash", "-ecx", "while :; do printf '.'; sleep 5 ; done"]
-
-
 EOF
 
 done;

@@ -53,7 +53,7 @@ export KOPS_STATE_STORE=s3://${BUCKET_NAME}
 And then run these commands to deploy the cluster:
 
 ```
-kops create cluster     --zones us-west-2a     ${NAME}
+kops create cluster     --zones us-east-1a     ${NAME}
 kops update cluster ${NAME} --yes
 ```
 
@@ -120,6 +120,14 @@ We should see something like this:
 3 rows available after 306 ms, consumed after another 24 ms
 ```
 
+Cool! Let's put some data into our cluster:
+
+```
+kubectl exec neo4j-core-0 -- bin/cypher-shell \
+  --format verbose \
+  -a bolt+routing://neo4j.default.svc.cluster.local "unwind range(0,100) AS id CREATE (:Person {id: id})"
+```
+
 Now let's add some read replicas into the mix.
 Run the following command:
 
@@ -130,7 +138,7 @@ kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master
 Run our topology query again to check the replicas were added:
 
 ```
-kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
+kubectl exec neo4j-core-0 -- bin/cypher-shell --format verbose  \
   "CALL dbms.cluster.overview() \
    YIELD id, role, addresses, groups \
    RETURN id, addresses[0], role, groups"
@@ -139,12 +147,48 @@ kubectl exec neo-helm-neo4j-core-0 -- bin/cypher-shell --format verbose  \
 Now we can try scaling the number of replicas
 
 ```
-kubectl apply deployment neo4j-replica --replicas=3
+kubectl scale deployment neo4j-replica --replicas=3
+```
+
+And try the cluster overview procedure again:
+
+```
+kubectl exec neo4j-core-0 -- bin/cypher-shell --format verbose  \
+  "CALL dbms.cluster.overview() \
+   YIELD id, role, addresses, groups \
+   RETURN id, addresses[0], role, groups"
 ```
 
 == Backup
 
 We can run a job to backup from one of the servers:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/backup.yaml
+```
+
+We can check what it did by running the following command:
+
+```
+kubectl logs $(kubectl get pods -l app=neo4j-backup -o=custom-columns=NAME:.metadata.name   --show-all | tail -n1)
+```
+
+Now put some more data into the cluster:
+
+```
+kubectl exec neo4j-core-0 -- bin/cypher-shell \
+  --format verbose \
+  -a bolt+routing://neo4j.default.svc.cluster.local "unwind range(0,100) AS id CREATE (:Person {id: id})"
+```
+
+And then let's delete the backup job and apply it again:
+
+```
+kubectl delete job neo4j-backup
+kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/backup.yaml
+```
+
+If we check what it did this time we should see a mention of an incremental backup:
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/backup.yaml

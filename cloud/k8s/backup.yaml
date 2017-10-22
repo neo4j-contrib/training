@@ -1,14 +1,38 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: backupdir-neo4j
+  labels:
+    app: neo4j-backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: neo4j-backup
+  labels:
+    app: neo4j-backup
 spec:
   template:
     metadata:
       name: neo4j-backup
+      labels:
+        app: neo4j-backup
     spec:
+      volumes:
+        - name: backupdir-neo4j
+          persistentVolumeClaim:
+            claimName: backupdir-neo4j
       containers:
       - name: neo4j-backup
         image: neo4j:3.2.3-enterprise
+        volumeMounts:
+        - name: backupdir-neo4j
+          mountPath: /tmp
         command: ["bin/neo4j-admin",  "backup", "--backup-dir", "/tmp", "--name", "backup", "--from", "neo4j.default.svc.cluster.local:6362"]
       restartPolicy: Never
