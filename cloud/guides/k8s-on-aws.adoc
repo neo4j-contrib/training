@@ -213,20 +213,30 @@ The credentials are `admin/admin`
 
 Setup the data source to point to `http://localhost:80` and name it `soak`
 
+Run the following command to create a data source:
+
+```
+curl -H "Accept: application/json" -H "Content-type: application/json" \
+  -X POST -d '{
+  "name":"soak",
+  "type":"graphite",
+  "url":"http://localhost:80",
+  "access":"proxy",
+  "basicAuth":false
+}' http://admin:admin@localhost:3000/api/datasources
+```
+
 Now it's time to create our dashboard.
-Run the following command:
+
+Download https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/monitoring/dashboard.json[dashboard.json^] and then use it in the following command:
 
 ```
 curl -H "Accept: application/json" -H "Content-type: application/json" \
   -X POST -d  @dashboard.json  \
   http://admin:admin@localhost:3000/api/dashboards/db
-
 ```
 
-```
-http://localhost:3000/dashboard/db/neo4j-metrics
-```
-
+Now browse to `http://localhost:3000/dashboard/db/neo4j-metrics` and you should be able to see a dashboard.
 
 == Delete the cluster
 
