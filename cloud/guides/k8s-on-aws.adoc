@@ -191,7 +191,7 @@ kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master
 If we check what it did this time we should see a mention of an incremental backup:
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/neo4j-contrib/training/master/cloud/k8s/backup.yaml
+kubectl logs $(kubectl get pods -l app=neo4j-backup -o=custom-columns=NAME:.metadata.name   --show-all | tail -n1)
 ```
 
 == Monitoring
