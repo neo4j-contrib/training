@@ -4,9 +4,18 @@
 
 Dataset: Interaction of Characters in the book series
 
+Download and install Neo4j: http://neo4j.com/download/other-releases (best Neo4j Desktop: 0.5.0 (or later)
+
+Download Neo4j Graph Algorithmms (jar): https://github.com/neo4j-contrib/neo4j-graph-algorithms/releases/tag/3.2.5.2
+
+(We do the actual install in the class / guide)
+
 Neo4j Browser Guide: `:play data_science`
 
 === Jupyter Notebooks
+
+* If you want: Install Jupyter Notebooks
+** neo4j-driver, pandas, mathplotlib, skikit-learn
 
 * https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb[Exploratory Data Analyis]
 * https://github.com/neo4j-contrib/training/blob/master/data_science/AppliedGraphAlgorithms.ipynb[Applied Graph Algorithms]
