@@ -8,9 +8,13 @@ Download and install Neo4j: http://neo4j.com/download/other-releases (best Neo4j
 
 Download Neo4j Graph Algorithmms (jar): https://github.com/neo4j-contrib/neo4j-graph-algorithms/releases/tag/3.2.5.2
 
+Download APOC Procedures (jar) for your appropriate version from: https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases
+
+Put these jars into your `$NEO4J_HOME/plugins`
+
 Add this to `NEO4J_HOME/conf/neo4j.conf`:
 
-`dbms.security.procedures.unrestricted=algo.*`
+`dbms.security.procedures.unrestricted=algo.*,apoc.*`
 
 (We do the actual install in the class / guide)
 
