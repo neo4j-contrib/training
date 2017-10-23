@@ -14,7 +14,7 @@ Put these jars into your `$NEO4J_HOME/plugins`
 
 Add this to `NEO4J_HOME/conf/neo4j.conf`:
 
-`dbms.security.procedures.unrestricted=algo.*,apoc.*`
+`+dbms.security.procedures.unrestricted=algo.*,apoc.*+`
 
 (We do the actual install in the class / guide)
 
