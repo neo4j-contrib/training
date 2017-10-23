@@ -8,6 +8,10 @@ Download and install Neo4j: http://neo4j.com/download/other-releases (best Neo4j
 
 Download Neo4j Graph Algorithmms (jar): https://github.com/neo4j-contrib/neo4j-graph-algorithms/releases/tag/3.2.5.2
 
+Add this to `NEO4J_HOME/conf/neo4j.conf`:
+
+`dbms.security.procedures.unrestricted=algo.*`
+
 (We do the actual install in the class / guide)
 
 Neo4j Browser Guide: `:play data_science`
