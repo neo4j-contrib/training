@@ -1,0 +1,19 @@
+== Neo4j Data Science Training
+
+=== Game of Thrones Interaction Graph
+
+Dataset: Interaction of Characters in the book series
+
+Neo4j Browser Guide: `:play data_science`
+
+=== Jupyter Notebooks
+
+* https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb[Exploratory Data Analyis]
+* https://github.com/neo4j-contrib/training/blob/master/data_science/AppliedGraphAlgorithms.ipynb[Applied Graph Algorithms]
+* https://github.com/neo4j-contrib/training/blob/master/data_science/MachineLearning.ipynb[Machine Learning]
+
+=== Demo - Legis Graph
+
+Neo4j Sandbox `http://neo4j.com/sandbox` -> Legis Graph
+Neo4j Browser Guide `:play http://guides.neo4j.com/sandbox/legis-graph`
+
