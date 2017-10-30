@@ -123,7 +123,7 @@ Grab a trainer for help!</p>
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///flights_initial.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
-WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightIdentifier, row
+WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightIdentifier, row, origin, destination
 MERGE (flight:Flight { id: flightIdentifier })
 ON CREATE SET flight.date = row.Year + "-" + row.Month + "-" + row.DayofMonth,
               flight.airline = row.UniqueCarrier, flight.number = row.FlightNum, flight.departure = row.CRSDepTime,
@@ -320,7 +320,7 @@ We&#8217;ll use the <code>USING PERIODIC COMMIT</code> clause so that we don&#82
 LOAD CSV WITH HEADERS FROM "file:///flights_50k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
-WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightIdentifier, row
+WITH row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest AS flightIdentifier, row, origin, destination
 MERGE (flight:Flight { id: flightIdentifier })
 ON CREATE SET flight.date = row.Year + "-" + row.Month + "-" + row.DayofMonth,
               flight.airline = row.UniqueCarrier, flight.number = row.FlightNum, flight.departure = row.CRSDepTime,
