@@ -1,3 +1,4 @@
+[.quiz]
 == End of Part 1:  Quiz
 
 === What are elements of the property graph model ?
