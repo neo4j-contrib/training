@@ -57,8 +57,9 @@ image::{img}/slides.jpg[]
 
 When we refactor the model we want to make sure we only create each flight once.
 
-Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair, but at the moment we can only create constraints on single properties.
-We want to ensure uniqueness across several properties so we'll combine those together into a single dummy property.
+Neo4j allows us to create unique constraints to ensure uniqueness across a label/property pair.
+As of Neo4j 3.2, node keys are supported- these ensure that all nodes with a particular label have a set of defined properties whose combined value is unique.
+However, now we want to ensure uniqueness when merging across several properties so we'll combine those together into a single dummy property.
 
 The combination of airline, flight number, and date makes a flight unique.
 As we saw in the previous section, however, some flights can have multiple legs so we'll need to consider departure and arrival airports as well.
