@@ -1,4 +1,4 @@
-[.quiz]
+[#quiz4.quiz]
 == End of Part 4:  Quiz
 
 === Where are indexes used ?

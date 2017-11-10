@@ -1,4 +1,4 @@
-[.quiz]
+[#quiz2.quiz]
 == End of Part 2:  Quiz
 
 === What are Clauses that *update* the Graph ?

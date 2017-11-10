@@ -3,7 +3,7 @@
 :currentyear: 2017
 :doctype: book
 :toc: left
-:toclevels: 2
+:toclevels: 1
 :linkattrs:
 :experimental:
 :image: img

@@ -1,4 +1,4 @@
-[.quiz]
+[#quiz3.quiz]
 == End of Part 3:  Quiz
 
 === Which Predicates are allowed in WHERE Clauses ?
