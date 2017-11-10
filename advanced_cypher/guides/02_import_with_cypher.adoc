@@ -1,11 +1,11 @@
 = Importing data with Cypher
 :csv_url: https://raw.githubusercontent.com/neo4j-contrib/training/master/advanced_cypher/data
 // :csv_url: http://data.neo4j.com.s3.amazonaws.com/advanced/movies
-:movies_roles_url: '{csv_url}/movies.csv'
-:movies_url: '{csv_url}/new_movies.csv'
-:people_url: '{csv_url}/people.csv'
-:actors_url: '{csv_url}/actors.csv'
-:directors_url: '{csv_url}/directors.csv'
+:movies_roles_url: '{csv_url}movies.csv'
+:movies_url: '{csv_url}new_movies.csv'
+:people_url: '{csv_url}people.csv'
+:actors_url: '{csv_url}actors.csv'
+:directors_url: '{csv_url}directors.csv'
 
 == LOAD CSV - Data Inspection
 
