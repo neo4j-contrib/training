@@ -43,7 +43,7 @@
     </slide-->
     <div id="preamble">
 <div class="sectionbody">
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 </div>
 </div>
 
@@ -77,7 +77,7 @@
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Mark Needham</span>'})-[:MEMBER_OF]->()-[:HAS_TOPIC]->(topic)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Your Name</span>'})-[:MEMBER_OF]->()-[:HAS_TOPIC]->(topic)
 WHERE NOT ((member)-[:INTERESTED_IN]->(topic))
 RETURN DISTINCT topic.name<!--/code--></pre>
 </div>
@@ -95,7 +95,7 @@ RETURN DISTINCT topic.name<!--/code--></pre>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Mark Needham</span>'})-[:MEMBER_OF]->()-[:HAS_TOPIC]->(topic)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Your Name</span>'})-[:MEMBER_OF]->()-[:HAS_TOPIC]->(topic)
 WHERE NOT ((member)-[:INTERESTED_IN]->(topic))
 RETURN topic.name, COUNT(*) AS times
 ORDER BY times DESC<!--/code--></pre>

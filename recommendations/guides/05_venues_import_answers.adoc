@@ -22,7 +22,7 @@ _Tip_ You'll have to iterate over the events CSV file again to get the `venue_id
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}venues.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/venues.csv" AS row
 MERGE (venue:Venue {id: row.id})
 ON CREATE SET venue.name = row.name,
               venue.latitude = tofloat(row.lat),
@@ -34,7 +34,7 @@ ON CREATE SET venue.name = row.name,
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/events.csv" AS row
 MATCH (venue:Venue {id: row.venue_id})
 MATCH (event:Event {id: row.id})
 MERGE (event)-[:VENUE]->(venue)

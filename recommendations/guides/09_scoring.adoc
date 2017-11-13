@@ -16,10 +16,7 @@ Run the following query to see what arguments the function takes:
 
 [source, cypher]
 ----
-CALL dbms.procedures() YIELD name AS name, signature AS signature
-WITH name, signature
-WHERE name = "apoc.scoring.pareto"
-RETURN signature
+CALL apoc.help("scoring")
 ----
 
 [width="70%"]
@@ -73,9 +70,9 @@ WITH member, futureEvent, commonTopics, myGroup, previousEvents, COUNT(rsvpFrien
 
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance(point(venue), point({traininglocation})) AS distance
+WITH member, futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, round(distance(point(venue), point($here))/1000) AS distance
 OPTIONAL MATCH (member)-[rsvp:RSVPD]->(previousEvent)-[:VENUE]->(aVenue)
-WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))) < 500
+WHERE previousEvent.time < timestamp() AND abs(distance(point(venue), point(aVenue))/1000) < 5
 
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, COUNT(previousEvent) AS eventsAtVenue
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, friendsGoing, friends, distance, eventsAtVenue
@@ -142,16 +139,13 @@ In the next section we'll calculate that score for all pairs of friends and stor
 
 [source,cypher,subs=attributes]
 ----
-call apoc.periodic.commit("
-  MATCH (m1:Process)
-
-  WITH m1 LIMIT {limit}
+call apoc.periodic.iterate("
+  MATCH (m1:Process) RETURN m1
+","
   REMOVE m1:Process
 
   WITH m1
   MATCH (m1)-[friendship:FRIENDS]-(m2:Member)
-
-  WITH m1, m2, friendship
   MATCH (m1)-[:RSVPD]->(commonEvent)<-[:RSVPD]-(m2)
 
   WITH m1, m2, friendship, COUNT(commonEvent) AS commonEvents
@@ -159,9 +153,7 @@ call apoc.periodic.commit("
   WITH m1, m2, friendship, commonEvents, m1Rsvps, m2Rsvps, (2 * 1.0 * commonEvents) / (m1Rsvps + m2Rsvps) AS diceSimilarity
 
   SET friendship.score = diceSimilarity
-
-  RETURN COUNT(*)
-",{limit:500})
+",{batchSize:500, iterateList:true})
 ----
 
 == Friendship-based recommendations

@@ -1,6 +1,6 @@
-:name: pass:['<span  value-key="name">Mark Needham</span>']
-:name2: pass:['<span  value-key="name2">Mark Needham</span>']
-:name3: pass:['<span  value-key="name3">Mark Needham</span>']
+:name: pass:['<span  value-key="name">Your Name</span>']
+:name2: pass:['<span  value-key="name2">Your Name</span>']
+:name3: pass:['<span  value-key="name3">Your Name</span>']
 :group: pass:['<span  value-key="group">Group</span>']
 :topic: pass:['<span  value-key="topic">Topic</span>']
 :event: pass:['<span  value-key="event">An Event</span>']
@@ -8,6 +8,7 @@
 :neo4j-group-name: 'Neo4j'
 :neo4j-group-name-alt: 'Neo4j'
 :neo4j-meetup-id: graphdb-london
+:meetup-member: Your Name
 :csv-url: https://raw.githubusercontent.com/neo4j-meetups/modeling-worked-example/master/data/
 :icons: font
 :experimental:

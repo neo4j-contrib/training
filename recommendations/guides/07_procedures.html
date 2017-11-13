@@ -116,7 +116,7 @@ ORDER BY label<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>Lucky for us <a href="https://twitter.com/mesirii">Michael</a> has actually done the heavy lifting already and created the <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures">apoc</a> library which contains lots of useful procedures that we can use in our recommendations queries.</p>
+<p>The <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures">APOC</a> procedure library contains lots of useful procedures that we can use in our recommendations queries.</p>
 </div>
 <div class="paragraph">
 <p>First follow these instructions to get <code>apoc</code> installed on your local instance of Neo4j:</p>
@@ -124,16 +124,21 @@ ORDER BY label<!--/code--></pre>
 <div class="ulist">
 <ul>
 <li>
-<p>You should have already copied <code>apoc.jar</code> onto your machine.
-If you haven&#8217;t then grab a USB stick from one of the trainers or download the latest version of apoc from <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest" class="bare">https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest</a></p>
+<p>Neo4j Sandbox comes pre-installed with APOC</p>
 </li>
 <li>
-<p>Copy <code>apoc.jar</code> into your <code>plugins</code> folder wherever you have installed Neo4j.</p>
+<p>Neo4j Desktop has an single-click installation under "Plugins" in the "Manage" section</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>If you use your own installation of Neo4j then grab a USB stick from one of the trainers or download the latest, fitting version of apoc from <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest" class="bare">https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/latest</a></p>
+</div>
 <div class="ulist">
 <ul>
+<li>
+<p>Copy <code>apoc*.jar</code> into your <code>plugins</code> folder wherever you have installed Neo4j.</p>
+</li>
 <li>
 <p>Restart Neo4j</p>
 </li>
@@ -155,14 +160,24 @@ If you haven&#8217;t then grab a USB stick from one of the trainers or download 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
-WITH name, signature
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name, signature, description
 WHERE name STARTS WITH "apoc"
-RETURN name, signature<!--/code--></pre>
+RETURN name, description, signature<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If you don&#8217;t see any rows grab your closest trainer for help.</p>
+<p>If you don&#8217;t see any rows ask your trainer for help.</p>
+</div>
+<div class="paragraph">
+<p>You can see in the signatures which parameters a procedure takes and which columns it returns.</p>
+</div>
+<div class="paragraph">
+<p>A quick variant of this call is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.help("date")<!--/code--></pre>
+</div>
 </div>
 <div class="paragraph">
 <p>Let&#8217;s give the procedures a try!</p>
@@ -179,7 +194,7 @@ RETURN name, signature<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>A common request in the Neo4j forums is for a function to format timestamps in a human friendly way and we have just the function for that in <code>apoc</code>.
+<p>A common task is to parse and format timestamps in a human friendly way and we have just the function for that in <code>apoc</code>.
 We can use it to find out the date and time of the last 5 events in our dataset:</p>
 </div>
 <div class="listingblock">
@@ -189,21 +204,12 @@ WHERE event.time &lt; timestamp()
 WITH event, venue, group
 ORDER BY event.time DESC
 LIMIT 5
-CALL apoc.date.formatDefault(event.time, 'ms') YIELD value as dateTime
+WITH event, group, venue, apoc.date.format(event.time, 'ms') as dateTime
 RETURN event.name, group.name, venue.name, dateTime<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This procedure returns only one column: <code>value</code>.
-If we aren&#8217;t sure which columns a procedure is going to return we can query the procedures list and check the signature:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
-WITH name, signature
-WHERE name = "apoc.meta.data"
-RETURN signature<!--/code--></pre>
-</div>
+<p>This is a user defined function which returns a string value.</p>
 </div>
 	</div>
   </div>
@@ -222,10 +228,7 @@ You can check that you&#8217;ve got it by running the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL dbms.procedures() YIELD name AS name, signature AS signature
-WITH name, signature
-WHERE name = "apoc.load.json"
-RETURN name, signature<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.help("json")<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -246,27 +249,10 @@ RETURN name, signature<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>The meetup.com API for photos is accessible without needing a key so we&#8217;re going to import the meta data for photos posted to the Neo4j Meetup group.
-First let&#8217;s see what photos have been posted:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/Neo4j-Oresund/photos?&sign=true&photo-host=public")
-YIELD value AS document
-WITH document WHERE EXISTS(document.photo_album.event.id)
-RETURN document.link AS link,
-       document.created AS time,
-       document.id AS photoId,
-       document.member.id as memberId,
-       document.photo_album.event.id AS eventId<!--/code--></pre>
-</div>
+<p>The meetup.com API for photos is accessible without needing a key so we&#8217;re going to import the meta data for photos posted to a Meetup group.</p>
 </div>
 <div class="paragraph">
-<p>Try changing the <code>Neo4j-Oresund</code> bit of the URI to see which photos were posted in other groups.
-This API uses the <code>urlname</code> property to look up photos for a group.</p>
-</div>
-<div class="paragraph">
-<p>Run the following query to find the <code>urlname</code> for other groups:</p>
+<p>Run the following query to find the <code>urlname</code> for some groups:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -274,6 +260,29 @@ This API uses the <code>urlname</code> property to look up photos for a group.</
 RETURN group.urlname
 ORDER BY rand()
 LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s pick one as parameter</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->:param group_url:graphdb-london<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>First let&#8217;s see what photos have been posted:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/"+$group_url+"/photos?photo-host=public")
+YIELD value AS document
+WITH document WHERE EXISTS(document.photo_album.event.id)
+RETURN document.link AS link,
+       document.created AS time,
+       document.id AS photoId,
+       document.member.id as memberId,
+       document.photo_album.event.id AS eventId<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -310,7 +319,7 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>

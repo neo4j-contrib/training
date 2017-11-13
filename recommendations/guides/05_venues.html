@@ -55,7 +55,7 @@ In this section we&#8217;re going to introduce venues into the graph and then us
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -75,7 +75,7 @@ In this section we&#8217;re going to introduce venues into the graph and then us
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
-FROM "file:///venues.csv"
+FROM $url + "/venues.csv"
 AS row
 RETURN row
 LIMIT 10<!--/code--></pre>
@@ -101,7 +101,7 @@ Let&#8217;s get that imported!</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/venues.png" alt="venues">
+<img src="http://localhost:8001/img/venues.png" alt="venues">
 </div>
 </div>
 	</div>
@@ -153,7 +153,7 @@ ASSERT v.id IS UNIQUE<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -198,7 +198,7 @@ If you don&#8217;t then grab one of the trainers and we can help you fix it.</p>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -217,10 +217,15 @@ If you don&#8217;t then grab one of the trainers and we can help you fix it.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH point({latitude: 55.6729893, longitude: 12.585799}) AS trainingVenue
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->:param here:{latitude: 51.518698, longitude: -0.086146}<!--/code--></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH point($here) AS trainingVenue
 MATCH (venue:Venue)
 
-WITH venue, distance(point(venue), trainingVenue) AS distance
+WITH venue, round(distance(point(venue), trainingVenue)/1000) AS distance
 RETURN venue.id, venue.name, venue.address, distance
 ORDER BY distance
 LIMIT 10<!--/code--></pre>
@@ -282,7 +287,7 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>

@@ -14,7 +14,7 @@ Let's see what data we've got to work with:
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS
-FROM "{csv-url}rsvps.csv" AS row
+FROM $url + "/rsvps.csv" AS row
 RETURN row
 LIMIT 10
 ----
@@ -35,7 +35,7 @@ We're only going to worry ourselves with 'yes' RSVPs, we won't import any 'no' o
 [source,cypher,subs=attributes]
 ----
 USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "{csv-url}rsvps.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/rsvps.csv" AS row
 WITH row WHERE row.response = "yes"
 
 MATCH (member:Member {id: row.member_id})
@@ -87,7 +87,7 @@ WITH futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
 
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({traininglocation})) AS distance
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, round(distance(point(venue), point($here))/1000) AS distance
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
 

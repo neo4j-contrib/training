@@ -77,7 +77,7 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/Neo4j-Oresund/photos?&sign=true&photo-host=public")
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.json("https://api.meetup.com/"+$group_url+"/photos?&amp;sign=true&amp;photo-host=public")
 YIELD value AS document
 
 WITH document WHERE document.photo_album.event.id IS NOT NULL
@@ -88,11 +88,11 @@ OPTIONAL MATCH (member:Member {id: tostring(document.member.id)})
 MERGE (photo:Photo {id: document.id})
 ON CREATE SET photo.link = document.link, photo.created = document.created
 
-MERGE (photo)-[:POSTED_IN_EVENT]->(event)
+MERGE (photo)-[:POSTED_IN_EVENT]-&gt;(event)
 
 WITH photo, member WHERE  member is NOT NULL
 
-MERGE (member)-[:POSTED_PHOTO]->(photo)<!--/code--></pre>
+MERGE (member)-[:POSTED_PHOTO]-&gt;(photo)<!--/code--></pre>
 </div>
 </div>
 	</div>

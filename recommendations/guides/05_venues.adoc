@@ -15,7 +15,7 @@ We'll start by seeing what data we've got on venues:
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS
-FROM "{csv-url}venues.csv"
+FROM $url + "/venues.csv"
 AS row
 RETURN row
 LIMIT 10
@@ -91,10 +91,15 @@ We'll start with a simple query to find venues near here:
 
 [source,cypher,subs=attributes,none]
 ----
-WITH point({traininglocation}) AS trainingVenue
+:param here:{traininglocation}
+----
+
+[source,cypher]
+----
+WITH point($here) AS trainingVenue
 MATCH (venue:Venue)
 
-WITH venue, distance(point(venue), trainingVenue) AS distance
+WITH venue, round(distance(point(venue), trainingVenue)/1000) AS distance
 RETURN venue.id, venue.name, venue.address, distance
 ORDER BY distance
 LIMIT 10

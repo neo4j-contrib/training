@@ -54,7 +54,7 @@
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -74,7 +74,7 @@
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
-FROM "file:///rsvps.csv" AS row
+FROM $url + "/rsvps.csv" AS row
 RETURN row
 LIMIT 10<!--/code--></pre>
 </div>
@@ -99,7 +99,7 @@ Let&#8217;s get the RSVPs into the graph then!</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/rsvps.png" alt="rsvps">
+<img src="http://localhost:8001/img/rsvps.png" alt="rsvps">
 </div>
 </div>
 	</div>
@@ -119,7 +119,7 @@ Let&#8217;s get the RSVPs into the graph then!</p>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "file:///rsvps.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/rsvps.csv" AS row
 WITH row WHERE row.response = "yes"
 
 MATCH (member:Member {id: row.member_id})
@@ -161,10 +161,10 @@ RETURN *<!--/code--></pre>
       <div class="paragraph">
 <p>First we&#8217;ll update the query to add a score for an event based on previous events we&#8217;ve attended in that group.</p>
 </div>
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name">Your Name</span>'
 
 MATCH (futureEvent:Event)
 WHERE timestamp() + (7 * 24 * 60 * 60 * 1000) > futureEvent.time > timestamp()
@@ -182,7 +182,7 @@ WITH futureEvent, commonTopics, myGroup, COUNT(rsvp) AS previousEvents
 
 MATCH (venue)<-[:VENUE]-(futureEvent)<-[:HOSTED_EVENT]-(group)
 
-WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance(point(venue), point({training-location})) AS distance
+WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, round(distance(point(venue), point($here))/1000) AS distance
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, CASE WHEN myGroup THEN 5 ELSE 0 END AS myGroupScore
 WITH futureEvent, group, venue, commonTopics, myGroup, previousEvents, distance, myGroupScore, round((futureEvent.time - timestamp()) / (24.0*60*60*1000)) AS days
 
@@ -242,7 +242,7 @@ Let&#8217;s also update the query to:</p>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>

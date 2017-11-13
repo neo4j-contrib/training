@@ -31,7 +31,7 @@ Run the following query to show the first ten rows of the members CSV file:
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS
-FROM "{csv-url}members.csv" AS row
+FROM $url + "/members.csv" AS row
 RETURN row
 LIMIT 10
 ----
@@ -68,7 +68,7 @@ Run the following query to import members into the graph:
 ----
 USING PERIODIC COMMIT 10000
 LOAD CSV WITH HEADERS
-FROM "{csv-url}members.csv" AS row
+FROM $url + "/members.csv" AS row
 WITH DISTINCT row.id AS id, row.name AS name
 MERGE (member:Member {id: id})
 ON CREATE SET member.name = name
@@ -86,7 +86,7 @@ Run the following query to create a `MEMBER_OF` relationship between members and
 ----
 USING PERIODIC COMMIT 10000
 LOAD CSV WITH HEADERS
-FROM "{csv-url}members.csv" AS row
+FROM $url + "/members.csv" AS row
 WITH row WHERE NOT row.joined is null
 MATCH (member:Member {id: row.id})
 MATCH (group:Group {id: row.groupId})
