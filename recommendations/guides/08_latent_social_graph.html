@@ -71,15 +71,41 @@ RSVPs give us a reasonable idea of which people may know each other based on com
       <div class="paragraph">
 <p>We can write the following query to see which people on the Meetup scene that I may know:</p>
 </div>
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (me:Member)-[:RSVPD]->()<-[:RSVPD]-(otherPerson)
-WHERE me.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+WHERE me.name CONTAINS '<span  value-key="name">Your Name</span>'
 WITH otherPerson, COUNT(*) AS commonEvents
 ORDER BY commonEvents DESC
 LIMIT 10
 RETURN otherPerson.name, commonEvents<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Visualizing the Social Graph</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can also visualize the social graph between our members.
+We&#8217;ll use the <code>apoc.create.vRelationship</code> function for that, which returns a virtual relationship that&#8217;s not part of the graph.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member)-[:RSVPD]->()<-[:RSVPD]-(otherPerson)
+WHERE size( (m)-[:RSVPD]->() ) >= 7 and size( (otherPerson)-[:RSVPD]->() ) >= 7
+WITH m, otherPerson, COUNT(*) AS commonEvents
+WHERE commonEvents >= 5
+WITH * ORDER BY commonEvents DESC LIMIT 1000
+RETURN m, otherPerson, apoc.create.vRelationship(m, 'FRIENDS', {commonEvents:commonEvents}, otherPerson)
+ORDER BY rand() LIMIT 200<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -111,7 +137,7 @@ RETURN count(*)<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>So we should have just over 9,000 members to process.</p>
+<p>So we should have just a few thousand members to process.</p>
 </div>
 	</div>
   </div>
@@ -126,7 +152,7 @@ RETURN count(*)<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -154,7 +180,7 @@ MATCH (m1)-[:RSVPD]-&gt;(event)&lt;-[:RSVPD]-(m2)
 WITH m1, m2, COUNT(*) AS times
 WHERE times &gt;= 5
 
-MERGE (m1)-[:FRIENDS]-(m2)
+MERGE (m1)-[friends:FRIENDS]-(m2) SET friends.count = times
 RETURN count(*);<!--/code--></pre>
 </div>
 </div>
@@ -181,12 +207,14 @@ Run the following query but be patient, it&#8217;s got a lot of friendships to m
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->call apoc.periodic.commit("
-  MATCH (m1:Member:Process) WITH m1 LIMIT {limit} REMOVE m1:Process
-  WITH m1 MATCH (m1)-[:RSVPD]-&gt;(event)&lt;-[:RSVPD]-(m2)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->call apoc.periodic.iterate("
+  MATCH (m1:Member:Process) RETURN m1
+","
+  REMOVE m1:Process
+  MATCH (m1)-[:RSVPD]-&gt;(event)&lt;-[:RSVPD]-(m2)
   WITH m1, m2, COUNT(*) AS times WHERE times &gt;= 5
-  MERGE (m1)-[:FRIENDS]-(m2) RETURN count(*)
-",{limit:500})<!--/code--></pre>
+  MERGE (m1)-[friends:FRIENDS]-(m2) SET friends.count = times
+",{batchSize:500,iterateList:true})<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -237,7 +265,7 @@ Run the following query but be patient, it&#8217;s got a lot of friendships to m
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>

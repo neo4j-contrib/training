@@ -55,7 +55,7 @@ In this section we&#8217;ll take that a step further by looking at members expli
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -71,7 +71,7 @@ In this section we&#8217;ll take that a step further by looking at members expli
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of_interested_in.png" alt="group has topic member of interested in">
+<img src="http://localhost:8001/img/group_has_topic_member_of_interested_in.png" alt="group has topic member of interested in">
 </div>
 </div>
 <div class="paragraph">
@@ -81,7 +81,7 @@ Run the following query to find out:</p>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
-FROM "file:///members.csv" AS row
+FROM $url + "/members.csv" AS row
 RETURN row.id, row.topics
 LIMIT 10<!--/code--></pre>
 </div>
@@ -110,7 +110,7 @@ To do that we&#8217;re going to need to split up the string containing topic ids
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -130,7 +130,7 @@ To do that we&#8217;re going to need to split up the string containing topic ids
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 1000
-LOAD CSV WITH HEADERS FROM "file:///members.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/members.csv" AS row
 
 WITH split(row.topics, ";") AS topics, row.id AS memberId
 UNWIND topics AS topicId
@@ -158,10 +158,10 @@ MERGE (member)-[:INTERESTED_IN]->(topic)<!--/code--></pre>
       <div class="paragraph">
 <p>Now we&#8217;re ready to write our first query which uses some data we&#8217;ve explicitly provided to meetup.com.</p>
 </div>
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Mark Needham</span>'})-[:INTERESTED_IN]->(topic),
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Your Name</span>'})-[:INTERESTED_IN]->(topic),
       (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
 WITH member, topic, COUNT(*) AS score
 MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
@@ -226,10 +226,10 @@ LIMIT 50<!--/code--></pre>
 <div class="paragraph">
 <p>Let&#8217;s take someone from that list who didn&#8217;t specify any interests when they signed up for meetup.com:</p>
 </div>
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Mark Needham</span>'})-[:INTERESTED_IN]->(topic), (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member {name: '<span  value-key="name">Your Name</span>'})-[:INTERESTED_IN]->(topic), (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
 WITH member, topic, COUNT(*) AS score
 MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
 WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
@@ -257,7 +257,7 @@ Sad times!</p>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -337,12 +337,12 @@ So that I can join those groups</pre>
 <div class="paragraph">
 <p>Run the following query:</p>
 </div>
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member)-[:INTERESTED_IN]->(topic),
       (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
-WHERE member.name CONTAINS '<span  value-key="name">Mark Needham</span>'
+WHERE member.name CONTAINS '<span  value-key="name">Your Name</span>'
 WITH member, topic, COUNT(*) AS score
 MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
 WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)

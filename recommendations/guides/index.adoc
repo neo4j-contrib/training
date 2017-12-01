@@ -1,8 +1,8 @@
 = Building a Recommendation Engine with Neo4j
 
-ifeval::["{csv-url}" == "file:///"]
-
 == Welcome to the Neo4j recommendations training
+
+ifeval::[$url + "/" == "file:///"]
 
 Before we get started, copy the CSV files in the `import` directory from your machine into the Neo4j `import` directory.
 
@@ -27,6 +27,18 @@ dbms.directories.import=C:/Neo4j/data
 ////
 
 endif::[]
+
+.File Based Import
+[source,cypher]
+----
+:param url:file://
+----
+
+.URL Based Import
+[source,cypher]
+----
+:param url:http://data.neo4j.com/reco/data.your-code
+----
 
 == Our schedule for the day
 

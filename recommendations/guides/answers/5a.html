@@ -87,7 +87,7 @@ ASSERT v.id IS UNIQUE<!--/code--></pre>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///venues.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM $url + "/venues.csv" AS row
 MERGE (venue:Venue {id: row.id})
 ON CREATE SET venue.name = row.name,
               venue.latitude = tofloat(row.lat),
@@ -108,7 +108,7 @@ ON CREATE SET venue.name = row.name,
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///events.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM $url + "/events.csv" AS row
 MATCH (venue:Venue {id: row.venue_id})
 MATCH (event:Event {id: row.id})
 MERGE (event)-[:VENUE]->(venue)<!--/code--></pre>

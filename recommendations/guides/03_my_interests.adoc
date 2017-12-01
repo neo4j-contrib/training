@@ -18,7 +18,7 @@ Run the following query to find out:
 [source,cypher,subs=attributes]
 ----
 LOAD CSV WITH HEADERS
-FROM "{csv-url}members.csv" AS row
+FROM $url + "/members.csv" AS row
 RETURN row.id, row.topics
 LIMIT 10
 ----
@@ -46,7 +46,7 @@ Run the following query to create an `INTERESTED_IN` relationship between member
 [source,cypher,subs=attributes]
 ----
 USING PERIODIC COMMIT 1000
-LOAD CSV WITH HEADERS FROM "{csv-url}members.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/members.csv" AS row
 
 WITH split(row.topics, ";") AS topics, row.id AS memberId
 UNWIND topics AS topicId

@@ -14,7 +14,7 @@ We'll start with exploration of the events CSV file:
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/events.csv" AS row
 RETURN row
 LIMIT 5
 ----
@@ -46,7 +46,7 @@ Run the following query to import the events:
 [source,cypher,subs=attributes]
 ----
 USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/events.csv" AS row
 MERGE (event:Event {id: row.id})
 ON CREATE SET event.name = row.name,
               event.time = toInt(row.time),
@@ -72,7 +72,7 @@ We'll use the `groupId` field from the CSV file to lookup a group that we create
 [source,cypher,subs=attributes]
 ----
 USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "{csv-url}events.csv" AS row
+LOAD CSV WITH HEADERS FROM $url + "/events.csv" AS row
 
 WITH distinct row.group_id as groupId, row.id as eventId
 MATCH (group:Group {id: groupId})

@@ -51,7 +51,7 @@
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic.png" alt="group has topic">
+<img src="http://localhost:8001/img/group_has_topic.png" alt="group has topic">
 </div>
 </div>
 <div class="verseblock">
@@ -83,7 +83,7 @@ We&#8217;re going to start the session by importing Meetup groups and their topi
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
-FROM "file:///groups.csv"
+FROM $url + "/groups.csv"
 AS row
 RETURN row
 LIMIT 10<!--/code--></pre>
@@ -115,7 +115,7 @@ Now we&#8217;ll convert those rows in the CSV file into entities in the graph.</
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
-FROM "file:///groups.csv"
+FROM $url + "/groups.csv"
 AS row
 CREATE (:Group { id:row.id,
                  name:row.name,
@@ -170,7 +170,7 @@ We&#8217;re also going to put a unique constraint on <code>:Topic(id)</code> so 
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -234,7 +234,7 @@ Let&#8217;s first check what we&#8217;ve got in our CSV file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///groups_topics.csv"  AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM $url + "/groups_topics.csv"  AS row
 RETURN row
 LIMIT 10<!--/code--></pre>
 </div>
@@ -245,7 +245,7 @@ We&#8217;ll ignore the group id for now and run the following query to import to
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///groups_topics.csv"  AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM $url + "/groups_topics.csv"  AS row
 MERGE (topic:Topic {id: row.id})
 ON CREATE SET topic.name = row.name, topic.urlkey = row.urlkey<!--/code--></pre>
 </div>
@@ -283,7 +283,7 @@ We&#8217;re now going to process this file again but this time we&#8217;ll find 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "file:///groups_topics.csv"  AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM $url + "/groups_topics.csv"  AS row
 MATCH (topic:Topic {id: row.id})
 MATCH (group:Group {id: row.groupId})
 MERGE (group)-[:HAS_TOPIC]->(topic)<!--/code--></pre>
@@ -404,7 +404,7 @@ Look for the keywords <code>count</code>, <code>ORDER BY</code>, <code>LIMIT</co
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 <div class="listingblock">
@@ -428,7 +428,7 @@ Look for the keywords <code>count</code>, <code>ORDER BY</code>, <code>LIMIT</co
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic.png" alt="group has topic">
+<img src="http://localhost:8001/img/group_has_topic.png" alt="group has topic">
 </div>
 </div>
 <div class="paragraph">
@@ -437,7 +437,7 @@ Look for the keywords <code>count</code>, <code>ORDER BY</code>, <code>LIMIT</co
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (group:Group)
-WHERE (group.name CONTAINS 'Graph Database' OR group.name CONTAINS 'Neo4j')
+WHERE (group.name CONTAINS 'Neo4j' OR group.name CONTAINS 'Neo4j')
 
 MATCH (group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup)
 RETURN otherGroup.name, COUNT(topic) AS topicsInCommon,

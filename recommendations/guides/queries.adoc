@@ -17,7 +17,7 @@ LIMIT 10
 ----
 MATCH (group:Group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
 WHERE group.name CONTAINS 'Neo4j'
-  AND NOT (:Member {name: "Mark Needham"})-[:MEMBER_OF]->(otherGroup)
+  AND NOT (:Member {name: "Your Name"})-[:MEMBER_OF]->(otherGroup)
 RETURN otherGroup.name,
        COUNT(topic) AS topicsInCommon,
        COLLECT(topic.name) AS topics
@@ -29,7 +29,7 @@ LIMIT 10
 
 [source, cypher]
 ----
-MATCH (member:Member {name: "Mark Needham"})-[:INTERESTED_IN]->(topic), (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+MATCH (member:Member {name: "Your Name"})-[:INTERESTED_IN]->(topic), (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
 WITH member, topic, COUNT(*) AS score
 MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
 RETURN otherGroup.name, EXISTS((member)-[:MEMBER_OF]->(otherGroup)) AS alreadyMember,
@@ -42,7 +42,7 @@ ORDER BY score DESC
 
 [source, cypher]
 ----
-MATCH (member:Member {name: "Mark Needham"})-[:INTERESTED_IN]->(topic),
+MATCH (member:Member {name: "Your Name"})-[:INTERESTED_IN]->(topic),
       (member)-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
 WITH member, topic, COUNT(*) AS score
 MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
@@ -57,7 +57,7 @@ ORDER BY score DESC
 
 [source, cypher]
 ----
-MATCH (member:Member {name: "Mark Needham"})-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
+MATCH (member:Member {name: "Your Name"})-[:MEMBER_OF]->(group)-[:HAS_TOPIC]->(topic)
 WITH member, topic, COUNT(*) AS score
 MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
 WHERE NOT (member)-[:MEMBER_OF]->(otherGroup)
@@ -99,7 +99,7 @@ ORDER BY times DESC
 
 [source, cypher]
 ----
-MATCH (member:Member {name: "Mark Needham"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:RSVPD {response: "yes"}]-(otherMember:Member)
+MATCH (member:Member {name: "Your Name"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:RSVPD {response: "yes"}]-(otherMember:Member)
 WHERE (timestamp() - 30*24*60*60*1000) <= event.time < timestamp()
 
 WITH DISTINCT member, otherMember
@@ -117,7 +117,7 @@ ORDER BY times DESC
 
 [source, cypher]
 ----
-MATCH (member:Member {name: "Mark Needham"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:RSVPD {response: "yes"}]-(otherMember:Member)
+MATCH (member:Member {name: "Your Name"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:RSVPD {response: "yes"}]-(otherMember:Member)
 WHERE (timestamp() - 30*24*60*60*1000) <= event.time < timestamp()
 
 WITH member, otherMember, COLLECT(event.name) AS commonEvents
@@ -142,7 +142,7 @@ Layered event recommendation
 [source, cypher]
 ----
 WITH 24.0*60*60*1000 AS oneDay
-MATCH (member:Member {name: "Mark Needham"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:HOSTED_EVENT]-(group)
+MATCH (member:Member {name: "Your Name"})-[:RSVPD {response: "yes"}]->(event:Event)<-[:HOSTED_EVENT]-(group)
 WHERE event.time < timestamp()
 
 WITH  member, oneDay, group, COUNT(*) AS times
@@ -194,7 +194,7 @@ ORDER BY log
 [source, cypher]
 ----
 // checking which topics we're missing that I'm probably interested in
-MATCH (m:Member {name:"Mark Needham"})-[:RSVPD {response:"yes"}]->(event)<-[:HOSTED_EVENT]->()-[:HAS_TOPIC]->(topic)
+MATCH (m:Member {name:"Your Name"})-[:RSVPD {response:"yes"}]->(event)<-[:HOSTED_EVENT]->()-[:HAS_TOPIC]->(topic)
 WITH m, topic, COUNT(*) AS times, COLLECT(event.name) AS events WHERE times > 5
 RETURN topic.name, EXISTS( (m)-[:INTERESTED_IN]->(topic)  ) AS alreadyInterested, times
 ORDER BY times DESC

@@ -58,7 +58,7 @@ The worst type of recommendation!</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -82,7 +82,7 @@ So that I can join those groups</pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+<img src="http://localhost:8001/img/group_has_topic_member_of.png" alt="group has topic member of">
 </div>
 </div>
 	</div>
@@ -103,7 +103,7 @@ Run the following query to show the first ten rows of the members CSV file:</p>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS
-FROM "file:///members.csv" AS row
+FROM $url + "/members.csv" AS row
 RETURN row
 LIMIT 10<!--/code--></pre>
 </div>
@@ -149,7 +149,7 @@ We&#8217;ve got a lot of members to process so we&#8217;re going to use the <cod
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -170,7 +170,7 @@ We&#8217;ve got a lot of members to process so we&#8217;re going to use the <cod
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
 LOAD CSV WITH HEADERS
-FROM "file:///members.csv" AS row
+FROM $url + "/members.csv" AS row
 WITH DISTINCT row.id AS id, row.name AS name
 MERGE (member:Member {id: id})
 ON CREATE SET member.name = name<!--/code--></pre>
@@ -200,7 +200,7 @@ ON CREATE SET member.name = name<!--/code--></pre>
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 10000
 LOAD CSV WITH HEADERS
-FROM "file:///members.csv" AS row
+FROM $url + "/members.csv" AS row
 WITH row WHERE NOT row.joined is null
 MATCH (member:Member {id: row.id})
 MATCH (group:Group {id: row.groupId})
@@ -272,7 +272,7 @@ LIMIT 10<!--/code--></pre>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+<img src="http://localhost:8001/img/group_has_topic_member_of.png" alt="group has topic member of">
 </div>
 </div>
 	</div>
@@ -288,7 +288,7 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>
@@ -305,12 +305,12 @@ LIMIT 10<!--/code--></pre>
       <div class="paragraph">
 <p>For our next recommendation we&#8217;re still going to be finding similar groups to the Neo4j one but we&#8217;ll also check whether we&#8217;re already a member of the other groups.</p>
 </div>
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name = '<span  value-key="name">Mark Needham</span>'
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name = '<span  value-key="name">Your Name</span>'
 MATCH (group:Group)
-WHERE group.name CONTAINS 'Graph Database' OR group.name CONTAINS 'Neo4j'
+WHERE group.name CONTAINS 'Neo4j' OR group.name CONTAINS 'Neo4j'
 
 MATCH (group)-[:HAS_TOPIC]->(topic)<-[:HAS_TOPIC]-(otherGroup:Group)
 WHERE NOT EXISTS( (member)-[:MEMBER_OF]->(otherGroup) )
@@ -371,13 +371,13 @@ So that I can join those groups</pre>
     <h3>Find my similar groups</h3>
     <br/>
     <div>
-      <input style="display:inline;width:30%;" value-for="name2" class="form-control" value="Mark Needham" size="40">
+      <input style="display:inline;width:30%;" value-for="name2" class="form-control" value="Your Name" size="40">
 <div class="paragraph">
 <p>We only have to change our previous query slightly to find our similar groups rather than Neo4j&#8217;s:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name2">Mark Needham</span>'
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (member:Member) WHERE member.name CONTAINS '<span  value-key="name2">Your Name</span>'
 MATCH (member)-[:MEMBER_OF]->()-[:HAS_TOPIC]->()<-[:HAS_TOPIC]-(otherGroup:Group)
 WHERE NOT EXISTS ((member)-[:MEMBER_OF]->(otherGroup))
 RETURN otherGroup.name,
@@ -412,7 +412,7 @@ RETURN member.name, groups<!--/code--></pre>
     <div>
       <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/slides.jpg" alt="slides">
+<img src="http://localhost:8001/img/slides.jpg" alt="slides">
 </div>
 </div>
 	</div>

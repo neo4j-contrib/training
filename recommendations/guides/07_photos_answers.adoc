@@ -14,9 +14,9 @@ We probably want to create this pattern `(member)-[:POSTED_PHOTO]->(photo)-[:POS
 CREATE CONSTRAINT ON (p:Photo) ASSERT p.id IS UNIQUE
 ----
 
-[source,cypher,subs=attributes,none]
+[source,cypher,none]
 ----
-CALL apoc.load.json("https://api.meetup.com/{neo4j-meetup-id}/photos?&sign=true&photo-host=public")
+CALL apoc.load.json("https://api.meetup.com/"+$group_url+"/photos?&sign=true&photo-host=public")
 YIELD value AS document
 
 WITH document WHERE document.photo_album.event.id IS NOT NULL

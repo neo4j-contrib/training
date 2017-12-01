@@ -25,6 +25,23 @@ LIMIT 10
 RETURN otherPerson.name, commonEvents
 ----
 
+== Visualizing the Social Graph
+
+We can also visualize the social graph between our members.
+We'll use the `apoc.create.vRelationship` function for that, which returns a virtual relationship that's not part of the graph.
+
+Remember to disable the auto-completion for relationships in Neo4j Browser.
+
+[source,cypher,subs=attributes]
+----
+MATCH (m:Member)-[:RSVPD]->()<-[:RSVPD]-(otherPerson)
+WHERE size( (m)-[:RSVPD]->() ) >= 7 and size( (otherPerson)-[:RSVPD]->() ) >= 7
+WITH m, otherPerson, COUNT(*) AS commonEvents
+WHERE commonEvents >= 5
+RETURN m, collect([otherPerson, apoc.create.vRelationship(m, 'FRIENDS', {commonEvents:commonEvents}, otherPerson)])[0..3] as related
+ORDER BY rand() LIMIT 100
+----
+
 == Materialising the latent social graph
 
 In this next section we're going to materialise this inferred social network and create a `FRIENDS` relationship between people who have been to 7 or more of the same events.
@@ -41,7 +58,7 @@ SET m:Process
 RETURN count(*)
 ----
 
-So we should have just over 9,000 members to process.
+So we should have just a few thousand members to process.
 
 == Transaction State
 
@@ -62,7 +79,7 @@ MATCH (m1)-[:RSVPD]->(event)<-[:RSVPD]-(m2)
 WITH m1, m2, COUNT(*) AS times
 WHERE times >= 5
 
-MERGE (m1)-[:FRIENDS]-(m2)
+MERGE (m1)-[friends:FRIENDS]-(m2) SET friends.count = times
 RETURN count(*);
 ----
 
@@ -77,12 +94,15 @@ Run the following query but be patient, it's got a lot of friendships to make!
 
 [source,cypher]
 ----
-call apoc.periodic.commit("
-  MATCH (m1:Member:Process) WITH m1 LIMIT {limit} REMOVE m1:Process
-  WITH m1 MATCH (m1)-[:RSVPD]->(event)<-[:RSVPD]-(m2)
+call apoc.periodic.iterate("
+  MATCH (m1:Member:Process) RETURN m1
+","
+  REMOVE m1:Process 
+  WITH m1
+  MATCH (m1)-[:RSVPD]->(event)<-[:RSVPD]-(m2)
   WITH m1, m2, COUNT(*) AS times WHERE times >= 5
-  MERGE (m1)-[:FRIENDS]-(m2) RETURN count(*)
-",{limit:500})
+  MERGE (m1)-[friends:FRIENDS]-(m2) SET friends.count = times
+",{batchSize:500,iterateList:true})
 ----
 
 This query will probably run for a couple of minutes, creating a lot of `FRIENDS` relationships.

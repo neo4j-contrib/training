@@ -4,3 +4,6 @@ Things to do before Monday:
 * Cosine on the friendships that we computed using the stored proc
 * Update the venues answers to take into account what we do in the events section
 * Add an inferred property to the `INTERESTED_IN` relationships that we generate
+
+* other similarities (content, jaccard, ...)
+* apoc ?

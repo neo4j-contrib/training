@@ -43,7 +43,7 @@
     </slide-->
     <div id="preamble">
 <div class="sectionbody">
-<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Mark Needham" size="40">
+<input style="display:inline;width:30%;" value-for="name" class="form-control" value="Your Name" size="40">
 </div>
 </div>
 
@@ -75,7 +75,7 @@
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="http://guides.neo4j.com/reco/file/img/group_has_topic_member_of.png" alt="group has topic member of">
+<img src="http://localhost:8001/img/group_has_topic_member_of.png" alt="group has topic member of">
 </div>
 </div>
 	</div>
@@ -92,7 +92,7 @@
       <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member)
-WHERE m.name = '<span  value-key="name">Mark Needham</span>'
+WHERE m.name = '<span  value-key="name">Your Name</span>'
 RETURN m<!--/code--></pre>
 </div>
 </div>
@@ -112,7 +112,7 @@ RETURN m<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member {name: '<span  value-key="name">Mark Needham</span>'})
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member {name: '<span  value-key="name">Your Name</span>'})
 RETURN m<!--/code--></pre>
 </div>
 </div>
@@ -130,7 +130,7 @@ RETURN m<!--/code--></pre>
       <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member)-[:MEMBER_OF]->(group)
-WHERE m.name = '<span  value-key="name">Mark Needham</span>'
+WHERE m.name = '<span  value-key="name">Your Name</span>'
 RETURN group<!--/code--></pre>
 </div>
 </div>
@@ -148,7 +148,7 @@ RETURN group<!--/code--></pre>
       <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member)-[:MEMBER_OF]->(group), (group)-[:HAS_TOPIC]->(topic)
-WHERE m.name = '<span  value-key="name">Mark Needham</span>'
+WHERE m.name = '<span  value-key="name">Your Name</span>'
 RETURN group, topic<!--/code--></pre>
 </div>
 </div>
@@ -166,7 +166,7 @@ RETURN group, topic<!--/code--></pre>
       <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (m:Member)-[:MEMBER_OF]->(group), (group)-[:HAS_TOPIC]->(topic)
-WHERE m.name = '<span  value-key="name">Mark Needham</span>'
+WHERE m.name = '<span  value-key="name">Your Name</span>'
 RETURN topic.name, COUNT(*) AS times
 ORDER BY times DESC<!--/code--></pre>
 </div>
