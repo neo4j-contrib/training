@@ -1,0 +1,3563 @@
+<div class="row" style="padding-left: 0; padding-right: 0;">
+    <div class="large-9 large-push-3 columns guide-section-content">
+       <div id="content">
+        <div id="preamble columns medium-12">
+<div class="sectionbody">
+<script type='text/javascript'>
+  var loc = window.location;
+  if (loc.hostname == "neo4j.com" && loc.search.indexOf("aliId=") == -1 ) {
+     loc.pathname = "/graphacademy/online-training/neo4j-production/"
+  }
+  document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script>Munchkin.init('773-GON-065');</script>
+</div>
+</div>
+<div  id="_about_this_course" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>About this Course</h3>
+
+
+<div class="paragraph">
+<p>Neo4j is in use in thousands of deployments around the world.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Through this course we will provide you the knowledge necessary to successfully deploy and manage a Neo4j production setup.</p>
+</div>
+
+<div  id="_the_lessons" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>The Lessons</h3>
+
+
+<div class="paragraph">
+<p>Lesson 1:	Neo4j Production Deployment Options</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Lesson 2:	Neo4j Server Basics</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Lesson 3:	Enterprise Edition and Clustering</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Lesson 4:	Production Administration</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Lesson 5:	Guidance and Best Practices</p>
+</div>
+
+</div>
+<div  id="_feedback" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Feedback</h3>
+
+
+<div class="paragraph">
+<p>We created an online version of our classroom production training to satisfy the requests we got for self-paced learning.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Please give us <a href="mailto:training@neotechnology.com">feedback</a> on how we can improve it.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You can also join the <a href="http://neo4j.com/slack">neo4j-users Slack</a> and give or get feedback in the <code>#online-training</code> channel.</p>
+</div>
+
+</div>
+<div  id="_neo4j_certification" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Neo4j Certification</h3>
+
+
+<div class="paragraph">
+<p>If you sucessfully completed the course and built and deployed a Neo4j installation into production, please also take the <a href="http://neo4j.com/graphacademy/neo4j-certification">Neo4j Certification</a> to demonstrate your expertise.
+The certification is free of charge and consists of an hour-long exam with 80 questions across the different aspects of Neo4j usage and deployment.</p>
+</div>
+
+</div>
+</div>
+<div  id="_course_highlights_and_welcome" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Course Highlights and Welcome</h3>
+<div  id="_welcome_to_neo4j_in_production" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Welcome to Neo4j in Production</h3>
+<iframe src="https://player.vimeo.com/video/122279729" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>
+<div  id="_congratulations" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Congratulations!</h3>
+
+
+<div class="paragraph">
+<p>We&#8217;re excited to hear you are ready to join the thousands of other Neo4j users who have successfully deployed Neo4j to production.
+Like the others before you, you likely have questions about best practices, how to administer the server, what to configure, or even the basic deployment architecture.
+In addition, it is likely you are an admin who has been tasked with deploying Neo4j for the first time.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Not to worry.
+We&#8217;ve helped many Neo4j users and admins take their applications to production.
+This course will jump into many of the details you&#8217;ll need to know to deploy Neo4j in production, namely focusing on:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Making Architectural Choices
+</li>
+<li>
+Planning for Robustness and Resiliency
+</li>
+<li>
+Monitoring and Management
+</li>
+<li>
+Best Practices for a Successful Launch
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>At the end of this course, you will have the necessary knowledge to help your team decide on an appropriate edition of Neo4j, make a wise choice on deployment architectures and be prepared for production launch.</p>
+</div>
+
+</div>
+</div>
+<div  id="_l1_neo4j_production_deployment_options" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>L1: Neo4j Production Deployment Options</h3>
+<iframe src="https://player.vimeo.com/video/122279730" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<div  id="_l1_neo4j_application_architecture" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L1)&#8201;&#8212;&#8201;(Neo4j Application Architecture)</h3>
+
+
+<div class="paragraph">
+<p>As a database, Neo4j has a very familiar place in all application architectures.
+It is used as a transactional, real-time store for highly connected data.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You connect to Neo4j from your application via the binary "Bolt" protocol, which is supported by the official language drivers.
+Currently the drivers for .Net, Java, JavaScript, and Python are officially supported with other languages (e.g. PHP, Go, C/C++) being covered by community drivers.</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/bolt-diagram.png" alt="bolt diagram">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p>To interact with the database, you use the open Cypher graph query language.
+By sending one or more statements across the wire within each transaction you can read, create and update graph data and access additional features.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Built-in and user defined procedures provide support for additional functionality.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For production deployments, Neo4j can be run in clustered mode to support high availability and disaster recovery scenarios.
+Then it also support live-backups and advanced monitoring.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You can run Neo4j in a variety of different setups, here some examples:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Single application using Neo4j as primary database
+</li>
+<li>
+Graph heavy end user application backed by a Neo4j cluster as first database
+</li>
+<li>
+Existing application augmented with new functionality with Neo4j integrated and synced with other DBMS
+</li>
+<li>
+Neo4j as backing storage of cloud-hosted MicroServices, e.g. for recommendation or fraud detection
+</li>
+<li>
+Standalone Neo4j for graph-analytics in business intelligence
+</li>
+<li>
+Integration of Neo4j with graph compute solutions like Apache Spark, Apache Flink or Giraph
+</li>
+</ul>
+</div>
+</div>
+<div  id="_l1_neo4j_editions" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L1)&#8201;&#8212;&#8201;(Neo4j Editions)</h3>
+
+
+<div class="paragraph">
+<p>Neo4j Editions: Community and Enterprise</p>
+</div>
+
+<div  id="_your_first_decision" class="sect3 "  >
+<h4>Your First Decision</h4>
+
+
+<div class="paragraph">
+<p>As you get started with Neo4j, you&#8217;ll immediately find there are two versions of Neo4j to choose from: Community Edition and Enterprise Edition.
+The version you use will depend on the features you require, the nature of the solution using Neo4j, and the level of professional support you would like to receive from Neo Technology.</p>
+</div>
+
+</div>
+<div  id="_community_edition" class="sect3 "  >
+<h4>Community Edition</h4>
+
+
+<div class="paragraph">
+<p>The Community Edition is a full functioning version of Neo4j suitable for single instance deployments.
+It has full support for key Neo4j features, such as ACID compliance, Cypher and access via the binary protocol and HTTP APIs.
+It is ideal for smaller internal or do-it-yourself projects that do not require high levels of scaling or professional services and support.</p>
+</div>
+
+</div>
+<div  id="_enterprise_edition" class="sect3 "  >
+<h4>Enterprise Edition</h4>
+
+
+<div class="paragraph">
+<p>The Enterprise Edition extends the functionality of the Community Edition to include key features for performance and scalability such as a clustering architecture for High Availability and online backup functionality.
+It is the right choice for production systems with availability requirements or needs for scaling up or out.</p>
+</div>
+
+<table class="tableblock frame-topbot grid-all spread">
+<caption class="title">Table 1. Features</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Edition</th>
+<th class="tableblock halign-center valign-top">Enterprise</th>
+<th class="tableblock halign-center valign-top">Community</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP/HTTPS API</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property Graph Model</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native Graph Processing &amp; Storage</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ACID</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cypher - Graph Query Language</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Binary Protocol</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Official Language Drivers</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Defined Procedures</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High-Performance Native API</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-topbot grid-all spread">
+<caption class="title">Table 2. Performance &amp; Scalability</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Edition</th>
+<th class="tableblock halign-center valign-top">Enterprise</th>
+<th class="tableblock halign-center valign-top">Community</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Advanced Monitoring</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enterprise Lock Manager</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Clustering</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Live Backups</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">X</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div  id="_production_deployable_versions" class="sect3 "  >
+<h4>Production Deployable Versions</h4>
+
+
+<div class="paragraph">
+<p>When you visit the <a href="http://neo4j.com/download">download page</a> or look on our source code repository, you&#8217;ll find different versions and candidates identified by</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Milestone (M##),
+</li>
+<li>
+Release Candidate (RC#) or
+</li>
+<li>
+General Availability releases (GA or often only indicated by the version number such as 3.0.3)
+</li>
+</ul>
+</div>
+<div  id="_milestone" class="sect4 "  >
+<h5>Milestone</h5>
+
+
+<div class="paragraph">
+<p>Milestone indicates a build of Neo4j that includes new features and functionalities to be included in a future GA release.</p>
+</div>
+
+</div>
+<div  id="_release_candidate" class="sect4 "  >
+<h5>Release Candidate</h5>
+
+
+<div class="paragraph">
+<p>Release Candidate indicates a build that has combined all milestone feature updates and fixes into a single build that could potentially be complete, but needs further testing.</p>
+</div>
+
+</div>
+<div  id="_general_availability" class="sect4 "  >
+<h5>General Availability</h5>
+
+
+<div class="paragraph">
+<p>General Availability releases are our certified releases.
+They include all features and functionalities intended for that version and supported for production deployments.</p>
+</div>
+
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title label"></div>
+</td>
+<td class="content">
+Production Deployments Should Only Use General Availability Releases
+</td>
+</tr>
+</table>
+</div>
+
+
+<div class="paragraph">
+<p>As the Neo Technology team builds new features and functionalities for the next releases of Neo4j, we will make those features available in Milestone or Release Candidate versions.
+We do so to give the community an opportunity to test new features before they become a part of our General Availability versions.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><em>Milestone or Release Candidate versions should never be used for your production deployment.</em></p>
+</div>
+
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title label"></div>
+</td>
+<td class="content">
+Also, data migration between non GA versions is unsupported.
+</td>
+</tr>
+</table>
+</div>
+
+
+<div class="paragraph">
+<p>However, Milestone and Release Candidate versions offer a great opportunity for Neo4j administrators to test new versions with their applications.
+This allows administrators to understand any improvements or effects a coming feature change will have on them.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>As feasible, we recommend administrators that they download and test the Milestone releases <strong>only</strong> in their test environments.
+But we strongly request waiting for the General Availability version before using Neo4j in a production environment.</p>
+</div>
+
+</div>
+</div>
+</div>
+<div  id="_l1_which_edition_to_use" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L1)&#8201;&#8212;&#8201;(Which edition to use?)</h3>
+
+
+<div class="paragraph">
+<p>Which Neo4j edition is Right for your Deployment?</p>
+</div>
+
+<div  id="_community_edition_2" class="sect3 "  >
+<h4>Community Edition</h4>
+
+
+<div class="paragraph">
+<p>The <strong>Neo4j Community Edition</strong> is a great choice for many basic implementations of Neo4j.
+Indeed, you&#8217;ll likely begin your initial exploration of Neo4j with the Community Edition.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Some scenarios where the Community Edition is the right choice:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+You are learning Neo4j and just getting started
+</li>
+<li>
+Your solution is built for an internal team that isn&#8217;t expecting it to always be available
+</li>
+<li>
+Your application is available to external users, but you do not provide any guarantees on uptime or availability
+</li>
+<li>
+Your solution doesn&#8217;t have high demands for scalability or concurrent access
+</li>
+</ul>
+</div>
+</div>
+<div  id="_enterprise_edition_2" class="sect3 "  >
+<h4>Enterprise Edition</h4>
+
+
+<div class="paragraph">
+<p>The <strong>Neo4j Enterprise Edition</strong> is built for mission-critical applications that require:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+The ability to scale up or scale out your solution with the clustering architecture
+</li>
+<li>
+A High Availability deployment that provides strong guarantees on uptime
+</li>
+<li>
+Ability to support disaster recovery architectures
+</li>
+<li>
+24x7 availability capabilities
+</li>
+<li>
+Professional support from Neo Technology
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>Enterprise is also the choice if:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+You are using more than four cores (Enterprise lock manager scales beyond four cores)
+</li>
+<li>
+You are performing early stage load testing: Enterprise will show better results than Community.
+</li>
+<li>
+Workload separation e.g. offloading backups, reporting etc.
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>The Neo4j Enterprise Edition is designed to meet the demands of mission-critical applications.
+It provides the features and tools necessary to help you ensure your services are continuously available.
+The Enterprise Edition is a great choice in these types of scenarios:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+You are deploying Neo4j for your <strong>recommendation Engine</strong> on your 24x7 e-commerce site
+</li>
+<li>
+Neo4j is your database for your internal <strong>IT network impact analysis system</strong>
+</li>
+<li>
+Neo4j is enabling your <strong>fraud detection</strong> services for your financial transaction network
+</li>
+<li>
+Your application needs to <strong>scale to 100s of concurrent users</strong> or support <strong>high volumes of read activity</strong>
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>Our rules of thumb are simple:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Both editions offer the same great core graph database capabilities
+</li>
+<li>
+Go with Enterprise Edition if you are working on a commercial solution, a business critical solution or if you anticipate needing scalability, redundancy or high availability
+</li>
+</ul>
+</div>
+</div>
+<div  id="_startup_program" class="sect3 "  >
+<h4>Startup Program</h4>
+
+
+<div class="paragraph">
+<p>For companies in the start-up stage we offer a dedicated program which makes <strong>free and heavily discounted Enterprise Edition licenses</strong> available to you.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Please check for the <a href="https://neo4j.com/startup-program/">current terms of the startup program</a>.</p>
+</div>
+
+</div>
+<div  id="_references" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="https://neo4j.com/product/">Neo4j Product Overview</a>
+</li>
+<li>
+<a href="https://neo4j.com/use-cases/">Neo4j Use-Cases</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/operations-manual/current/#_neo4j_editions">Operations Manual: Neo4j Editions</a>
+</li>
+<li>
+<a href="https://neo4j.com/startup-program/">Startup Program</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l1_general_deployment_options" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L1)&#8201;&#8212;&#8201;(General Deployment Options)</h3>
+
+
+<div class="paragraph">
+<p>Early in the development of a solution, a decision will be made whether to deploy Neo4j as a standalone server or embedded within the solution.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Today the standard deployment of Neo4j is a typical client-server model, the most common approach among production deployments of Neo4j.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For other reasons the choice to embed Neo4j directly into the application may have been made.
+This is more common in OEM setups, where Neo4j runs integrated as part of a third party product.</p>
+</div>
+
+<div  id="_server_mode_deployments" class="sect3 "  >
+<h4>Server Mode Deployments</h4>
+
+
+<div class="paragraph">
+<p>In this architecture, Neo4j runs as a database server and can be accessed through binary and http APIs for data querying and updating.
+It is a very familiar option similar to many server-based solutions.</p>
+</div>
+
+
+
+<div class="paragraph">
+<div class="title">Server Mode Deployment</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/server_mode_deployment.png" alt="server mode deployment"></span></p>
+</div>
+
+</div>
+<div  id="_key_advantages_of_server_mode" class="sect3 "  >
+<h4>Key Advantages of Server Mode</h4>
+<div class="ulist">
+<ul>
+<li>
+<strong>Binary "Bolt" Protocol</strong> or HTTP APIs allowing clients to send requests and receive responses over the wire
+</li>
+<li>
+<strong>Platform Independence</strong> for the client/application accessing the server APIs due to dedicated language drivers
+</li>
+<li>
+Server and Query language extensions via user defined procedures
+</li>
+<li>
+Independent management of the database from the application
+</li>
+<li>
+Easy configuration and provisioning of Neo4j instances
+</li>
+</ul>
+</div>
+</div>
+<div  id="_for_the_administrator" class="sect3 "  >
+<h4>For the Administrator</h4>
+
+
+<div class="paragraph">
+<p>When deployed as a server, the administrator should expect to perform many common admin, configuration, and troubleshooting tasks as they would for any database deployment.
+Neo4j provides utilities and tools for enabling these capabilities, which we will detail further in this course.
+We will also detail the configuration and setup guidance that will aid the admin in ensuring a robust and stable deployment.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>This course will primarily emphasize the production decisions and administrative tasks associated with a server-mode deployment.</p>
+</div>
+
+</div>
+<div  id="_mixed_mode_server_and_embedded" class="sect3 "  >
+<h4>Mixed Mode: Server and Embedded</h4>
+
+
+<div class="paragraph">
+<p>Mixed mode is exactly as it sounds: a combination of both embedded and server-based deployments of Neo4j in your architecture.
+Two conditions must be fulfilled for this to be applicable:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+The mixed-mode instances are clustered with each other.
+If they are not clustered together, you simply have two different deployment architectures for two different databases.
+</li>
+<li>
+You are using Enterprise Edition for both; it is not possible to cluster with Community Edition
+</li>
+</ol>
+</div>
+
+
+<div class="paragraph">
+<div class="title">Mixed Mode Deployment</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/mixed_mode_deployment.png" alt="mixed mode deployment"></span></p>
+</div>
+
+<div  id="_examples_of_reasons_for_mixed_deployments" class="sect4 "  >
+<h5>Examples of reasons for mixed deployments</h5>
+<div class="ulist">
+<ul>
+<li>
+In a cluster of embedded Neo4j instances, deploying a Neo4j instance in server mode for reporting purposes
+</li>
+<li>
+In a cluster of server mode Neo4j instances, deploying an embedded instance in a custom built departmental application that leverages the global graph data
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>There are no unique administrative approaches or requirements when you have a mixed-mode deployment.
+We highlight it here simply to identify the possibility and note the reasons why this architecture may be chosen.</p>
+</div>
+
+</div>
+</div>
+<div  id="_references_2" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/java-reference/current/#tutorials-java-embedded">v3.x Embedded Deployment</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/tutorials-java-embedded.html">v2.3.5 Embedded Setup</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/operations-manual/current/#configuration-settings">v3.x Server Configuration</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/server-configuration.html">v2.3.5 Server Configuration</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l1_summary" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L1)&#8201;&#8212;&#8201;(Summary)</h3>
+
+
+<div class="paragraph">
+<p>So we&#8217;ve made it through the first part of this course.
+Here&#8217;s what you now know about your Neo4j production deployment:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+You understand the basic architecture of applications deployed with Neo4j
+</li>
+<li>
+You know whether you are going to use Community or Enterprise edition
+</li>
+<li>
+You know to never use a Milestone or Release Candidate in production
+</li>
+<li>
+But you also know you can test Milestone and Release Candidates in a test environment to see how all the new features and functionalities work with your existing solution
+</li>
+<li>
+You understand the architectural deployment options
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>Now we&#8217;ll turn to Neo4j itself and give you the knowledge you need to understand the server and its functions.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>As mentioned previously, much of the following content will detail tools and utilities that are available to administrators of Neo4j instances running in Server mode.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>We recommend reviewing the Neo4j documentation for specific details on configuring embedded deployments.</p>
+</div>
+
+</div>
+</div>
+<div  id="_l2_neo4j_server_basics" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>L2:  Neo4j Server Basics</h3>
+
+
+<div class="paragraph">
+<p>Next we turn to a discussion on the fundamentals and internals of Neo4j.
+These are important topics to fully understand the overall Neo4j framework, how it runs and what is required for Neo4j to be managed.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>This section covers:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Specific knowledge of the Neo4j server including how to manage memory and data
+</li>
+<li>
+Basic steps for deploying Neo4j
+</li>
+<li>
+Common configuration tasks and knowledge
+</li>
+<li>
+How to get an instance running
+</li>
+</ul>
+</div>
+<div  id="_l2_neo4j_component_architecture" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L2)&#8201;&#8212;&#8201;(Neo4j Component Architecture)</h3>
+
+
+<div class="paragraph">
+<p>Before we deploy, let&#8217;s dive into the components that make up a complete Neo4j instance.
+The internal components that make up a Neo4j instance are helpful to know so you better understand how implementation and configuration details affect the overall system.</p>
+</div>
+
+
+
+<div class="paragraph">
+<div class="title">Neo4j Component Architecture</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/neo4j_architecture.png" alt="neo4j architecture"></span></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Neo4j is comprised of a very familiar component architecture.
+It includes the files on disk that represent the database and logs for transactions, a cache for storing and working on data in memory, a transaction manager and an interface layer (query or API) for interacting with the database.
+Let&#8217;s look at each level separately.</p>
+</div>
+
+<div  id="_data_on_disk_neo4j_database_files" class="sect3 "  >
+<h4>Data on Disk - Neo4j Database Files</h4>
+
+
+<div class="paragraph">
+<p>Neo4j database files are persisted to storage for long-term durability.
+All the data related database files are persisted in the directory specified by the configuration parameters <code>dbms.directories.data</code> and <code>dbms.active_database</code> in the file <code>conf/neo4j.conf</code>.
+If you leave the parameter&#8217;s defaults in place, the database at the location <code>data/databases/graph.db</code> will be used.
+The below table will give you an idea of the type of files you&#8217;ll find, prefaced with <code>neostore.*</code> and what data they are storing.</p>
+</div>
+
+<table class="tableblock frame-topbot grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Files</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neostore.labeltokenstore*</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stores index related label data from your graph</p></td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neostore.nodestore.*</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stores node related data from your graph</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neostore.relationship*</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stores data related to the relationships created and defined in your graph</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neostore.propertystore.*</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stores the key/value properties from your database</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>Each of the files in this directory will make up your database.
+Since Neo4j is a schema-less database, we use fixed record lengths to persist data and follow offsets in these files to know how to fetch data to answer queries.
+The following table illustrates the fixed sizes Neo4j uses for the type of Java objects being stored.
+Those fixed sizes may differ with regards to the record format (standard format vs. high limit format, see the configuration parameter <code>dbms.record_format</code>).</p>
+</div>
+
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Store File</th>
+<th class="tableblock halign-left valign-top">Record size - standard</th>
+<th class="tableblock halign-left valign-top">Record size - high limit</th>
+<th class="tableblock halign-left valign-top">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">neostore.nodestore.db</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nodes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">neostore.relationshipstore.db</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">34B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relationships</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">neostore.propertystore.db</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">41 B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">48 B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Properties for nodes and relationships (up to 4 per record)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">neostore.propertystore.db.strings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128 B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128 B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Long String properties (configurable record size)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">neostore.propertystore.db.arrays</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128 B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128 B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Large array properties (configurable record size)</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>You can approximate the size of your database on disk by multiplying the number of nodes, relationships, and properties by the record sizes used for each.
+This will only be an approximation but can be very helpful when it comes to the hardware sizing.
+Also, this will have an impact on the size of the page cache, which you should configure properly.
+The cache and its configuration are discussed in more detail in the next section (L2).</p>
+</div>
+
+</div>
+<div  id="_logging_in_neo4j" class="sect3 "  >
+<h4>Logging in Neo4j</h4>
+
+
+<div class="paragraph">
+<p>Relevant database information and errors are logged to <code>$NEO4J_HOME/logs/neo4j.log</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>More detailed diagnostics, error messages and forensics are logged to <code>$NEO4J_HOME/logs/debug.log</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Both files are rotated after reaching a certain, <a href="http://neo4j.com/docs/operations-manual/current/#configuration-settings">configurable size and time</a>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>To get more detailed information about the memory allocation behavior you can enable Garbage Collection Logging, which is explained in a <a href="#gc-logging">Garbage Collection Logging</a>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For diagnostics on query performance it is possible to log Cypher queries that are slower that a <a href="http://neo4j.com/docs/operations-manual/current/#config_dbms.logs.query.enabled">configurable time</a> to a <code>$NEO4J_HOME/logs/query.log</code> file.
+If necessary parameters for those queries can be configured to be logged as well.
+Please note that for large amounts and sizes of parameters that can cause the log file to grow quickly.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The same is possible for http requests, which can be <a href="http://neo4j.com/docs/operations-manual/current/#config_dbms.logs.http.enabled">configured to be logged</a> to <code>$NEO4J_HOME/logs/http.log</code></p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Logging in the <a href="http://neo4j.com/docs/operations-manual/current/#_log_files">Neo4j Operations Manual</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/operations-manual/current/#configuration-settings">Logging Settings</a>
+</li>
+</ul>
+</div>
+</div>
+<div  id="_transaction_management_in_neo4j" class="sect3 "  >
+<h4>Transaction Management in Neo4j</h4>
+
+
+<div class="paragraph">
+<p>In order to fully maintain data integrity and ensure good transactional behavior, Neo4j supports the ACID properties:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+<strong>Atomicity</strong>: If any part of a transaction fails, the database state is left unchanged.
+</li>
+<li>
+<strong>Consistency</strong>: Any transaction will leave the database in a consistent state.
+</li>
+<li>
+<strong>Isolation</strong>: During a transaction, modified data cannot be accessed by other operations.
+</li>
+<li>
+<strong>Durability</strong>: The DBMS can always recover the results of a committed transaction.
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>Specifically:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+All database operations that access the graph, indexes, or the schema must be performed in a transaction.
+</li>
+<li>
+The default isolation level is <code>read committed</code>.
+</li>
+<li>
+Data retrieved by traversals is not protected from modification by other transactions.
+</li>
+<li>
+Non-repeatable reads may occur (i.e., only write locks are acquired and held until the end of the transaction).
+</li>
+<li>
+You can manually acquire write locks on nodes and relationships to achieve higher levels of isolation (SERIALIZABLE).
+</li>
+<li>
+Locks are acquired at the Node and Relationship level.
+</li>
+<li>
+Deadlock detection is built into the core transaction management.
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>For production deployment purposes, much of the transaction management is outside the scope of this training.</p>
+</div>
+
+</div>
+<div  id="_query_and_api_interfaces" class="sect3 "  >
+<h4>Query and API Interfaces</h4>
+
+
+<div class="paragraph">
+<p>Neo4j provides a query language called Cypher and a set of APIs for CRUD operations with the database.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Cypher is a declarative graph query language that allows for expressive and efficient querying and updating of the graph store.
+Cypher is a relatively simple but powerful language.
+Very complicated database queries can easily be expressed through Cypher.
+Although outside the scope of this training, it is recommended that everyone working with Neo4j learns the basic Cypher syntax.
+It is highly efficient in regard to querying the database for data validation and other checks.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Neo4j also provides Java APIs for database operations, which will most frequently be used when the database is embedded or if authoring Neo4j unmanaged extensions.
+The documentation provides a complete overview of the APIs, but further details are outside the scope of this training.</p>
+</div>
+
+</div>
+<div  id="_references_3" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="https://neo4j.com/developer/cypher-query-language/">Introduction to Cypher</a>
+</li>
+<li>
+<a href="https://neo4j.com/docs/rest-docs/current/">REST Api</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l2_cache" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L2)&#8201;&#8212;&#8201;(Cache)</h3>
+
+
+<div class="paragraph">
+<p>Neo4j provides a built in cache called page cache.
+This is a file buffer cache and caches the storage file data in the same format as it is stored on the durable storage media.
+It is also sometimes referred to by the name file buffer cache.</p>
+</div>
+
+<div  id="_page_cache" class="sect3 "  >
+<h4>Page Cache</h4>
+
+
+<div class="paragraph">
+<p>The page cache is designed to be off heap and holds the Neo4j data (or parts of it) in the same format as it is represented on the durable storage media.
+The purpose of this cache layer is to improve both read and write performance.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The file buffer cache improves write performance by writing to the cache and deferring durable writes.
+This behavior is safe since all transactions are always durably written to the transaction log, which can be used to recover the store files in the event of a crash.
+It also improves write performance by batching up many small writes into fewer page-sized writes.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Since the file buffer cache is caching the contents of the store files, you can calculate the appropriate size for it by summing up the space usage of all the store files.
+For instance, on a posix system you can estimate the total size by running the following command in a terminal:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre>$ du -hc *store.db*</pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p>Run this command in the directory where your store files are located (see above for configuring this).
+It will output the summed up size of the store files relevant for the page cache.
+Add an appropriate value for growth (e.g. 20%).</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If you configure the file buffer cache to have less memory than the size of the store, the cache will automatically swap pages in and out on demand, trying to keep the most frequently used data in memory.</p>
+</div>
+
+</div>
+<div  id="_configuration" class="sect3 "  >
+<h4>Configuration</h4>
+<table class="tableblock frame-topbot grid-all spread">
+<caption class="title">Table 3. Configuration</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Possible Values</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unsupported.dbms.report_configuration</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code> or <code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If set to <code>true</code> the current page cache configuration settings will be written to the default system output, mostly the console or the logfiles (e.g. debug.log).</p></td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.memory.pagecache.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum amount of memory to use for the page cache, either in bytes, or greater byte-like units, such as 100m for 100 mega-bytes, or 4g for 4 giga-bytes.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The amount of memory to use for mapping the store files, in a unit of bytes.
+This will automatically be rounded down to the nearest whole page.
+This value cannot be zero.
+For extremely small and memory constrained deployments, it is recommended to still reserve at least a couple megabytes for the page cache.</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>Note: the prefix <code>unsupported</code> means that the config parameter is not part of the official product surface and therefore not officially supported.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When configuring the amount of memory allowed to use for the page cache and the JVM heap, make sure to leave room for the operating system&#8217;s page cache and other programs and services the system might want to run.
+It is important to configure the memory usage so that the Neo4j JVM process won&#8217;t need to use any swap memory, as this will cause significant performance degradation.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When reading the configuration parameters on startup, Neo4j will automatically configure the parameters that are not specified.
+The default cache size will be configured based on the available memory on the computer, with the assumption that the machine is dedicated to running Neo4j.
+Specifically, Neo4j will look at how much available memory the machine has, subtract the JVM max heap allocation from that, and then use 50% of what is left for the page cache.
+This is considered the default configuration.</p>
+</div>
+
+</div>
+<div  id="_a_note_about_memory_management" class="sect3 "  >
+<h4>A Note about Memory Management</h4>
+
+
+<div class="paragraph">
+<p>In future releases of Neo4j, the product may see changes in allocation and use of memory which will improve the overall experience.
+Please refer to the documentation and release notes for releases you are planning to use to confirm changes in memory management.</p>
+</div>
+
+</div>
+</div>
+<div  id="_l2_server_deployment_options" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L2)&#8201;&#8212;&#8201;(Server Deployment Options)</h3>
+
+
+<div class="paragraph">
+<p>Now that we understand the basic components that comprise Neo4j, let&#8217;s turn to our discussion to deployment and configuration.</p>
+</div>
+
+<div  id="_where_to_deploy" class="sect3 "  >
+<h4>Where to Deploy?</h4>
+
+
+<div class="paragraph">
+<p>You can deploy Neo4j in your own data center, in the Amazon cloud or using Rackspace, just to name a few possibilities.
+There are various other ways to deploy your services.
+Often the decision to choose the right deployment model is made by you and your organization together with other involved companies or IT partners.
+Subjects often discussed during decision-making include cost, data privacy, availability constraints and response times.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For Neo4j, the decision is purely based on your own requirements.
+Neo4j can be deployed in your data center, in a hosted service or a combination of both (if using Clustering with Enterprise Edition).</p>
+</div>
+
+</div>
+<div  id="_hardware_considerations" class="sect3 "  >
+<h4>Hardware Considerations</h4>
+
+
+<div class="paragraph">
+<p>The most common-sense minimum requirement is that your hardware choices should reflect the demands of your application.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For highly concurrent or low-latency read requirements:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Try to acquire hardware with more physical memory to increase the amount of the database that can be cached, and the ratio of cache hits when data is queried.
+</li>
+<li>
+Consider hardware with higher core counts so more threads can execute on data in parallel.
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>This will reduce the time the database spends accessing data from disk.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For high-volume write transaction requirements:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Hardware with better disk speeds (or SSD) will provide higher overall throughput
+</li>
+<li>
+Minimize the amount of system services contention by considering dedicated hardware for Neo4j
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>Of course, if your application has a combination of both requirements, you should consider a mix of the suggestions above.
+Overall, the saying "bigger is better" applies here.</p>
+</div>
+
+</div>
+<div  id="_virtualization_containers_other" class="sect3 "  >
+<h4>Virtualization, Containers, other?</h4>
+
+
+<div class="paragraph">
+<p>The popularity of virtualization solutions such as VMWare and container solutions such as Docker are commonly discussed when considering production deployment.
+While we won&#8217;t discuss all possible scenarios and options here, we can confirm that Neo4j can be deployed in these solutions with the following considerations:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Neo4j heavily utilizes both memory and disk while running, so you&#8217;ll want to ensure your deployment has an adequate number of system services dedicated to it to achieve the performance you require.
+</li>
+<li>
+Contention for services and swapping on a system can cause worse performance than on an undersized system.
+Avoid oversubscribing the systems where Neo4j will be deployed.
+</li>
+<li>
+Neo4j deployments are capable of starting and running with minimal configuration.
+However, you&#8217;ll likely still need to touch each system where Neo4j will be deployed for final configurations.
+</li>
+</ul>
+</div>
+</div>
+<div  id="_minimum_requirements" class="sect3 "  >
+<h4>Minimum Requirements</h4>
+
+
+<div class="paragraph">
+<p>Lastly, Neo4j does have a basic set of minimum requirements that must be present:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Java: Oracle or OpenJDK
+<div class="ulist">
+<ul>
+<li>
+Neo4j 2.3.0 or higher: JDK 8
+</li>
+<li>
+Neo4j 2.2.x or lower: JDK 7
+</li>
+</ul>
+</div>
+</li>
+<li>
+ext4 or similarly formatted filesystem
+</li>
+<li>
+Minimum 10GB SATA disk (with recommendation for higher performance disks)
+</li>
+<li>
+2GB Memory
+</li>
+<li>
+Intel Core i3 CPU
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l2_basic_neo4j_configuration" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L2)&#8201;&#8212;&#8201;(Basic Neo4j Configuration)</h3>
+
+
+<div class="paragraph">
+<p>The default configuration of Neo4j will likely not be completely sufficient for your application&#8217;s workload.
+Neo4j will do a considerable amount of self management, such as adjusting the amount of memory used, but it should still be reviewed and adjusted for application requirements.
+There are two important configuration files in which you may want to adjust some parameters.
+These files are discussed in the following section.</p>
+</div>
+
+<div  id="_neo4j_configuration_files" class="sect3 "  >
+<h4>Neo4j Configuration Files</h4>
+<table class="tableblock frame-topbot grid-all spread">
+<caption class="title">Table 4. Configuration Files</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Purpose</th>
+<th class="tableblock halign-left valign-top">File</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>JVM Configuration</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>conf/neo4j-wrapper.conf</code></p></td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Neo4j (services and kernel) Configuration</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>conf/neo4j.conf</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div  id="_database_configuration" class="sect3 "  >
+<h4>Database Configuration</h4>
+
+
+<div class="paragraph">
+<p>File: <code>conf/neo4j.conf</code></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Neo4j has a range of configuration and performance tuning options that are available.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You will want to familiarize yourself with the values set in this configuration file.
+Although the defaults are sensible, administrators might choose to make changes (especially to the port settings).</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The following is a list of configuration parameters you should consider tuning for your initial deployment.</p>
+</div>
+
+<table class="tableblock frame-topbot grid-all spread">
+<caption class="title">Table 5. Configuration Parameters for Inital Deployment</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Comments</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.connector.*</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">These are the configurations that allow you to define webservices port and SSL settings.</p></td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.allow_format_migration</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you are upgrading a current Neo4j database, you will want to uncomment this parameter (set it to true) so that the underlying database files are upgraded to the version of the database you are deploying.
+Please consult the release notes, the documentation or the Neo4j support team for confirmation of supported upgrade paths.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.tx_log.rotation.retention_policy</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defines how long logical transaction logs will be maintained on the server.
+The more days or volume of logs kept, the more disk space will be utilized by this feature.
+Later in the training, we will discuss the impact this configuration has on backup strategies.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.shell.enabled,
+dbms.shell.host,
+dbms.shell.port</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Neo4j can be enabled to allow access from a remote terminal client for operations on the database.
+If this is needed/desirable for production data validation, consider enabling remote shell access with these configurations.
+However, note that this does pose a security risk to your database if not properly controlled.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.memory.pagecache.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum amount of memory to use for the page cache, either in bytes, or greater byte-like units, such as 100m for 100 mega-bytes, or 4g for 4 giga-bytes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.directories.data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path of the data directory.
+You must not configure more than one Neo4j installation to use the same data directory.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.active_database</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the database to load.
+A directory with that name will be created under the path specified by <code>dbms.directories.data</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.security.auth_enabled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether basic authentication is enabled or not.</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>For Enterprise Edition users, it is also possible to configure online backup and clustering (HA) settings, which will be discussed later in this training.</p>
+</div>
+
+</div>
+<div  id="_jvm_configuration" class="sect3 "  >
+<h4>JVM Configuration</h4>
+
+
+<div class="paragraph">
+<p>File: <code>conf/neo4j-wrapper.conf</code></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When running Neo4j as a server, it will start an instance of the Java Virtual Machine to run.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>In the file <code>neo4j-wrapper.conf</code>, JVM and heap memory related parameters that are passed to the JVM when starting are configured.
+For your initial deployment, consider reviewing the following parameters.</p>
+</div>
+
+<table class="tableblock frame-topbot grid-all spread">
+<caption class="title">Table 6. JVM Configuration Parameters for Inital Deployment</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Comments</th>
+</tr>
+</thead>
+<tfoot>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.jvm.additional=-XX:+UseG1GC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use the G1 Garbage Collector. For most applications, this setting will be sufficient.<br>
+Sometimes you&#8217;ll need to use other Garbage Collector options, which can be set here as well.</p></td>
+</tr>
+</tfoot>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dbms.memory.heap.initial_size=16000<br>
+dbms.memory.heap.max_size=16000</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set the heap memory in megabytes used by Neo4j is allocating for internal processing.
+It&#8217;s recommended to set both options to the same value.
+Note that the memory used by the page cache is not part of JVM heap.</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>For Enterprise customers, it is also possible to enable detailed JVM metrics and remote JMX monitoring for remote inspection.
+We will discuss this in a later section.</p>
+</div>
+
+</div>
+</div>
+<div  id="_l2_installing_and_running_neo4j" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L2)&#8201;&#8212;&#8201;(Installing and Running Neo4j)</h3>
+<div  id="_before_you_get_started" class="sect3 "  >
+<h4>Before You Get Started</h4>
+
+
+<div class="paragraph">
+<p>You will find the Neo4j installation files location at <code><a href="https://neo4j.com/download/other-releases/" class="bare">https://neo4j.com/download/other-releases/</a></code>.
+Make sure your target system meets the current minimum requirements, including a JVM with the correct version.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Getting Neo4j installed and started can be done in less than a minute.
+The video below will walk you through doing so in a Mac environment.
+Please consult the documentation for <a href="https://neo4j.com/docs/operations-manual/current/#windows-installation">installing in a Windows environment</a>.</p>
+</div>
+
+<iframe src="https://player.vimeo.com/video/122285609" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>
+<div  id="_installing_neo4j_3" class="sect3 "  >
+<h4>Installing Neo4j 3</h4>
+
+
+<div class="paragraph">
+<p>Download the version of Neo4j you want to run from: <a href="https://neo4j.com/download/other-releases/" class="bare">https://neo4j.com/download/other-releases/</a></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For the Enterprise Edition, always install <strong>Oracle JDK 8</strong> or <strong>OpenJDK 8</strong> first and then register, download and unzip the enterprise version.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For <strong>Windows</strong> and <strong>MacOS X</strong> Community Edition, Desktop installers which come with a bundled version of the Java Runtime Environment are available.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The zipped download is also available for the Community Edition for all operating systems.
+There is also a <a href="http://debian.neo4j.org">debian package</a> available for Debian and Ubuntu Linux distribution.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>An easy way to use Neo4j is via the official <a href="http://neo4j.com/developer/docker">Docker image</a>, both for Enterprise and Community.
+The Docker image comes with many configuration options detailed in the documentation and can also run in a clustered setup.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Start Neo4j via the Desktop application or <code>bin/neo4j start</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>After the database has started, you can access the Neo4j Browser database web interface at the listed URL (in most cases <code><a href="http://localhost:7474" class="bare">http://localhost:7474</a></code>).</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For detailed installation instructions, please refer to <a href="https://neo4j.com/docs/operations-manual/current/#single-instance-install">the documentation</a>.</p>
+</div>
+
+</div>
+<div  id="_server_commands" class="sect3 "  >
+<h4>Server commands</h4>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Command</code></p></td>
+<td class="tableblock halign-left valign-top"><div>
+
+<div class="paragraph">
+<p>Comment</p>
+</div>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>start</code></p></td>
+<td class="tableblock halign-left valign-top"><div>
+
+<div class="paragraph">
+<p>Start Neo4j server in the background, it may take a bit until the endpoints become available</p>
+</div>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>stop</code></p></td>
+<td class="tableblock halign-left valign-top"><div>
+
+<div class="paragraph">
+<p>Stop Neo4j server</p>
+</div>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>restart</code></p></td>
+<td class="tableblock halign-left valign-top"><div>
+
+<div class="paragraph">
+<p>Restart Neo4j server</p>
+</div>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><div>
+
+<div class="paragraph">
+<p>Display Neo4j status</p>
+</div>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>console</code></p></td>
+<td class="tableblock halign-left valign-top"><div>
+
+<div class="paragraph">
+<p>Start Neo4j in the foreground, write messages to stdout</p>
+</div>
+</div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div  id="_l2_summary" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L2)&#8201;&#8212;&#8201;(Summary)</h3>
+
+
+<div class="paragraph">
+<p>You&#8217;ve now made it to the point where we are ready to begin discussing more advanced production deployment configurations and how to manage and troubleshoot the system once it is in production.
+Before moving on, let&#8217;s recap what we now know:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+All the fundamentals about Neo4j editions, when you would choose which and the general deployment options
+</li>
+<li>
+The component architecture of Neo4j
+</li>
+<li>
+How Neo4j operates and the use of memory
+</li>
+<li>
+Where the appropriate configuration files exist and the set of parameters that should absolutely be reviewed before going into production
+</li>
+<li>
+How to run a copy of Neo4j in your environment
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l3_enterprise_edition_and_clustering" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>L3: Enterprise Edition and Clustering</h3>
+<iframe src="https://player.vimeo.com/video/122279731" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<div  id="_l3_why_cluster" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Why Cluster?)</h3>
+
+
+<div class="paragraph">
+<p>When designing your solution, some of your first considerations will concern your functional requirements and the type of technology choices you make to meet them.
+Some of those functional requirements likely will include a need to scale to many concurrent users, maintain consistent uptime, or be able to recover from a system failure and maintain availability.
+These important production-related questions should drive your technical decisions.
+This may result in choosing to cluster Neo4j.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>This section introduces:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Clustering
+</li>
+<li>
+Read Scalability
+</li>
+<li>
+High Availability
+</li>
+<li>
+Disaster Recovery
+</li>
+<li>
+Analytics
+</li>
+</ul>
+</div>
+</div>
+<div  id="_l3_cluster_read_scalability" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Cluster: Read Scalability)</h3>
+
+
+<div class="paragraph">
+<p>As the title suggests, clustering Neo4j allows you to distribute read workload across a number of Neo4j instances.
+You can take two approaches while scaling your reads with Neo4j: (a) distribute and load balance reads to any slave instance in the cluster, or (b) distribute direct reads to specific instances in the cluster.</p>
+</div>
+
+<div  id="_distribute_and_load_balance_reads_to_any_slave_instance_in_the_cluster" class="sect3 "  >
+<h4>Distribute and load balance reads to any slave instance in the cluster</h4>
+
+
+<div class="paragraph">
+<p>Neo4j&#8217;s clustering architecture replicates the entire database to each instance in your cluster.
+As a result, you are able to direct any read from your application to any slave instance without much concern for data locality.</p>
+</div>
+
+<div  id="_when_would_you_choose_this_method" class="sect4 "  >
+<h5>When would you choose this method?</h5>
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+You need to scale up the number of concurrent read requests
+</li>
+<li>
+Your data has no natural or obvious way of partitioning reads
+</li>
+<li>
+A significant portion of the data that needs to be read can reasonably be expected to already be in memory on any instance in the cluster
+</li>
+</ol>
+</div>
+
+
+<div class="paragraph">
+<div class="title">Replicate the entire database to each instance in your cluster</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/cluster_read_scalability.png" alt="cluster read scalability"></span></p>
+</div>
+
+</div>
+</div>
+<div  id="_distribute_direct_reads_to_specific_instances_in_the_cluster" class="sect3 "  >
+<h4>Distribute direct reads to specific instances in the cluster</h4>
+
+
+<div class="paragraph">
+<p>Distributing direct reads to specific instances in the cluster is sometimes referred to as "cache-based partitioning".
+The strategy simply allows you to take advantage of natural partitions in your data to direct reads to particular instances where the system will already have those datasets in memory.
+This approach is particularly useful when your total active dataset is much larger than can fit in memory in any particular instance.</p>
+</div>
+
+<div  id="_when_would_you_choose_this_method_2" class="sect4 "  >
+<h5>When would you choose this method?</h5>
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Your total active data set is larger than can reasonably be expected to fit in memory in any single instance in your cluster
+</li>
+<li>
+A natural or obvious partition can be identified in your dataset
+</li>
+<li>
+You have the application and operations ability to direct which instances are read from
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div  id="_l3_cluster_high_availability" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Cluster: High Availability)</h3>
+<div  id="_how_do_you_know_if_you_need_neo4j_s_clustering_for_high_availability_reasons" class="sect3 "  >
+<h4>How do you know if you need Neo4j&#8217;s clustering for High Availability reasons?</h4>
+
+
+<div class="paragraph">
+<p>Disaster recovery features are required for enterprise environments.
+If your enterprise has the following features, your enterprise is a good candidate for clustering:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Neo4j serves data for a <strong>critical business or consumer facing solution</strong> or component that would impact the ability of the company to conduct business if the component were down
+</li>
+<li>
+Data is <strong>dependent on various global end-users with limited predictability</strong> of when they&#8217;ll be accessing the system
+</li>
+</ol>
+</div>
+
+
+<div class="paragraph">
+<div class="title">High Availability Cluster</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/cluster_high_availability.png" alt="cluster high availability"></span></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>A significant and fundamental requirement for most production services or applications is overall availability.
+Very often this is determined by the demands of the users, the times they would be interacting with the solution, the impact downtime would have on the business or users of the system to complete their roles or the financial impact of a system failure.
+These aren&#8217;t always customer-facing solutions and can be critical internal systems.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Availability can often be addressed with various strategies for recovery or mirroring.
+However, Neo4j&#8217;s clustering architecture is an automated solution to ensure Neo4j is consistently available for your application and end-users.</p>
+</div>
+
+</div>
+</div>
+<div  id="_l3_cluster_disaster_recovery" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Cluster: Disaster Recovery)</h3>
+
+
+<div class="paragraph">
+<p>Disaster recovery, in general terms, defines your ability to recover from major outages of your services.
+The most common example is an outage of a whole datacenter, which results in many services being disrupted.
+In these cases, a disaster recovery strategy can define a failover datacenter along with a strategy for bringing services back online.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Neo4j Clustering can accommodate disaster recovery strategies that require very short windows of downtime or low tolerances for data loss in disaster scenarios.
+By deploying a cluster instance to an alternate location, you have an active copy of your database up and available in your designated disaster recovery location that is consistently keeping up with the transactions against your database.</p>
+</div>
+
+<div  id="_why_would_you_choose_clustering_in_support_of_disaster_recovery" class="sect3 "  >
+<h4>Why would you choose Clustering in support of Disaster Recovery?</h4>
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+<strong>Minimize Downtime</strong>: Your application availability demands are very high and you cannot sustain significant periods of downtime
+</li>
+<li>
+<strong>Require Real-Time</strong>: You already employ a disaster recovery strategy for other application or service components that are near real-time
+</li>
+<li>
+<strong>Minimize Data Loss</strong>: You have a large database that changes frequently and has low tolerance for data loss in a disaster scenario
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div  id="_l3_cluster_analytics" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Cluster: Analytics)</h3>
+
+
+<div class="paragraph">
+<p>Your application needs to access data for its purposes.
+It reads data, writes data, and generally keeps your application service or end-users happy.
+Then comes the analytics team that wants to collect and aggregate data for their reports.
+Next thing you know, you have a set of long-running compute queries running against your production databases and disrupting your service or end-users' happiness.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You can&#8217;t avoid servicing the needs of the analytics requests, but you can limit the impact their queries have on your service.
+Neo4j Clustering can be used to include separate instances entirely in support of query analytics, either from end users or from BI tools.
+Clustering means the data is always up to date for analytics queries as well.</p>
+</div>
+
+<div  id="_when_would_you_decide_to_use_clustering_to_support_analytics_needs" class="sect3 "  >
+<h4>When would you decide to use Clustering to support analytics needs?</h4>
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+You have regular BI users that consistently need to run analytics against the most recent versions of the data
+</li>
+<li>
+Your analytics includes queries that aggregate over large or entire sets of data
+</li>
+<li>
+Your analytics processes include complex compute algorithms for predictive or modeling purposes
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div  id="_l3_cluster_to_save_yourself" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Cluster to save yourself)</h3>
+
+
+<div class="paragraph">
+<p>We&#8217;ve looked at some logically sound reasons to cluster Neo4j:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Read scalability
+</li>
+<li>
+High availability
+</li>
+<li>
+Disaster Recovery
+</li>
+<li>
+Analytics
+</li>
+</ol>
+</div>
+
+
+<div class="paragraph">
+<p>But there is another sound reason not listed: saving your bacon.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Clustering offers many advantages for your deployments:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+It&#8217;s an automatic, real-time backup of your database
+</li>
+<li>
+It can help assure additional data durability in the cluster
+</li>
+<li>
+You have an automatic failover solution without the need to invest in backup, redeploy and restart scripts and tools
+</li>
+<li>
+You can support the <em>ad hoc</em> data requests without service impacts
+</li>
+</ol>
+</div>
+
+
+<div class="paragraph">
+<p>Clustering Neo4j will support many of the functional application requirements that demand application uptime and consistency.
+Now let&#8217;s turn to a discussion on Neo4j&#8217;s clustering basics and how to deploy it.</p>
+</div>
+
+</div>
+<div  id="_l3_neo4j_cluster_basics" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Neo4j Cluster Basics)</h3>
+<iframe src="https://player.vimeo.com/video/122285723" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+
+<div class="paragraph">
+<p>Neo4j clustering is comprised of a single Master instance and zero or more Slave instances.
+All instances in the cluster have full copies of your data in their local database files.
+Each database instance contains the logic needed to coordinate with the other members of the cluster for data replication and election management.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Please note that you need a trusted network to run your Neo4j cluster as currently the network communication is not encrypted.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When performing a write transaction on a slave, each write operation will be synchronized with the master (locks will be acquired on both master and slave).
+When the transaction commits it will first be committed on the master and then if successful, on the slave.
+To ensure consistency, a slave has to be up to date with the master before performing a write operation.
+This is built into the communication protocol between the slave and master so that updates will be applied automatically to a slave communicating with its master.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Write transactions performed directly through the master will execute in the same way as running in normal non-HA mode.
+Upon success, the transaction will be pushed out to a configurable number of slaves (default one slave).
+This is done optimistically, meaning if the push fails, the transaction will still be successful.
+It&#8217;s also possible to configure the push factor to 0 for higher write performance when writing directly through the master, although this increases the risk of losing any transactions not yet pulled by another slave if the master goes down.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Slaves can also be configured to pull updates asynchronously by setting the <code>ha.pull_interval</code> option.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Whenever a Neo4j database becomes unavailable, the other database instances in the cluster will detect that and mark it as temporarily failed.
+A database instance that becomes available after being unavailable will automatically catch up with the cluster.
+If the master goes down, another member will be elected and switched from slave to master after a quorum has been reached within the cluster.
+When the new master has performed its role switch, it will broadcast its availability to all other members of the cluster.
+Normally a new master is elected and started within just a few seconds.
+During this time, no writes can take place (the writes will block or in rare cases, throw an exception).
+The only time this is not true is when an old master had changes that weren&#8217;t replicated to any other member before becoming unavailable.
+If the new master is elected and performs changes before the old master recovers, there will be two "branches" of the database after the point where the old master became unavailable.
+The old master will move away its database (its "branch") and download a full copy from the new master to become available as a slave in the cluster.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>In summary:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Write transactions can be performed on any database instance in a cluster.
+</li>
+<li>
+Neo4j HA is fault tolerant and can continue to operate from any number of machines down to a single machine.
+</li>
+<li>
+Slaves will be automatically synchronized with the master on write operations.
+</li>
+<li>
+If the master fails, a new master will be elected automatically.
+</li>
+<li>
+The cluster automatically handles instances becoming unavailable (for example due to network issues) and also makes sure to accept them as members in the cluster when they are available again.
+</li>
+<li>
+Transactions are atomic, consistent and durable but eventually propagated out to other slaves.
+</li>
+<li>
+Updates to slaves are eventually consistent by nature but can be configured to be pushed optimistically from the master during commit.
+</li>
+<li>
+If the master goes down, any running write transactions will be rolled back and new transactions will block or fail until a new master has become available.
+</li>
+<li>
+Reads are highly available and able to handle read load scales with more database instances in the cluster.
+</li>
+</ul>
+</div>
+</div>
+<div  id="_l3_setting_up_a_cluster" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Setting up a Cluster)</h3>
+
+
+<div class="paragraph">
+<p>The video below will walk you through a simple setup of a local cluster.
+Setting up a cluster involves the basic following steps:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Installing each cluster instance
+</li>
+<li>
+Configuring Neo4j for clustering on each instance
+</li>
+<li>
+Starting up each cluster instance
+</li>
+</ol>
+</div>
+<iframe src="https://player.vimeo.com/video/122285724" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<div  id="_creating_local_cluster_on_a_single_server" class="sect3 "  >
+<h4>Creating Local Cluster on a single server</h4>
+
+
+<div class="paragraph">
+<p>Let&#8217;s set up a cluster with all instances of Neo4j on the same machine.
+This type of configuration is useful in development and testing environments.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><a href="https://neo4j.com/download/">Download</a> and install Neo4j Enterprise into three different directories:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code>~/neo4j-01
+~/neo4j-02
+~/neo4j-03</code></pre>
+</div>
+</div>
+<div  id="_configure_ha_related_setting_for_each_instance" class="sect4 "  >
+<h5>Configure HA related setting for each instance.</h5>
+
+
+<div class="paragraph">
+<p><strong>Instance 1</strong></p>
+</div>
+
+
+
+<div class="paragraph">
+<p><strong><code>conf/neo4j.conf</code></strong>:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code>dbms.backup.enabled=true
+dbms.backup.address=127.0.0.1:6362
+
+dbms.connector.bolt.address=127.0.0.1:7687
+dbms.connector.http.address=127.0.0.1:7474
+dbms.connector.https.address=127.0.0.1:7473
+
+dbms.mode=HA
+ha.server_id=1
+ha.initial_hosts=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
+ha.host.coordination=127.0.0.1:5001
+ha.host.data=127.0.0.1:6001</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p><strong>Instance 2</strong></p>
+</div>
+
+
+
+<div class="paragraph">
+<p><strong><code>conf/neo4j.conf</code></strong>:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code>dbms.backup.enabled=true
+dbms.backup.address=127.0.0.1:6363
+
+dbms.connector.bolt.address=127.0.0.1:7688
+dbms.connector.http.address=127.0.0.1:7475
+dbms.connector.https.address=127.0.0.1:7573
+
+dbms.mode=HA
+ha.server_id=2
+ha.initial_hosts=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
+ha.host.coordination=127.0.0.1:5002
+ha.host.data=127.0.0.1:6002</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p><strong>Instance 3</strong></p>
+</div>
+
+
+
+<div class="paragraph">
+<p><strong><code>conf/neo4j.conf</code></strong>:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code>dbms.backup.enabled=true
+dbms.backup.address=127.0.0.1:6364
+
+dbms.connector.bolt.address=127.0.0.1:7689
+dbms.connector.http.address=127.0.0.1:7476
+dbms.connector.https.address=127.0.0.1:7673
+
+dbms.mode=HA
+ha.server_id=3
+ha.initial_hosts=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
+ha.host.coordination=127.0.0.1:5003
+ha.host.data=127.0.0.1:6003</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p>Make sure no other instance of Neo4j or other programs that may use the ports configured above are running on your machine.
+Then, start all Neo4j instances in the cluster:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code>localhost:~/neo4j-01$ ./bin/neo4j start
+localhost:~/neo4j-02$ ./bin/neo4j start
+localhost:~/neo4j-03$ ./bin/neo4j start</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p>You may now access your three instances in your web browser via:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+HTTP
+<div class="ulist">
+<ul>
+<li>
+<code><a href="http://127.0.0.1:7474">http://127.0.0.1:7474</a> (instance one, HTTP)</code>
+</li>
+<li>
+<code><a href="http://127.0.0.1:7475">http://127.0.0.1:7475</a> (instance two, HTTP)</code>
+</li>
+<li>
+<code><a href="http://127.0.0.1:7475">http://127.0.0.1:7475</a> (instance three, HTTP)</code>
+</li>
+</ul>
+</div>
+</li>
+<li>
+HTTPS
+<div class="ulist">
+<ul>
+<li>
+<code><a href="https://127.0.0.1:7473">https://127.0.0.1:7473</a> (instance one, HTTPS)</code>
+</li>
+<li>
+<code><a href="https://127.0.0.1:7573">https://127.0.0.1:7573</a> (instance two, HTTPS)</code>
+</li>
+<li>
+<code><a href="https://127.0.0.1:7673">https://127.0.0.1:7673</a> (instance three, HTTPS)</code>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div  id="_l3_graph_lab_cluster_in_action" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Graph LAB: Cluster in Action)</h3>
+<iframe src="https://player.vimeo.com/video/122285725" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>
+<div  id="_l3_summary" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L3)&#8201;&#8212;&#8201;(Summary)</h3>
+
+
+<div class="paragraph">
+<p>Clustering is a very important topic for many enterprise deployments.
+Throughout this section, we&#8217;ve discussed the various reasons for Clustering Neo4j and how you&#8217;d go about it.
+At this point, you are ready to discuss some final administration topics, including how to maintain your system once it is in production.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Let&#8217;s recap what we&#8217;ve learned up to this point:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+The groundwork for Neo4j, components, editions, and configurations
+</li>
+<li>
+Your deployment options
+</li>
+<li>
+How to scale your Neo4j deployment to meet Enterprise demands
+</li>
+<li>
+Clustering a Neo4j instance
+</li>
+</ul>
+</div>
+<div  id="_references_4" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="https://neo4j.com/docs/operations-manual/current/#ha-setup-tutorial">Set up a Neo4j cluster</a>
+</li>
+<li>
+<a href="https://neo4j.com/docs/operations-manual/current/#tutorial-local-cluster">Set up a local cluster</a>
+</li>
+<li>
+<a href="https://neo4j.com/docs/operations-manual/current/#design-considerations">Design considerations</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div  id="_l4_production_administration" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>L4: Production Administration</h3>
+<iframe src="https://player.vimeo.com/video/122279734" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+
+<div class="paragraph">
+<p>Neo4j supports common monitoring and administration tasks you will need for assuring long run success of your deployment.
+Whether you need to secure access, administer the database or implement a backup routine, this is the right section for you.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>This section covers:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Monitoring
+</li>
+<li>
+Authentication and Basic Security
+</li>
+<li>
+Backup and Restore
+</li>
+</ul>
+</div>
+<div  id="_l4_monitoring_neo4j" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L4)&#8201;&#8212;&#8201;(Monitoring Neo4j)</h3>
+
+
+<div class="paragraph">
+<p>Neo4j provides access to internal data through a number of means, giving you the ability to directly access and monitor the state of a single instance or a cluster of multiple instances.
+This data can provide details on the state of an instance, the volume and measurements of data, the number of operations, memory management and much more.
+In this section we&#8217;ll describe the various data points you can retrieve from Neo4j&#8217;s internal monitoring options.</p>
+</div>
+
+<div  id="_metrics_extension" class="sect3 "  >
+<h4>Metrics Extension</h4>
+
+
+<div class="paragraph">
+<p>Starting in Neo4j 2.3 Enterprise Edition a <a href="https://neo4j.com/docs/operations-manual/current/#metrics-extension">monitoring extension</a> was added, that reports a large number of metrics from Neo4j, for example:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Detailed transaciton metrics
+</li>
+<li>
+Cluster status and events
+</li>
+<li>
+Network metrics
+</li>
+<li>
+Log rotation events and timing
+</li>
+<li>
+Page-Cache and Checkpointing events
+</li>
+<li>
+Record-Id usage
+</li>
+<li>
+JVM memory
+</li>
+<li>
+Bolt &amp; Cypher processing information
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>The metrics extension can be configured to report to Graphite and log to CSV files.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>A full list can be found in the <a href="http://neo4j.com/docs/operations-manual/current/#available-metrics">operations manual</a>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You can enable all metrics or certain aspects:</p>
+</div>
+
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 7. Configuration Settings</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enabling all metrics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.neo4j.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enabling all Neo4j specific metrics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.neo4j.tx.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics about transactions; number of transactions started, committed, etc.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.neo4j.pagecache.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">page cache: page faults, evictions, flushes and exceptions, etc.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.neo4j.counts.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">entities are in the database; nodes, relationships, properties, etc.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.neo4j.network.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">network usage of the HA cluster component</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 8. Metrics Output Configuration Settings</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Setting</th>
+<th class="tableblock halign-left valign-top">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.graphite.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default is 'false'</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.graphite.server=&lt;ip&gt;:2003</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.graphite.interval=5s</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">how often to send data, defaults to 3s</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.prefix=neo1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Neo4j instance name, e.g. wwwneo1</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.csv.enabled=true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default is 'false'</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.csv.path=file or directory path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">defaults to "metrics/" in the store directory</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metrics.csv.interval=5s</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">how often to store data, defaults to 3s</p></td>
+</tr>
+</tbody>
+</table>
+<div  id="_exercise_enable_metrics" class="sect4 "  >
+<h5>Exercise: Enable Metrics</h5>
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Enable all metrics in your Neo4j cluster
+</li>
+<li>
+Configure the metrics extension to log to CSV files
+</li>
+<li>
+Restart slaves and master
+</li>
+<li>
+Run a number of read and write queries from the northwind guide <code>:play northwind graph</code>
+</li>
+<li>
+Watch the configured metrics log-file (e.g. with <code>tail -f $NEO4J_HOME/metrics/*.csv</code>)
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div  id="_java_managment_extension_jmx" class="sect3 "  >
+<h4>Java Managment Extension (JMX)</h4>
+
+
+<div class="paragraph">
+<p>Neo4j has been supporting JMX for a long, time.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You can use established tools such as JConsole or other application monitoring solutions to view this data and proactively respond to issues.</p>
+</div>
+
+<iframe src="https://player.vimeo.com/video/122285722" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+
+<div class="paragraph">
+<p>Sincle Neo4j 3.0 there is also a <code>dbms.queryJMX()</code> procedure that allows you to query
+==== JMX Monitoring on <code>localhost</code></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>With the Neo4j database running, you should already be able to connect your monitoring tool to the process which is running Neo4j.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Depending on the Neo4j edition you are using, the name of the process (e.g. shown in JConsole) is: <code>org.neo4j.server.enterprise.EnterpriseEntryPoint</code> or <code>org.neo4j.server.CommunityEntryPoint</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When using JConsole, just pick the Neo4j process which should be shown in the <code>Local Process</code> list and click connect.
+You may need to confirm using an insecure connection in order to proceed.
+For this test setup on a local host should be fine.</p>
+</div>
+
+<div  id="_exercise_jmx" class="sect4 "  >
+<h5>Exercise: JMX</h5>
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Open JConsole and connect to Neo4j
+</li>
+<li>
+Run a number of read and write queries from the northwind guide <code>:play northwind graph</code>
+</li>
+<li>
+Introspect the different MBean attribute values and charts provided by the JVM and Neo4j
+</li>
+<li>
+Interact with the JVM by triggering a Garbage Collection in the <code>java.lang &#8594; Memory</code> MBean
+</li>
+<li>
+Interact with Neo4j by triggering a <code>dumpAll</code> in the <code>org.neo4j &#8594; kernel#0 &#8594; Diagnostics</code> MBean
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div  id="_remote_jmx_monitoring" class="sect3 "  >
+<h4>Remote JMX Monitoring</h4>
+
+
+<div class="paragraph">
+<p>By default, the Neo4j Enterprise Server edition does not allow remote JMX connections, since the relevant parameters in the <code>conf/neo4j-wrapper.conf</code> configuration file are commented out.
+To enable this feature, you have to remove the <code>#</code> characters from the various <code>com.sun.management.jmxremote</code> parameters there.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When commented in, the default values are set up to allow remote JMX connections with certain roles.
+Refer to the <code>conf/jmx.password</code>, <code>conf/jmx.access</code> and <code>conf/neo4j-wrapper.conf</code> files for details.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>A simple configuration for <code>conf/jmx.access</code> could be:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code># Define a role called 'monitor' with readonly access:
+monitor readonly</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p>And in <code>conf/jmx.password</code> one could define:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code># Define the password for the 'monitor' role to be 'Neo4j', please change this:
+monitor Neo4j</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p>Make sure that the file <code>conf/jmx.password</code> has the correct file permissions on the file system level.
+The owner of the file has to be the user that will run the service and the permissions should be read only for that user.
+On Unix systems, this is 0600.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>On Windows, follow the <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/management/security-windows.html">tutorial</a> to set the correct permissions.
+If you are running the service under the Local System Account, the user that owns the file and has access to it should be <code>SYSTEM</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><em>Note</em>: you may want to update the permissions and/or ownership of the <code>conf/jmx.password</code> and <code>conf/jmx.access</code> files.
+Refer to the relevant section in <code>conf/neo4j-wrapper.conf</code> for details.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>With this setup, you should be able to connect to the JMX monitoring of the Neo4j server using <code>&lt;IP-OF-SERVER&gt;:3637</code>, with the username <code>monitor</code> and the password <code>Neo4j</code>.</p>
+</div>
+
+</div>
+<div  id="_what_to_monitor" class="sect3 "  >
+<h4>What to monitor</h4>
+
+
+<div class="paragraph">
+<p>One example is to monitor the state of data replicated between two instances in a cluster.
+The difference between the <code>LastCommittedTxId</code> attribute on each instance will give you an idea of how much lag there is between your master instance and any of your slave instances.
+Of course, if you are using a Enterprise Application Monitoring tool, you can define a threshold of lag as an alarm condition.</p>
+</div>
+
+</div>
+<div  id="_references_5" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="https://neo4j.com/docs/operations-manual/current/#metrics-extension">Metrics Reporting</a>
+</li>
+<li>
+<a href="https://neo4j.com/docs/operations-manual/current/#monitoring">JMX Monitoring</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l4_authentication_and_basic_security" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L4)&#8201;&#8212;&#8201;(Authentication and Basic Security)</h3>
+<div  id="_authentication" class="sect3 "  >
+<h4>Authentication</h4>
+
+
+<div class="paragraph">
+<p>Neo4j has built-in authentication capabilities.
+By default, authentication is turned on so that users and client programs need to provide the correct credentials in order to gain access to the database.
+This is true for accessing the database via the Neo4j browser, the REST endpoints (both the built in endpoints and your own extensions) or any Neo4j client and connector.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The default credentials are <code>neo4j:neo4j</code>. The password needs to be changed at first access.
+Do that by opening the Neo4j browser; you will be asked to change the password.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><em>Note</em>: access to the database will only be granted if the default password has been changed.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The authentication data, which includes the username and the encrypted password, is stored in the file <code>dbms/auth</code> which is located in your <code>data</code> directory.
+The default is <code>data/dbms/auth</code>.
+You will find one line in that file per user.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If necessary, this file can be copied to other Neo4j instances to ensure they share the same username/password combinations.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Authentication can be disabled.
+Doing so will allow any client to access the database without supplying authentication credentials.
+If you have other security measures in place and want to disable it, set the following parameter to <code>false</code> in the file <code>conf/neo4j.conf</code>:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code># disable authentication
+dbms.security.auth_enabled=false</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p><em>Note</em>: the authentication is implemented within the Neo4j server and does not affect the file system layer.
+I.e., the store files are accessible without providing the above-mentioned credentials no matter if authentication is turned on or off.</p>
+</div>
+
+</div>
+<div  id="_general_security_locking_down_neo4j" class="sect3 "  >
+<h4>General Security: Locking down Neo4j</h4>
+
+
+<div class="paragraph">
+<p>For production deployments we recommend disabling any unused entry points to minimize risk for unauthorized access.</p>
+</div>
+
+</div>
+<div  id="_references_6" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="https://neo4j.com/docs/developer-manual/current/#http-api-security">v3.0.0 Authentication and Authorization</a>
+</li>
+<li>
+<a href="https://neo4j.com/docs/operations-manual/current/#security-server">v3.0.0 Securing Neo4j server</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/security-server.html">v2.3.5 Securing Neo4j Server</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/rest-api-security.html">v2.3.4 REST API Authentication and Authorization</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l4_backup_and_restore" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L4)&#8201;&#8212;&#8201;(Backup and Restore)</h3>
+
+
+<div class="paragraph">
+<p>For Neo4j Enterprise customers, Neo4j provides a backup utility that can produce full and incremental backups of your current working database.
+Neo4j backups are fully functioning copies of the Neo4j data store, which makes restoring data as easy as copying your backup files to the correct directory in your Neo4j instance.
+This also makes creating a backup with the Community edition easy as you only need to take a full copy of your current database store files when Neo4j is not running.
+In this section we&#8217;ll discuss these options in more detail.</p>
+</div>
+
+<div  id="_backing_up_neo4j" class="sect3 "  >
+<h4>Backing up Neo4j</h4>
+
+
+<div class="paragraph">
+<p>As described earlier, the <code>graph.db</code> folder is where the Neo4j database files reside.
+These files are completely portable between instances of Neo4j without requiring any specific conversion or format tools.
+This also makes backing up Neo4j a very trivial task for administrators.</p>
+</div>
+
+<div  id="_community_edition_3" class="sect4 "  >
+<h5>Community Edition</h5>
+
+
+<div class="paragraph">
+<p>Backing up the Community Edition requires simply making a copy of the <code>graph.db</code> folder as it exists in the state you&#8217;d like to back up.
+The Neo4j Community Edition does not provide any tools or capabilities to back up a running instance of the Neo4j Community Edition.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The following is a simple process for backing up the Community Edition:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Pause or stop all application level and end-user database interactions
+</li>
+<li>
+Stop the Neo4j instance
+</li>
+<li>
+Copy the <code>graph.db</code> folder to a location you identify as your backup directory
+</li>
+<li>
+Start the Neo4j instance
+</li>
+<li>
+Resume all services that have been paused or stopped in step 1
+</li>
+</ol>
+</div>
+
+
+<div class="paragraph">
+<p>We recommend identifying a strategy for labeling and retaining only necessary backup copies of your database
+We also suggest automating a routine to take regular backups.</p>
+</div>
+
+</div>
+<div  id="_enterprise_edition_3" class="sect4 "  >
+<h5>Enterprise Edition</h5>
+
+
+<div class="paragraph">
+<p>The Enterprise Edition of Neo4j provides backup capabilities that allow for an online backup of your database, meaning you do not need to pause your application and shut down your Neo4j instance(s) to create a backup.
+The utility <code>neo4j-backup</code> is shipped with the Enterprise Edition and provides an interface for performing backups.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When backing up, the utility will automatically determine whether to take a full or incremental backup of your database.
+A full backup is exactly what it sounds like, a complete copy of the database.
+Of course, the duration needed to create a full copy depends on the amount of data you have in your database.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>In contrast, an incremental backup will copy and apply the transactions from the last backup only.
+I.e. the duration for backing up depends on the amount of data that has been changed between the last backup and now.
+Incremental backups can be taken by Neo4j if two things are true:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+An existing backup directory is specified where an existing backup exists.
+</li>
+<li>
+All transactions in the Neo4j logs are still present in the Neo4j instance (i.e. the logs have not rolled over).
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div  id="_configuring_an_instance_for_backup" class="sect3 "  >
+<h4>Configuring an instance for backup</h4>
+
+
+<div class="paragraph">
+<p>Backups are enabled by default.
+If you do not change the corresponding configuration parameters, you should already be able to trigger backups from your local machine where the Neo4j server is running.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>However, you may want to change the backup configuration in the <code>conf/neo4j.conf</code> file.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>To enable or disable the backup functionality, use the parameter <code>dbms.backup.enabled</code>. Set it to <code>true</code> or <code>false</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The interface and port the backup service listens on is configured via the parameter <code>dbms.backup.address</code> and defaults to the loopback interface and port <code>6362</code>.
+It is typical to reconfigure this to listen on an external interface by setting <code>dbms.backup.address=:6362</code>.
+It can also be configured to listen on all interfaces by setting <code>dbms.backup.address=0.0.0.0:6362</code>.
+This can be useful when remote backups shall be performed.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><em>Note</em>: make sure you do not violate any security rules already in place for your setup by allowing remote backups.</p>
+</div>
+
+</div>
+<div  id="_taking_a_backup" class="sect3 "  >
+<h4>Taking a backup:</h4>
+
+
+<div class="paragraph">
+<p>From a Neo4j instance, run the <code>neo4j-backup</code> tool from the <code>bin</code> directory specifying the Neo4j instance configured to run backups and the target directory for your backup.
+Example:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code>./bin/neo4j-backup -host localhost -to /mnt/backup/neo4j-backup</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p>The backup tool will automatically determine if an incremental backup can be performed.
+If yes, it will do so.
+Otherwise a full backup is started.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Remember that the ability to perform an incremental backup is dependent upon the availability of the transactions in the logs since your last backup.
+You can tweak this time by changing the <code>dbms.tx_log.rotation.retention_policy</code> parameter in the <code>conf/neo4j.conf</code> file.</p>
+</div>
+
+</div>
+<div  id="_backup_strategies" class="sect3 "  >
+<h4>Backup Strategies</h4>
+
+
+<div class="paragraph">
+<p>With the Enterprise Edition, you have the ability to define a backup strategy that is efficient and robust.
+We have some basic guidelines for ensuring an efficient backup process:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Your backup strategy should reflect your tolerance for data loss.
+Should a catastrophic system failure happen days after your last backup, the potential loss of 5 days of transaction data shouldn&#8217;t be a concern.
+If it is, you need a backup strategy that is significantly more frequent.
+</li>
+<li>
+Your target directory, or copies of your backup, should be archived to a location or system off of your primary Neo4j instances.
+</li>
+<li>
+If you have even a moderate transaction volume application, it is recommended to take frequent incremental backups (perhaps hourly) throughout the day and employ a strategy of taking a full backup on a longer interval.
+</li>
+</ol>
+</div>
+</div>
+<div  id="_restoring_neo4j" class="sect3 "  >
+<h4>Restoring Neo4j</h4>
+
+
+<div class="paragraph">
+<p>Restoring Neo4j couldn&#8217;t be simpler.
+As mentioned previously, backups of the database are fully functional copies that can be redeployed simply by moving the copies to the target Neo4j instance.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Should you need to recover with a Neo4j backup, we recommend the following steps:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Stop the currently running Neo4j instance.
+If recovering for a cluster, stop all instances in the cluster.
+</li>
+<li>
+Assure any issues, errors, or misconfigurations with the server are resolved.
+</li>
+<li>
+Move the backup copy from the backup directory to the graph.db folder on the target Neo4j instance.
+</li>
+<li>
+Restart Neo4j and if working in a cluster, restart the additional cluster instances after the instance you started with the backup becomes operational.
+</li>
+</ol>
+</div>
+</div>
+<div  id="_references_7" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="https://neo4j.com/docs/operations-manual/current/#backup">v3.0.0 Backup</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/operations-backup.html">v2.3.5 Backup</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l4_additional_administration_tips" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L4)&#8201;&#8212;&#8201;(Additional Administration Tips)</h3>
+
+
+<div class="paragraph">
+<p>Late night phone calls on a Friday to notify you of a service failure rarely kick off an exciting weekend.
+The following are some additional administration practices that provide sage advice for production stability.</p>
+</div>
+
+<div  id="_jvm_memory_management" class="sect3 "  >
+<h4>JVM Memory Management</h4>
+
+
+<div class="paragraph">
+<p>When using the JVM, one needs to think about the garbage collection process that comes with the JVM.
+Garbage collection can have various unpredictable impacts on your production system, especially when Neo4j is deployed in a cluster and the GC pauses are indistinguishable from an application failure.
+Here are tips for you to minimize the impact JVM Memory Management can have on your application.</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+If possible, configure the amount of memory allocated to the JVM to be slightly larger than the size of your database.
+JVM memory settings are configured in the <code>neo4j-wrapper.conf</code> configuration file.
+</li>
+<li>
+Depending on your workload, you may find more predictable memory management using an alternate garbage collector.
+The G1 garbage collector is configured by default.
+However, alternatives may prove better for your workload.
+This is also configured in the <code>neo4j-wrapper.conf</code> configuration file.
+</li>
+<li>
+Benchmark and test real production workloads against your test environment.
+Under-configuration of memory settings will quickly overwhelm an untested production environment.
+<strong>Do not skip this step and do not test in production.</strong>
+</li>
+</ol>
+</div>
+</div>
+<div  id="gc-logging" class="sect3 "  >
+<h4>Garbage Collection Logging</h4>
+
+
+<div class="paragraph">
+<p>For debug and problem resolution purposes, you should consider enabling Garbage Collector (GC) logging.
+In the file <code>neo4j.conf</code> you may want to uncomment the following lines to enable garbage collection logging:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="highlight"><code>dbms.logs.gc.enabled=true
+dbms.logs.gc.options=-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintPromotionFailure -XX:+PrintTenuringDistribution</code></pre>
+</div>
+</div>
+
+
+<div class="paragraph">
+<p>Once you have GC logging enabled, additional files will be created in your <code>logs/</code> directory.
+The gc log files follow the naming pattern <code>gc.log.x.current</code> where <code>x</code> is increasing.
+There you can find details about the GC happening on your system regarding the JVM process which runs the Neo4j server.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Under regular workload you&#8217;ll get an idea of the impact GC is having.
+The most significant impact you are looking for is "full" garbage collections.
+A full GC is a stop-the-world event and will cause Neo4j to be unresponsive to requests.
+You can search the log specifically looking for the keyword "Full" to determine whether this is happening to your system.
+If so, you should consider further tuning your memory configurations to minimize the number of full GC&#8217;s.</p>
+</div>
+
+</div>
+<div  id="_logical_transaction_log_files" class="sect3 "  >
+<h4>Logical Transaction Log Files</h4>
+
+
+<div class="paragraph">
+<p>You rarely need to touch or manage the log files with Neo4j.
+That being said, let&#8217;s discuss a few things to consider regarding log files.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>First, you should use the configuration settings in Neo4j to instruct the server how long to retain log files.
+This is configured in the <code>neo4j.conf</code> file by setting the <code>dbms.tx_log.rotation.retention_policy</code> parameter.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The value on the right side is a string which must be true/false or of format '&lt;number&gt;&lt;optional unit&gt; &lt;type&gt;'. For example, <code>100M size</code> for limiting logical log space on disk to 100Mb, or <code>200k txs</code> for limiting the number of transactions to keep to 200 000.
+It defaults to <code>7 days</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>You should never set this to <code>true</code> as it will keep all logs indefinitely and you will eventually run out of disk space.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If your system has ample disk space available and moderate transaction volumes, you may want to consider setting a time-based policy coupled with a backup procedure that ensures you are taking incremental backups in that window.
+If your system will have limited disk space and/or high transaction volumes, you should consider a volume-based setting and a backup procedure taking frequent incremental backups to an alternate directory.</p>
+</div>
+
+</div>
+<div  id="_references_8" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/configuration-io-examples.html">v2.3.5 Memory Mapped IO Settings</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/operations-manual/current/#page-cache-sizing">v3.0.0 Page cache sizing</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/jmx-mxbeans.html">v2.3.5 Reference of supported JMX Mbeans</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/operations-manual/current/#jmx-list">MBeans exposed by Neo4j</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/performance-guide.html#_configuring_heap_size_and_garbage_collection">v2.3.5 Configuring heap size and garbage collection</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/operations-manual/current/#performance-tuning">v3.0.0 Performance tuning</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/configuration-logical-logs.html">v2.3.5 Logical logs</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/operations-manual/current/#transaction-logs">v3.0.0 Transaction logs</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_l4_summary" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L4)&#8201;&#8212;&#8201;(Summary)</h3>
+
+
+<div class="paragraph">
+<p>You now have the production knowledge to successfully administer and monitor your deployment of Neo4j.
+With the conclusion of this section, you have the beginning-to-end steps now.
+Let&#8217;s quickly recap what we learned:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+The basics of Neo4j editions and server components
+</li>
+<li>
+How Neo4j runs and how to configure it
+</li>
+<li>
+How to deploy Neo4j and scale the server for Enterprise or Demanding workloads
+</li>
+<li>
+How you will manage the deployment once it is live
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>Throughout the training we&#8217;ve touched on a number of best practices related to potential application characteristics or environment requirements.
+In the next section we&#8217;ll finish our training by providing a complete picture through solution architecture guidance and best practices.</p>
+</div>
+
+</div>
+</div>
+<div  id="_l5_guidance_and_best_practices" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>L5: Guidance and Best Practices</h3>
+<iframe src="https://player.vimeo.com/video/122279737" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<div  id="_l5_geographic_distribution" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L5)&#8201;&#8212;&#8201;(Geographic Distribution)</h3>
+
+
+<div class="paragraph">
+<p>There are generally a few reasons you may want to choose to geographically distribute a Neo4j implementation.</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+You&#8217;d like to bring the Neo4j data closer to the end user, especially if you have a global user population and end-user application response time is critical
+</li>
+<li>
+Geographic deployments can be used to provide disaster recovery capabilities
+</li>
+<li>
+Different regions require different access patterns or security practices
+</li>
+</ol>
+</div>
+
+
+<div class="paragraph">
+<p>The Neo4j Enterprise Edition with a clustered deployment can seamlessly support a geographically distributed cluster meeting your requirements.</p>
+</div>
+
+
+
+<div class="paragraph">
+<div class="title">Neo4j Enterprise Edition with a clustered deployment</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/geographic_distribution.png" alt="geographic distribution"></span></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Within the cluster, the master instance will still service all writes for the entire global cluster.
+Each region has a slave instance(s) that can support localized reads.
+Important!
+In these configurations, the slave instances should be configured to pull its replication data from the master on a longer interval (assuring efficient use of bandwidth and message bundling) and set as <code>ha.slave_only</code> in the cluster so it can never be elected master.
+Otherwise, a geographically distributed slave instance could unintentionally be elected master and be too far from the intended application updates.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>In this setup, you may still want to distribute writes to the master, even if the request is coming from a location within Europe.
+An alternative would be to send writes to a slave within Europe, which in turn would need to communicate with the master in the US region.
+Both the bandwidth and the cluster configuration (push/pull strategy) should be taken into consideration for both paths in order to decide on the best solution for your setup.</p>
+</div>
+
+</div>
+<div  id="_l5_multi_system_integration" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L5)&#8201;&#8212;&#8201;(Multi-System Integration)</h3>
+
+
+<div class="paragraph">
+<p>Multiple database backend systems are a common setup in today&#8217;s modern Enterprise architectures.
+In general, there are two common practices we recommend taking into consideration while designing your application architecture:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+distributing the transactions in front of the databases or
+</li>
+<li>
+replicating data directly between systems
+</li>
+</ul>
+</div>
+
+
+<div class="paragraph">
+<p>Both approaches will be discussed in this section.</p>
+</div>
+
+<div  id="_distributing_transactions_in_front_of_the_database" class="sect3 "  >
+<h4>Distributing transactions in front of the database</h4>
+
+
+<div class="paragraph">
+<div class="title">Distributing transactions in front of the database</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/distributing_in_front.png" alt="distributing in front"></span></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>As the diagram illustrates, this architecture utilizes a service (such as a message queue) between the application layer and the database services tier.
+The queue in this example stages data updates for each database system and may also be used by other services or business processes.
+A secondary service then processes each update on each target system, possibly with a two-phase commit-like approach, to assure the data is updated in each location.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>This approach is flexible in data processing and transformation for each database and provides for significant flexibility in growing the architecture and communicating with services.
+However, it does require more logic between the database tier and the services to ensure updates are processed in all target systems.
+And you&#8217;ll want to ensure you have a routine for random data validation between systems to assure data is not diverging.</p>
+</div>
+
+</div>
+<div  id="_replicating_data_between_systems" class="sect3 "  >
+<h4>Replicating data between systems</h4>
+
+
+<div class="paragraph">
+<p>A familiar choice for many administrators, this architecture involves an ETL-like process for moving data from one system to another target system.</p>
+</div>
+
+
+
+<div class="paragraph">
+<div class="title">An ETL-like process</div>
+<p><span class="image"><img src="https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/production/etl_like_process.png" alt="etl like process"></span></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>When Neo4j is the target system, we recommend taking two possible approaches:</p>
+</div>
+
+<div class="olist arabic">
+<ol style="margin-left: 2.4rem;" class="arabic">
+<li>
+Use a utility or system tool to extract data from the system of record into a CSV format.
+You can then use the import utilities in Neo4j to transform and load the data directly into the database.
+</li>
+<li>
+Using a utility or service, pull the data from the system of record into a format that can then be transformed into transactions that are sent to Neo4j like regular database transactions.
+In these cases, it is common to see data extracted in a format that can then be transformed into JSON documents and sent in transactions to Neo4j&#8217;s REST endpoints.
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div  id="_l5_multi_tenant_requirements" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L5)&#8201;&#8212;&#8201;(Multi-tenant Requirements)</h3>
+
+
+<div class="paragraph">
+<p>If you are considering a deployment where multiple different users will be accessing Neo4j, we have some general guidance for enabling a functional multi-tenant architecture.
+Currently, Neo4j does not support an in-database functionality that provides data privacy requirements for multi-tenant architectures.
+However, the following approaches may be applicable for your setup.</p>
+</div>
+
+<div  id="_instance_per_customer" class="sect3 "  >
+<h4>Instance per customer</h4>
+
+
+<div class="paragraph">
+<p>As a JVM-based database, it is possible to run multiple single instances of Neo4j (no cluster) for each system in your architecture.
+This approach provides the best guarantees for data isolation; it allows you to tune each instance according to the access patterns of that customer(s) and to administer each instance with different SLA&#8217;s or policies.
+However, if you have high availability or similar requirements that imply clustering, the effort to fulfill that within this scenario is higher compared to other setups.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Deployments like this will most likely incorporate a load-balancer or proxy in front of Neo4j that distributes the application requests to the appropriate Neo4j instance based on the end-user of the application.</p>
+</div>
+
+</div>
+<div  id="_sub_groups_per_instance" class="sect3 "  >
+<h4>Sub-groups per instance</h4>
+
+
+<div class="paragraph">
+<p>You may also want to divide your graph from a modeling perspective.
+In that case, you would have only one graph version holding all your data.
+Clustering is easily possible in this setup.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>In order to implement this scenario, one could leverage Neo4j Labels to group data within the database or use a separate node per data partition.
+There are many factors that can be used to divide your graph: user IDs, user groups/teams, geographically/regional parameters or companies, and more.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>However, there may be some implications that come with this setup.
+If you need assistance, you&#8217;re welcome to contact us.</p>
+</div>
+
+</div>
+<div  id="_sub_instances_per_tenant" class="sect3 "  >
+<h4>Sub-instances per tenant</h4>
+
+
+<div class="paragraph">
+<p>If the tenants might share a global set of graph data while also having a subset of their own graph data, two general approaches can be taken:</p>
+</div>
+
+<div  id="_maintain_a_global_neo4j_instance_for_global_data_and_deploy_tenant_specific_instances_for_tenant_data" class="sect4 "  >
+<h5>Maintain a global Neo4j instance for global data and deploy tenant-specific instances for tenant data</h5>
+
+
+<div class="paragraph">
+<p>This approach implies the need for maintaining data access patterns between the global instance and the tenant-specific instances.
+It may also require more complex application logic to join data at the application tier, as Neo4j does not currently provide tools for distributed queries.</p>
+</div>
+
+</div>
+<div  id="_take_a_similar_approach_of_a_single_instance_per_tenant_and_incorporate_a_process_for_replicating_data_from_the_global_database_to_the_tenant_specific_database" class="sect4 "  >
+<h5>Take a similar approach of a single instance per tenant and incorporate a process for replicating data from the global database to the tenant-specific database</h5>
+
+
+<div class="paragraph">
+<p>In this case you would not be using Neo4j Clustering.
+Instead, you would extract data from the global instance, then use the loading tools to load data into the tenant instances.
+An advantage of this approach is that you can easily maintain your global data in a single place while providing tenant-specific deployments at the same time.
+The data copied from the global instance can also be a subset of content based on unique tenant variables.
+This approach also does not require any coordination logic to merge query data from two instances.</p>
+</div>
+
+</div>
+</div>
+</div>
+<div  id="_l5_test_test_test" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>(L5)&#8201;&#8212;&#8201;(Test, test, test!)</h3>
+
+
+<div class="paragraph">
+<p>Major robustness and performance testing often goes uncompleted before systems go into production.
+For our last tip, we&#8217;ll emphasize what should be an obvious step: Test, test, test!</p>
+</div>
+
+<div  id="_functional_tests" class="sect3 "  >
+<h4>Functional Tests</h4>
+
+
+<div class="paragraph">
+<p>Functional tests should be conducted to ensure the application is performing to spec and the returned data matches expectations.</p>
+</div>
+
+</div>
+<div  id="_data_validation_tests" class="sect3 "  >
+<h4>Data Validation Tests</h4>
+
+
+<div class="paragraph">
+<p>Data validation tests should be conducted if data is replicated between two systems.
+Random data sampling and comparisons can provide a high degree of confidence in data validity and can be as easy as comparing checksums.</p>
+</div>
+
+</div>
+<div  id="_performance_tests" class="sect3 "  >
+<h4>Performance Tests</h4>
+
+
+<div class="paragraph">
+<p>Test the performance of the system and ensure it is meeting the scale and throughput requirements expected.
+We recommend testing to at least 10% above what you expect your peak workload to be.</p>
+</div>
+
+</div>
+<div  id="_failover_test" class="sect3 "  >
+<h4>Failover Test</h4>
+
+
+<div class="paragraph">
+<p>Test failover and fallback scenarios to ensure you know how the system will perform if there are issues.</p>
+</div>
+
+</div>
+<div  id="_references_9" class="sect3 "  >
+<h4>References</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/#_writing_integration_tests">Writing integration tests</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/2.3.5/tutorials-java-unit-testing.html">v2.3.5 Basic unit testing</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div  id="_conclusion" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Conclusion</h3>
+
+
+<div class="paragraph">
+<p>Congratulations!
+You are now ready to take your Neo4j application into production!</p>
+</div>
+
+</div>
+       </div>
+    </div>
+    <div class="large-3 large-pull-9 columns sticky">
+        <div><a href="/graphacademy"><image src="http://dev.assets.neo4j.com.s3.amazonaws.com/wp-content/uploads/neo4j_logo-325x150.png"></a></div>
+        
+        <div id="toc" class="toc2">
+        <div id="toctitle">Table of Contents</div>
+        <ul class="sectlevel1">
+<li><a href="#_about_this_course">About this Course</a></li>
+<li><a href="#_course_highlights_and_welcome">Course Highlights and Welcome</a></li>
+<li><a href="#_l1_neo4j_production_deployment_options">L1: Neo4j Production Deployment Options</a></li>
+<li><a href="#_l2_neo4j_server_basics">L2:  Neo4j Server Basics</a></li>
+<li><a href="#_l3_enterprise_edition_and_clustering">L3: Enterprise Edition and Clustering</a></li>
+<li><a href="#_l4_production_administration">L4: Production Administration</a></li>
+<li><a href="#_l5_guidance_and_best_practices">L5: Guidance and Best Practices</a></li>
+<li><a href="#_conclusion">Conclusion</a></li>
+</ul>
+        </div>
+    </div>
+</div>

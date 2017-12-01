@@ -4,27 +4,29 @@
 === Which Predicates are allowed in WHERE Clauses ?
 
 [%interactive]
-- [ ] (In-)Equality
-- [ ] String comparisons & regular expressions
+- [ ] [.required-answer]#(In-)Equality#
+- [ ] [.required-answer]#String comparisons & regular expressions#
 - [ ] [.false-answer]#Node existence#
-- [ ] Pattern existence
-- [ ] Collection predicates
+- [ ] [.required-answer]#Pattern existence#
+- [ ] [.required-answer]#Collection predicates#
 
 === Where can I declare new variables ?
 
 [%interactive]
-- [ ] MATCH
+- [ ] [.required-answer]#MATCH#
 - [ ] [.false-answer]#WHERE predicates#
-- [ ] WITH
-- [ ] Pattern comprehensions
-- [ ] CREATE & MERGE
+- [ ] [.required-answer]#WITH#
+- [ ] [.required-answer]#Pattern comprehensions#
+- [ ] [.required-answer]#CREATE & MERGE#
 
 
 === What characterizes a Path ?
 
 [%interactive]
-- [ ] A collection of nodes and relationships
+- [ ] [.required-answer]#A collection of nodes and relationships#
 - [ ] [.false-answer]#A subgraph#
-- [ ] Relationships are ordered by traversal
+- [ ] [.required-answer]#Relationships are ordered by traversal#
 - [ ] [.false-answer]#Contains at least one relationship#
-- [ ] Contains at least one node
+- [ ] [.required-answer]#Contains at least one node#
+
+== Next Section

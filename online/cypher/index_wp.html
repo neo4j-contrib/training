@@ -1,0 +1,2931 @@
+<div class="row" style="padding-left: 0; padding-right: 0;">
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part1.html">Part 1: Introduction</a>
+    </div>
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part2.html">Part 2: Creating and Querying Graphs</a>
+    </div>
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part3.html">Part 3: Filters and Paths</a>
+    </div>
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part4.html">Part 4: Indexing, Recommendations, Import</a>
+    </div>
+</div>
+<div class="row" style="padding-left: 0; padding-right: 0;">
+    <div class="large-9 large-push-3 columns guide-section-content">
+       <div id="content">
+        <div id="preamble columns medium-12">
+<div class="sectionbody">
+	<script type='text/javascript'>
+	var loc = window.location;
+	if (loc.hostname == "neo4j.com" && loc.search.indexOf("aliId=") == -1 ) {
+	 loc.pathname = "/graphacademy/online-training/cypher-graph-databases/"
+	}
+	document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script>Munchkin.init('773-GON-065');</script>
+<style>
+    @import "../cypher-gadget/libs/jquery.modal.min.css" screen;
+    .modal {
+        width: 775px;
+        height: 775px;
+        padding: 10px;
+        margin: 0;
+    }
+    .blocker {
+        height: initial;
+        background-color: transparent;
+    }
+</style>
+<script src="../cypher-gadget/libs/underscore.js"></script>
+<script src="../cypher-gadget/libs/jquery.js"></script>
+<script src="../cypher-gadget/libs/jquery-ui.min.js"></script>
+<script src="../cypher-gadget/libs/jquery.modal.min.js"></script>
+<script src="gadgetUtils.js"></script>
+<script src="tasks.js"></script>
+<script type="text/javascript">
+</script>
+</div>
+</div>
+<div  id="_about_this_course" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>About this Course</h3>
+<div  id="_motivations" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Motivations</h3>
+
+
+<div class="paragraph">
+<p>This training class is an introduction to graph databases.
+You will learn how to get started with Neo4j using Cypher, the graph query language.
+Please give us <a href="mailto:training@neotechnology.com">feedback</a> on how we can improve it.</p>
+</div>
+
+</div>
+<div  id="_running_the_course_with_neo4j_browser" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Running the Course with Neo4j Browser</h3>
+
+
+<div class="paragraph">
+<p>You can run this course also with an <a href="http://neo4j.com/download">installed and running Neo4j</a> instance.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>After starting the database, open the Neo4j Browser on <code><a href="http://localhost:7474/" class="bare">http://localhost:7474/</a></code> (if you&#8217;re running it locally).
+Log in.
+Then run the <code>:play movie graph</code> guide from the command line on top to insert the data and work along with the queries presented in this training.</p>
+</div>
+
+</div>
+<div  id="_the_cypher_query_widget" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>The Cypher Query Widget</h3>
+
+
+<div class="paragraph">
+<p>If you haven&#8217;t installed Neo4j on your machine, the Cypher Query Widget is here for you to interactively explore. You can get comfortable with Cypher and learn how to query graph databases in a safe environment.
+You can&#8217;t break anything, and even if anything happens, just reset the temporary database to its original state.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If you click the "Try it out: &#8230;&#8203;" buttons, the widget will open in an overlay.</p>
+</div>
+
+<div  id="_example_widget" class="sect3 "  >
+<h4>Example Widget</h4>
+<div class="imageblock">
+<p class="content">
+<img src="img/cypher-widget.png" alt="cypher widget" width="700">
+</p>
+</div>
+<div id="ex1"></div>
+
+
+<div class="paragraph">
+<p>The different widgets use different datasets depending on the task, but save your changes across sessions.
+For most lab exercises we added helpful checks and messages to guide you along.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The query results are shown in a tabular view, and if you return nodes or relationships, those will be highlighted in the graph visualization of the dataset.
+Complex elements are folded in the result table and can be expanded with a click.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Your history is available across sessions. And we provide some pre-canned queries to get you started quickly.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Please try to work with the tasks on your own and not just copy and paste queries.
+Thinking about them and writing &amp; executing them incrementally helps you much more in understanding the concepts.</p>
+</div>
+
+</div>
+</div>
+</div>
+<div  id="_why_use_a_graph_database" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Why use a Graph Database?</h3>
+
+
+<div class="paragraph">
+<p>Today&#8217;s business and user requirements demand applications that connect more and more of the world&#8217;s data, yet still expect high levels of performance and data reliability.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Many applications of the future will be built using graph databases like Neo4j.
+This course was written to help you through every step of the learning process.
+We will use the widely adopted property graph model and the Cypher query language in our explanations, both of which are supported by Neo4j.</p>
+</div>
+
+<div  id="_what_is_a_graph" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>What is a Graph?</h3>
+
+
+<div class="paragraph">
+<p>A graph is composed of two elements: a node and a relationship.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Each node represents an entity (a person, place, thing, category or other piece of data), and each relationship represents how two nodes are associated.
+For example, the two nodes <em>cake</em> and <em>dessert</em> would have the relationship <em>is a type of</em> pointing from <em>cake</em> to <em>dessert</em>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>This general-purpose structure allows you to model all kinds of scenarios: from a system of roads, to a network of devices, to a population&#8217;s medical history or anything else defined by relationships.</p>
+</div>
+
+</div>
+<div  id="_what_is_a_graph_database" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>What Is a Graph Database?</h3>
+
+
+<div class="paragraph">
+<p>A graph database is an online database management system with Create, Read, Update and Delete (CRUD) operations working on a graph data model.
+Graph databases are generally built for use with On line transaction processing (OLTP) systems.
+Accordingly, they are normally optimized for transactional performance, and engineered with transactional integrity and operational availability in mind.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Unlike other databases, relationships take first priority in graph databases.
+This means your application doesn&#8217;t have to infer data connections using foreign keys or out-of-band processing, such as MapReduce.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>By assembling the simple abstractions of nodes and relationships into connected structures, graph databases enable us to build sophisticated models that map closely to our problem domain.</p>
+</div>
+
+</div>
+<div  id="_the_case_for_graph_databases" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>The Case for Graph Databases</h3>
+
+
+<div class="paragraph">
+<p>The biggest value that graphs bring to the development stack is their ability to store relationships and connections as first-class entities.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For instance, the early adopters of graph technology reimagined their businesses around the value of data relationships.
+These companies have now become industry leaders: LinkedIn, Google, Facebook and PayPal.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>As pioneers in graph technology, each of these enterprises had to build their own graph database from scratch.
+Fortunately for today&#8217;s developers, that&#8217;s no longer the case, as graph database technology is now available off the shelf.</p>
+</div>
+
+</div>
+<div  id="_what_is_neo4j" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>What is Neo4j</h3>
+<div class="ulist">
+<ul>
+<li>
+Neo4j is a <strong>Database</strong> - use it to reliably <strong>store information</strong> and <strong>find it later</strong>
+</li>
+<li>
+Neo4j&#8217;s data model is a <strong>Graph</strong>, in particular a <strong>Property Graph</strong>
+</li>
+<li>
+<strong>Cypher</strong> is Neo4j&#8217;s graph query language (<strong>SQL for graphs!</strong>)
+</li>
+<li>
+Cypher is a declarative query language: it describes <strong>what</strong> you are interested in, not <strong>how</strong> it is acquired.
+</li>
+<li>
+Cypher is meant to be very <strong>readable</strong> and <strong>expressive</strong>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_what_is_cypher" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>What is Cypher</h3>
+
+
+<div class="paragraph">
+<p>Cypher is a declarative query language that allows for expressive and efficient querying and updating of graph data.
+Cypher is a relatively simple and very powerful language.
+Complex database queries can easily be expressed through Cypher, allowing you to focus on your domain instead of getting lost in database access.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Cypher is designed to be a human-friendly query language, suitable for both developers and any other professionals.
+Our guiding goal is to make the simple things easy, and the complex things possible.
+Optimized for being read by humans, Cypher&#8217;s construct uses English prose and iconography to make queries more self-explanatory.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Being a declarative language, Cypher focuses on the clarity of expressing <strong>what</strong> to retrieve from a graph, not on <strong>how</strong> to retrieve it.
+This is in contrast to imperative, programmatic APIs for database access.
+This approach makes query optimization an implementation detail instead of a burden on the user, removing the requirement to update all traversals just because the physical database structure has changed.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Cypher is inspired by a number of different approaches and builds upon established practices for expressive querying.
+Many of the keywords like <code>WHERE</code> and <code>ORDER BY</code> are inspired by SQL.
+Pattern matching borrows expression approaches from SPARQL.
+Some of the collection semantics have been borrowed from languages such as Haskell and Python.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The Cypher language has been made available to anyone to implement and use as openCypher, allowing any database vendor, researcher or other interested party to reap the benefits of our years of effort and experience in developing a first class graph query language.</p>
+</div>
+
+<div  id="_what_is_cypher_additional_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>What is Cypher: Additional Resources</h3>
+
+
+<div class="paragraph">
+<p>This course gives you a basic understanding of Cypher.
+It&#8217;s a broad language with many cool features.
+When in doubt, please use the resources below to find out more:</p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/cypher-refcard/current/" target="_blank" rel="noopener">Cypher Reference card</a>
+</li>
+<li>
+<a href="http://neo4j.com/developer/cypher" target="_blank" rel="noopener">Cypher Documentation</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher" target="_blank" rel="noopener">Cypher Reference Manual</a>
+</li>
+<li>
+<a href="http://neo4j.com/graphgists" target="_blank" rel="noopener">Graph Gists: Interactive Graph Models</a>
+</li>
+<li>
+<a href="http://neo4j.com/developer/resources/" target="_blank" rel="noopener">More Learning Resources</a>
+</li>
+<li>
+<a href="http://openCypher.org" target="_blank" rel="noopener">The openCypher Project</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_the_movie_database" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>The Movie Database</h3>
+
+
+<div class="paragraph">
+<p>The data model in this tutorial includes nodes with three different labels (each with their own properties), and six different types of relationships (one of which has its own property).
+The underlying structure of the database is visualized in the image below.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>In brief, the graph is made up of <code>Person</code>, <code>Movie</code>, and <code>Genre</code> nodes that are related to each other in various ways.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>This tutorial will use the Cypher widget pre-populated with parts of the movie database.
+We use the model below to introduce and explain the Cypher concepts you need to know to build graph powered applications.</p>
+</div>
+
+<div  id="_a_note_on_style" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>A note on style</h3>
+
+
+<div class="paragraph">
+<p>Throughout this training, we will refer to nodes and property key/value pairs using <code>monospace</code> and real-life instances of the nodes using italics.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For example,</p>
+</div>
+
+<div class="exampleblock">
+<div class="content">
+
+
+<div class="paragraph">
+<p>We set the <code>title</code> property of the <code>Movie</code> ​<em>The Matrix</em>​ to <code>"The Matrix"</code></p>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+<div  id="_patterns_of_nodes_and_relationships" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Patterns of Nodes and Relationships</h3>
+<div class="videoblock">
+<div class="content">
+<iframe width="750" height="421" src="https://player.vimeo.com/video/77867853" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
+<div  id="_nodes" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Nodes</h3>
+
+
+<div class="paragraph">
+<p>Cypher uses a pair of parentheses (usually containing a text string) like <code>()</code>, <code>(foo)</code> to represent a node, i.e. an entity of your domain.
+This is reminiscent of a circle or a rectangle with rounded corners.
+Here are some ASCII-art representations of nodes, providing varying types and amounts of detail:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre>()
+(matrix)
+(:Movie)
+(matrix:Movie)
+(matrix:Movie {title: "The Matrix"})
+(matrix:Movie {title: "The Matrix", released: 1999})
+(matrix:Movie:Promoted)</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The simplest form, <code>()</code>, represents an anonymous, uncharacterized node.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If we want to refer to the node elsewhere, we can add an variable: <code>(matrix)</code>.
+Variables are restricted (ie, scoped) to a single statement; a variable may have different (or no) meaning in another statement.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The <code>Movie</code> <strong>label</strong> (prefixed in use with a colon) declares the node&#8217;s type or role.
+Note that nodes can have multiple labels.
+Labels are used to restrict search patterns, keeping them from matching structures without the labels in the query.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Neo4j&#8217;s indexes also use labels.
+Each index is specific to the combination of a label and a property.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The node&#8217;s properties (<code>title</code>, <code>released</code>, et cetera) are represented as a list of key/value pairs, enclosed within a pair of braces:</p>
+</div>
+
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{<code>title</code>:"A Title", <code>released</code>:2000, &#8230;&#8203;}</code></p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p><strong>Properties</strong> can be used to store information and/or restrict patterns.
+For example, we could <code>MATCH</code> and <code>RETURN</code> nodes whose <code>title</code> is "The Matrix".</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0105_Getting_Started_matrix_node.svg" alt="0105 Getting Started matrix node">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p>These attributes look similar to JSON structures:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (movie:Movie {title:"The Matrix"})
+RETURN movie</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">movie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{"tagline":"Welcome to the Real World","title":"The Matrix","released":"1999"}</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div  id="_labels" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Labels</h3>
+
+
+<div class="paragraph">
+<p>Labels allow us to group our nodes.
+For example, we might want to distinguish movies from people or animals, both of whom act in films.
+By matching for <code>(actor:Person)-[:ACTED_IN]-&gt;(movie)</code>, Neo4j will return <code>"Clint Eastwood"</code>, but not <code>"Clyde"</code>-his pet orangutan in <em>Every Which Way but Loose</em>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Labels are usually used like this:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (node:Label) RETURN node</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (node1:Label1)-[:REL_TYPE]-&gt;(node2:Label2)
+RETURN node1, node2</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Although they are not required, Cypher uses labels to make better decisions on how to optimize your query, making them vital to success in Neo4j and Cypher.</p>
+</div>
+
+</div>
+<div  id="_relationships" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Relationships</h3>
+
+
+<div class="paragraph">
+<p>The missing piece of the Cypher snippets in the previous section is that they didn&#8217;t say anything about the relationship between the nodes, which add all the contextual information to our data.
+We want to be able to view a person in his or her relationship to <code>Movie</code> as an "Actor", "Director" and/or "Producer".
+In short, we need to be able to describe the types of relationships in our Cypher queries.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>First and foremost, relationships are arrows pointing from one node to another, much like <code>--&gt;</code> or <code>&lt;--</code>.
+But we can add detail about them as needed within a pair of square brackets.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If we wanted to retrieve everyone who had acted in a movie, we would describe the pattern <code>(actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)</code> to retrieve only nodes that had a relationship type <code>ACTED_IN</code> with other nodes.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Or generally:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (node1)-[:REL_TYPE]-&gt;(node2)</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Sometimes we need access to information about a relationship (e.g. its type or properties).
+For example, we might want to output the <code>roles</code> that an actor played in a movie.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>As with nodes, we can use variables for relationships (in front of the <code>:TYPE</code>).
+If we tried to match <code>(actor)-[rel:ACTED_IN]-&gt;(movie)</code> we would be able to output the <code>rel.roles</code> for each of the actors in all of the movies that they acted in.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[rel:ACTED_IN]-&gt;(movie:Movie)
+RETURN rel.roles</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Or generally:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (node1)-[rel:TYPE]-&gt;(node2)
+RETURN rel.property</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div id="outputRoles"></div>
+</div>
+<div  id="_patterns" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Patterns</h3>
+
+
+<div class="paragraph">
+<p>Combining the syntax for nodes and relationships, we can express patterns.
+The following is a simple pattern (or fact) in this domain:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (matrix:Movie {title:"The Matrix"} )&lt;-[role:ACTED_IN {roles:["Neo"]}]-(keanu:Person {name:"Keanu Reeves"})
+RETURN matrix, role, keanu</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="imageblock">
+<p class="content">
+<img src="img/0105_Getting_Started_keanu_matrix.svg" alt="0105 Getting Started keanu matrix">
+</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">matrix</th>
+<th class="tableblock halign-left valign-top">role</th>
+<th class="tableblock halign-left valign-top">keanu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{"tagline":"Welcome to the Real World","title":"The Matrix","released":1999}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{"roles":["Neo"]}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{"born":1964,"name":"Keanu Reeves"}</code></p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>Like with node labels, the relationship type <code>ACTED_IN</code> is added as a symbol, prefixed with a colon.
+For example: <code>:ACTED_IN</code>.
+Variables (e.g., <code>role</code>) can be used elsewhere in the statement to refer to the relationship.
+Node and relationship properties use the same notation.
+In this case, we used an array property for the roles, allowing multiple roles to be specified.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>To increase modularity and reduce repetition, Cypher allows patterns to be assigned to variables.
+This allows the matching paths to be inspected, used in other expressions, and more.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>In the example below, the <code>cast</code> variable contains two nodes and the connecting relationship for each path that was found or created.
+There are a number of functions to access details of a path, including <code>nodes(path)</code>, <code>rels(path)</code> (same as <code>relationships(path)</code>), and <code>length(path)</code>.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH cast = (:Person)-[:ACTED_IN]-&gt;(:Movie)
+RETURN cast</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="imageblock">
+<p class="content">
+<img src="img/0105_Getting_Started_acted_in_graph.svg" alt="0105 Getting Started acted in graph" width="300" height="200">
+</p>
+</div>
+</div>
+<div  id="_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/current/get-started/cypher/" target="_blank" rel="noopener">Graphs, Patterns, and Cypher</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/get-started/cypher/patterns-in-practice/" target="_blank" rel="noopener">Patterns in Practice</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_nodes_and_their_properties" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Nodes and their Properties</h3>
+
+
+<div class="paragraph">
+<p>Let&#8217;s start by following along with the video and adding a node to the graph.</p>
+</div>
+
+<iframe src="https://player.vimeo.com/video/84106705" width="750" height="421" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+
+<div class="paragraph">
+<p>Run the following query, replacing <strong>My Name</strong> with your name in quotes. (If you happen to have the same name as a famous actor, you might want to change what name you put in):</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE (me:Person {name: "My Name"})
+RETURN me</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>You will see the new node returned and also as part of the visualization.
+You can also easily check for its existence with the following query.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (me:Person)
+WHERE me.name="My Name"
+RETURN me.name</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>or in a short-hand syntax:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (me:Person {name:"My Name"})
+RETURN me.name</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div  id="_the_all_nodes_query" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>The All Nodes Query</h3>
+
+
+<div class="paragraph">
+<p>If we wanted to return <strong>all nodes</strong> in the graph, we can use the following query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (n)
+RETURN n</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="imageblock right">
+<p class="content">
+<img src="img/0106_Nodes_and_Properties_all_nodes.svg" alt="0106 Nodes and Properties all nodes" width="300" height="300">
+</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title label"></div>
+</td>
+<td class="content">
+In a larger graph this will return A LOT of data, usually you add a <code>LIMIT 100</code> or such.
+</td>
+</tr>
+</table>
+</div>
+
+
+<div class="paragraph">
+<p>The query is doing a full graph search.
+It visits every single node to see whether it matches the pattern of <code>(n)</code>.
+In this concrete case, the pattern is simply a node that may or may not have a label or relationships, so it will match every single node in the graph.
+The <code>RETURN</code> clause then returns all of the information about each of those nodes, including all of their properties.</p>
+</div>
+
+</div>
+<div  id="_adding_properties" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Adding Properties</h3>
+
+
+<div class="paragraph">
+<p>To get set up, let&#8217;s add the movie <code>Mystic River</code>.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE (movie:Movie {title: "Mystic River", released:1993})</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Now, find the actor <code>Kevin Bacon</code> and the movie <code>Mystic River</code> and add the relationship between the movie and the actor to the dataset.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (kevin:Person) WHERE kevin.name = "Kevin Bacon"
+MATCH (mystic:Movie) WHERE mystic.title = "Mystic River"
+CREATE (kevin)-[r:ACTED_IN {roles:["Sean"]}]-&gt;(mystic)
+RETURN mystic,r, kevin</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div id="addRelationshipKevinMystic"></div>
+
+
+<div class="paragraph">
+<p>Let&#8217;s say we wanted to add a <code>tagline</code> to the <code>Mystic River</code> <code>:Movie</code> node we&#8217;ve just added.
+First, we have to locate the single movie again by its <code>title</code>, then <code>SET</code> the <code>tagline</code> property.
+The query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (movie:Movie)
+WHERE movie.title = "Mystic River"
+SET movie.tagline = "We bury our sins here, Dave. We wash them clean."
+RETURN movie.title AS title, movie.tagline AS tagline</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">title</th>
+<th class="tableblock halign-left valign-top">tagline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mystic River</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">We bury our sins here, Dave. We wash them clean.</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>Because Neo4j is schema-free, you can add any property you want to any node or relationship.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>What if you want to update a property?
+<code>Mystic River</code> was actually released in <code>2003</code>, not <code>1993</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>We can fix that with the following query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (movie:Movie)
+WHERE movie.title = "Mystic River"
+SET movie.released = 2003
+RETURN movie.title AS title, movie.released AS released</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">title</th>
+<th class="tableblock halign-left valign-top">released</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mystic River</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2003</p></td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="paragraph">
+<p>The syntax is the same for updating or adding a property.
+You <code>SET</code> a property.
+If the property exists, <code>SET</code> will update it.
+If the property doesn&#8217;t exist, <code>SET</code> will add it.</p>
+</div>
+
+</div>
+<div  id="_exercise_updating_a_relationship_property" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Updating a relationship property</h3>
+
+
+<div class="paragraph">
+<p>Let&#8217;s change the role of <strong>Kevin Bacon</strong> in <strong>Mystic River</strong> from <code>["Sean"]</code> to <code>["Sean Devine"]</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>We should find the <code>ACTED_IN</code> relationship between the <code>Person</code> and <code>Movie</code> using <code>MATCH</code> and then use <code>SET</code> to update the relationship property as we learned when creating the <code>:Movie</code> node.</p>
+</div>
+
+<div id="updateRelationshipProperty"></div>
+<div  id="_nodes_and_properties_resources" class="sect3 "  >
+<h4>Nodes and Properties: Resources</h4>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/parameters/" target="_blank" rel="noopener">Parameters</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/set/#set-set-all-properties-using-a-parameter" target="_blank" rel="noopener">Setting all properties on a node</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div  id="_relationships_2" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Relationships</h3>
+
+
+<div class="paragraph">
+<p>Adding a relationship is similar to adding a node, but we <code>CREATE</code> the relationship with the <em>relationship</em> syntax <code>(n)-[:REL_TYPE {prop: value}]-&gt;(m)</code>:</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Let&#8217;s create ourselves first in this new database:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE (me:Person {name:"My Name"})
+RETURN me.name</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>And then let&#8217;s rate the movie Mystic River (or any other movie that you want to rate).</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (me:Person), (movie:Movie)
+WHERE me.name="My Name" AND movie.title="Mystic River"
+CREATE (me)-[r:REVIEWED {rating:80, summary:"tragic character movie"}]-&gt;(movie)
+RETURN me, r, movie</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>or</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (me:Person {name:"My Name"}),(movie:Movie {title:"Mystic River"})
+CREATE (me)-[r:REVIEWED {rating:80, summary:"tragic character movie"}]-&gt;(movie)
+RETURN me, r, movie</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div id="reviewMovie"></div>
+<div  id="_exercise_two_nodes_one_relationship" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Two Nodes, One Relationship</h3>
+
+
+<div class="paragraph">
+<p>Let&#8217;s say we wanted to return all of the nodes that have relationships to another node.
+This is still going to return every single node that has a relationship to another node, along with the other node.
+But it&#8217;s moving us in an important direction, so stay with us for a little longer.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>To describe this query, we&#8217;d write:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre>MATCH (n)--&gt;(m)
+RETURN n, m;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>This will return every pair of nodes with a relationship going from <code>n</code> to <code>m</code>.</p>
+</div>
+
+</div>
+<div  id="_exercise_add_clint_eastwood_as_the_director_of_mystic_river" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Add Clint Eastwood as the director of Mystic River</h3>
+<div class="imageblock right">
+<p class="content">
+<img src="img/0107_Relationships_clint_the_director.svg" alt="0107 Relationships clint the director">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p>Can you add a director for the movie <code>Mystic River</code>?
+<code>Clint Eastwood</code> <code>DIRECTED</code> this movie.</p>
+</div>
+
+<div id="createClintDirector"></div>
+
+
+<div class="paragraph">
+<p>If you want to make sure that only <strong>one</strong> relationship is created, no matter how often you run this statement, use <code>MERGE</code> instead. <code>MERGE</code> has <strong>get-or-create</strong> semantics.
+It tries to find the patterns you specify.
+If it finds them, it will return the data.
+Otherwise it creates the structure in the graph.</p>
+</div>
+
+<div id="mergeClintDirector"></div>
+</div>
+<div  id="_relationships_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Relationships: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators/" target="_blank" rel="noopener">Operators</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/merge" target="_blank" rel="noopener">Merge</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/set" target="_blank" rel="noopener">Set</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where" target="_blank" rel="noopener">Where</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_deleting_nodes" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Deleting Nodes</h3>
+
+
+<div class="paragraph">
+<p>Previously, we added ourselves to the graph.
+If you didn&#8217;t do that, add yourself now using the following query (replacing "My Name" with your name):</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE (me:Person {name:"My Name"});</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Let&#8217;s then run the following query to make sure you have been added successfully to the graph.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (p:Person {name:"My Name"})
+RETURN p.name</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>To remove both yourself and any relationships you may or may not have, you need to run:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (me:Person {name:"My Name"})
+OPTIONAL MATCH (me)-[r]-()
+DELETE me,r</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>It turns out there is another node in the graph that also needs to be deleted.
+Run the following query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (matrix:Movie {title:"The Matrix"})&lt;-[r:ACTED_IN]-(actor)
+RETURN actor.name, r.roles</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div id="actorsInTheMatrix"></div>
+
+
+<div class="paragraph">
+<p>It&#8217;s looking for and returning actors who played in the Matrix.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>But wait, take a look at the results!
+Who is Emil?
+There is nobody (character or actor) named Emil in the Matrix.
+We need to delete this person.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Go ahead and delete Emil.</p>
+</div>
+
+<div id="deleteEmilFail"></div>
+
+
+<div class="paragraph">
+<p>Did it work?
+No?
+Check out the next section.</p>
+</div>
+
+<div  id="_deleting_nodes_and_relationships" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Deleting Nodes and Relationships</h3>
+
+
+<div class="paragraph">
+<p>This query statement will delete both the relationship and the node, even though there may be no relationships.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (emil:Person {name:"Emil Eifrem"})
+OPTIONAL MATCH (emil)-[r]-()
+DELETE emil,r</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The first <code>MATCH</code> is obvious, it finds the node we&#8217;re looking for.
+The <code>WHERE</code> statement belongs to the first <code>MATCH</code>.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The second is an <code>OPTIONAL MATCH</code>.
+It tries to find nodes matching the pattern, if it doesn&#8217;t find anything it returns a single row with null values.
+But it will always return at least one row.
+You can also filter the optional match with a <code>WHERE</code> statement.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>As this is a frequent task, <code>DETACH DELETE</code> was added to Cypher, which deletes a node with all its relationships.</p>
+</div>
+
+<div id="deleteEmil"></div>
+</div>
+<div  id="_deleting_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Deleting: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/delete" target="_blank" rel="noopener">Delete</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/optional-match" target="_blank" rel="noopener">Optional Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_lab_all_characters_in_the_matrix" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Lab: All Characters in the Matrix</h3>
+
+
+<div class="paragraph">
+<p>Using the syntax we&#8217;ve covered so far, <code>RETURN</code> a list of all the characters in the movie <code>The Matrix</code>.</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0110_Lab_All_Characters_in_the_Matrix_image.svg" alt="0110 Lab All Characters in the Matrix image" width="150" height="150">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p><strong>Hint</strong></p>
+</div>
+
+<div class="ulist">
+<ul>
+<li>
+Movies have the label <code>Movie</code> and a <code>title</code> property you want to compare to.
+</li>
+<li>
+We&#8217;re looking for the characters&#8212;&#8203;the <code>roles</code> which are a property of the <code>ACTED_IN</code> relationships&#8212;&#8203;not the names of the actors.
+</li>
+</ul>
+</div>
+<div id="allCharactersMatrix"></div>
+
+
+<div class="paragraph">
+<p>If you see all the usual suspects, you&#8217;re good.</p>
+</div>
+
+</div>
+<div  id="_order_by_limit_and_skip" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Order By, Limit, and Skip</h3>
+<div  id="_order_by" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>ORDER BY</h3>
+
+
+<div class="paragraph">
+<p>In Cypher it&#8217;s easy to order results using an <code>ORDER BY</code> command.
+Let&#8217;s say we wanted to display the oldest people in our database.
+We could use the following query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person)
+RETURN person.name, person.born
+ORDER BY person.born</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The query returns every actor ordered by their year of birth, so it will display the oldest (smallest <code>a.born</code>) first.</p>
+</div>
+
+</div>
+<div  id="_limit_and_skip" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>LIMIT and SKIP</h3>
+
+
+<div class="paragraph">
+<p>Cypher supports easy pagination of record sets.
+It uses <code>LIMIT</code> and <code>SKIP</code> statements to reduce the number of records returned and to allow for paging through the results.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If we wanted to display the <strong>second page</strong> of 10 actors and movies they played in, we might use the following query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)
+RETURN actor.name AS Actor, movie.title AS Movie
+SKIP 10 LIMIT 10;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>We could also just use <code>LIMIT</code> if we only want the top-n elements within the result.</p>
+</div>
+
+</div>
+<div  id="_exercise_return_the_five_oldest_people_in_the_database" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Return the five oldest people in the database</h3>
+<div class="imageblock">
+<p class="content">
+<img src="img/0111_Order_Limit_and_Skip_oldest_people.svg" alt="0111 Order Limit and Skip oldest people">
+</p>
+</div>
+</div>
+<div  id="_solution_return_the_five_oldest_people_in_the_database" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Return the five oldest people in the database</h3>
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person)
+RETURN person
+ORDER BY person.born
+LIMIT 5;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_using_distinct" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Using DISTINCT</h3>
+
+
+<div class="paragraph">
+<p>Often you find yourself wanting to return only distinct results for a query.
+For example, let&#8217;s look at the list of the oldest actors.
+Initially, we might try the following:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;()
+RETURN actor
+ORDER BY actor.born
+LIMIT 5</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>But if any of the five oldest actors were in more than one movie, we&#8217;ll get them multiple times.
+So the query we really want to run is:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;()
+RETURN DISTINCT actor
+ORDER BY actor.born
+LIMIT 5</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div id="oldestActors"></div>
+</div>
+<div  id="_order_by_limit_and_skip_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>ORDER BY, LIMIT, and SKIP: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/order" target="_blank" rel="noopener">Order by</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/limit" target="_blank" rel="noopener">Limit</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/skip" target="_blank" rel="noopener">Skip</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators/#syntax-using-the-distinct-operator" target="_blank" rel="noopener">Distinct</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_predicates_and_conditions" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Predicates and Conditions</h3>
+<div  id="_using_where" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Using WHERE</h3>
+
+
+<div class="paragraph">
+<p>Cypher provides a number of mechanisms for reducing the number of matching patterns returned in a result set.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Let&#8217;s start with a simple query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person)
+WHERE person.name = "Tom Hanks"
+RETURN person</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>This will look through all the nodes in the graph with a label of <code>Person</code>, and if one has the <code>name</code> "Tom Hanks", it will <code>RETURN</code> that node.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>There is a shorter version of this query, which adds the Properties to filter by the <code>MATCH</code> clause.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person {name:"Tom Hanks"})
+RETURN person</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_filtering_using_comparisons" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Filtering using Comparisons</h3>
+
+
+<div class="paragraph">
+<p>We can also filter by comparing properties of different nodes.
+For example, we could <code>RETURN</code> all of the actors who acted with <code>Tom Hanks</code> and are older than him:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (tom:Person)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(actor:Person)
+WHERE tom.name="Tom Hanks"
+AND actor.born &lt; tom.born
+RETURN actor.name AS Name</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="imageblock">
+<p class="content">
+<img src="img/0113_Filters_acted_with_TH_and_older.svg" alt="0113 Filters acted with TH and older">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p>Note that we didn&#8217;t bother to put <code>(movie)</code> in the middle-just <code>()</code>, as we don&#8217;t need to know anything about the movie in which they worked together.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>We can even add a little math to the <code>RETURN</code> clause along with the <em>alias</em> <code>AS diff</code> to show us the difference in ages:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (tom:Person {name:"Tom Hanks"})-[:ACTED_IN]-&gt;(movie:Movie),
+(movie)&lt;-[:ACTED_IN]-(actor:Person) // note how the line break doesn't break the query
+WHERE actor.born &lt; tom.born
+RETURN DISTINCT actor.name AS Name, (tom.born - actor.born) AS diff</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Math or more general expressions can be used almost everywhere in Cypher.</p>
+</div>
+
+</div>
+<div  id="_filtering_using_patterns_a_few_examples" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Filtering using Patterns: A Few Examples</h3>
+
+
+<div class="paragraph">
+<p>How would we find all the actors who worked with <code>Gene Hackman</code>?</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0113_Filters_worked_with_gene_hackman.svg" alt="People who acted with Gene Hackman">
+</p>
+</div>
+</div>
+<div  id="_solution_find_all_the_actors_who_worked_with_gene_hackman" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Find all the actors who worked with Gene Hackman</h3>
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (gene:Person)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(other:Person)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT other</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>How do we filter those actors to only actor-directors?</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0113_Filters_worked_with_gene_hackman_actor_director.svg" alt="0113 Filters worked with gene hackman actor director">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p>So far, we used paths as part of a <code>MATCH</code> clause, but it is also possible to use paths as filter expressions in the <code>WHERE</code> clause.
+Here we check their existence with the <code>exists</code> function</p>
+</div>
+
+</div>
+<div  id="_solution_filter_to_only_actor_directors" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Filter to only actor-directors</h3>
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (gene:Person)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(other:Person)
+WHERE gene.name="Gene Hackman"
+AND exists( (other)-[:DIRECTED]-&gt;() )
+RETURN DISTINCT other</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_example_gene_hackman_and_not_robin_williams" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Example: Gene Hackman and not Robin Williams</h3>
+
+
+<div class="paragraph">
+<p>Find actors who worked with <code>Gene Hackman</code>, but not when he was also working with <code>Robin Williams</code> in the same movie.</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0113_Filters_worked_with_gene_hackman_not_rw.svg" alt="0113 Filters worked with gene hackman not rw">
+</p>
+</div>
+</div>
+<div  id="_solution_gene_hackman_and_not_robin_williams" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Gene Hackman and not Robin Williams</h3>
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (gene:Person {name:"Gene Hackman"})-[:ACTED_IN]-&gt;(movie:Movie),
+      (other:Person)-[:ACTED_IN]-&gt;(movie),
+      (robin:Person {name:"Robin Williams"})
+WHERE NOT exists( (robin)-[:ACTED_IN]-&gt;(movie) )
+RETURN DISTINCT other</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_filters_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Filters: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators" target="_blank" rel="noopener">Boolean and Mathematical Operators</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where" target="_blank" rel="noopener">Where</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_review_exploring_the_movie_database" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Review: Exploring the Movie Database</h3>
+<div  id="_exercise_tom_hank_s_filmography" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Tom Hank&#8217;s Filmography</h3>
+
+
+<div class="paragraph">
+<p>If you wanted to <strong>Find all of the movies that <em>Tom Hanks</em> acted in</strong>, how might you do that?</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0114_Lab_Exploring_the_Movie_database.svg" alt="0114 Lab Exploring the Movie database">
+</p>
+</div>
+<div id="allMoviesTomHanksActedIn"></div>
+</div>
+<div  id="_tom_hank_s_filmography_after_2000" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Tom Hank&#8217;s Filmography after 2000</h3>
+
+
+<div class="paragraph">
+<p>What if you wanted to limit that to movies which were released after <em>2000</em>?
+Note that there is a <code>released</code> property on <code>Movie</code>.</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0114_Lab_Exploring_the_Movie_database_post_2000.svg" alt="0114 Lab Exploring the Movie database post 2000">
+</p>
+</div>
+<div  id="_solution_tom_hank_s_filmography_after_2000" class="sect3 "  >
+<h4>Solution: Tom Hank&#8217;s Filmography after 2000</h4>
+<div class="listingblock solution">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie)
+WHERE tom.name="Tom Hanks"
+AND movie.released &gt; 2000
+RETURN movie.title AS `Movie Title`</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+</div>
+<div  id="_exercise_find_all_movies_keanu_reeves_has_acted_in" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Find all movies Keanu Reeves has acted in</h3>
+<div class="imageblock">
+<p class="content">
+<img src="img/0114_Lab_Exploring_the_Movie_database_keanu.svg" alt="0114 Lab Exploring the Movie database keanu">
+</p>
+</div>
+<div id="allMoviesKeanuReevesActedIn"></div>
+</div>
+<div  id="_exercise_find_all_movies_in_which_keanu_reeves_played_the_role_neo" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Find all movies in which Keanu Reeves played the role Neo</h3>
+<div class="imageblock right">
+<p class="content">
+<img src="img/0114_Lab_Exploring_the_Movie_database_keanu_neo.svg" alt="0114 Lab Exploring the Movie database keanu neo">
+</p>
+</div>
+<div  id="_hints" class="sect3 "  >
+<h4>Hints:</h4>
+<div class="ulist">
+<ul>
+<li>
+You need an variable for the relationship.
+</li>
+<li>
+The <code>ACTED_IN</code> relationship has a <code>roles</code> property (which is an array).
+</li>
+<li>
+The syntax for seeing whether an element is in an array is <code>{element} IN r.roles</code>.
+</li>
+<li>
+Generally check for the existence of the value of <code>{expression}</code> IN <code>{collection}</code>
+</li>
+</ul>
+</div>
+</div>
+<div  id="_solution_find_all_movies_in_which_keanu_reeves_played_the_role_neo" class="sect3 "  >
+<h4>Solution: Find all movies in which Keanu Reeves played the role Neo</h4>
+<div class="listingblock solution">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (keanu:Person)-[r:ACTED_IN]-&gt;(movie)
+WHERE keanu.name="Keanu Reeves"
+AND "Neo" IN r.roles
+RETURN movie.title</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+</div>
+<div  id="_lab_resources_exploring_the_movie_database" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Lab Resources: Exploring the Movie Database</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators" target="_blank" rel="noopener">Boolean and Mathematical Operators</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/functions-collection" target="_blank" rel="noopener">Collection functions</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where" target="_blank" rel="noopener">Where</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_matching_paths" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Matching Paths</h3>
+<div  id="_what_is_a_path" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>What is a Path?</h3>
+
+
+<div class="paragraph">
+<p>A <strong>path</strong> is a series of connected nodes and relationships.
+Paths can be matched by a pattern.</p>
+</div>
+
+</div>
+<div  id="_what_can_we_do_with_paths" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>What can we do with Paths?</h3>
+
+</div>
+<div  id="_alternative_notations" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Alternative Notations</h3>
+
+
+<div class="paragraph">
+<p>There are a number of different ways we could write the query we just examined:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN actor.name, movie.title, director.name;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>That&#8217;s nice, but especially for long paths the <code>MATCH</code> might not fit into a single path expression, so we can break it down into two separate segments using a comma:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie:Movie),
+      (movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN actor.name, movie.title, director.name;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>In this form, we&#8217;re "taking a breath" with the comma, but we still want to return all the actors who acted in a movie together with the directors of those movies.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><strong>This expresses the same query and will return the same record set.</strong></p>
+</div>
+
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title label"></div>
+</td>
+<td class="content">
+We have repeated the variable <code>movie</code> in both segments of the <code>MATCH</code> clause.
+This is critical.
+If we didn&#8217;t do this we&#8217;d get a very different record set as it is that shared variable that connects the two segments of the match clause.
+</td>
+</tr>
+</table>
+</div>
+
+
+<div class="paragraph">
+<p>There is yet another way we could express the same query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie:Movie),(director:Person)-[:DIRECTED]-&gt;(movie)
+RETURN actor.name, movie.title, director.name;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Notice that the <code>director</code> element of the match clause is the other way round.
+However, the directionality (shown by the arrow) is still the same.
+So the following two snippets are identical as far as Cypher (and common sense) are concerned.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Identical Cypher snippets:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">(movie)&lt;-[:DIRECTED]-(director)</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">(director)-[:DIRECTED]-&gt;(movie)</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_variable_length_paths" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Variable Length Paths</h3>
+
+
+<div class="paragraph">
+<p>In Cypher, we can describe variable length paths using a star: <code>*</code></p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (node1)-[*]-(node2)</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title label"></div>
+</td>
+<td class="content">
+This unbounded path will potentially match many million or billion paths in medium size graphs.
+It also is important to use relationship-types and directions if possible.
+Always use paths with an upper limit or between two anchored nodes.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+Relationships that traverse any depth are: <code>(a)-[*]-&gt;(b)</code>
+</li>
+<li>
+Specific depth of relationships are represented like <code>(a)-[*depth]-&gt;(b)</code> to find all paths exactly <code>depth</code> steps long.
+</li>
+<li>
+Relationships from one to four levels deep are represented like so: <code>(a)-[*1..4]-&gt;(b)</code>
+</li>
+<li>
+Relationships of type <code>KNOWS</code> at 3 levels distance: <code>(a)-[:KNOWS*3]-&gt;(b)</code>
+</li>
+<li>
+Relationships of type <code>KNOWS</code> or <code>LIKES</code> from 2 levels distance: <code>(a)-[:KNOWS|:LIKES*2..]-&gt;(b)</code>
+</li>
+</ul>
+</div>
+</div>
+<div  id="_matching_paths_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Matching Paths: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators" target="_blank" rel="noopener">Boolean and Mathematical Operators</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/variables" target="_blank" rel="noopener">Pattern Variables</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_returning_paths" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Returning Paths</h3>
+
+
+<div class="paragraph">
+<p>In addition to being able to <code>MATCH</code> paths, we can name paths and <code>RETURN</code> them as part of the result:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH p=(actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN p;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>This will <code>RETURN</code> all of the nodes and relationships for each path, including all of their properties.
+That&#8217;s interesting, but can be too much data.
+We might use the <code>nodes()</code> function just to <code>RETURN</code> the nodes in the path:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH p=(actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN nodes(p);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>There is a similar function for relationships:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH p=(actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN rels(p);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Note that only connected patterns can be used to create named paths.
+If you have two patterns in your <code>MATCH</code> clause with a comma between them, you&#8217;d have to <code>RETURN</code> the results as two distinct named paths:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH p1=(actor:Person)-[:ACTED_IN]-&gt;(movie:Movie), p2=(director:Person)-[:DIRECTED]-&gt;(movie)
+RETURN p1, p2;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div  id="_exercise_directors_acting_in_their_movies" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Directors acting in their movies</h3>
+<div class="imageblock">
+<p class="content">
+<img src="img/0116_Matching_Paths_actors_directors.svg" alt="0116 Matching Paths actors directors">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p>We&#8217;ve already seen how to <code>RETURN</code> all of the actors and directors in all of the movies:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN actor.name, movie.title, director.name;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>How would you change this query to <code>RETURN</code> only the directors who acted in their own movies?
+Return people who both acted and directed in the same movie and display their name.</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/0117_Returning_Paths_actor_director.svg" alt="0117 Returning Paths actor director">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p><strong>Hint</strong></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If you&#8217;re having trouble, what would happen if you replaced the <code>(d)</code> and <code>d.name</code> with an <code>(a)</code> and <code>a.name</code>?
+Does that work?
+Why?
+How could you simplify that query?</p>
+</div>
+
+<div id="directorsThatActedInTheirMovies"></div>
+</div>
+<div  id="_returning_paths_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Returning Paths: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators/" target="_blank" rel="noopener">Boolean and Mathematical Operators</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/patterns/" target="_blank" rel="noopener">Finding Patterns</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where" target="_blank" rel="noopener">Where</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_indexing_and_labels" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Indexing and Labels</h3>
+
+
+<div class="paragraph">
+<p>Unlike other databases, Neo4j doesn&#8217;t use indexes to speed up <code>JOIN</code> operations.
+However, they are useful for finding your starting points by value, textual prefix or range.
+You&#8217;ll create a <strong>label specific index</strong> as indexes are bound to a concrete label-property combination.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>So if you want to be able to search efficiently for <code>Movies</code> based on their <code>title</code>, you might run the following Cypher command:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE INDEX ON :Movie(title)</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>To remove the index, use the following Cypher command:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">DROP INDEX ON :Movie(title)</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div  id="_exercise_how_would_you_create_an_index_for_searching_people_by_name" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: How would you create an index for searching people by name?</h3>
+
+</div>
+<div  id="_solution_how_would_you_create_an_index_for_searching_people_by_name" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: How would you create an index for searching people by name?</h3>
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE INDEX ON :Person(name);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>You don&#8217;t need to do anything to your queries to use these indexes.
+Run the commands above, followed by:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (gene:Person)-[:ACTED_IN]-&gt;(movie),(other:Person)-[:ACTED_IN]-&gt;(movie)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT other;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The lookup of Gene Hackman will now be much faster, although with a small test data set the difference may not be noticeable.</p>
+</div>
+
+</div>
+<div  id="_exercise_using_indexes" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Using Indexes</h3>
+
+
+<div class="paragraph">
+<p>Try to use the query below once with and once without an index.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (gene:Person)-[:ACTED_IN]-&gt;(movie),(other:Person)-[:ACTED_IN]-&gt;(movie)
+WHERE gene.name="Gene Hackman"
+RETURN DISTINCT other;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_indexing_and_labels_create_a_label_specific_index" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Indexing and Labels: Create a Label-Specific Index</h3>
+
+
+<div class="paragraph">
+<p>Create an index on nodes labeled <code>Person</code>, indexing by the property <code>name</code>:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE INDEX ON :Person(name);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>Create an index on nodes labeled <code>Movie</code>, indexing by the property <code>title</code>:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">CREATE INDEX ON :Movie(title);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_indexing_and_labels_anchor_pattern_nodes_in_the_graph" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Indexing and Labels: Anchor Pattern Nodes in the Graph</h3>
+
+
+<div class="paragraph">
+<p>Return movies featuring both Tom Hanks and Kevin Bacon</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (tom:Person)-[:ACTED_IN]-&gt;(movie:Movie),(kevin:Person)-[:ACTED_IN]-&gt;(movie)
+WHERE tom.name="Tom Hanks" AND kevin.name="Kevin Bacon"
+RETURN DISTINCT movie;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>You can anchor one or more nodes of your pattern in the graph, by constraining their properties to a single fitting node.
+Then the pattern matching works much faster as Cypher doesn&#8217;t have to scan the whole graph to apply the patterns.
+If there is an index, Cypher will automatically use it.</p>
+</div>
+
+</div>
+<div  id="_indexing_and_labels_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Indexing and Labels: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/constraints" target="_blank" rel="noopener">Constraints</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/schema/index/" target="_blank" rel="noopener">Indexes</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where" target="_blank" rel="noopener">Where</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_aggregation" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Aggregation</h3>
+
+
+<div class="paragraph">
+<p>Cypher provides support for a number of aggregate functions</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><code>count(x)</code> Count the number of occurrences</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><code>min(x)</code> Get the lowest value</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><code>max(x)</code> Get the highest value</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><code>avg(x)</code> Get the average of a numeric value</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><code>sum(x)</code> Sum up values</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><code>collect(x)</code> Collect all the values into an collection</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>More on aggregate functions can be found in the <a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/aggregation">Neo4j Manual</a>.</p>
+</div>
+
+<div  id="_aggregation_collect" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Aggregation: Collect</h3>
+
+
+<div class="paragraph">
+<p>Let&#8217;s say we wanted to display all movie titles that an actor participated in.
+We could use the following query:</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person)-[:ACTED_IN]-&gt;(movie:Movie)
+RETURN person.name, collect(movie.title);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>For every <code>Person</code> who has acted in at least one movie, the query will <code>RETURN</code> their name and an array of strings containing the movie titles.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Let&#8217;s look closer at the graph and at Tom Hanks' movies.</p>
+</div>
+
+</div>
+<div  id="_exercise_return_the_names_of_all_the_directors_each_actor_has_worked_with" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Return the names of all the directors each actor has worked with</h3>
+<div class="imageblock">
+<p class="content">
+<img src="img/0116_Matching_Paths_actors_directors.svg" alt="0116 Matching Paths actors directors">
+</p>
+</div>
+</div>
+<div  id="_solution_return_the_names_of_all_the_directors_each_actor_has_worked_with" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Return the names of all the directors each actor has worked with</h3>
+<div class="listingblock solution">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN person.name, collect(director.name);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>But if the actor worked several times with the same director, they would appear repeatedly.
+We can use <code>DISTINCT</code> here to collect only the distinct set of director names.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN person.name, collect(DISTINCT director.name) as directors;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_exercise_return_the_count_of_movies_in_which_each_actor_has_acted" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Return the count of movies in which each actor has acted</h3>
+<div class="imageblock">
+<p class="content">
+<img src="img/ACTED_IN.svg" alt="ACTED IN">
+</p>
+</div>
+</div>
+<div  id="_solution_return_the_count_of_movies_in_which_each_actor_has_acted" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Return the count of movies in which each actor has acted</h3>
+<div class="listingblock solution">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)
+RETURN actor.name, count(movie);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_exercise_return_the_count_of_movies_in_which_an_actor_and_director_have_jointly_worked" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Return the count of movies in which an actor and director have jointly worked</h3>
+<div class="imageblock">
+<p class="content">
+<img src="img/ACTED_IN_and_DIRECTED.svg" alt="ACTED IN and DIRECTED">
+</p>
+</div>
+</div>
+<div  id="_solution_return_the_count_of_movies_in_which_an_actor_and_director_have_jointly_worked" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Return the count of movies in which an actor and director have jointly worked</h3>
+<div class="listingblock solution">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie:Movie)&lt;-[:DIRECTED]-(director:Person)
+RETURN actor.name, director.name, count(movie);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_aggregation_top_n" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Aggregation: Top n</h3>
+
+
+<div class="paragraph">
+<p>If you&#8217;re interested in the top n results, use a <code>count</code> aggregation.
+If we were interested in the top ten actors who acted in the most movies, the query would look like this:</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/popular_actors_top_10.svg" alt="popular actors top 10">
+</p>
+</div>
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (person:Person)-[:ACTED_IN]-&gt;(movie:Movie)
+RETURN person.name, count(movie)
+ORDER BY count(movie) DESC
+LIMIT 10;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_aggregation_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Aggregation: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/functions/aggregating/" target="_blank" rel="noopener">Aggregation</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators" target="_blank" rel="noopener">Boolean and Mathematical Operators</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/get-started/cypher/getting-the-results-you-want/" target="_blank" rel="noopener">Getting Correct Results</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where" target="_blank" rel="noopener">Where</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_lab_who_are_the_five_busiest_actors" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Lab: Who are the five busiest actors?</h3>
+
+
+<div class="paragraph">
+<p>Try to come up with a query that will display the five busiest actors, i.e. the ones who have been in the most movies.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p><strong>Hint</strong></p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Use aggregation and ordering</p>
+</div>
+
+<div class="imageblock">
+<p class="content">
+<img src="img/popular_actors.svg" alt="popular actors">
+</p>
+</div>
+<div id="fiveBusiestActors"></div>
+<div  id="_solution_who_are_the_five_busiest_actors" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Who are the five busiest actors?</h3>
+<div class="listingblock solution">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (actor:Person)-[:ACTED_IN]-&gt;(movie)
+RETURN actor.name, count(movie)
+ORDER BY count(movie) DESC
+LIMIT 5;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+</div>
+<div  id="_lab_recommendation_engine" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Lab: Recommendation Engine</h3>
+<div  id="_exercise_recommend_three_actors_that_keanu_reeves_should_work_with_but_hasn_t" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Exercise: Recommend three actors that Keanu Reeves should work with (but hasn&#8217;t).</h3>
+<div class="imageblock">
+<p class="content">
+<img src="img/keanu_fof.svg" alt="keanu fof">
+</p>
+</div>
+
+
+<div class="paragraph">
+<p>This is kind of a <strong>friends-of-a-friend</strong> query, with <code>ACTS_IN</code> acting as a proxy for <code>FRIEND</code>.
+There are different approaches for the recommendation.
+This is just one of them.</p>
+</div>
+
+</div>
+<div  id="_solution_recommendation_engine" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Solution: Recommendation Engine</h3>
+<div class="listingblock solution">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">MATCH (keanu:Person {name:"Keanu Reeves"})-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(coworker:Person),
+      (coworker)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(coworkerOfCoworker)
+WHERE coworkerOfCoworker &lt;&gt; keanu  AND NOT((keanu)-[:ACTED_IN]-&gt;()&lt;-[:ACTED_IN]-(coworkerOfCoworker))
+RETURN coworkerOfCoworker.name, count(coworkerOfCoworker)
+ORDER BY count(coworkerOfCoworker) DESC
+LIMIT 3;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+</div>
+<div  id="_importing_data" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Importing Data</h3>
+
+
+<div class="paragraph">
+<p>Throughout this course, we have been assuming data already exists in a database or is small enough to enter manually.
+However, what if you wanted to explore an already existing external dataset?
+How would you import data from a spreadsheet or relational database?</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If you want to import data from CSV, you will need to develop a model that describes how data from your CSV maps to data in your graph.</p>
+</div>
+
+<div  id="_importing_normalized_data_using_load_csv" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Importing Normalized Data using LOAD CSV</h3>
+
+
+<div class="paragraph">
+<p>Cypher provides an elegant built-in way to import tabular CSV data into graph structures.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The <code>LOAD CSV</code> clause parses a local or remote file into a stream of rows which represent maps (with headers) or lists.
+Then you can use whichever Cypher operations you want to either <code>CREATE</code> nodes or relationships or to <code>MERGE</code> with existing graph structures.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>As CSV files usually represent either node- or relationship-lists, you will run multiple passes to create nodes and relationships separately.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>The <code>movies.csv</code> file (sample below) contains the data that will populate the Movie nodes.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre>id,title,country,year
+1,Wall Street,USA,1987
+2,The American President,USA,1995
+3,The Shawshank Redemption,USA,1994</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The following query <code>CREATE</code> s the <code>Movie</code> nodes using the data from <code>movies.csv</code> as properties.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">LOAD CSV WITH HEADERS
+FROM "http://neo4j.com/docs/stable/csv/intro/movies.csv"
+AS line
+CREATE (movie:Movie { id:line.id, title:line.title, released:toInt(line.year) });</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The <code>persons.csv</code> file (sample below) holds the data that will populate the <code>:Person</code> nodes.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre>id,name
+1,Charlie Sheen
+2,Oliver Stone
+3,Michael Douglas
+4,Martin Sheen
+5,Morgan Freeman</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>In case you already have people in your database, you will want to avoid creating duplicates.
+That&#8217;s why instead of just creating them, we use <code>MERGE</code> to ensure unique entries after the import.
+As we only have to set the name of a person upon creation, we use the <code>ON CREATE</code> feature.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">LOAD CSV WITH HEADERS
+FROM "http://neo4j.com/docs/stable/csv/intro/persons.csv"
+AS line
+MERGE (actor:Person { id:line.id })
+ON CREATE SET actor.name=line.name;</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The <code>roles.csv</code> file (sample below) holds the data that will populate the relationships between the nodes.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre>personId,movieId,role
+1,1,Bud Fox
+4,1,Carl Fox
+3,1,Gordon Gekko
+4,2,A.J. MacInerney
+3,2,President Andrew Shepherd
+5,3,Ellis Boyd 'Red' Redding</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>The query below matches the entries of <code>line.personId</code> and <code>line.movieId</code> to their respective <code>:Movie</code> and <code>:Person</code> nodes via their key "propertyId", and makes an <code>ACTED_IN</code> relationship between the person and the movie.
+This model includes a relationship property of <code>role</code>, which is passed via <code>line.role</code>.</p>
+</div>
+
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">LOAD CSV WITH HEADERS
+FROM "http://neo4j.com/docs/stable/csv/intro/roles.csv"
+AS line
+MATCH (movie:Movie { id:line.movieId })
+MATCH (person:Person { id:line.personId })
+CREATE (person)-[:ACTED_IN { roles: [line.role]}]-&gt;(movie);</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+</div>
+<div  id="_importing_denormalized_data" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Importing Denormalized Data</h3>
+
+
+<div class="paragraph">
+<p>If your file contains denormalized data, you can run the same file with multiple passes and simple operations as shown above. Alternatively, you might have to use <code>MERGE</code> to create nodes and relationships uniquely.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>For our use case, we can import the data using a CSV structure like this:</p>
+</div>
+
+<div class="listingblock">
+<div class="title">movie_actor_roles.csv</div>
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre>title;released;actor;born;characters
+Back to the Future;1985;Michael J. Fox;1961;Marty McFly
+Back to the Future;1985;Christopher Lloyd;1938;Dr. Emmet Brown</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+<div class="listingblock">
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;">
+<pre style="font-size: 16px; font-weight: 100;"  class="code programlisting cm-s-neo" data-lang="cypher">LOAD CSV WITH HEADERS
+FROM "http://neo4j.com/docs/stable/csv/intro/movie_actor_roles.csv"
+AS line FIELDTERMINATOR ";"
+MERGE (movie:Movie { title:line.title })
+ON CREATE SET movie.released = toInt(line.released)
+MERGE (actor:Person { name:line.actor })
+ON CREATE SET actor.born = toInt(line.born)
+MERGE (actor)-[r:ACTED_IN]-&gt;(movie)
+ON CREATE SET r.roles = split(line.characters,",")</pre>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->
+
+
+<div class="paragraph">
+<p>For large denormalized files, it may still make sense to create nodes and relationships separately in multiple passes.
+That would depend on the complexity of the operations and the experienced performance.</p>
+</div>
+
+</div>
+<div  id="_importing_a_large_dataset" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Importing a Large Dataset</h3>
+
+
+<div class="paragraph">
+<p>If you import a larger amount of data (more than 10000 rows), it is recommended to prefix your <code>LOAD CSV</code> clause with a <code>PERIODIC COMMIT</code> hint.
+This allows the database to regularly commit the import transactions to avoid memory churn for large transaction-states.</p>
+</div>
+
+</div>
+<div  id="_importing_data_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Importing Data: Resources</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/operators" target="_blank" rel="noopener">Boolean and Mathematical Operators</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/create" target="_blank" rel="noopener">Create</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/load-csv" target="_blank" rel="noopener">Load CSV</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher#cypherdoc-importing-csv-files-with-cypher" target="_blank" rel="noopener">Importing CSV Files with Cypher</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/match" target="_blank" rel="noopener">Match</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/merge" target="_blank" rel="noopener">Merge</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/return" target="_blank" rel="noopener">Return</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/set" target="_blank" rel="noopener">Set</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/load-csv/#load-csv-importing-large-amounts-of-data" target="_blank" rel="noopener">Using Periodic Commit</a>
+</li>
+<li>
+<a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where" target="_blank" rel="noopener">Where</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div  id="_community_resources_and_next_steps" class="sect1 columns medium-12" style='padding-left: 0;' >
+<h3>Community Resources and Next Steps</h3>
+<div  id="_in_person_training" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>In-Person Training</h3>
+
+
+<div class="paragraph">
+<p>If you enjoyed the online version of our training and want to continue to learn about Cypher, check out our <a href="https://neo4j.com/events/#/events?area=Local&amp;type=Training" class="bare">https://neo4j.com/events/#/events?area=Local&amp;type=Training</a>
+[in-person, hands-on training classes]. They are taught around the world by experienced instructors.</p>
+</div>
+
+</div>
+<div  id="_online_groups_and_resources" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Online Groups and Resources</h3>
+
+
+<div class="paragraph">
+<p>If you&#8217;d like to learn more about using Neo4j, start by going to <a href="http://neo4j.com/developer">the Neo4j developer page</a>.
+It provides a range of topics for learning more about Neo4j.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If you have specific questions or problems, please ask on <a href="http://stackoverflow.com/questions/tagged/neo4j">Stack Overflow</a>, where the most knowledgable people can help you quickly.
+Come to the <a href="http://groups.google.com/group/neo4j">Neo4j Google Group</a> if you want to discuss graph modeling questions, the Neo4j ecosystem or product features.
+You can also join our <a href="http://neo4j.com/slack">public Slack channel</a> to get quick answers.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>If you&#8217;d like to learn more about the company behind Cypher, the product and the enterprise features and support packages that are provided, you should check out <a href="http://neo4j.com/product">neo4j.com</a>.
+There you can also find more information about use cases and solutions.</p>
+</div>
+
+
+
+<div class="paragraph">
+<p>Follow Neo4j on Twitter <a href="http://twitter.com/neo4j">@Neo4j</a> and find local <a href="http://neo4j.meetup.com">Neo4j meetups</a> to connect with other developers interested in graph databases.</p>
+</div>
+
+</div>
+<div  id="_links" class="sect2 columns medium-12" style='padding-left: 0;' >
+<h3>Links</h3>
+<div class="ulist">
+<ul>
+<li>
+<a href="http://neo4j.com/sandbox/" target="_blank" rel="noopener">Start a Neo4j Sandbox</a> and explore datasets
+</li>
+<li>
+<a href="http://neo4j.com/download/" target="_blank" rel="noopener">Download Neo4j</a> and develop your first Neo4j project
+</li>
+<li>
+Ask questions on <a href="http://stackoverflow.com/questions/tagged/neo4j" target="_blank" rel="noopener">Stack Overflow</a>
+</li>
+<li>
+Discuss ideas on <a href="http://groups.google.com/group/neo4j" target="_blank" rel="noopener">Neo4j&#8217;s Google Group</a>
+</li>
+<li>
+Discuss ideas on <a href="http://neo4j.com/slack" target="_blank" rel="noopener">Neo4j&#8217;s Slack</a>
+</li>
+<li>
+Read the <a href="http://neo4j.com/docs/developer-manual/current/" target="_blank" rel="noopener">Neo4j Documentation</a>
+</li>
+<li>
+Use the <a href="http://neo4j.com/docs/cypher-refcard/current" target="_blank" rel="noopener">Neo4j Cypher Reference Card</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+       </div>
+    </div>
+    <div class="large-3 large-pull-9 columns sticky">
+        <div><a href="/graphacademy"><image src="http://dev.assets.neo4j.com.s3.amazonaws.com/wp-content/uploads/neo4j_logo-325x150.png"></a></div>
+        
+        <div id="toc" class="toc2">
+        <div id="toctitle">Table of Contents</div>
+        <ul class="sectlevel1">
+<li><a href="#_about_this_course">About this Course</a></li>
+<li><a href="#_why_use_a_graph_database">Why use a Graph Database?</a></li>
+<li><a href="#_what_is_cypher">What is Cypher</a></li>
+<li><a href="#_the_movie_database">The Movie Database</a></li>
+<li><a href="#_patterns_of_nodes_and_relationships">Patterns of Nodes and Relationships</a></li>
+<li><a href="#_nodes_and_their_properties">Nodes and their Properties</a></li>
+<li><a href="#_relationships_2">Relationships</a></li>
+<li><a href="#_deleting_nodes">Deleting Nodes</a></li>
+<li><a href="#_lab_all_characters_in_the_matrix">Lab: All Characters in the Matrix</a></li>
+<li><a href="#_order_by_limit_and_skip">Order By, Limit, and Skip</a></li>
+<li><a href="#_predicates_and_conditions">Predicates and Conditions</a></li>
+<li><a href="#_review_exploring_the_movie_database">Review: Exploring the Movie Database</a></li>
+<li><a href="#_matching_paths">Matching Paths</a></li>
+<li><a href="#_returning_paths">Returning Paths</a></li>
+<li><a href="#_indexing_and_labels">Indexing and Labels</a></li>
+<li><a href="#_aggregation">Aggregation</a></li>
+<li><a href="#_lab_who_are_the_five_busiest_actors">Lab: Who are the five busiest actors?</a></li>
+<li><a href="#_lab_recommendation_engine">Lab: Recommendation Engine</a></li>
+<li><a href="#_importing_data">Importing Data</a></li>
+<li><a href="#_community_resources_and_next_steps">Community Resources and Next Steps</a></li>
+</ul>
+        </div>
+    </div>
+</div>

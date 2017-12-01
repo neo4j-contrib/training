@@ -5,24 +5,25 @@
 
 [%interactive]
 - [ ] [.false-answer]#tuples#
-- [ ] nodes
-- [ ] relationships
+- [ ] [.required-answer]#nodes#
+- [ ] [.required-answer]#relationships#
 - [ ] [.false-answer]#documents#
 
 === Check all true statements about Cypher
 
 [%interactive]
 - [ ] [.false-answer]#Cypher is a programming language#
-- [ ] Cypher is a graph query language
+- [ ] [.required-answer]#Cypher is a graph query language#
 - [ ] [.false-answer]#Cypher is imperative#
-- [ ] Cypher is centered around graph patterns
-- [ ] Cypher borrows syntax from other languages
+- [ ] [.required-answer]#Cypher is centered around graph patterns#
+- [ ] [.required-answer]#Cypher borrows syntax from other languages#
 
 === What are correct Node Patterns? 
 
 [%interactive]
 - [ ] [.false-answer]#`+-[:ACTED_IN]->+`#
-- [ ] `(m:Movie)`
-- [ ] `(matrix:Movie {title: "The Matrix"})`
-- [ ] `(:Person:Director:Actor {name:"Clint Eastwood"})`
+- [ ] [.required-answer]#`(m:Movie)`#
+- [ ] [.required-answer]#`(matrix:Movie {title: "The Matrix"})`#
+- [ ] [.required-answer]#`(:Person:Director:Actor {name:"Clint Eastwood"})`#
 
+== Next Section
