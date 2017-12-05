@@ -30,9 +30,12 @@ spec:
             claimName: backupdir-neo4j
       containers:
       - name: neo4j-backup
-        image: neo4j:3.2.3-enterprise
+        image: neo4j:3.3.0-enterprise
+        env:
+          - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
+            value: "yes"
         volumeMounts:
         - name: backupdir-neo4j
           mountPath: /tmp
-        command: ["bin/neo4j-admin",  "backup", "--backup-dir", "/tmp", "--name", "backup", "--from", "neo4j.default.svc.cluster.local:6362"]
+        command: ["bin/neo4j-admin",  "backup", "--backup-dir", "/tmp", "--name", "backup", "--from", "neo4j-core-2.neo4j.default.svc.cluster.local:6362"]
       restartPolicy: Never
