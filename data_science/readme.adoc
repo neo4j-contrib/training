@@ -22,8 +22,11 @@ Neo4j Browser Guide: `:play data_science`
 
 === Jupyter Notebooks
 
-* If you want: Install Jupyter Notebooks
-** neo4j-driver, pandas, mathplotlib, skikit-learn
+We have Jupyter notebooks for the session as well. You'll need to install neo4j-driver, pandas, mathplotlib, scikit-learn
+
+```
+pip install -r requirements.txt
+```
 
 * https://github.com/neo4j-contrib/training/blob/master/data_science/EDA.ipynb[Exploratory Data Analyis]
 * https://github.com/neo4j-contrib/training/blob/master/data_science/AppliedGraphAlgorithms.ipynb[Applied Graph Algorithms]
@@ -33,4 +36,3 @@ Neo4j Browser Guide: `:play data_science`
 
 * Neo4j Sandbox `http://neo4j.com/sandbox` -> Legis Graph
 * Neo4j Browser Guide `:play http://guides.neo4j.com/sandbox/legis-graph`
-
