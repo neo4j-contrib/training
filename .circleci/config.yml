@@ -10,7 +10,7 @@ jobs:
       - run: "cd online; ./build.sh"
       - run: cp -R cypher cypher-gadget images production ~/online-training-deploy
   publish:
-    working_directory: ~online-training-deploy/
+    working_directory: ~/online-training-deploy/
     docker:
       - image: circleci/ruby:2.4.1-node
     steps:
