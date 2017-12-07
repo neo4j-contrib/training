@@ -8,7 +8,8 @@ jobs:
       - checkout
       - run: bundle install
       - run: "cd online; ./build.sh"
-      - run: cp -R cypher cypher-gadget images production ~/online-training-deploy
+      - run: mkdir ~/online-training-deploy
+      - run: cp -R cypher cypher-gadget images production ~/online-training-deploy/
   publish:
     working_directory: ~/online-training-deploy/
     docker:
