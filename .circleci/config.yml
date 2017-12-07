@@ -1,22 +1,31 @@
 version: 2
 jobs:
-  build:
+  build-and-publish:
     working_directory: ~/online-training-build/
     docker:
       - image: circleci/ruby:2.4.1-node
     steps:
-      - checkout
-      - run: bundle install
-      - run: "cd online; ./build.sh"
+      - run:
+          name: "checkout"
+          command:  checkout
+      - run:
+          name: "get deps"
+          command:  bundle install
+      - run:
+          name: "build"
+          command: "cd online; ./build.sh"
       - run: mkdir ~/online-training-deploy
-      - run: cp -R cypher cypher-gadget images production ~/online-training-deploy/
-  publish:
-    working_directory: ~/online-training-deploy/
-    docker:
-      - image: circleci/ruby:2.4.1-node
-    steps:
-      - checkout
-      - run: bundle install
+      - run:
+          name: "copy to deploy"
+          command: cp -R cypher cypher-gadget images production ~/online-training-deploy/
+
+#  publish:
+#    working_directory: ~/online-training-deploy/
+#    docker:
+#      - image: circleci/ruby:2.4.1-node
+#    steps:
+#      - checkout
+#      - run: bundle install
 ##      - run: sudo apt-get update && sudo apt-get install -y awscli
 #      - run: aws --region eu-west-1 s3 sync ~/circleci-publish/deploy/ s3://developer-pages.neo4j.com/wp/ --delete
 #      - run:
@@ -32,8 +41,8 @@ workflows:
   version: 2
   developer-pages:
     jobs:
-      - build
-      - publish 
+      - build-and-publish
+#      - publish 
 #          filters:
 #            branches:
 #              only: gh-pages
