@@ -31,12 +31,13 @@ workflows:
   version: 2
   developer-pages:
     jobs:
-      - build:
+      - build
+      - publish 
 #          filters:
 #            branches:
 #              only: gh-pages
-
-      - publish:
+#
+#      - publish:
 #          filters:
 #            branches:
 #              only: publish
