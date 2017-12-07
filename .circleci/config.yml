@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/online-training-deploy/
+    working_directory: ~/online-training-build/
     docker:
       - image: circleci/ruby:2.4.1-node
     steps:
