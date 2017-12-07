@@ -5,9 +5,7 @@ jobs:
     docker:
       - image: circleci/ruby:2.4.1-node
     steps:
-      - run:
-          name: "checkout"
-          command:  checkout
+      - checkout
       - run:
           name: "get deps"
           command:  bundle install
