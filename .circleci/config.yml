@@ -11,10 +11,7 @@ jobs:
           command:  bundle install
       - run:
           name: "install python3"
-          command:  sudo apt-get install python3
-      - run:
-          name: "install python-pip"
-          command:  sudo easy_install pip
+          command:  sudo apt-get install python3 python3-pip
       - run:
           name: "install py modules"
           command: sudo pip install -r requirements.txt
