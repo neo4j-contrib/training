@@ -11,11 +11,11 @@ jobs:
           command:  bundle install
       - run:
           name: "build"
-          command: "cd online; ./build.sh"
-      - run: mkdir ~/online-training-deploy
-      - run:
-          name: "copy to deploy"
-          command: "cd ~/online-training-build/online/; cp -R cypher cypher-gadget images production ~/online-training-deploy/"
+          command: "cd online; ./build_publish.sh"
+#      - run: mkdir ~/online-training-deploy
+#      - run:
+#          name: "copy to deploy"
+#          command: "cd ~/online-training-build/online/; cp -R cypher cypher-gadget images production ~/online-training-deploy/"
 
 #  publish:
 #    working_directory: ~/online-training-deploy/
@@ -40,12 +40,3 @@ workflows:
   developer-pages:
     jobs:
       - build-and-publish
-#      - publish 
-#          filters:
-#            branches:
-#              only: gh-pages
-#
-#      - publish:
-#          filters:
-#            branches:
-#              only: publish
