@@ -2,7 +2,7 @@
 
 === Motivations
 
-This training class is an introduction to graph databases. 
+This training class is an introduction to graph databases and Neo4j.
 You will learn how to get started with Neo4j using Cypher, the graph query language.
 Please give us mailto:training@neo4j.com[feedback] on how we can improve it.
 
