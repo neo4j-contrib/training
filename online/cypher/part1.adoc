@@ -22,10 +22,6 @@ include::scripts.txt[]
 
 include::60-Minute-Cypher/0100_About_this_course.adoc[]
 
-ifdef::env-training[]
-include::60-Minute-Cypher/0102_Student_survey.adoc[]
-endif::[]
-
 include::../intro/L1_Why_use_a_Graph_Database_and_Neo4j/0100_Why_use_Neo4j.adoc[]
 
 include::60-Minute-Cypher/0103_What_is_Cypher.adoc[]

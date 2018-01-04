@@ -4,7 +4,7 @@
 
 This training class is an introduction to graph databases. 
 You will learn how to get started with Neo4j using Cypher, the graph query language.
-Please give us mailto:training@neotechnology.com[feedback] on how we can improve it.
+Please give us mailto:training@neo4j.com[feedback] on how we can improve it.
 
 ifdef::env-guide[]
 
@@ -45,7 +45,7 @@ If you click the "Try it out: ..." buttons, the widget will open in an overlay.
 
 ==== Example Widget
 
-image::{image}/cypher-widget.png[width=700]
+image::https://s3.amazonaws.com/dev.assets.neo4j.com/wp-content/uploads/online/graphdatabases/cypher-widget.png[width=700]
 
 ifndef::env-graphgist[]
 ++++
