@@ -27,7 +27,7 @@
         <!--div><a href="/graphacademy"><image src="http://dev.assets.neo4j.com.s3.amazonaws.com/wp-content/uploads/neo4j_logo-325x150.png"></a></div-->
         <% if (attr? :toc)  %>
         <div id="toc" class="<%= attr 'toc-class', 'toc' %>">
-        <div id="toctitle"><%= attr 'toc-title' %></div>
+        <div id="toctitle"><h4><%= attr 'toc-title' %></h4></div>
         <%= converter.convert self, 'outline' %>
         </div><% end %>
         <div>
