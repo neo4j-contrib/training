@@ -10,6 +10,9 @@ jobs:
           name: "get deps"
           command:  bundle install
       - run:
+          name: "install python3"
+          command:  apt-get install python3
+      - run:
           name: "install py modules"
           command: |
             python3 -m venv venv
