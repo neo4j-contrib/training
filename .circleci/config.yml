@@ -11,7 +11,7 @@ jobs:
           command:  bundle install
       - run:
           name: "install python3"
-          command:  apt-get install python3
+          command:  sudo apt-get install python3
       - run:
           name: "install py modules"
           command: |
