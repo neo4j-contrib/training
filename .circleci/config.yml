@@ -10,6 +10,9 @@ jobs:
           name: "get deps"
           command:  bundle install
       - run:
+          name: "install py modules"
+          command:  pip install -r requirements.txt
+      - run:
           name: "build"
           command: "cd online; ./build_publish.sh"
 #      - run: mkdir ~/online-training-deploy
