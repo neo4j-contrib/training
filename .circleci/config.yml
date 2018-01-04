@@ -14,10 +14,7 @@ jobs:
           command:  sudo apt-get install python3
       - run:
           name: "install py modules"
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
+          command: sudo pip install -r requirements.txt
       - run:
           name: "build"
           command: "cd online; ./build_publish.sh"
