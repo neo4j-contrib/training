@@ -16,30 +16,8 @@ jobs:
           name: "install py modules"
           command: sudo pip install -r requirements.txt
       - run:
-          name: "build"
+          name: "build and publish"
           command: "cd online; ./build_publish.sh"
-#      - run: mkdir ~/online-training-deploy
-#      - run:
-#          name: "copy to deploy"
-#          command: "cd ~/online-training-build/online/; cp -R cypher cypher-gadget images production ~/online-training-deploy/"
-
-#  publish:
-#    working_directory: ~/online-training-deploy/
-#    docker:
-#      - image: circleci/ruby:2.4.1-node
-#    steps:
-#      - checkout
-#      - run: bundle install
-##      - run: sudo apt-get update && sudo apt-get install -y awscli
-#      - run: aws --region eu-west-1 s3 sync ~/circleci-publish/deploy/ s3://developer-pages.neo4j.com/wp/ --delete
-#      - run:
-#          name: "Publish"
-#          command: "./render.rb all"
-#          environment:
-#            PUBLISH: true
-#            BLOG_HOSTNAME: neo4j.com
-#            BLOG_USERNAME: developer_site
-#            ASCIIDOC_TEMPLATES_DIR: "_templates/wordpress"
 
 workflows:
   version: 2
