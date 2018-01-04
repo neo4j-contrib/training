@@ -11,7 +11,10 @@ jobs:
           command:  bundle install
       - run:
           name: "install py modules"
-          command:  pip install -r requirements.txt
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
       - run:
           name: "build"
           command: "cd online; ./build_publish.sh"
