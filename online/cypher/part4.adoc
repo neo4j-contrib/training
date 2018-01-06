@@ -26,8 +26,4 @@ include::60-Minute-Cypher/0124_community_resources_and_next_steps.adoc[]
 
 include::60-Minute-Cypher/0124_Quiz4.adoc[]
 
-ifdef::env-training[]
-include::60-Minute-Cypher/0125_end_of_course_survey.adoc[]
-endif::[]
-
 link:/graphacademy/online-course/intro-course-finish/["Finish the Course here",role="next-section medium button"]
