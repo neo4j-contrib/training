@@ -32,4 +32,4 @@ include::60-Minute-Cypher/0105_Getting_Started.adoc[]
 
 include::60-Minute-Cypher/0105_Quiz1.adoc[]
 
-link:/graphacademy/online-training/getting-started-graph-databases-neo4j/part-2/[Continue to Part 2: Creating and Querying,role="next-section medium button"]
+link:/graphacademy/online-training/getting-started-graph-databases-using-neo4j/part-2/[Continue to Part 2: Creating and Querying,role="next-section medium button"]
