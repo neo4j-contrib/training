@@ -26,4 +26,4 @@ include::60-Minute-Cypher/0124_community_resources_and_next_steps.adoc[]
 
 include::60-Minute-Cypher/0124_Quiz4.adoc[]
 
-link:/graphacademy/online-course/intro-course-finish/["Finish the Course here",role="next-section medium button"]
+link:/graphacademy/online-training/getting-started-graph-databases-using-neo4j/intro-course-finish/["Finish the Course here",role="next-section medium button"]
