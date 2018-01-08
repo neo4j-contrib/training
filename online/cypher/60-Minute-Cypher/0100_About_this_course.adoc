@@ -28,14 +28,6 @@ You can also use kbd:[Ctrl+Enter] to run any command, with kbd:[Shift+Enter] you
 endif::[]
 ifndef::env-guide[]
 
-=== Running the Course with Neo4j Browser
-
-You can run this course also with an http://neo4j.com/download[installed and running Neo4j] instance.
-
-After starting the database, open the Neo4j Browser on `http://localhost:7474/` (if you're running it locally).
-Log in.
-Then run the `:play movie graph` guide from the command line on top to insert the data and work along with the queries presented in this training.
-
 === The Cypher Query Widget
 
 If you haven't installed Neo4j on your machine, the Cypher Query Widget is here for you to interactively explore. You can get comfortable with Cypher and learn how to query graph databases in a safe environment.
@@ -63,5 +55,7 @@ Your history is available across sessions. And we provide some pre-canned querie
 
 Please try to work with the tasks on your own and not just copy and paste queries.
 Thinking about them and writing & executing them incrementally helps you much more in understanding the concepts.
+
+Note: you can also run this course using the Neo4j Browser and https://neo4j.com/download/[Neo4j Desktop] running on your own machine.
 
 endif::[]
