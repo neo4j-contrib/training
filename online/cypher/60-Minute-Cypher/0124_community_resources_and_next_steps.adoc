@@ -10,9 +10,7 @@ If you enjoyed the online version of our training and want to continue to learn 
 If you'd like to learn more about using Neo4j, start by going to http://neo4j.com/developer[the Neo4j developer page].
 It provides a range of topics for learning more about Neo4j.
 
-If you have specific questions or problems, please ask on http://stackoverflow.com/questions/tagged/neo4j[Stack Overflow], where the most knowledgable people can help you quickly.
-Come to the http://groups.google.com/group/neo4j[Neo4j Google Group] if you want to discuss graph modeling questions, the Neo4j ecosystem or product features.
-You can also join our http://neo4j.com/slack[public Slack channel] to get quick answers.
+If you have specific questions or problems, please ask on http://stackoverflow.com/questions/tagged/neo4j[Stack Overflow], where the most knowledgable people can help you quickly.  You can also join our http://neo4j.com/slack[public Slack channel] to get quick answers or ask questions not suitable for StackOverflow.
 
 If you'd like to learn more about the company behind Cypher, the product and the enterprise features and support packages that are provided, you should check out http://neo4j.com/product[neo4j.com].
 There you can also find more information about use cases and solutions.
