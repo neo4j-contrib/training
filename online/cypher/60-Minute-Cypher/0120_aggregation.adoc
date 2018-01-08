@@ -35,7 +35,7 @@ Cypher provides support for a number of aggregate functions
 
 `collect(x)` Collect all the values into an collection
 
-More on aggregate functions can be found in the {manual-cypher}/clauses/aggregation[Neo4j Manual].
+More on aggregate functions can be found in the {manual-cypher}/functions/aggregation[Neo4j Manual].
 
 === Aggregation: Collect
 
