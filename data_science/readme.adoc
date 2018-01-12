@@ -1,6 +1,10 @@
 == Neo4j Data Science Training
 
-=== Game of Thrones Interaction Graph
+=== Overview
+
+This course has 3 modules.  The first module (GoT in Neo4j Browser) and the last module (Legis Graph in Sandbox) can be taught indpendently.  The second module, on Jupyter Notebooks, requires data created in the first module.
+
+=== Neo4j Browser: Game of Thrones Interaction Graph
 
 Dataset: Interaction of Characters in the book series
 
@@ -20,7 +24,10 @@ Add this to `NEO4J_HOME/conf/neo4j.conf`:
 
 Neo4j Browser Guide: `:play data_science`
 
-=== Jupyter Notebooks
+
+=== Jupyter Notebooks: Game of Thrones Interaction Graph
+
+Pre-requisite: Section 1 (above) to create the data required by this section
 
 We have Jupyter notebooks for the session as well. You'll need to install neo4j-driver, pandas, mathplotlib, scikit-learn
 
@@ -32,7 +39,9 @@ pip install -r requirements.txt
 * https://github.com/neo4j-contrib/training/blob/master/data_science/AppliedGraphAlgorithms.ipynb[Applied Graph Algorithms]
 * https://github.com/neo4j-contrib/training/blob/master/data_science/MachineLearning.ipynb[Machine Learning]
 
-=== Demo - Legis Graph
+=== Neo4j Sandbox: Legis Graph
+
+Pre-requisite: None
 
 * Neo4j Sandbox `http://neo4j.com/sandbox` -> Legis Graph
 * Neo4j Browser Guide `:play http://guides.neo4j.com/sandbox/legis-graph`
