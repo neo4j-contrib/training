@@ -44,6 +44,10 @@
     
 
 
+   <h4>Applied Graph Algorithms</h4>
+   
+
+
 <slide class="row-fluid">
   <div class="col-sm-12">
     <h3>Applied Graph Algorithms</h3>
@@ -70,7 +74,7 @@ In these guides we&#8217;ll learn how to use the Neo4j Graph Algorithms package.
       <div class="ulist">
 <ul>
 <li>
-<p>Go to the <a href="https://github.com/neo4j-contrib/neo4j-graph-algorithms/releases" target="_blank">Graph Algorithms releases page</a> to find the latest release and download the binary jar.</p>
+<p>Go to the <a href="https://github.com/neo4j-contrib/neo4j-graph-algorithms/releases" target="_blank" rel="noopener">Graph Algorithms releases page</a> to find the latest release and download the binary jar.</p>
 </li>
 <li>
 <p>Place it in your <code>$NEO4J_HOME/plugins</code> folder.</p>
@@ -106,7 +110,7 @@ Ask one of the trainers for help!</p>
     <br/>
     <div>
       <div class="paragraph">
-<p>The rest of this guide is mirrored in an <a href="https://github.com/neo4j-contrib/training/blob/master/data_science/AppliedGraphAlgorithms.ipynb" target="_blank">Applied Algorithms Jupyter notebook</a>.</p>
+<p>The rest of this guide is mirrored in an <a href="https://github.com/neo4j-contrib/training/blob/master/data_science/AppliedGraphAlgorithms.ipynb" target="_blank" rel="noopener">Applied Algorithms Jupyter notebook</a>.</p>
 </div>
 	</div>
   </div>
@@ -155,7 +159,7 @@ We can do this by calling the <code>algo.betweenness.stream</code> procedure wit
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream("Character", "INTERACTS1")
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream("Character", "INTERACTS1", {direction: "BOTH"})
 YIELD nodeId, centrality
 MATCH (c:Character) WHERE ID(c) = nodeId
 RETURN c.name, centrality
@@ -182,7 +186,7 @@ LIMIT 10<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream("Character", "INTERACTS1")
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream("Character", "INTERACTS1", {direction: "BOTH"})
 YIELD nodeId, centrality
 MATCH (c:Character) WHERE ID(c) = nodeId
 WITH c, centrality, [(c)-[r:INTERACTS1]-(other) | {character: other.name, weight: r.weight}] AS interactions
@@ -220,7 +224,7 @@ Let&#8217;s run the betweenness centrality algorithm and store the result as a p
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS1", {writeProperty: "book1BetweennessCentrality"})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS1", {direction: "BOTH", writeProperty: "book1BetweennessCentrality"})<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -302,17 +306,17 @@ LIMIT 10<!--/code--></pre>
     <div>
       <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS2", {writeProperty: "book2BetweennessCentrality"})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS2", {direction: "BOTH", writeProperty: "book2BetweennessCentrality"})<!--/code--></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS3", {writeProperty: "book3BetweennessCentrality"})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS3", {direction: "BOTH", writeProperty: "book3BetweennessCentrality"})<!--/code--></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS45", {writeProperty: "book45BetweennessCentrality"})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness("Character", "INTERACTS45", {direction: "BOTH", writeProperty: "book45BetweennessCentrality"})<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -429,22 +433,22 @@ In our context, PageRank centrality nicely captures narrative tension. Indeed, m
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS1", {writeProperty:'book1PageRank'})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS1", {direction: "BOTH", writeProperty:'book1PageRank'})<!--/code--></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS2", {writeProperty:'book2PageRank'})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS2", {direction: "BOTH", writeProperty:'book2PageRank'})<!--/code--></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS3", {writeProperty:'book3PageRank'})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS3", {direction: "BOTH", writeProperty:'book3PageRank'})<!--/code--></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS45", {writeProperty:'book45PageRank'})<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank("Character", "INTERACTS45", {direction: "BOTH", writeProperty:'book45PageRank'})<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -500,7 +504,7 @@ LIMIT 10<!--/code--></pre>
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.labelPropagation(
   'MATCH (c:Character) RETURN id(c) as id',
-  'MATCH (c:Character)---&gt;(c2) RETURN id(c) as source, id(c2) as target, SUM(rel.weight) as weight',
+  'MATCH (c:Character)-[rel]-&gt;(c2) RETURN id(c) as source, id(c2) as target, SUM(rel.weight) as weight',
   'OUTGOING',
   {graph:'cypher', partitionProperty: 'community'})<!--/code--></pre>
 </div>

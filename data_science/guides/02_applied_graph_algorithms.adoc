@@ -52,7 +52,7 @@ Run the following query to learn who the most influential characters are:
 
 [source,cypher]
 ----
-CALL algo.betweenness.stream("Character", "INTERACTS1")
+CALL algo.betweenness.stream("Character", "INTERACTS1", {direction: "BOTH"})
 YIELD nodeId, centrality
 MATCH (c:Character) WHERE ID(c) = nodeId
 RETURN c.name, centrality
@@ -68,7 +68,7 @@ We can add to our query and see how the betweenness scores compare to the total 
 
 [source,cypher]
 ----
-CALL algo.betweenness.stream("Character", "INTERACTS1")
+CALL algo.betweenness.stream("Character", "INTERACTS1", {direction: "BOTH"})
 YIELD nodeId, centrality
 MATCH (c:Character) WHERE ID(c) = nodeId
 WITH c, centrality, [(c)-[r:INTERACTS1]-(other) | {character: other.name, weight: r.weight}] AS interactions
@@ -93,7 +93,7 @@ Let's run the betweenness centrality algorithm and store the result as a propert
 
 [source,cypher]
 ----
-CALL algo.betweenness("Character", "INTERACTS1", {writeProperty: "book1BetweennessCentrality"})
+CALL algo.betweenness("Character", "INTERACTS1", {direction: "BOTH", writeProperty: "book1BetweennessCentrality"})
 ----
 
 == Querying Betweenness Centrality
@@ -127,17 +127,17 @@ Bonus question:
 
 [source,cypher]
 ----
-CALL algo.betweenness("Character", "INTERACTS2", {writeProperty: "book2BetweennessCentrality"})
+CALL algo.betweenness("Character", "INTERACTS2", {direction: "BOTH", writeProperty: "book2BetweennessCentrality"})
 ----
 
 [source,cypher]
 ----
-CALL algo.betweenness("Character", "INTERACTS3", {writeProperty: "book3BetweennessCentrality"})
+CALL algo.betweenness("Character", "INTERACTS3", {direction: "BOTH", writeProperty: "book3BetweennessCentrality"})
 ----
 
 [source,cypher]
 ----
-CALL algo.betweenness("Character", "INTERACTS45", {writeProperty: "book45BetweennessCentrality"})
+CALL algo.betweenness("Character", "INTERACTS45", {direction: "BOTH", writeProperty: "book45BetweennessCentrality"})
 ----
 
 == Answer: Increase in influence
@@ -201,22 +201,22 @@ Run the following queries to calculate page rank scores for each of the books:
 
 [source,cypher]
 ----
-CALL algo.pageRank("Character", "INTERACTS1", {writeProperty:'book1PageRank'})
+CALL algo.pageRank("Character", "INTERACTS1", {direction: "BOTH", writeProperty:'book1PageRank'})
 ----
 
 [source,cypher]
 ----
-CALL algo.pageRank("Character", "INTERACTS2", {writeProperty:'book2PageRank'})
+CALL algo.pageRank("Character", "INTERACTS2", {direction: "BOTH", writeProperty:'book2PageRank'})
 ----
 
 [source,cypher]
 ----
-CALL algo.pageRank("Character", "INTERACTS3", {writeProperty:'book3PageRank'})
+CALL algo.pageRank("Character", "INTERACTS3", {direction: "BOTH", writeProperty:'book3PageRank'})
 ----
 
 [source,cypher]
 ----
-CALL algo.pageRank("Character", "INTERACTS45", {writeProperty:'book45PageRank'})
+CALL algo.pageRank("Character", "INTERACTS45", {direction: "BOTH", writeProperty:'book45PageRank'})
 ----
 
 == Querying Page Rank
@@ -249,7 +249,7 @@ Run the following query to calculate the communities that exist based on interac
 ----
 CALL algo.labelPropagation(
   'MATCH (c:Character) RETURN id(c) as id',
-  'MATCH (c:Character)--->(c2) RETURN id(c) as source, id(c2) as target, SUM(rel.weight) as weight',
+  'MATCH (c:Character)-[rel]->(c2) RETURN id(c) as source, id(c2) as target, SUM(rel.weight) as weight',
   'OUTGOING',
   {graph:'cypher', partitionProperty: 'community'})
 ----
