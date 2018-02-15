@@ -38,7 +38,7 @@ MERGE (destination)-[:HAS_DAY]->(destinationAirportDay)
 
 Before we execute the batching workflow, let's import a few more flights to keep it interesting.
 
-== Importing 500,000 flights
+== Importing 100,000 flights
 
 As we're now dealing with much more data we'll have to be a bit cleverer about how we import the data.
 
@@ -47,7 +47,7 @@ Instead we'll find the distinct set of airports and only `MERGE` on each airport
 
 [source, cypher, subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_100k.csv" AS row
 UNWIND [row.Origin, row.Dest] AS airport
 WITH DISTINCT airport
 MERGE (:Airport {code: airport})
@@ -59,7 +59,7 @@ This will flush the transaction every 10,000 rows rather than executing the whol
 [source, cypher, subs=attributes]
 ----
 USING PERIODIC COMMIT 10000
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_500k.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_100k.csv" AS row
 MATCH (origin:Airport {code: row.Origin})
 MATCH (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -109,7 +109,7 @@ REMOVE flight:Process
 RETURN COUNT(*)
 ----
 
-We'd have to run this query 500,000 / 500 = 1,000 times to process all the flights, which would be a very boring way to pass the time!
+We'd have to run this query 100,000 / 500 = 200 times to process all the flights, which would be a very boring way to pass the time!
 
 Lucky for us, the `apoc` library that we installed in the previous section has a procedure that we can use to batch operations.
 
@@ -177,7 +177,7 @@ Run the following query to check our import worked:
 
 [source, cypher]
 ----
-MATCH (:Flight)
+MATCH (:Process)
 RETURN COUNT(*)
 ----
 
@@ -258,7 +258,7 @@ MATCH (origin:Airport {code: "LAS"})-[:HAS_DAY]->(:AirportDay {date: "2008-1-3"}
 RETURN *
 ----
 
-The number of db hits has increase for the second query since we've now imported another ~20 extra days for the airport.
+The number of db hits has increased for the second query since we've now imported another ~20 extra days for the airport.
 This means that we need to check extra `:Airport(date)` properties each time we traverse `HAS_DAY` relationships.
 
 The number of db hits for the first query hasn't changed.
