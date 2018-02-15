@@ -121,20 +121,20 @@ image::{img}/slides.jpg[]
 == Exploring data with `LOAD CSV`
 
 While we're working out the appropriate model for our dataset it's much easier to work with a subset of the data so that we can iterate quickly.
-A smaller dataset containing the first 10,000 connections lives in `flights_initial.csv`.
+A smaller dataset containing the first 1,000 connections lives in `flights_1k.csv`.
 
 We can run the following query to see what data we've got to work with:
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_initial.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_1k.csv" AS row
 RETURN row
 LIMIT 5
 ----
 
 This query:
 
-* loads the file `flights_initial.csv`
+* loads the file `flights_1k.csv`
 * iterates over the file, referring to each line as the variable `row`
 * and returns the first 5 lines in the file
 
@@ -146,7 +146,7 @@ Run the following query to create nodes and relationships for these connections:
 
 [source,cypher,subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_initial.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_1k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (origin)-[connection:CONNECTED_TO {
@@ -265,7 +265,7 @@ WHERE connection.airline = "WN" AND connection.flightNumber = "1016"
 RETURN origin.code, destination.code, connection.date, connection.departure, connection.arrival
 ----
 
-It's still reasonably quick because we only have 10,000 rows, but under the covers we're actually doing a lot of unnecessary work.
+It's still reasonably quick because we only have 1,000 rows, but under the covers we're actually doing a lot of unnecessary work.
 
 == Next Step
 

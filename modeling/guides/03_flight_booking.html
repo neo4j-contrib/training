@@ -91,16 +91,24 @@ So that I can book my business flight</pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>We initially loaded 10,000 flights.
-That was a fun initial dataset to play with, but now that we&#8217;ve got a model we&#8217;re happy with let&#8217;s load in a bit more data.</p>
+<p>We initially loaded 1,000 flights.
+That was a fun initial dataset to play with, but now that we&#8217;ve got a model we&#8217;re happy with a bit more data.</p>
 </div>
 <div class="paragraph">
-<p><code>flights_50k.csv</code> contains 50,000 flights.
+<p>Just before importing, let&#8217;s create an index for our Airport nodes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE INDEX ON :Airport(code)<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>flights_10k.csv</code> contains 10,000 flights.
 We can run the following query to import those flights:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_50k.csv" AS row
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/neo4j-contrib/training/master/modeling/data/flights_10k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -155,7 +163,7 @@ What do you notice?</p>
     <div>
       <div class="paragraph">
 <p>The query starts by using an index to find <code>MDW</code> but then has to traverse all incoming <code>DESTINATION</code> relationships and check the <code>date</code> property on the <code>:Flight</code> nodes on the other side.
-The more flights an airport has the more we&#8217;ll have to scan through, and since we&#8217;re only working with 50,000 flights we should probably find a better way to model our data before importing any more rows.</p>
+The more flights an airport has the more we&#8217;ll have to scan through, and since we&#8217;re only working with 10,000 flights we should probably find a better way to model our data before importing any more rows.</p>
 </div>
 <div class="paragraph">
 <p>Can you think of a way that we can change our model to avoid doing all these property lookups?</p>

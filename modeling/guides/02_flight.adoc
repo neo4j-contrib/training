@@ -27,7 +27,7 @@ What we get back is an execution plan which describes the Cypher operators used 
 You can read more about these in the link:https://neo4j.com/docs/developer-manual/current/cypher/#execution-plans[developer manual]
 
 In this one the query starts with a `NodeByLabelScan` on the `:Airport` label, which means that we first scanned all the airports.
-Next we followed the `FLIGHT` relationship to `origin` airports, and we can see from the `estimated rows` count that we followed 10,000 of these.
+Next we followed the `FLIGHT` relationship to `origin` airports, and we can see from the `estimated rows` count that we followed 1,000 of these.
 
 That's a lot of flights!
 
@@ -152,7 +152,7 @@ What do you notice?
 
 == Answer: Profiling the two flight models
 
-It looks like a good refactoring - we can see by comparing the `db hits` that the 2nd query does 20x less work
+It looks like a good refactoring - we can see by comparing the `db hits` that our new query does much less work (6 db hits vs. 1,062 db hits).
 
 This is because we no longer have to *scan every connection* looking for ones which have an `airline` of `WN` and a `number` of `1016`.
 Instead we're able to use the `:Flight(number)` index to find the flights we're interested in and only determine the origins and destinations for those flights.

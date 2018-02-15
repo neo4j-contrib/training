@@ -91,7 +91,7 @@ You can read more about these in the <a href="https://neo4j.com/docs/developer-m
 </div>
 <div class="paragraph">
 <p>In this one the query starts with a <code>NodeByLabelScan</code> on the <code>:Airport</code> label, which means that we first scanned all the airports.
-Next we followed the <code>FLIGHT</code> relationship to <code>origin</code> airports, and we can see from the <code>estimated rows</code> count that we followed 10,000 of these.</p>
+Next we followed the <code>FLIGHT</code> relationship to <code>origin</code> airports, and we can see from the <code>estimated rows</code> count that we followed 1,000 of these.</p>
 </div>
 <div class="paragraph">
 <p>That&#8217;s a lot of flights!</p>
@@ -325,7 +325,7 @@ RETURN origin, destination, flight<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>It looks like a good refactoring - we can see by comparing the <code>db hits</code> that the 2nd query does 20x less work</p>
+<p>It looks like a good refactoring - we can see by comparing the <code>db hits</code> that our new query does much less work (6 db hits vs. 1,062 db hits).</p>
 </div>
 <div class="paragraph">
 <p>This is because we no longer have to <strong>scan every connection</strong> looking for ones which have an <code>airline</code> of <code>WN</code> and a <code>number</code> of <code>1016</code>.

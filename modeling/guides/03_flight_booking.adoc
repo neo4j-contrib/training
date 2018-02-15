@@ -22,15 +22,23 @@ Before we write queries to satisfy this requirement, let's import some more data
 
 == Import more flights
 
-We initially loaded 10,000 flights.
-That was a fun initial dataset to play with, but now that we've got a model we're happy with let's load in a bit more data.
+We initially loaded 1,000 flights.
+That was a fun initial dataset to play with, but now that we’ve got a better model we’re happy with a bit more data.
 
-`flights_50k.csv` contains 50,000 flights.
+Just before importing, let's create an index for our Airport nodes:
+
+[source,cypher, subs=attributes]
+----
+CREATE INDEX ON :Airport(code)
+----
+
+
+`flights_10k.csv` contains 10,000 flights.
 We can run the following query to import those flights:
 
 [source,cypher, subs=attributes]
 ----
-LOAD CSV WITH HEADERS FROM "{csv-url}flights_50k.csv" AS row
+LOAD CSV WITH HEADERS FROM "{csv-url}flights_10k.csv" AS row
 MERGE (origin:Airport {code: row.Origin})
 MERGE (destination:Airport {code: row.Dest})
 MERGE (newFlight:Flight { id: row.UniqueCarrier + row.FlightNum + "_" + row.Year + "-" + row.Month + "-" + row.DayofMonth + "_" + row.Origin + "_" + row.Dest }   )
@@ -63,7 +71,7 @@ What do you notice?
 == Profiling the finding flights to book query
 
 The query starts by using an index to find `MDW` but then has to traverse all incoming `DESTINATION` relationships and check the `date` property on the `:Flight` nodes on the other side.
-The more flights an airport has the more we'll have to scan through, and since we're only working with 50,000 flights we should probably find a better way to model our data before importing any more rows.
+The more flights an airport has the more we'll have to scan through, and since we're only working with 10,000 flights we should probably find a better way to model our data before importing any more rows.
 
 Can you think of a way that we can change our model to avoid doing all these property lookups?
 
