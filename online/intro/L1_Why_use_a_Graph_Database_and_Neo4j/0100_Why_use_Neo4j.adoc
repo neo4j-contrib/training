@@ -6,6 +6,10 @@ Many applications of the future will be built using graph databases like Neo4j.
 This course was written to help you through every step of the learning process.
 We will use the widely adopted property graph model and the Cypher query language in our explanations, both of which are supported by Neo4j.
 
+++++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/5Tl8WcaqZoc" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+++++
+
 === What is a Graph?
 
 A graph is composed of two elements: a node and a relationship.
@@ -36,6 +40,10 @@ These companies have now become industry leaders: LinkedIn, Google, Facebook and
 As pioneers in graph technology, each of these enterprises had to build their own graph database from scratch.
 Fortunately for today's developers, that's no longer the case, as graph database technology is now available off the shelf.
 
+++++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/-dCeFEqDkUI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+++++
+
 === What is Neo4j
 
 * Neo4j is a **Database** - use it to reliably *store information* and *find it later*
@@ -43,4 +51,8 @@ Fortunately for today's developers, that's no longer the case, as graph database
 * **Cypher** is Neo4j's graph query language (**SQL for graphs!**)
 * Cypher is a declarative query language: it describes *what* you are interested in, not *how* it is acquired.
 * Cypher is meant to be very *readable* and *expressive*
+
+++++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/NH6WoJHN4UA" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+++++
 
