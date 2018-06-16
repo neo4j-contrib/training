@@ -19,10 +19,6 @@ Some of the collection semantics have been borrowed from languages such as Haske
 
 The Cypher language has been made available to anyone to implement and use as openCypher, allowing any database vendor, researcher or other interested party to reap the benefits of our years of effort and experience in developing a first class graph query language.
 
-++++
-<iframe width="560" height="315" src="https://www.youtube.com/embed/l76udM3wB4U" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-++++
-
 === What is Cypher: Additional Resources
 
 This course gives you a basic understanding of Cypher.

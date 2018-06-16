@@ -1,7 +1,5 @@
 == Patterns of Nodes and Relationships
 
-video::77867853[vimeo,width=750,height=421]
-
 === Nodes
 
 Cypher uses a pair of parentheses (usually containing a text string) like `()`, `(foo)` to represent a node, i.e. an entity of your domain.
