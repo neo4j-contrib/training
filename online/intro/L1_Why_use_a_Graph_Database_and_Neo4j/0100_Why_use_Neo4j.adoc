@@ -7,7 +7,7 @@ This course was written to help you through every step of the learning process.
 We will use the widely adopted property graph model and the Cypher query language in our explanations, both of which are supported by Neo4j.
 
 ++++
-<iframe width="560" height="315" src="https://www.youtube.com/embed/5Tl8WcaqZoc" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed?listType=playlist&#038;list=PL9Hl4pk2FsvWM9GWaguRhlCQ-pa-ERd4U&#038;index=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 ++++
 
 === What is a Graph?
@@ -41,7 +41,7 @@ As pioneers in graph technology, each of these enterprises had to build their ow
 Fortunately for today's developers, that's no longer the case, as graph database technology is now available off the shelf.
 
 ++++
-<iframe width="560" height="315" src="https://www.youtube.com/embed/-dCeFEqDkUI" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed?listType=playlist&#038;list=PL9Hl4pk2FsvWM9GWaguRhlCQ-pa-ERd4U&#038;index=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 ++++
 
 === What is Neo4j
@@ -53,6 +53,6 @@ Fortunately for today's developers, that's no longer the case, as graph database
 * Cypher is meant to be very *readable* and *expressive*
 
 ++++
-<iframe width="560" height="315" src="https://www.youtube.com/embed/NH6WoJHN4UA" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed?listType=playlist&#038;list=PL9Hl4pk2FsvWM9GWaguRhlCQ-pa-ERd4U&#038;index=2" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 ++++
 
