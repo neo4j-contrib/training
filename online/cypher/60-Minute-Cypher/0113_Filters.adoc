@@ -1,7 +1,7 @@
 == Predicates and Conditions
 
 +++
-<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PL9Hl4pk2FsvWM9GWaguRhlCQ-pa-ERd4U&index=6" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed?listType=playlist&list=PL9Hl4pk2FsvWM9GWaguRhlCQ-pa-ERd4U&index=5" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 +++
 
 ifdef::env-graphgist[]
