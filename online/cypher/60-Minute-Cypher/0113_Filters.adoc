@@ -1,5 +1,9 @@
 == Predicates and Conditions
 
++++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Kv_HP6C2qes" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
++++
+
 ifdef::env-graphgist[]
 
 //lesson1 graph
