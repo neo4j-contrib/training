@@ -24,7 +24,7 @@ Then you can use whichever Cypher operations you want to either `CREATE` nodes o
 
 As CSV files usually represent either node- or relationship-lists, you will run multiple passes to create nodes and relationships separately.
 
-The `movies.csv` file (sample below) contains the data that will populate the Movie nodes.
+The `movies_to_load.csv` file (sample below) contains the data that will populate the Movie nodes.
 
 ----
 id,title,country,year
@@ -33,17 +33,17 @@ id,title,country,year
 3,The Shawshank Redemption,USA,1994
 ----
 
-The following query `CREATE` s the `Movie` nodes using the data from `movies.csv` as properties.
+The following query `CREATE` s the `Movie` nodes using the data from `movies_to_load.csv` as properties.
 
 [source, cypher]
 ----
 LOAD CSV WITH HEADERS
-FROM "http://neo4j.com/docs/stable/csv/intro/movies.csv"
+FROM "http://data.neo4j.com/intro/data/movies_to_load.csv"
 AS line
 CREATE (movie:Movie { id:line.id, title:line.title, released:toInt(line.year) });
 ----
 
-The `persons.csv` file (sample below) holds the data that will populate the `:Person` nodes.
+The `persons_to_load.csv` file (sample below) holds the data that will populate the `:Person` nodes.
 
 ----
 id,name
@@ -61,13 +61,13 @@ As we only have to set the name of a person upon creation, we use the `ON CREATE
 [source, cypher]
 ----
 LOAD CSV WITH HEADERS
-FROM "http://neo4j.com/docs/stable/csv/intro/persons.csv"
+FROM "http://data.neo4j.com/intro/data/persons_to_load.csv"
 AS line
 MERGE (actor:Person { id:line.id })
 ON CREATE SET actor.name=line.name;
 ----
 
-The `roles.csv` file (sample below) holds the data that will populate the relationships between the nodes.
+The `roles_to_load.csv` file (sample below) holds the data that will populate the relationships between the nodes.
 
 ----
 personId,movieId,role
@@ -85,7 +85,7 @@ This model includes a relationship property of `role`, which is passed via `line
 [source,cypher]
 ----
 LOAD CSV WITH HEADERS
-FROM "http://neo4j.com/docs/stable/csv/intro/roles.csv"
+FROM "http://data.neo4j.com/intro/data/roles_to_load.csv"
 AS line
 MATCH (movie:Movie { id:line.movieId })
 MATCH (person:Person { id:line.personId })
@@ -98,7 +98,7 @@ If your file contains denormalized data, you can run the same file with multiple
 
 For our use case, we can import the data using a CSV structure like this:
 
-.movie_actor_roles.csv
+`movie_actor_roles_to_load.csv`
 ----
 title;released;actor;born;characters
 Back to the Future;1985;Michael J. Fox;1961;Marty McFly
@@ -108,7 +108,7 @@ Back to the Future;1985;Christopher Lloyd;1938;Dr. Emmet Brown
 [source, cypher]
 ----
 LOAD CSV WITH HEADERS
-FROM "http://neo4j.com/docs/stable/csv/intro/movie_actor_roles.csv"
+FROM "http://data.neo4j.com/intro/data/movie_actor_roles_to_load.csv"
 AS line FIELDTERMINATOR ";"
 MERGE (movie:Movie { title:line.title })
 ON CREATE SET movie.released = toInt(line.released)
