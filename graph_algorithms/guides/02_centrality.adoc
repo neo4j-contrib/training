@@ -1,0 +1,5 @@
+= Centrality Algorithms
+:icons: font
+:csv-url: https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data
+
+== Centrality Algorithms

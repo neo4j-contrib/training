@@ -1,0 +1,15 @@
+= Neo4j Graph Algorithms
+
+== Welcome to Neo4j Graph Algorithms
+
+. pass:a[<a play-topic='{guides}/01_path_finding.html'>Path Finding and Graph Search Algorithms</a>]
+. pass:a[<a play-topic='{guides}/02_centrality.html'>Centrality Algorithms</a>]
+. pass:a[<a play-topic='{guides}/03_community_detection.html'>Community Detection Algorithms</a>]
+
+== Further Resources
+
+* http://neo4j.com/graphgists[Graph Gist Examples]
+* http://neo4j.com/docs/stable/cypher-refcard/[Cypher Reference Card]
+* http://neo4j.com/docs/developer-manual/current/#cypher-query-lang[Neo4j Developer Manual]
+* http://neo4j.com/developer/resources#_neo4j_cypher_resources[Cypher Resource Collection]
+* http://graphdatabases.com[e-book: Graph Databases (free)]
