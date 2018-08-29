@@ -1,0 +1,140 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Path Finding and Graph Search Algorithms</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+   <h4>Path Finding and Graph Search Algorithms</h4>
+   
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Path Finding and Graph Search Algorithms</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this guide we&#8217;ll learn how to use the Path Finding and Graph Search Algorithms.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s get started!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>E-roads dataset</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;re going to use a European Roads dataset that has been <a href="http://lassewesth.blogspot.com/2018/07/the-international-e-road-network-and.html" target="_blank" rel="noopener">massaged into CSV format</a> thanks to Lasse Westh-Nielson.</p>
+</div>
+<div class="paragraph">
+<p>We can use the <code>LOAD CSV</code> command to see what type of data we&#8217;ll be dealing with.
+Run the following query to return the first 10 rows of the CSV file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->LOAD CSV WITH HEADERS FROM "https://gist.githubusercontent.com/lassewesth/634281cced11147432cf232a2c36e080/raw/1ed1f4fe4ca4c8092bbc8557addd1e5d87316833/eroads.csv" AS row
+RETURN row
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>E-roads dataset: Unique Constraint</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Before we import any data we&#8217;ll create a constraint on the <code>Place</code> node label so that we don&#8217;t accidentally end up with duplicate nodes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (p:Place)
+ASSERT p.name IS UNIQUE<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>E-roads dataset: Import</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now we can run the following query to import the dataset into Neo4j:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "https://gist.githubusercontent.com/lassewesth/634281cced11147432cf232a2c36e080/raw/1ed1f4fe4ca4c8092bbc8557addd1e5d87316833/eroads.csv" AS row
+
+MERGE (origin:Place {name: row.origin_reference_place})
+SET origin.countryCode = row.origin_country_code
+
+MERGE (destination:Place {name: row.destination_reference_place})
+SET destination.countryCode = row.destination_country_code
+
+MERGE (origin)-[eroad:EROAD {road_number: row.road_number}]->(destination)
+SET eroad.distance = toInteger(row.distance), eroad.watercrossing = row.watercrossing<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

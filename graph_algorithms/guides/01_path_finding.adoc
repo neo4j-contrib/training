@@ -1,5 +1,85 @@
 = Path Finding and Graph Search Algorithms
 :icons: font
-:csv-url: https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data
+:csv_url: https://gist.githubusercontent.com/lassewesth/634281cced11147432cf232a2c36e080/raw/1ed1f4fe4ca4c8092bbc8557addd1e5d87316833/eroads.csv
 
 == Path Finding and Graph Search Algorithms
+
+In this guide we'll learn how to use the Path Finding and Graph Search Algorithms.
+
+Let's get started!
+
+== E-roads dataset
+
+We're going to use a European Roads dataset that has been http://lassewesth.blogspot.com/2018/07/the-international-e-road-network-and.html[massaged into CSV format^] thanks to Lasse Westh-Nielson.
+
+We can use the `LOAD CSV` command to see what type of data we'll be dealing with.
+Run the following query to return the first 10 rows of the CSV file:
+
+[source, cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv_url}" AS row
+RETURN row
+LIMIT 10
+----
+
+== E-roads dataset: Unique Constraint
+
+Before we import any data we'll create a constraint on the `Place` node label so that we don't accidentally end up with duplicate nodes:
+
+[source, cypher]
+----
+CREATE CONSTRAINT ON (p:Place)
+ASSERT p.name IS UNIQUE
+----
+
+== E-roads dataset: Import
+
+Now we can run the following query to import the dataset into Neo4j:
+
+[source, cypher,subs=attributes]
+----
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "{csv_url}" AS row
+
+MERGE (origin:Place {name: row.origin_reference_place})
+SET origin.countryCode = row.origin_country_code
+
+MERGE (destination:Place {name: row.destination_reference_place})
+SET destination.countryCode = row.destination_country_code
+
+MERGE (origin)-[eroad:EROAD {road_number: row.road_number}]->(destination)
+SET eroad.distance = toInteger(row.distance), eroad.watercrossing = row.watercrossing
+----
+
+== Shortest path
+
+[source, cypher]
+----
+MATCH p=shortestPath((aarhus:Place {name: "Århus"})-[rels:EROAD*]-(rome:Place {name: "Roma"}))
+RETURN [place in nodes(p) | place.name][1..-1] AS journey,
+       length(nodes(p)[1..-1]) AS intermediatePlaces,
+       reduce(s = 0, r in rels | s + r.distance) AS total_distance
+----
+
+
+== Shortest weighted path
+
+
+[source, cypher]
+----
+MATCH (aarhus:Place {name: "Århus"}), (rome:Place {name: "Roma"})
+CALL algo.shortestPath.stream(aarhus, rome, "distance") YIELD nodeId, cost
+MATCH (n) WHERE id(n) = nodeId
+return n.name, cost
+----
+
+== Shortest weighted path
+
+
+[source, cypher]
+----
+MATCH (aarhus:Place {name: "Århus"}), (rome:Place {name: "Roma"})
+CALL algo.shortestPath.astar.stream(aarhus, rome, "distance") YIELD nodeId, cost
+MATCH (n) WHERE id(n) = nodeId
+return n.name, cost
+----

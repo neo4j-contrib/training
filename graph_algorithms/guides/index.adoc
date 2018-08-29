@@ -2,9 +2,34 @@
 
 == Welcome to Neo4j Graph Algorithms
 
+++++
+<div class="col-lg-10">
+++++
+
+Welcome to a set of interactive guides where you'll learn how to use Neo4j Graph Algorithms.
+There's one guide per type of algorithm where we'll first introduce a dataset and then explore the insights we can get from it with different algorithms in that category.
+
 . pass:a[<a play-topic='{guides}/01_path_finding.html'>Path Finding and Graph Search Algorithms</a>]
 . pass:a[<a play-topic='{guides}/02_centrality.html'>Centrality Algorithms</a>]
 . pass:a[<a play-topic='{guides}/03_community_detection.html'>Community Detection Algorithms</a>]
+
+++++
+</div>
+++++
+
+++++
+<div class="col-lg-2">
+++++
+
+[subs=attributes]
+++++
+<img src="{img}/overview.png" class="img-responsive" width="300px">
+++++
+
+
+++++
+</div>
+++++
 
 == Further Resources
 
