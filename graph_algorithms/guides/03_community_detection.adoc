@@ -3,3 +3,25 @@
 :csv-url: https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data
 
 == Community Detection Algorithms
+
+== Triangles
+
+[source, cypher]
+----
+CALL algo.triangle.stream("Place","EROAD")
+YIELD nodeA, nodeB, nodeC
+RETURN algo.getNodeById(nodeA).name AS nodeA,
+       algo.getNodeById(nodeB).name AS nodeB,
+       algo.getNodeById(nodeC).name AS nodeC
+----
+
+== Local Clustering Coefficient
+
+[source, cypher]
+----
+CALL algo.triangleCount.stream('Place', 'EROAD')
+YIELD nodeId, triangles, coefficient
+WHERE coefficient > 0
+RETURN algo.getNodeById(nodeId).name AS place, coefficient
+ORDER BY coefficient DESC
+----
