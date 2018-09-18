@@ -1,0 +1,260 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Community Detection Algorithms</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+   <h4>Community Detection Algorithms</h4>
+   
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Community Detection Algorithms</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this section we&#8217;ll learn how to use the Community Detection Algorithms.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Triangles</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The triangles algorithm will return all the triangles in the graph.
+i.e. where there&#8217;s a relationship from A&#8594;B, B&#8594;C, and C&#8594;A.</p>
+</div>
+<div class="paragraph">
+<p>We can run the following query to get a stream of all the triangles:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.triangle.stream("Place","EROAD")
+YIELD nodeA, nodeB, nodeC
+RETURN algo.getNodeById(nodeA).name AS nodeA,
+       algo.getNodeById(nodeB).name AS nodeB,
+       algo.getNodeById(nodeC).name AS nodeC<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Local Clustering Coefficient</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can calculate the local clustering coefficient, which tells us how well a node&#8217;s neighbors are connected to each other.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.triangleCount.stream('Place', 'EROAD')
+YIELD nodeId, triangles, coefficient
+WHERE coefficient &gt; 0
+RETURN algo.getNodeById(nodeId).name AS place, coefficient
+ORDER BY coefficient DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A score of 1 would indicate that all a node&#8217;s neighbors are connected to each other.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Local Clustering Coefficient</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can look at the neighborhood of a node to manually verify how this score is calculated.
+For example, Bradford has a score of <code>1.0</code>, so its neighbors should all be connected.</p>
+</div>
+<div class="paragraph">
+<p>The following query returns <code>Bradford</code>, its neighbors, and all relationships between them.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (p1:Place {name: "Bradford"})-[:EROAD]-(neighbor)
+WITH p1, collect(neighbor) AS neighbors
+UNWIND neighbors AS node1
+UNWIND neighbors AS node2
+OPTIONAL MATCH neighborPath = (node1)-[:EROAD]-(node2)
+OPTIONAL MATCH nodePath = (node1)-[:EROAD]-(p1)-[:EROAD]-(node2)
+RETURN neighborPath, nodePath<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Mini Exercise</strong></p>
+</div>
+<div class="paragraph">
+<p>Change the Place to <code>Berlin</code> or <code>Rotterdam</code> and check that the score makes sense.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Connected Components</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The Connected Components (Union Find) algorithm will split nodes into partitions where each node in a partition is reachable by all other nodes in the partition:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.unionFind.stream("Place", "EROAD")
+YIELD nodeId, setId
+RETURN setId, collect(algo.getNodeById(nodeId).name) AS places
+ORDER BY size(places) DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As we might expect, the massive majority of nodes fit into one big component.
+There are, however, a few small clusters of nodes that aren&#8217;t connected to the rest of the road network.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Label Propagation</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The label propagation algorithm finds more subtle communities that might exist in the road network.
+The intuition behind this algorithm is that a single label can quickly become dominant in a densely connected group of nodes, but it will have trouble crossing a sparsely connected region.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.labelPropagation.stream("Place", "EROAD", { iterations: 10, direction: "BOTH" })
+YIELD nodeId, label
+WITH label, algo.getNodeById(nodeId) AS node
+ORDER BY label, node.name
+RETURN label, collect(node.name) AS places
+ORDER BY size(places) DESC<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Louvain</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The Louvain Modularity algorithm finds clusters by comparing community density as it assigns nodes to different groups.
+You can think of this as a “what if” analysis to try out various grouping with the goal of eventually reaching a global optimum.</p>
+</div>
+<div class="paragraph">
+<p>It also reveals a hierarchy of communities at different scales, which is useful for understanding the structure of a network at different levels of granularity.</p>
+</div>
+<div class="paragraph">
+<p>We can run this algorithm with the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.louvain("Place", "EROAD", { iterations: 10, direction: "BOTH" })<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Louvain</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can then query the graph to find which nodes are in each partition.
+Let&#8217;s start with the final (and most coarse grained partition):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (place:Place)
+RETURN place.communities[-1] AS community, collect(place.name) AS places
+ORDER BY length(places) DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we want to find one of the intermediate partitions we can do that as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (place:Place)
+RETURN place.communities[0] AS community, collect(place.name) AS places
+ORDER BY length(places) DESC<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

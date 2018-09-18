@@ -1,0 +1,84 @@
+= Importing the dataset
+:icons: font
+:csv_url: https://gist.githubusercontent.com/lassewesth/634281cced11147432cf232a2c36e080/raw/1ed1f4fe4ca4c8092bbc8557addd1e5d87316833/eroads.csv
+
+== E-roads dataset
+
+We're going to use a European Roads dataset that has been http://lassewesth.blogspot.com/2018/07/the-international-e-road-network-and.html[massaged into CSV format^] thanks to Lasse Westh-Nielson.
+
+We can use the `LOAD CSV` command to see what type of data we'll be dealing with.
+Run the following query to return the first 10 rows of the CSV file:
+
+[source, cypher,subs=attributes]
+----
+LOAD CSV WITH HEADERS FROM "{csv_url}" AS row
+RETURN row
+LIMIT 10
+----
+
+== Graph Model
+
+We're going to create a simple model containing places and roads connecting them:
+
+[subs=attributes]
+++++
+<img src="{img}/graph-model.png" class="img-responsive" width="500px">
+++++
+
+== Unique Constraint
+
+Before we import any data we'll create a constraint on the `Place` node label so that we don't accidentally end up with duplicate nodes:
+
+[source, cypher]
+----
+CREATE CONSTRAINT ON (p:Place)
+ASSERT p.name IS UNIQUE
+----
+
+== Import from CSV
+
+Now we can run the following query to import the dataset into Neo4j:
+
+[source, cypher,subs=attributes]
+----
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "{csv_url}"
+AS row
+
+MERGE (origin:Place {name: row.origin_reference_place})
+SET origin.countryCode = row.origin_country_code
+
+MERGE (destination:Place {name: row.destination_reference_place})
+SET destination.countryCode = row.destination_country_code
+
+MERGE (origin)-[eroad:EROAD {road_number: row.road_number}]->(destination)
+SET eroad.distance = toInteger(row.distance), eroad.watercrossing = row.watercrossing
+----
+
+This query creates nodes with a `Place` label for each origin and destination.
+We're using the `MERGE` command, so if a place already exists we won't duplicate it.
+
+== Sanity check the data
+
+Before we move onto the next section, let's check that the data was correctly imported.
+
+Run the following query to check how many roads we've imported:
+
+[source, cypher]
+----
+MATCH path = (:Place)-[:EROAD]->(:Place)
+RETURN count(*)
+----
+
+We should have `1250` if everything has imported correctly.
+
+We can run the following query to see some of those roads:
+
+[source, cypher]
+----
+MATCH path = (p1:Place)-[:EROAD]->(p2:Place)
+RETURN path
+LIMIT 10
+----
+
+As long as that query returns some results we're ready to move onto the next section!

@@ -1,0 +1,367 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Path Finding and Graph Search Algorithms</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+   <h4>Path Finding and Graph Search Algorithms</h4>
+   
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Path Finding and Graph Search Algorithms</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this section we&#8217;ll learn how to use the Path Finding and Graph Search Algorithms.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s get started!</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Shortest Path</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We&#8217;ll start with a query that finds the shortest path in terms of hops (number of relationships) between two nodes.
+The following query uses Neo4j&#8217;s built in shortest path function to find a path between <code>Århus</code> and <code>Roma</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH p=shortestPath((start:Place {name: "Århus"})-[rels:EROAD*]-(end:Place {name: "Roma"}))
+RETURN [place in nodes(p) | place.name][1..-1] AS journey,
+       length(nodes(p)[1..-1]) AS intermediatePlaces,
+       reduce(s = 0, r in rels | s + r.distance) AS total_distance<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We also calculate the distance by summing together the <code>distance</code> property on the relationships in the path.</p>
+</div>
+<div class="paragraph">
+<p><strong>Mini Exercise</strong></p>
+</div>
+<div class="paragraph">
+<p>Try changing the start or end nodes to find the shortest path between other destinations.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Shortest Weighted Path</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The previous query finds us the path that goes through the fewest other cities, but it&#8217;s not necessarily the shortest in terms of distance.</p>
+</div>
+<div class="paragraph">
+<p>The following query finds the shortest weighted path between <code>Århus</code> and <code>Roma</code>, using the <code>distance</code> property on relationships as part of the computation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (aarhus:Place {name: "Århus"}), (rome:Place {name: "Roma"})
+CALL algo.shortestPath.stream(aarhus, rome, "distance")
+YIELD nodeId, cost
+MATCH (n) WHERE id(n) = nodeId
+return n.name, cost<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The shortest path calculated here has a total distance of 800km less than the one from the shortest path query.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Yen&#8217;s K-shortest Paths</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>What about if we want to find the 2nd shortest path, or 3rd shortest path between two nodes?
+We can use the Yen&#8217;s algorithm to do this.</p>
+</div>
+<div class="paragraph">
+<p>The following query finds the top 5 shortest paths between Berlin and Roma:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (start:Place {name:"Berlin"}), (end:Place {name:"Roma"})
+CALL algo.kShortestPaths.stream(start, end, 5, 'distance')
+YIELD index, nodeIds, path, costs
+RETURN index,
+       [node in algo.getNodesById(nodeIds[1..-1]) | node.name] AS via,
+       reduce(acc=0.0, cost in costs | acc + cost) AS totalCost<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: Yen&#8217;s K-shortest Paths</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Can you find 3 shortest paths between <code>London</code> and <code>Berlin</code>?</p>
+</div>
+<div class="paragraph">
+<p>The answer is on the next slide once you&#8217;ve had a go at writing the query.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Answer: Yen&#8217;s K-shortest Paths</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Can you find 3 shortest paths between <code>London</code> and <code>Berlin</code>?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (start:Place {name:"London"}), (end:Place {name:"Berlin"})
+CALL algo.kShortestPaths.stream(start, end, 5, 'distance')
+YIELD index, nodeIds, path, costs
+RETURN index,
+       [node in algo.getNodesById(nodeIds[1..-1]) | node.name] AS via,
+       reduce(acc=0.0, cost in costs | acc + cost) AS totalCost<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>All Pairs Shortest Path</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Now we&#8217;re going to try something a bit different.
+The All Pairs Shortest Path algorithm finds the shortest path between every pair of nodes in the graph.</p>
+</div>
+<div class="paragraph">
+<p>The following query runs this algorithm and returns the top 10 longest paths:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.allShortestPaths.stream("distance")
+YIELD sourceNodeId, targetNodeId, distance
+WHERE sourceNodeId &lt; targetNodeId
+RETURN algo.getNodeById(sourceNodeId).name AS source,
+       algo.getNodeById(targetNodeId).name AS target,
+       distance
+ORDER BY distance DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Mini Exercise</strong></p>
+</div>
+<div class="paragraph">
+<p>Try changing <code>"distance"</code> to <code>null</code> to see how the results differ when we ignore relationship weights.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Single Source Shortest Path</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The Single Source Shortest Path algorithm finds the shortest path from a specified node to all other nodes.</p>
+</div>
+<div class="paragraph">
+<p>In the query below we find the shortest path from <code>London</code> to all other reachable locations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (n:Place {name:"London"})
+CALL algo.shortestPath.deltaStepping.stream(n, "distance", 1.0)
+YIELD nodeId, distance WHERE algo.isFinite(distance)
+RETURN algo.getNodeById(nodeId).name AS destination, distance
+ORDER BY distance<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Mini Exercise</strong></p>
+</div>
+<div class="paragraph">
+<p>Try changing the starting place and see what results you get.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Minimum Spanning Tree</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The Minimum Spanning Tree algorithm starts from a given node, and finds all its reachable nodes and the set of relationships that connect the nodes together with the minimum possible weight.</p>
+</div>
+<div class="paragraph">
+<p>The following query calculates this tree starting from <code>Amsterdam</code>, and stores relationships of type <code>MINST</code> between the nodes in the tree:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (n:Place {name:"Amsterdam"})
+CALL algo.spanningTree.minimum("Place", "EROAD", "distance", id(n),
+  {write:true, writeProperty:"MINST"})
+YIELD loadMillis, computeMillis, writeMillis, effectiveNodeCount
+RETURN loadMillis, computeMillis, writeMillis, effectiveNodeCount<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To see the output of the algorithm we can write the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (p:Place {name:"Amsterdam"})-[:MINST*]-(end)
+RETURN [n in nodes(path) | n.name]<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Random Walk</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The Random Walk algorithm starts from a node (which you can choose to provide), chooses a neighbor to navigate to at random, and then does the same from that node, keeping the resulting path in a list.
+It’s similar to how a drunk person traverses a city.</p>
+</div>
+<div class="paragraph">
+<p>We can run the following query to generate random walks starting from <code>Goch</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (source:Place {name: "Goch"})
+CALL algo.randomWalk.stream(id(source), 10, 5)
+YIELD nodeIds
+RETURN [place in algo.getNodesById(nodeIds) | place.name] AS places<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can use this to try and find parts of the network that are not that resilient
+e.g. maybe there&#8217;s only one road in or out of a city</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Random Walk</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The following query generates 50,000 random walks of length 10 starting from <code>Goch</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (source:Place {name: "Goch"})
+CALL algo.randomWalk.stream(id(source), 10, 50000)
+YIELD nodeIds
+RETURN [place in algo.getNodesById(nodeIds) | place.name] AS places, count(*) AS times
+ORDER BY times DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There are some combinations that show up more than we might expect at random.
+We can write the following query to explore the graph around one of those:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (p1:Place {name: "Nijmegen"})
+MATCH (p2:Place {name: "Goch"})
+MATCH path = (neighbor1)-[:EROAD]-(p1)-[:EROAD]-(p2)-[:EROAD]-(neighbor2)
+RETURN path<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can see that there&#8217;s only one road in and out of these places, which is why the random walk often goes back and forwards between these nodes.</p>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

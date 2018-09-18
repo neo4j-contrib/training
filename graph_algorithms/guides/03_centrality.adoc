@@ -1,0 +1,153 @@
+= Centrality Algorithms
+:icons: font
+:csv-url: https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data
+
+== Centrality Algorithms
+
+In this section we'll learn how to use the Centrality Algorithms.
+
+== Closeness Centrality
+
+We'll start with the Closeness Centrality algorithm, which works out the average 'farness' of a node from all other nodes.
+
+[source, cypher]
+----
+CALL algo.closeness.stream("Place", "EROAD")
+YIELD nodeId, centrality
+RETURN algo.getNodeById(nodeId).name AS place, centrality
+ORDER BY centrality DESC
+----
+
+A score of `1.0` means that the node has a direct link to every node that it's able to reach.
+
+== Closeness Centrality: Explanation
+
+Let's take one of the places that has a Closeness Centrality of 1.0 and see how well it's connected.
+
+Run the following query to find all the places that we can get to from Granada:
+
+[source, cypher]
+----
+MATCH path = (:Place {name: "Granada"})-[:EROAD*]-()
+RETURN path
+----
+
+If we try and double click any of the nodes connected to `Granada` we'll see that there are no other nodes connected to them.
+These three nodes would therefore be their own connected component, and within that component `Granada` is very well connected.
+
+It isn't particularly well connected to the rest of the graph though!
+
+== Closeness Centrality Variation: Wasserman and Faust
+
+The Wasserman and Faust variation of the algorithm dampens the Closeness Centrality score to account for this.
+
+We can calculate that by passing in the `improved: true` parameter:
+
+[source, cypher]
+----
+CALL algo.closeness.stream("Place", "EROAD", {improved: true})
+YIELD nodeId, centrality
+RETURN algo.getNodeById(nodeId).name AS place, centrality
+ORDER BY centrality DESC
+----
+
+If we want to find out the score for the nodes in the `Granada` component we could run the version of the algorithm that stores the score as a property on the node.
+
+[source, cypher]
+----
+CALL algo.closeness("Place", "EROAD", {improved: true, writeProperty: "closeness"})
+----
+
+== Closeness Centrality Variation: Wasserman and Faust
+
+We could then write the following query to find out the score for our nodes:
+
+[source, cypher]
+----
+MATCH (place:Place)
+WHERE place.name IN ["Granada", "Málaga", "Jaén"]
+RETURN place.name, place.closeness
+ORDER BY place.closeness DESC
+----
+
+We can see that the score for `Granada` is now significantly lower than it was previously.
+
+== Closeness Centrality Variation: Harmonic Centrality
+
+Another variant of the algorithm is Harmonic Centrality.
+
+We can run the following query to run this algorithm and store the result in the property `harmonic`:
+
+[source, cypher]
+----
+CALL algo.closeness.harmonic("Place", "EROAD", {writeProperty: "harmonic"})
+----
+
+== Exercise: Closeness Centrality Variation: Harmonic Centrality
+
+Can you write a query to find the place that has the highest harmonic centrality score?
+Are the top places the same as we see with closeness centrality?
+
+== Answer: Closeness Centrality Variation: Harmonic Centrality
+
+[source, cypher]
+----
+MATCH (place:Place)
+RETURN place.name, place.closeness, place.harmonic
+ORDER BY place.harmonic DESC
+----
+
+== Betweenness Centrality
+
+The Betweenness centrality algorithm detects the amount of influence a node has over the flow of information in a graph.
+It is often used to find nodes that serve as a bridge from one part of a graph to another.
+
+We can write the following query to execute this algorithm on our dataset:
+
+[source, cypher]
+----
+CALL algo.betweenness.stream("Place", "EROAD")
+YIELD nodeId, centrality
+RETURN algo.getNodeById(nodeId).name AS user, centrality
+ORDER BY centrality DESC
+----
+
+The algorithm calculates the shortest path between all pairs of nodes in the graph, and the nodes that most frequently like on these paths will have the highest score.
+
+== Betweenness Centrality Variation: Randomized-Approximate Brandes
+
+On very large graphs it's not really feasible to run all these shortest path computations, so we might instead choose to use an approximate version of the algorithm.
+
+The following query runs the RA-Brandes algorithm which calculates betweenness based on sampling parts of the graph:
+
+[source, cypher]
+----
+CALL algo.betweenness.sampled.stream("Place", "EROAD", {strategy:"degree"})
+YIELD nodeId, centrality
+RETURN algo.getNodeById(nodeId).name AS user, centrality
+ORDER BY centrality DESC
+----
+
+We should see similar results as with the normal version, but will see a different result each time.
+
+*Mini Exercise*
+
+Try running this algorithm a few times to see how the results differ.
+
+== PageRank
+
+PageRank measures the *transitive* influence or connectivity of nodes.
+It can be computed by iteratively distributing one node’s rank (originally based on degree) over its neighbours.
+
+The following query calculates PageRank for our dataset:
+
+[source, cypher]
+----
+CALL algo.pageRank.stream('Place', 'EROAD', {iterations:20, dampingFactor:0.85, direction: "BOTH"})
+YIELD nodeId, score
+RETURN algo.getNodeById(nodeId).name AS page, score
+ORDER BY score DESC
+----
+
+The results from this one are interesting.
+Where earlier centrality algorithms scored nodes which have a strong geographical position highly, PageRank has helped us identify the big name European cities.

@@ -1,0 +1,191 @@
+= Path Finding and Graph Search Algorithms
+:icons: font
+:csv_url: https://gist.githubusercontent.com/lassewesth/634281cced11147432cf232a2c36e080/raw/1ed1f4fe4ca4c8092bbc8557addd1e5d87316833/eroads.csv
+
+== Path Finding and Graph Search Algorithms
+
+In this section we'll learn how to use the Path Finding and Graph Search Algorithms.
+
+Let's get started!
+
+== Shortest Path
+
+We'll start with a query that finds the shortest path in terms of hops (number of relationships) between two nodes.
+The following query uses Neo4j's built in shortest path function to find a path between `Århus` and `Roma`:
+
+[source, cypher]
+----
+MATCH p=shortestPath((start:Place {name: "Århus"})-[rels:EROAD*]-(end:Place {name: "Roma"}))
+RETURN [place in nodes(p) | place.name][1..-1] AS journey,
+       length(nodes(p)[1..-1]) AS intermediatePlaces,
+       reduce(s = 0, r in rels | s + r.distance) AS total_distance
+----
+
+We also calculate the distance by summing together the `distance` property on the relationships in the path.
+
+*Mini Exercise*
+
+Try changing the start or end nodes to find the shortest path between other destinations.
+
+== Shortest Weighted Path
+
+The previous query finds us the path that goes through the fewest other cities, but it's not necessarily the shortest in terms of distance.
+
+The following query finds the shortest weighted path between `Århus` and `Roma`, using the `distance` property on relationships as part of the computation:
+
+[source, cypher]
+----
+MATCH (aarhus:Place {name: "Århus"}), (rome:Place {name: "Roma"})
+CALL algo.shortestPath.stream(aarhus, rome, "distance")
+YIELD nodeId, cost
+MATCH (n) WHERE id(n) = nodeId
+return n.name, cost
+----
+
+The shortest path calculated here has a total distance of 800km less than the one from the shortest path query.
+
+== Yen's K-shortest Paths
+
+What about if we want to find the 2nd shortest path, or 3rd shortest path between two nodes?
+We can use the Yen's algorithm to do this.
+
+The following query finds the top 5 shortest paths between Berlin and Roma:
+
+[source, cypher]
+----
+MATCH (start:Place {name:"Berlin"}), (end:Place {name:"Roma"})
+CALL algo.kShortestPaths.stream(start, end, 5, 'distance')
+YIELD index, nodeIds, path, costs
+RETURN index,
+       [node in algo.getNodesById(nodeIds[1..-1]) | node.name] AS via,
+       reduce(acc=0.0, cost in costs | acc + cost) AS totalCost
+----
+
+== Exercise: Yen's K-shortest Paths
+
+Can you find 3 shortest paths between `London` and `Berlin`?
+
+The answer is on the next slide once you've had a go at writing the query.
+
+== Answer: Yen's K-shortest Paths
+
+Can you find 3 shortest paths between `London` and `Berlin`?
+
+[source, cypher]
+----
+MATCH (start:Place {name:"London"}), (end:Place {name:"Berlin"})
+CALL algo.kShortestPaths.stream(start, end, 5, 'distance')
+YIELD index, nodeIds, path, costs
+RETURN index,
+       [node in algo.getNodesById(nodeIds[1..-1]) | node.name] AS via,
+       reduce(acc=0.0, cost in costs | acc + cost) AS totalCost
+----
+
+== All Pairs Shortest Path
+
+Now we're going to try something a bit different.
+The All Pairs Shortest Path algorithm finds the shortest path between every pair of nodes in the graph.
+
+The following query runs this algorithm and returns the top 10 longest paths:
+
+[source, cypher]
+----
+CALL algo.allShortestPaths.stream("distance")
+YIELD sourceNodeId, targetNodeId, distance
+WHERE sourceNodeId < targetNodeId
+RETURN algo.getNodeById(sourceNodeId).name AS source,
+       algo.getNodeById(targetNodeId).name AS target,
+       distance
+ORDER BY distance DESC
+LIMIT 10
+----
+
+*Mini Exercise*
+
+Try changing `"distance"` to `null` to see how the results differ when we ignore relationship weights.
+
+== Single Source Shortest Path
+
+The Single Source Shortest Path algorithm finds the shortest path from a specified node to all other nodes.
+
+In the query below we find the shortest path from `London` to all other reachable locations:
+
+[source, cypher]
+----
+MATCH (n:Place {name:"London"})
+CALL algo.shortestPath.deltaStepping.stream(n, "distance", 1.0)
+YIELD nodeId, distance WHERE algo.isFinite(distance)
+RETURN algo.getNodeById(nodeId).name AS destination, distance
+ORDER BY distance
+----
+
+*Mini Exercise*
+
+Try changing the starting place and see what results you get.
+
+== Minimum Spanning Tree
+
+The Minimum Spanning Tree algorithm starts from a given node, and finds all its reachable nodes and the set of relationships that connect the nodes together with the minimum possible weight.
+
+The following query calculates this tree starting from `Amsterdam`, and stores relationships of type `MINST` between the nodes in the tree:
+
+[source, cypher]
+----
+MATCH (n:Place {name:"Amsterdam"})
+CALL algo.spanningTree.minimum("Place", "EROAD", "distance", id(n),
+  {write:true, writeProperty:"MINST"})
+YIELD loadMillis, computeMillis, writeMillis, effectiveNodeCount
+RETURN loadMillis, computeMillis, writeMillis, effectiveNodeCount
+----
+
+To see the output of the algorithm we can write the following query:
+
+[source, cypher]
+----
+MATCH path = (p:Place {name:"Amsterdam"})-[:MINST*]-(end)
+RETURN [n in nodes(path) | n.name]
+----
+
+== Random Walk
+
+The Random Walk algorithm starts from a node (which you can choose to provide), chooses a neighbor to navigate to at random, and then does the same from that node, keeping the resulting path in a list.
+It’s similar to how a drunk person traverses a city.
+
+We can run the following query to generate random walks starting from `Goch`:
+
+[source, cypher]
+----
+MATCH (source:Place {name: "Goch"})
+CALL algo.randomWalk.stream(id(source), 10, 5)
+YIELD nodeIds
+RETURN [place in algo.getNodesById(nodeIds) | place.name] AS places
+----
+
+We can use this to try and find parts of the network that are not that resilient
+e.g. maybe there's only one road in or out of a city
+
+== Random Walk
+
+The following query generates 50,000 random walks of length 10 starting from `Goch`:
+
+[source, cypher]
+----
+MATCH (source:Place {name: "Goch"})
+CALL algo.randomWalk.stream(id(source), 10, 50000)
+YIELD nodeIds
+RETURN [place in algo.getNodesById(nodeIds) | place.name] AS places, count(*) AS times
+ORDER BY times DESC
+----
+
+There are some combinations that show up more than we might expect at random.
+We can write the following query to explore the graph around one of those:
+
+[source, cypher]
+----
+MATCH (p1:Place {name: "Nijmegen"})
+MATCH (p2:Place {name: "Goch"})
+MATCH path = (neighbor1)-[:EROAD]-(p1)-[:EROAD]-(p2)-[:EROAD]-(neighbor2)
+RETURN path
+----
+
+We can see that there's only one road in and out of these places, which is why the random walk often goes back and forwards between these nodes.

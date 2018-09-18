@@ -1,0 +1,125 @@
+= Community Detection Algorithms
+:icons: font
+:csv-url: https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data
+
+== Community Detection Algorithms
+
+In this section we'll learn how to use the Community Detection Algorithms.
+
+== Triangles
+
+The triangles algorithm will return all the triangles in the graph.
+i.e. where there's a relationship from A->B, B->C, and C->A.
+
+We can run the following query to get a stream of all the triangles:
+
+[source, cypher]
+----
+CALL algo.triangle.stream("Place","EROAD")
+YIELD nodeA, nodeB, nodeC
+RETURN algo.getNodeById(nodeA).name AS nodeA,
+       algo.getNodeById(nodeB).name AS nodeB,
+       algo.getNodeById(nodeC).name AS nodeC
+----
+
+== Local Clustering Coefficient
+
+We can calculate the local clustering coefficient, which tells us how well a node's neighbors are connected to each other.
+
+[source, cypher]
+----
+CALL algo.triangleCount.stream('Place', 'EROAD')
+YIELD nodeId, triangles, coefficient
+WHERE coefficient > 0
+RETURN algo.getNodeById(nodeId).name AS place, coefficient
+ORDER BY coefficient DESC
+----
+
+A score of 1 would indicate that all a node's neighbors are connected to each other.
+
+== Local Clustering Coefficient
+
+We can look at the neighborhood of a node to manually verify how this score is calculated.
+For example, Bradford has a score of `1.0`, so its neighbors should all be connected.
+
+The following query returns `Bradford`, its neighbors, and all relationships between them.
+
+[source, cypher]
+----
+MATCH (p1:Place {name: "Bradford"})-[:EROAD]-(neighbor)
+WITH p1, collect(neighbor) AS neighbors
+UNWIND neighbors AS node1
+UNWIND neighbors AS node2
+OPTIONAL MATCH neighborPath = (node1)-[:EROAD]-(node2)
+OPTIONAL MATCH nodePath = (node1)-[:EROAD]-(p1)-[:EROAD]-(node2)
+RETURN neighborPath, nodePath
+----
+
+*Mini Exercise*
+
+Change the Place to `Berlin` or `Rotterdam` and check that the score makes sense.
+
+== Connected Components
+
+The Connected Components (Union Find) algorithm will split nodes into partitions where each node in a partition is reachable by all other nodes in the partition:
+
+[source, cypher]
+----
+CALL algo.unionFind.stream("Place", "EROAD")
+YIELD nodeId, setId
+RETURN setId, collect(algo.getNodeById(nodeId).name) AS places
+ORDER BY size(places) DESC
+----
+
+As we might expect, the massive majority of nodes fit into one big component.
+There are, however, a few small clusters of nodes that aren't connected to the rest of the road network.
+
+== Label Propagation
+
+The label propagation algorithm finds more subtle communities that might exist in the road network.
+The intuition behind this algorithm is that a single label can quickly become dominant in a densely connected group of nodes, but it will have trouble crossing a sparsely connected region.
+
+[source, cypher]
+----
+CALL algo.labelPropagation.stream("Place", "EROAD", { iterations: 10, direction: "BOTH" })
+YIELD nodeId, label
+WITH label, algo.getNodeById(nodeId) AS node
+ORDER BY label, node.name
+RETURN label, collect(node.name) AS places
+ORDER BY size(places) DESC
+----
+
+== Louvain
+
+The Louvain Modularity algorithm finds clusters by comparing community density as it assigns nodes to different groups.
+You can think of this as a “what if” analysis to try out various grouping with the goal of eventually reaching a global optimum.
+
+It also reveals a hierarchy of communities at different scales, which is useful for understanding the structure of a network at different levels of granularity.
+
+We can run this algorithm with the following query:
+
+[source, cypher]
+----
+CALL algo.louvain("Place", "EROAD", { iterations: 10, direction: "BOTH" })
+----
+
+== Louvain
+
+We can then query the graph to find which nodes are in each partition.
+Let's start with the final (and most coarse grained partition):
+
+[source, cypher]
+----
+MATCH (place:Place)
+RETURN place.communities[-1] AS community, collect(place.name) AS places
+ORDER BY length(places) DESC
+----
+
+If we want to find one of the intermediate partitions we can do that as well:
+
+[source, cypher]
+----
+MATCH (place:Place)
+RETURN place.communities[0] AS community, collect(place.name) AS places
+ORDER BY length(places) DESC
+----
