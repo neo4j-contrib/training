@@ -134,6 +134,13 @@ We should see similar results as with the normal version, but will see a differe
 
 Try running this algorithm a few times to see how the results differ.
 
+== Exercise: Betweenness Centrality Variation: Randomized-Approximate Brandes
+
+Try playing around with the `strategy`, `probability`, and `maxDepth` parameters that the RA-Brandes algorithm supports.
+How do the results vary as you change these?
+
+You can learn more about these parameters in the https://neo4j.com/docs/graph-algorithms/current/algorithms/betweenness-centrality/#_approximation_of_betweenness_centrality[Betweenness Centrality docs^]
+
 == PageRank
 
 PageRank measures the *transitive* influence or connectivity of nodes.
@@ -151,3 +158,10 @@ ORDER BY score DESC
 
 The results from this one are interesting.
 Where earlier centrality algorithms scored nodes which have a strong geographical position highly, PageRank has helped us identify the big name European cities.
+
+== Exercise: PageRank
+
+Try playing around with the `iterations`, and `dampingFactor` parameters that the PageRank algorithm supports.
+How do the results vary as you change these?
+
+You can learn more about these parameters in the https://neo4j.com/docs/graph-algorithms/current/algorithms/page-rank/[PageRank docs^]
