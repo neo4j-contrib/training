@@ -195,6 +195,13 @@ RETURN label, collect(node.name) AS places
 ORDER BY size(places) DESC<!--/code--></pre>
 </div>
 </div>
+<div class="paragraph">
+<p><strong>Mini Exercise</strong></p>
+</div>
+<div class="paragraph">
+<p>Try changing the number of iterations.
+How do the results vary?</p>
+</div>
 	</div>
   </div>
 </slide>
@@ -252,6 +259,47 @@ ORDER BY length(places) DESC<!--/code--></pre>
 RETURN place.communities[0] AS community, collect(place.name) AS places
 ORDER BY length(places) DESC<!--/code--></pre>
 </div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Louvain</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>It&#8217;s maybe easier to see how the algorithm works if we look at the intermediate partitions for a single place.
+Let&#8217;s explore the clusters that <code>London</code> was assigned to.</p>
+</div>
+<div class="paragraph">
+<p>We can find the first (and finest grained) partition by running the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH 0 AS index
+MATCH (home:Place {name: "London"})
+MATCH (place:Place) WHERE place.communities[index] = home.communities[index]
+RETURN place.communities[index] AS community, collect(place.name) AS places
+ORDER BY length(places) DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we want to find the coarser grained partitions we can change the first line of the query to look at different indexes in the array.
+Try changing it to <code>1</code>, <code>2</code>, and <code>3</code> to see the clusters that London ends up in.</p>
+</div>
+<div class="paragraph">
+<p><strong>Mini Exercise</strong></p>
+</div>
+<div class="paragraph">
+<p>Try looking up the partitions for another place.
+e.g. Berlin, Paris, Amsterdam</p>
+</div>
+<div class="paragraph">
+<p>Do the clusters make sense?</p>
 </div>
 	</div>
   </div>

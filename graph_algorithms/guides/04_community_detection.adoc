@@ -89,6 +89,11 @@ RETURN label, collect(node.name) AS places
 ORDER BY size(places) DESC
 ----
 
+*Mini Exercise*
+
+Try changing the number of iterations.
+How do the results vary?
+
 == Louvain
 
 The Louvain Modularity algorithm finds clusters by comparing community density as it assigns nodes to different groups.
@@ -123,3 +128,29 @@ MATCH (place:Place)
 RETURN place.communities[0] AS community, collect(place.name) AS places
 ORDER BY length(places) DESC
 ----
+
+== Louvain
+
+It's maybe easier to see how the algorithm works if we look at the intermediate partitions for a single place.
+Let's explore the clusters that `London` was assigned to.
+
+We can find the first (and finest grained) partition by running the following query:
+
+[source, cypher]
+----
+WITH 0 AS index
+MATCH (home:Place {name: "London"})
+MATCH (place:Place) WHERE place.communities[index] = home.communities[index]
+RETURN place.communities[index] AS community, collect(place.name) AS places
+ORDER BY length(places) DESC
+----
+
+If we want to find the coarser grained partitions we can change the first line of the query to look at different indexes in the array.
+Try changing it to `1`, `2`, and `3` to see the clusters that London ends up in.
+
+*Mini Exercise*
+
+Try looking up the partitions for another place.
+e.g. Berlin, Paris, Amsterdam
+
+Do the clusters make sense?

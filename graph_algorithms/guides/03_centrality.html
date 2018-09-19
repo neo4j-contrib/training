@@ -295,6 +295,24 @@ ORDER BY centrality DESC<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Exercise: Betweenness Centrality Variation: Randomized-Approximate Brandes</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Try playing around with the <code>strategy</code>, <code>probability</code>, and <code>maxDepth</code> parameters that the RA-Brandes algorithm supports.
+How do the results vary as you change these?</p>
+</div>
+<div class="paragraph">
+<p>You can learn more about these parameters in the <a href="https://neo4j.com/docs/graph-algorithms/current/algorithms/betweenness-centrality/#_approximation_of_betweenness_centrality" target="_blank" rel="noopener">Betweenness Centrality docs</a></p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>PageRank</h3>
     <br/>
     <div>
@@ -316,6 +334,24 @@ ORDER BY score DESC<!--/code--></pre>
 <div class="paragraph">
 <p>The results from this one are interesting.
 Where earlier centrality algorithms scored nodes which have a strong geographical position highly, PageRank has helped us identify the big name European cities.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Exercise: PageRank</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Try playing around with the <code>iterations</code>, and <code>dampingFactor</code> parameters that the PageRank algorithm supports.
+How do the results vary as you change these?</p>
+</div>
+<div class="paragraph">
+<p>You can learn more about these parameters in the <a href="https://neo4j.com/docs/graph-algorithms/current/algorithms/page-rank/" target="_blank" rel="noopener">PageRank docs</a></p>
 </div>
 	</div>
   </div>
