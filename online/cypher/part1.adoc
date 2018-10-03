@@ -36,6 +36,8 @@ link:/graphacademy/online-training/getting-started-graph-databases-using-neo4j/p
 
 ++++
 <script>
-Intercom('trackEvent','training-intro-view-part1');
+$( document ).ready(function() {
+  Intercom('trackEvent','training-intro-view-part1');
+});
 </script>
 ++++
