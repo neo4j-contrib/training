@@ -68,9 +68,9 @@ $( document ).ready(function() {
     var id_token = Cookies.get("com.neo4j.accounts.idToken");
     var decoded_token = jwt_decode(id_token);
     var expiresIn = getTimeDiff(Date.now(), (decoded_token.exp) * 1000);
-    if (expiresIn.days > 0 || expiresIn.hours > 0 || expiresIn.mins > 0) {
+    if (expiresIn.days > 0 || expiresIn.hours > 0) {
       // token is good.
-    } else if (expiresIn.days == 0 && expiresIn.hours == 0 || expiresIn.mins < 30) {
+    } else if (expiresIn.days == 0 && expiresIn.hours == 0 && expiresIn.mins > 1 && expiresIn.mins < 60) {
         // expiring soon, let's immediately get a new token
         attemptRenewToken(true, 1000*60*30, false);
     } else {
