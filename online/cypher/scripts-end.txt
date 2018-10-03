@@ -12,8 +12,6 @@
  <script type='text/javascript'
    src='http://neo4j.com/wp-content/themes/neo4jweb/assets/js/vendor/codemirror.min.js?ver=4.5.2'></script>
 
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-
  <script type='text/javascript'>
   if (!CodeMirror.colorize) CodeMirror.colorize=function() {};
   $( document ).ready(function() {
