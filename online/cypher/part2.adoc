@@ -29,3 +29,13 @@ include::60-Minute-Cypher/0111_Order_Limit_and_Skip.adoc[]
 include::60-Minute-Cypher/0112_Quiz2.adoc[]
 
 link:/graphacademy/online-training/getting-started-graph-databases-using-neo4j/part-3/[Continue to Part 3: Filters and Paths,role="next-section medium button"]
+
+include::scripts-end.txt[]
+
+++++     
+<script>
+$( document ).ready(function() {
+  Intercom('trackEvent','training-intro-view-part2');
+});   
+</script>
+++++
