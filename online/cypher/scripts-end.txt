@@ -11,7 +11,8 @@
 
  <script type='text/javascript'
    src='http://neo4j.com/wp-content/themes/neo4jweb/assets/js/vendor/codemirror.min.js?ver=4.5.2'></script>
- <script type='text/javascript' src='//use.typekit.net/rdt4xku.js?ver=4.5'></script>
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
  <script type='text/javascript'>
   if (!CodeMirror.colorize) CodeMirror.colorize=function() {};
@@ -29,8 +30,53 @@
 </script>
 <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/dt0ig5ab';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
 
+<!-- JWT decoder: ONLY USE TO SEE UN-VERIFIED VALUES -->
+<script src="//neo4jsandbox.com/js/jwt-decode.min.js"></script>
+
+
 <script>
+const SITE_URL = window.location;
+
+var getTimeDiff = function(time1, time2) {
+  var hourDiff = time2 - time1;
+  var diffDays = Math.floor(hourDiff / 86400000);
+  var diffHrs = Math.floor((hourDiff % 86400000) / 3600000);
+  var diffMins = Math.floor(((hourDiff % 86400000) % 3600000) / 60000);
+  return {"days": diffDays, "hours": diffHrs, "mins": diffMins};
+}
+
+var attemptRenewToken = function(silent, nextTimeout, nextTimeoutSilent) {
+  console.log('renewAuth attempting');
+  var iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = 'https://neo4j.com/accounts/login?targetUrl=' + encodeURIComponent(SITE_URL);
+  document.body.appendChild(iframe);
+  if (nextTimeout) {
+      setTimeout(
+        function () {
+          attemptRenewToken(nextTimeoutSilent, nextTimeout, nextTimeoutSilent);
+        }, nextTimeout
+      );
+  }
+}
+
+var logout = function() {
+  window.location = 'https://neo4j.com/graphacademy/online-training/getting-started-graph-databases-using-neo4j/'
+}
+
 $( document ).ready(function() {
+    var id_token = Cookies.get("com.neo4j.accounts.idToken");
+    var decoded_token = jwt_decode(id_token);
+    var expiresIn = getTimeDiff(Date.now(), (decoded_token.exp) * 1000);
+    if (expiresIn.days < 0 || expiresIn.hours < 0 || expiresIn.mins < 0) {
+        // token is already expired, log user out in UI; token won't work
+        logout();
+    } else if (expiresIn.days == 0 && expiresIn.hours == 0 || expiresIn.mins < 30) {
+        // expiring soon, let's immediately get a new token
+        attemptRenewToken(true, authRenewPeriod, false);
+    }
+    
+
     var userInfoIntercom = Cookies.getJSON("com.neo4j.accounts.userInfo");
     if (userInfoIntercom) {
       try {
@@ -48,4 +94,7 @@ $( document ).ready(function() {
     Intercom('trackEvent','training-intro-view');
 });
 </script>
+
+
+
 ++++
