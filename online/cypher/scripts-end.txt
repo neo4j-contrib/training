@@ -72,7 +72,7 @@ $( document ).ready(function() {
       // token is good.
     } else if (expiresIn.days == 0 && expiresIn.hours == 0 || expiresIn.mins < 30) {
         // expiring soon, let's immediately get a new token
-        attemptRenewToken(true, authRenewPeriod, false);
+        attemptRenewToken(true, 1000*60*30, false);
     } else {
         // token is already expired, log user out in UI; token won't work
         logout();
