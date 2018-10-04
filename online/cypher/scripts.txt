@@ -1,15 +1,19 @@
 ++++
-	<script type='text/javascript'>
-	var loc = window.location;
-	if (loc.hostname == "neo4j.com" && loc.search.indexOf("aliId=") == -1 ) {
-//	 loc.pathname = "/online_training/graphdatabases/"	
-	}
-	document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin.js' type='text/javascript'%3E%3C/script%3E"));
-	</script>
-	<script>Munchkin.init('773-GON-065');</script>
-++++
 
-++++
+<script src="https://browser.sentry-cdn.com/4.0.6/bundle.min.js" crossorigin="anonymous"></script>
+
+<script>
+  Sentry.init({ dsn: 'https://7df45f54b1e844b49d9f603100930bd7@sentry.io/1294106' });
+</script>
+
+<script type='text/javascript'>
+	var loc = window.location;
+	document.write(unescape("%3Cscript src='//munchkin.marketo.net/munchkin.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script>Munchkin.init('773-GON-065');</script>
+
+
 <style>
     @import "/online_training/cypher-gadget/libs/jquery.modal.min.css" screen;
     .modal {
