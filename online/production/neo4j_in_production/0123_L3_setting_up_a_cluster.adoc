@@ -1,6 +1,7 @@
 === (L3) -- (Setting up a Cluster)
 
-The video below will walk you through a simple setup of a local cluster.
+The video below will walk you through a simple setup of a local cluster in Neo4j v2.2. If you are using Neo4j v3.0, refer to the steps after the video for creating a local cluster on a single server.
+
 Setting up a cluster involves the basic following steps:
 
 . Installing each cluster instance
@@ -13,6 +14,8 @@ Setting up a cluster involves the basic following steps:
 ++++
 
 ==== Creating Local Cluster on a single server
+
+Starting with Neo4j v3.0, you can configure clusters in *neo4j.conf*, rather than *neo4j.properties* and *neo4j-server.properties* as shown in the previous video using Neo4j v2.2.
 
 Let's set up a cluster with all instances of Neo4j on the same machine.
 This type of configuration is useful in development and testing environments.
@@ -98,7 +101,7 @@ You may now access your three instances in your web browser via:
 * HTTP
 ** `http://127.0.0.1:7474[http://127.0.0.1:7474] (instance one, HTTP)`
 ** `http://127.0.0.1:7475[http://127.0.0.1:7475] (instance two, HTTP)`
-** `http://127.0.0.1:7475[http://127.0.0.1:7475] (instance three, HTTP)`
+** `http://127.0.0.1:7475[http://127.0.0.1:7476] (instance three, HTTP)`
 
 * HTTPS
 ** `https://127.0.0.1:7473[https://127.0.0.1:7473] (instance one, HTTPS)`
