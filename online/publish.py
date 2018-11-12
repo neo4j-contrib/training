@@ -41,7 +41,7 @@ if 'PUBLISH_DOCS_USERNAME' in os.environ and 'PUBLISH_DOCS_PASSWORD' in os.envir
   pageContent = update_wordpress_page(64614, get_page_content('cypher/html/part4.html'))
 
   # Production Course
-  pageContent = update_wordpress_page(56252, get_page_content('production/index_wp.html'))
+  pageContent = update_wordpress_page(87473, get_page_content('production/index_wp.html'))
 else:
   print "Environment varisbles for PUBLISH_DOCS_USERNAME and PUBLISH_DOCS_PASSWORD must be set"
   sys.exit()
