@@ -7,7 +7,7 @@
 :doctype: book
 :toc: left
 :toclevels: 1
-:img: neo4j_in_production/img
+:image: img
 
 ++++
 <script type='text/javascript'>
