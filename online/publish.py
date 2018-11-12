@@ -8,7 +8,7 @@ import os
 Get page content
 '''
 def get_page_content(filename):
-  file = open('cypher/html/%s' % filename)
+  file = open(filename)
   return file.read()
 
 '''
@@ -34,10 +34,14 @@ def update_wordpress_page(pageId, content):
     return pr.content
 
 if 'PUBLISH_DOCS_USERNAME' in os.environ and 'PUBLISH_DOCS_PASSWORD' in os.environ:
-  pageContent = update_wordpress_page(64597, get_page_content('part1.html'))
-  pageContent = update_wordpress_page(64608, get_page_content('part2.html'))
-  pageContent = update_wordpress_page(64611, get_page_content('part3.html'))
-  pageContent = update_wordpress_page(64614, get_page_content('part4.html'))
+  # Intro Course
+  pageContent = update_wordpress_page(64597, get_page_content('cypher/html/part1.html'))
+  pageContent = update_wordpress_page(64608, get_page_content('cypher/html/part2.html'))
+  pageContent = update_wordpress_page(64611, get_page_content('cypher/html/part3.html'))
+  pageContent = update_wordpress_page(64614, get_page_content('cypher/html/part4.html'))
+
+  # Production Course
+  pageContent = update_wordpress_page(56252, get_page_content('production/index_wp.html'))
 else:
   print "Environment varisbles for PUBLISH_DOCS_USERNAME and PUBLISH_DOCS_PASSWORD must be set"
   sys.exit()
