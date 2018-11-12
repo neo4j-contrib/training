@@ -1,0 +1,20 @@
+<%#encoding:UTF-8%><div<%= @id && %( id="#{@id}") %> class="<%= ['listingblock',role].compact * ' ' %>"><%
+if title? %>
+<div class="title"><%= captioned_title %></div><%
+end %>
+<div class="content code-panel" style="width: 100%; height: auto; border: medium 1px;"><%
+nowrap = !(@document.attr? :prewrap) || (option? :nowrap)
+if @style == 'source'
+  language = attr :language
+  pre_lang = language
+  pre_class = ["code cm-s-neo"]
+%>
+<pre style="font-size: 16px; font-weight: 100;" <%= pre_class.empty? ? nil : %( class="#{pre_class * ' '}") %><%= pre_lang && %( data-lang="#{pre_lang}") %>><%= content %></pre><%
+else %>
+<pre<%= nowrap ? ' class="nowrap"' : nil %>><%= content %></pre><%
+end %>
+</div>
+</div>
+<!--
+data-lang=”{language}” class=””
+-->

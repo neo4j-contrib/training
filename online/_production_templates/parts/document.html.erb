@@ -1,0 +1,21 @@
+<div class="row" style="padding-left: 0; padding-right: 0;">
+    <div class="row">
+        <div class="medium-12 columns">
+        <h1><%=(attr :doctitle) %></h1>
+        </div>
+    </div>
+    <div class="large-9 large-push-3 columns guide-section-content">
+       <div id="content">
+        <%= content %>
+       </div>
+    </div>
+    <div class="large-3 large-pull-9 columns"><!--was: sticky-->
+        <% if (attr? :toc)  %>
+        <div id="toc" class="<%= attr 'toc-class', 'toc' %>">
+        <div id="toctitle"><h4><%= attr 'toc-title' %></h4></div>
+        <%= converter.convert self, 'outline' %>
+        </div><% end %>
+        <div>
+	    </div>
+    </div>
+</div>

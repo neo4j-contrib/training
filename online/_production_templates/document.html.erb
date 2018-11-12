@@ -1,0 +1,31 @@
+<div class="row" style="padding-left: 0; padding-right: 0;">
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part1.html">Part 1: Introduction</a>
+    </div>
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part2.html">Part 2: Creating and Querying Graphs</a>
+    </div>
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part3.html">Part 3: Filters and Paths</a>
+    </div>
+    <div class="large-3 columns">
+        <a href="/graphacademy/online/part4.html">Part 4: Indexing, Recommendations, Import</a>
+    </div>
+</div>
+<div class="row" style="padding-left: 0; padding-right: 0;">
+    <div class="large-9 large-push-3 columns guide-section-content">
+       <div id="content">
+        <%= content %>
+       </div>
+    </div>
+    <div class="large-3 large-pull-9 columns sticky">
+        <div><a href="/graphacademy"><image src="http://dev.assets.neo4j.com.s3.amazonaws.com/wp-content/uploads/neo4j_logo-325x150.png"></a></div>
+        <%
+            if (attr? :toc)  %>
+        <div id="toc" class="<%= attr 'toc-class', 'toc' %>">
+        <div id="toctitle"><%= attr 'toc-title' %></div>
+        <%= converter.convert self, 'outline' %>
+        </div><%
+    end %>
+    </div>
+</div>
