@@ -7,7 +7,6 @@
 :doctype: book
 :toc: left
 :toclevels: 1
-:image: image
 
 ++++
 <script type='text/javascript'>
