@@ -1,0 +1,341 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Similarity</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+   <h4>Similarity</h4>
+   
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Similarity Algorithms</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this section we&#8217;ll learn how to use the Similarity Algorithms.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Overlap Similarity: Definition</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The <a href="https://neo4j.com/docs/graph-algorithms/current/algorithms/similarity-overlap/" target="_blank" rel="noopener">Overlap Similarity</a> algorithm measures overlap between two sets.
+It is defined as the size of the intersection of two sets, divided by the size of the smaller of the two sets.</p>
+</div>
+<div class="paragraph">
+<p>It is computed using the following formula:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://guides.neo4j.com/sandbox/applied_graph_algorithms/images/overlap.svg" alt="overlap">
+</div>
+</div>
+<div class="paragraph">
+<p>This algorithms is good for finding hierarchy in use tagged data.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Overlap Similarity: Yelp Categories</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In the Yelp data businesses are tagged with categories, and this type of data is a perfect fit for overlap similarity.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s start by writing a Cypher query to find out which categories are tagged together most often:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (cat1:Category)&lt;-[:IN_CATEGORY]-()-[:IN_CATEGORY]-(cat2)
+RETURN cat1.name, cat2.name, count(*) AS count
+ORDER BY count DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>From the output of this query we learn that the 'Doctors' and 'Health &amp; Medical' categories co-occur more than 1,000 times.
+There are many other pairs of categories that are used together frequently as well.</p>
+</div>
+<div class="paragraph">
+<p>But which category is a subset of the other?</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Overlap Similarity: Dummy Data</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We want to compute the similarity of categories based on the same businesses being tagged with that category.
+But let&#8217;s first see how the algorithm works with some dummy data.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH [
+  {item: 7, categories: [10,11,12]},
+  {item: 8, categories: [10,11]},
+  {item: 9, categories: [11,12,13,14,15]}
+] AS data
+CALL algo.similarity.overlap.stream(data)
+YIELD item1, item2, similarity
+RETURN item1, item2, similarity
+ORDER BY similarity DESC<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this dummy dataset, item <code>8</code> has a similarity score of <code>1.0</code> with item <code>7</code>, which means that item <code>8</code> is a complete subset of item <code>7</code>.
+Item <code>7</code> itself is a subset of item <code>9</code>, but it’s not a complete subset as item <code>7</code> has one category that item 9 does not.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Overlap Similarity: Yelp Hierarchy</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>ow we want to run the algorithm on the Yelp dataset.
+We need to build a collection of items like we did in our previous example, but this time the collection will consist of data from our graph rather than being hard coded.</p>
+</div>
+<div class="paragraph">
+<p>The following query returns a stream of categories and their counts and similarities:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (category:Category)&lt;-[:IN_CATEGORY]-(business)
+WITH {item:id(category), categories: collect(id(business))} AS userData
+
+WITH collect(userData) as data
+
+CALL algo.similarity.overlap.stream(data, {
+  similarityCutoff: 0.75
+})
+
+YIELD item1, item2, similarity, count1, count2
+RETURN algo.asNode(item1).name AS cat1, algo.asNode(item2).name AS cat2, count1, count2, similarity
+ORDER BY similarity DESC
+LIMIT 10<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In each of the rows, <code>cat</code> is a subset of <code>cat2</code>.
+For some of the categories this makes sense, for others less so - it depends how much tagged data we have.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Overlap Similarity: Writing to the graph: Exercise</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Can you tweak our previous query to create <code>NARROWER_THAN</code> relationships between pairs of nodes that are similar?</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title=""></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>We&#8217;ll need to use the <a href="https://neo4j.com/docs/graph-algorithms/current/algorithms/similarity-overlap/#algorithms-similarity-overlap-syntax" target="_blank" rel="noopener">write variant</a> of the algorithm, rather than the streaming variant.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Overlap Similarity: Writing to the graph: Answer</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Our query should read like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (category:Category)&lt;-[:IN_CATEGORY]-(business)
+WITH {item:id(category), categories: collect(id(business))} AS userData
+
+WITH collect(userData) as data
+
+CALL algo.similarity.overlap(data, {
+  write: true, similarityCutoff: 0.75
+})
+
+YIELD nodes, similarityPairs, p50, p75, p90, p99
+RETURN nodes, similarityPairs, p50, p75, p90, p99;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Overlap Similarity: Querying the hierarchy</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can now write the following query to inspect the hierarchy that&#8217;s been created between our categories:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH path = (cat:Category)&lt;-[:NARROWER_THAN*]-(subCat)
+WHERE length(path) &gt; 4
+RETURN path<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Jaccard Similarity: Businesses</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Jaccard Similarity (coefficient), a term coined by Paul Jaccard, measures similarities between sets.
+It is defined as the size of the intersection divided by the size of the union of two sets.</p>
+</div>
+<div class="paragraph">
+<p>It is computed using the following formula:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://neo4j.com/docs/graph-algorithms/current/images/jaccard.png" alt="jaccard">
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Jaccard Similarity: Business Similarity Graph</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can use this algorithm to create a Business Similarity Graph.
+The following query finds the 10 (<code>topK:10</code>) most similar businesses to each business, and creates a <code>SIMILAR</code> relationship between those businesses.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (b:Business)-[:IN_CATEGORY]-&gt;(category)
+WITH {item:id(b), categories: collect(id(category))} as userData
+
+WITH collect(userData) as data
+
+CALL algo.similarity.jaccard(data, {topK: 10, similarityCutoff: 0.75, write: true})
+
+YIELD p25, p50, p90, p99, p999, p100,  write
+RETURN p25, p50, p90, p99, p999, p100, write<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Jaccard Similarity: Querying the Business Similarity Graph</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can now write the following query to query the Business Similarity Graph:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (b:Business {name: "Geico Insurance"})-[similar:SIMILAR]-&gt;(other)
+RETURN other.name, similar.score, [(b)-[:IN_CATEGORY]-&gt;(c) | c.name] AS categories<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

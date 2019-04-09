@@ -1,0 +1,145 @@
+<style type="text/css" media="screen">
+/*
+.nodes-image {
+	margin:-100;
+}
+*/	
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css");
+
+.imageblock .content img, .image img {max-width: 900px;max-height: 300px;}
+.deck h3, .deck h4 {display: block !important;margin-bottom:8px;margin-top:5px;}
+.listingblock {margin:8px;}
+.pull-bottom {position:relative;bottom:1em;}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.admonitionblock.note.speaker { display:none; }
+</style>
+<style type="text/css" media="screen">
+#editor.maximize-editor .CodeMirror-code { font-size:24px; line-height:26px; }
+</style>
+<article class="guide" ng-controller="AdLibDataController">
+  <carousel class="deck container-fluid">
+    <!--slide class="row-fluid">
+      <div class="col-sm-3">
+        <h3>Community Detection</h3>
+        <p class="lead">Information</p>
+			<!dl>
+				
+				
+				
+				
+				
+			</dl>
+		</div>
+      <div class="col-sm-9">
+        <figure>
+          <img style="width:300px" src=""/>
+        </figure>
+      </div>
+    </slide-->
+    
+
+
+   <h4>Community Detection</h4>
+   
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Community Detection Algorithms</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>In this section we&#8217;ll learn how to use the Community Detection Algorithms.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Label Propagation: Definition</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>The Label Propagation algorithm is a fast algorithm for finding communities in a graph.
+It detects these communities using network structure alone as its guide, and does not require a pre-defined objective function or prior information about the communities.</p>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Label Propagation: Business Graph</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can use this algorithms to find communities or clusters of photos based on the similarity graph that we created in the similarity guide.</p>
+</div>
+<div class="paragraph">
+<p>The following query will execute the write version of this algorithm, and return a histogram of community sizes, but won&#8217;t write the results to the database (<code>write: false</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.labelPropagation("Business", "SIMILAR", "OUTGOING", {
+  direction: "BOTH", write: false, iterations: 10, weightProperty: "score"
+})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Label Propagation: Photos</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can have the algorithm store the community of each photo in the 'partition' property by setting that config key to <code>true</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.labelPropagation("Business", "SIMILAR", "OUTGOING", {
+  direction: "BOTH", write: true, iterations: 10, weightProperty: "score"
+})<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Label Propagation: Querying Business Clusters</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>We can explore the clusters of businesses by running the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (b:Business)
+RETURN b.partition AS partition, count(*) AS count, collect(b.name)[..10] AS businesses
+ORDER BY count DESC
+LIMIT 5<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+  </carousel>
+</article>

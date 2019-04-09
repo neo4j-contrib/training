@@ -10,6 +10,10 @@ function render {
   $GUIDES/run.sh 02_path_finding.adoc 02_path_finding.html +1 "$@"
   $GUIDES/run.sh 03_centrality.adoc 03_centrality.html +1 "$@"
   $GUIDES/run.sh 04_community_detection.adoc 04_community_detection.html +1 "$@"
+
+  $GUIDES/run.sh yelp.adoc yelp.html +1 "$@"
+  $GUIDES/run.sh 05_yelp_similarity.adoc 05_yelp_similarity.html +1 "$@"
+  $GUIDES/run.sh 06_yelp_community_detection.adoc 06_yelp_community_detection.html +1 "$@"
 }
 
 # -a env-training is a flag to enable full content, if you comment it out, the guides are rendered minimally e.g. for a presentation

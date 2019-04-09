@@ -1,0 +1,39 @@
+= Neo4j Graph Algorithms
+
+== Welcome to Neo4j Graph Algorithms
+
+++++
+<div class="col-lg-10">
+++++
+
+Welcome to a set of interactive guides where you'll learn how to use Neo4j Graph Algorithms.
+The guides below are designed to work on the Yelp Phoenix 2018 dataset:
+
+. pass:a[<a play-topic='{guides}/05_yelp_similarity.html'>Similarity Algorithms</a>]
+. pass:a[<a play-topic='{guides}/06_yelp_community_detection.html'>Community Detection Algorithms</a>]
+
+++++
+</div>
+++++
+
+++++
+<div class="col-lg-2">
+++++
+
+[subs=attributes]
+++++
+<img src="{img}/overview.png" class="img-responsive" width="300px">
+++++
+
+
+++++
+</div>
+++++
+
+== Further Resources
+
+* http://neo4j.com/graphgists[Graph Gist Examples]
+* http://neo4j.com/docs/stable/cypher-refcard/[Cypher Reference Card]
+* http://neo4j.com/docs/developer-manual/current/#cypher-query-lang[Neo4j Developer Manual]
+* http://neo4j.com/developer/resources#_neo4j_cypher_resources[Cypher Resource Collection]
+* http://graphdatabases.com[e-book: Graph Databases (free)]

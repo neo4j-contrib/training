@@ -1,0 +1,166 @@
+= Similarity
+:icons: font
+:csv-url: https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data
+
+== Similarity Algorithms
+
+In this section we'll learn how to use the Similarity Algorithms.
+
+== Overlap Similarity: Definition
+
+The https://neo4j.com/docs/graph-algorithms/current/algorithms/similarity-overlap/[Overlap Similarity^] algorithm measures overlap between two sets.
+It is defined as the size of the intersection of two sets, divided by the size of the smaller of the two sets.
+
+It is computed using the following formula:
+
+image::https://guides.neo4j.com/sandbox/applied_graph_algorithms/images/overlap.svg[]
+
+This algorithms is good for finding hierarchy in use tagged data.
+
+== Overlap Similarity: Yelp Categories
+
+In the Yelp data businesses are tagged with categories, and this type of data is a perfect fit for overlap similarity.
+
+Let's start by writing a Cypher query to find out which categories are tagged together most often:
+
+[source, cypher]
+----
+MATCH (cat1:Category)<-[:IN_CATEGORY]-()-[:IN_CATEGORY]-(cat2)
+RETURN cat1.name, cat2.name, count(*) AS count
+ORDER BY count DESC
+LIMIT 10
+----
+
+From the output of this query we learn that the 'Doctors' and 'Health & Medical' categories co-occur more than 1,000 times.
+There are many other pairs of categories that are used together frequently as well.
+
+But which category is a subset of the other?
+
+
+== Overlap Similarity: Dummy Data
+
+We want to compute the similarity of categories based on the same businesses being tagged with that category.
+But let's first see how the algorithm works with some dummy data.
+
+
+[source, cypher]
+----
+WITH [
+  {item: 7, categories: [10,11,12]},
+  {item: 8, categories: [10,11]},
+  {item: 9, categories: [11,12,13,14,15]}
+] AS data
+CALL algo.similarity.overlap.stream(data)
+YIELD item1, item2, similarity
+RETURN item1, item2, similarity
+ORDER BY similarity DESC
+----
+
+In this dummy dataset, item `8` has a similarity score of `1.0` with item `7`, which means that item `8` is a complete subset of item `7`.
+Item `7` itself is a subset of item `9`, but it’s not a complete subset as item `7` has one category that item 9 does not.
+
+== Overlap Similarity: Yelp Hierarchy
+
+Now we want to run the algorithm on the Yelp dataset.
+We need to build a collection of items like we did in our previous example, but this time the collection will consist of data from our graph rather than being hard coded.
+
+The following query returns a stream of categories and their counts and similarities:
+
+[source,cypher]
+----
+MATCH (category:Category)<-[:IN_CATEGORY]-(business)
+WITH {item:id(category), categories: collect(id(business))} AS userData
+
+WITH collect(userData) as data
+
+CALL algo.similarity.overlap.stream(data, {
+  similarityCutoff: 0.75
+})
+
+YIELD item1, item2, similarity, count1, count2
+RETURN algo.asNode(item1).name AS cat1, algo.asNode(item2).name AS cat2, count1, count2, similarity
+ORDER BY similarity DESC
+LIMIT 10
+----
+
+In each of the rows, `cat` is a subset of `cat2`.
+For some of the categories this makes sense, for others less so - it depends how much tagged data we have.
+
+== Overlap Similarity: Writing to the graph: Exercise
+
+Can you tweak our previous query to create `NARROWER_THAN` relationships between pairs of nodes that are similar?
+
+[NOTE]
+====
+We'll need to use the https://neo4j.com/docs/graph-algorithms/current/algorithms/similarity-overlap/#algorithms-similarity-overlap-syntax[write variant^] of the algorithm, rather than the streaming variant.
+====
+
+== Overlap Similarity: Writing to the graph: Answer
+
+Our query should read like this:
+
+
+[source,cypher]
+----
+MATCH (category:Category)<-[:IN_CATEGORY]-(business)
+WITH {item:id(category), categories: collect(id(business))} AS userData
+
+WITH collect(userData) as data
+
+CALL algo.similarity.overlap(data, {
+  write: true, similarityCutoff: 0.75
+})
+
+YIELD nodes, similarityPairs, p50, p75, p90, p99
+RETURN nodes, similarityPairs, p50, p75, p90, p99;
+----
+
+== Overlap Similarity: Querying the hierarchy
+
+We can now write the following query to inspect the hierarchy that's been created between our categories:
+
+[source, cypher]
+----
+MATCH path = (cat:Category)<-[:NARROWER_THAN*]-(subCat)
+WHERE length(path) > 4
+RETURN path
+----
+
+
+== Jaccard Similarity: Businesses
+
+Jaccard Similarity (coefficient), a term coined by Paul Jaccard, measures similarities between sets.
+It is defined as the size of the intersection divided by the size of the union of two sets.
+
+It is computed using the following formula:
+
+image::https://neo4j.com/docs/graph-algorithms/current/images/jaccard.png[]
+
+== Jaccard Similarity: Business Similarity Graph
+
+We can use this algorithm to create a Business Similarity Graph.
+The following query finds the 10 (`topK:10`) most similar businesses to each business, and creates a `SIMILAR` relationship between those businesses.
+
+[source,cypher]
+----
+MATCH (b:Business)-[:IN_CATEGORY]->(category)
+WITH {item:id(b), categories: collect(id(category))} as userData
+
+WITH collect(userData) as data
+
+CALL algo.similarity.jaccard(data, {topK: 10, similarityCutoff: 0.75, write: true})
+
+YIELD p25, p50, p90, p99, p999, p100,  write
+RETURN p25, p50, p90, p99, p999, p100, write
+----
+
+
+== Jaccard Similarity: Querying the Business Similarity Graph
+
+We can now write the following query to query the Business Similarity Graph:
+
+[source, cypher]
+----
+MATCH (b:Business {name: "Geico Insurance"})-[similar:SIMILAR]->(other)
+RETURN other.name, similar.score, [(b)-[:IN_CATEGORY]->(c) | c.name] AS categories
+----

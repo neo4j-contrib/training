@@ -1,0 +1,55 @@
+= Community Detection
+:icons: font
+:csv-url: https://raw.githubusercontent.com/mathbeveridge/asoiaf/master/data
+
+== Community Detection Algorithms
+
+In this section we'll learn how to use the Community Detection Algorithms.
+
+== Label Propagation: Definition
+
+The Label Propagation algorithm is a fast algorithm for finding communities in a graph.
+It detects these communities using network structure alone as its guide, and does not require a pre-defined objective function or prior information about the communities.
+
+
+== Label Propagation: Business Graph
+
+We can use this algorithms to find communities or clusters of photos based on the similarity graph that we created in the similarity guide.
+
+The following query will execute the write version of this algorithm, and return a histogram of community sizes, but won't write the results to the database (`write: false`):
+
+[source, cypher]
+----
+CALL algo.labelPropagation("Business", "SIMILAR", "OUTGOING", {
+  direction: "BOTH", write: false, iterations: 10, weightProperty: "score"
+})
+----
+
+== Label Propagation: Photos
+
+We can have the algorithm store the community of each photo in the 'partition' property by setting that config key to `true`:
+
+[source, cypher]
+----
+CALL algo.labelPropagation("Business", "SIMILAR", "OUTGOING", {
+  direction: "BOTH", write: true, iterations: 10, weightProperty: "score"
+})
+----
+
+
+== Label Propagation: Querying Business Clusters
+
+We can explore the clusters of businesses by running the following query:
+
+[source, cypher]
+----
+
+MATCH (b:Business)
+RETURN b.partition AS partition, count(*) AS count, collect(b.name)[..10] AS businesses
+ORDER BY count DESC
+LIMIT 5
+----
+
+
+
+
