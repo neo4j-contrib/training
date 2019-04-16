@@ -78,7 +78,7 @@ CALL algo.similarity.overlap.stream(data, {
 })
 
 YIELD item1, item2, similarity, count1, count2
-RETURN algo.asNode(item1).name AS cat1, algo.asNode(item2).name AS cat2, count1, count2, similarity
+RETURN algo.getNodeById(item1).name AS cat1, algo.getNodeById(item2).name AS cat2, count1, count2, similarity
 ORDER BY similarity DESC
 LIMIT 10
 ----

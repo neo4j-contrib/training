@@ -158,7 +158,7 @@ Item <code>7</code> itself is a subset of item <code>9</code>, but it’s not a 
     <br/>
     <div>
       <div class="paragraph">
-<p>ow we want to run the algorithm on the Yelp dataset.
+<p>Now we want to run the algorithm on the Yelp dataset.
 We need to build a collection of items like we did in our previous example, but this time the collection will consist of data from our graph rather than being hard coded.</p>
 </div>
 <div class="paragraph">
@@ -176,7 +176,7 @@ CALL algo.similarity.overlap.stream(data, {
 })
 
 YIELD item1, item2, similarity, count1, count2
-RETURN algo.asNode(item1).name AS cat1, algo.asNode(item2).name AS cat2, count1, count2, similarity
+RETURN algo.getNodeById(item1).name AS cat1, algo.getNodeById(item2).name AS cat2, count1, count2, similarity
 ORDER BY similarity DESC
 LIMIT 10<!--/code--></pre>
 </div>
