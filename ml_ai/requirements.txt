@@ -2,7 +2,7 @@ appnope==0.1.0
 atomicwrites==1.2.1
 attrs==18.2.0
 backcall==0.1.0
-bleach==2.1.4
+bleach==3.1.1
 certifi==2018.8.24
 click==6.7
 colorama==0.3.9
