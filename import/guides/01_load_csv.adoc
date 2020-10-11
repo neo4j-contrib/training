@@ -175,6 +175,8 @@ MERGE (flight)-[:DESTINATION]->(destination)
 
 We've now got 50,000 flights in the database, which we can check by executing the following query:
 
+WARNING: If you don't have enough heap configured, this query will fail, despite the `PERIODIC COMMIT`, that's because of the `Eager` operator that's inserted by the double `MERGE` on the same label-property combination.
+
 [source,cypher]
 ----
 MATCH (:Flight)

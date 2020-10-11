@@ -76,7 +76,7 @@ Now retry the import command:
 ----
 CALL apoc.import.graphml(
   "http://sonetlab.fbk.eu/data/social_networks_of_wikipedia/vecwiki_social_network_extraction/vecwiki-20091230-manual-coding.graphml",
-  { batchSize: 5000, readLabels: true }
+  { batchSize: 5000, readLabels: true, defaultRelationshipType:'RELATED' }
 )
 ----
 
@@ -189,7 +189,7 @@ Now let's create nodes representing each of the people in the batch:
 
 [source,cypher]
 ----
-UNWIND {batch} AS row
+UNWIND $batch AS row
 call apoc.create.node(row.labels, row.props) YIELD node
 RETURN count(*)
 ----
@@ -211,7 +211,7 @@ Can you write a query that creates the appropriate relationship between each per
 
 [source, cypher]
 ----
-UNWIND {batch} AS row
+UNWIND $batch AS row
 
 // lookup nodes
 MATCH (from:Person {...})
@@ -223,7 +223,7 @@ MATCH (from:Person {...})
 
 [source, cypher]
 ----
-UNWIND {batch} AS row
+UNWIND $batch AS row
 MATCH (from:Person {name: row.from})
 MATCH (to:Person {name: row.to})
 CALL apoc.create.relationship(from, row.type, {}, to) yield rel

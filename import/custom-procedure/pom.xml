@@ -12,7 +12,7 @@
   <description>A project showing how to create a Neo4j procedure to import OSM data</description>
 
   <properties>
-    <neo4j.version>3.2.3</neo4j.version>
+    <neo4j.version>4.1.2</neo4j.version>
   </properties>
 
   <dependencies>
@@ -29,9 +29,9 @@
     </dependency>
 
     <!-- Test Dependencies -->
+    <!-- This is used for a utility that lets us start Neo4j with
+         a specific Procedure, which is nice for writing tests. -->
     <dependency>
-      <!-- This is used for a utility that lets us start Neo4j with
-           a specific Procedure, which is nice for writing tests. -->
       <groupId>org.neo4j.test</groupId>
       <artifactId>neo4j-harness</artifactId>
       <version>${neo4j.version}</version>
@@ -42,16 +42,17 @@
       <!-- Used to send cypher statements to our procedure. -->
       <groupId>org.neo4j.driver</groupId>
       <artifactId>neo4j-java-driver</artifactId>
-      <version>1.4.0</version>
+      <version>4.1.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.6.2</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -60,9 +61,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <!-- Neo4j Procedures require Java 8 -->
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>11</source>
+          <target>11</target>
         </configuration>
       </plugin>
       <plugin>

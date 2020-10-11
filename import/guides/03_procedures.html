@@ -68,7 +68,7 @@ You&#8217;ll need to have Java installed on your machine for this exercise.</p>
 <p>OpenStreetMap provides <a href="http://wiki.openstreetmap.org/wiki/Downloading_data" target="_blank">several different to export data</a>, including the Overpass API which allows us to specify the coordinates of a bounded box that we&#8217;d like to download.</p>
 </div>
 <div class="paragraph">
-<p>e.g. <a href="http://overpass.osm.rambler.ru/cgi/xapi_meta?*">bbox=11.54,48.14,11.543,48.145</a></p>
+<p>e.g. <a href="https://overpass-api.de/api/xapi_meta?*">bbox=11.54,48.14,11.543,48.145</a></p>
 </div>
 <div class="paragraph">
 <p>If we open that URI we&#8217;ll see something like this:</p>
@@ -113,7 +113,7 @@ The following query finds the points in a bounded box in Munich:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('https://overpass-api.de/api/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
 YIELD value
 UNWIND value["_children"] AS child
 
@@ -151,7 +151,7 @@ ASSERT p.id is UNIQUE<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('https://overpass-api.de/api/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
 YIELD value
 UNWIND value["_children"] AS child
 
@@ -193,7 +193,7 @@ LIMIT 25<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('https://overpass-api.de/api/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
 YIELD value
 UNWIND value["_children"] AS child
 
@@ -224,7 +224,7 @@ LIMIT 1<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL apoc.load.xml('https://overpass-api.de/api/xapi_meta?*[bbox=11.54,48.14,11.543,48.145]')
 YIELD value
 UNWIND value["_children"] AS child
 
@@ -328,7 +328,7 @@ target/neo4j-procedures-examples-1.0.0-SNAPSHOT.jar<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL osm.importUri('http://overpass.osm.rambler.ru/cgi/xapi_meta?*[bbox=11.54,48.14,11.543, 48.145]')<!--/code--></pre>
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL osm.importUri('https://overpass-api.de/api/xapi_meta?*[bbox=11.54,48.14,11.543, 48.145]')<!--/code--></pre>
 </div>
 </div>
 	</div>
