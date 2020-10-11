@@ -11,5 +11,8 @@ pip install -r requirements.txt
 Once we've done that we can run `import.py` to import data into our graph
 
 ```
-python import.py [Person1] [Person2]
+python import.py name1 name2
 ```
+
+* https://neo4j.com/developer/python
+* https://neo4j.com/docs/api/python-driver/current

@@ -5,5 +5,8 @@ This is an example showing how to use the Neo4j Java driver to import data into 
 Run the following command:
 
 ```
-mvn compile exec:java -Dexec.mainClass="com.neo4j.examples.Import" -Dexec.args="[Person1] [Person2]"
+mvn compile exec:java -Dexec.mainClass="com.neo4j.examples.Import" -Dexec.args="name1 name2"
 ```
+
+* https://neo4j.com/developer/java
+* https://neo4j.com/docs/api/java-driver/current

@@ -7,7 +7,7 @@
     "start": "node import.js"
   },
   "dependencies": {
-    "neo4j-driver": "^1.4.1"
+    "neo4j-driver": "^4.1.0"
   },
   "engines": {
     "node": "6.7.0"

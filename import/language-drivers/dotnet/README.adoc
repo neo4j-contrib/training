@@ -7,17 +7,20 @@ First we need to install the Neo4j driver:
 Package manager:
 
 ```
-Install-Package Neo4j.Driver -Version 1.4.1
+Install-Package Neo4j.Driver -Version 4.1.0
 ```
 
 .NET CLI:
 
 ```
-dotnet add package Neo4j.Driver --version 1.4.1
+dotnet add package Neo4j.Driver --version 4.1.0
 ```
 
 Once we've done that we can execute `Program.cs` to import data into our graph
 
 ```
-dotnet run [Person1] [Person2]
+dotnet run name1 name2
 ```
+
+* https://neo4j.com/developer/dotnet
+* https://neo4j.com/docs/api/dotnet-driver/current

@@ -11,5 +11,8 @@ npm install
 Once we've done that we can run `import.js` to import data into our graph
 
 ```
-node import.js [Person1] [Person2]
+node import.js name1 name2
 ```
+
+* https://neo4j.com/developer/javascript
+* https://neo4j.com/docs/api/javascript-driver/current

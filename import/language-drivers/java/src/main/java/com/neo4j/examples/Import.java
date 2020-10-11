@@ -5,15 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.neo4j.driver.v1.AuthTokens;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.summary.SummaryCounters;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.summary.SummaryCounters;
 
-import static org.neo4j.driver.v1.Values.parameters;
+import static org.neo4j.driver.Values.parameters;
 
 public class Import
 {
@@ -23,7 +23,7 @@ public class Import
         if ( args.length < 2 )
         {
             System.out.println( "Usage: mvn exec:java -Dexec.mainClass=\"com.neo4j.examples.Import\" -Dexec" +
-                    ".args=\"[Person1 Person2]\"" );
+                    ".args=\"name1 name2\"" );
             System.exit( 1 );
         }
 
@@ -31,10 +31,10 @@ public class Import
         {
             try ( Session session = driver.session() )
             {
-                String query = "MERGE (p1:Person {name: {person1} }) MERGE (p2:Person {name: {person2} }) MERGE (p1)" +
-                        "-[:KNOWS]->(p2)";
-                StatementResult result = session.run( query, parameters( "person1", args[0], "person2", args[1] ) );
-                System.out.println( summarise(result.summary().counters()) );
+                String query = "MERGE (p1:Person {name: $person1 }) MERGE (p2:Person {name: $person2 }) "+
+                               "MERGE (p1)-[:KNOWS]->(p2)";
+                Result result = session.run( query, parameters( "person1", args[0], "person2", args[1] ) );
+                System.out.println( summarise(result.consume().counters()) );
             }
         }
     }

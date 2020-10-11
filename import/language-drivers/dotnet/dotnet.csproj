@@ -1,9 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Neo4j.Driver" Version="1.4.1" />
+    <PackageReference Include="Neo4j.Driver" Version="4.1.0" />
   </ItemGroup>
+
 </Project>
