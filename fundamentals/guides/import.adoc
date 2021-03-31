@@ -176,3 +176,11 @@ DETACH DELETE n;
 ----
 :play movies
 ----
+
+== Thank you!
+
+We hope you had fun in this session!
+
+Please fill out the link:http://bit.ly/neo-survey[survey].
+
+image::{img}/survey.png[]

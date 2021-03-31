@@ -3,10 +3,10 @@ GUIDES=../../neo4j-guides
 # git clone http://github.com/jexp/neo4j-guides $GUIDES
 
 function render {
-  $GUIDES/run.sh basics.adoc basics.html +1 "$@"
   $GUIDES/run.sh guides.adoc index.html +1 "$@"
+  $GUIDES/run.sh basics.adoc basics.html +1 "$@"
   $GUIDES/run.sh advanced.adoc advanced.html +1 "$@"
-  $GUIDES/run.sh updates.adoc updates.html +1 "$@"
+  $GUIDES/run.sh import.adoc import.html +1 "$@"
   $GUIDES/run.sh movies.adoc movies.html +1 "$@"
 }
 
