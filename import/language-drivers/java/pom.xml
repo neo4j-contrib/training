@@ -12,7 +12,7 @@
   <description>A project showing how to use the Neo4j Java Driver</description>
 
   <properties>
-    <neo4j.version>3.2.3</neo4j.version>
+    <neo4j.version>3.5.0</neo4j.version>
   </properties>
 
   <dependencies>
